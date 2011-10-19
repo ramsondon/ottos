@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configurations XML_version="1.2" id="configurations_0">
+<configuration XML_version="1.2" id="Texas Instruments XDS100v2 USB Emulator_0">
+        <instance XML_version="1.2" desc="Texas Instruments XDS100v2 USB Emulator_0" href="connections/TIXDS100v2_Connection.xml" id="Texas Instruments XDS100v2 USB Emulator_0" xml="TIXDS100v2_Connection.xml" xmlpath="connections"/>
+        <connection XML_version="1.2" id="Texas Instruments XDS100v2 USB Emulator_0">
+            <instance XML_version="1.2" href="drivers/tixds100v2icepick_c.xml" id="drivers" xml="tixds100v2icepick_c.xml" xmlpath="drivers"/>
+            <instance XML_version="1.2" href="drivers/tixds100v2c64xp.xml" id="drivers" xml="tixds100v2c64xp.xml" xmlpath="drivers"/>
+            <instance XML_version="1.2" href="drivers/tixds100v2dap_pc.xml" id="drivers" xml="tixds100v2dap_pc.xml" xmlpath="drivers"/>
+            <instance XML_version="1.2" href="drivers/tixds100v2cortexA.xml" id="drivers" xml="tixds100v2cortexA.xml" xmlpath="drivers"/>
+            <instance XML_version="1.2" href="drivers/tixds100v2cs_child.xml" id="drivers" xml="tixds100v2cs_child.xml" xmlpath="drivers"/>
+            <instance XML_version="1.2" href="drivers/tixds100v2etbcs.xml" id="drivers" xml="tixds100v2etbcs.xml" xmlpath="drivers"/>
+            <platform XML_version="1.2" id="platform_0">
+                <instance XML_version="1.2" desc="OMAP3530_0" href="devices/OMAP3530.xml" id="OMAP3530_0" xml="OMAP3530.xml" xmlpath="devices"/>
+            </platform>
+        </connection>
+    </configuration>
+</configurations>
