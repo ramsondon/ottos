@@ -26,11 +26,17 @@
 
 #include <ottos/types.h>
 
+enum ProcessState {
+  READY, BLOCKED, RUNNING
+};
+
 class Process {
   public:
-    Process();
+    Process(const pid_t pid);
     virtual ~Process();
-    pid_t pid;
+    const pid_t pid;
+    int priority;
+    ProcessState state;
 };
 
 #endif /* PROCESS_H_ */

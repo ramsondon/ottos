@@ -21,13 +21,15 @@
  *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
+#include <ottos/const.h>
+
 #include "Process.h"
 
-Process::Process() {
-  // TODO Auto-generated constructor stub
+Process::Process(const pid_t pid)
+  : pid(pid) {
 
 }
 
 Process::~Process() {
-  // TODO Auto-generated destructor stub
+
 }
