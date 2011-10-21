@@ -1,4 +1,4 @@
-/* Process.h
+/* const.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -21,22 +21,17 @@
  *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#ifndef PROCESS_H_
-#define PROCESS_H_
+#ifndef CONST_H_
+#define CONST_H_
 
-#include <ottos/types.h>
+#define EXTERN  extern
+#define PRIVATE static
+#define PUBLIC
 
-enum ProcessState {
-  READY, BLOCKED, RUNNING
-};
+#define NULL    ((void *)0)
 
-class Process {
-  public:
-    Process(const pid_t pid);
-    virtual ~Process();
-    const pid_t pid;
-    int priority;
-    ProcessState state;
-};
+#define TRUE    1
+#define FALSE   0
 
-#endif /* PROCESS_H_ */
+
+#endif /* CONST_H_ */
