@@ -1,4 +1,4 @@
-/* ottos.cc
+/* types.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,15 +17,13 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Oct 19, 2011
- *      Author: Matthias Schmid <m.schmid@students.fhv.at>
+ *  Created on: 21.10.2011
+ *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#include <stdio.h>
+#ifndef OTTOS_TYPES_H_
+#define OTTOS_TYPES_H_
 
-#include "kernel/pm/Process.h"
+typedef int pid_t;
 
-int main(int argc, char **argv) {
-
-  return 0;
-}
+#endif /* OTTOS_TYPES_H_ */
