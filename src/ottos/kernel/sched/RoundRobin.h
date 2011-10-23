@@ -1,4 +1,4 @@
-/* Scheduler.h
+/* RoundRobin.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,36 +17,29 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Oct 21, 2011
+ *  Created on: Oct 23, 2011
  *      Author: Matthias Schmid <m.schmid@students.fhv.at>
  */
 
-#ifndef SCHEDULER_H_
-#define SCHEDULER_H_
+#ifndef ROUNDROBIN_H_
+#define ROUNDROBIN_H_
 
 #include "../pm/Process.h"
-#include "RoundRobin.h"
 
-
-/* class Scheduler
- *
- * schedules the current processes.
- *
- */
-class Scheduler {
+class RoundRobin {
   public:
+    static const int kInvalidProcess = -1;
     /* constructor */
-    Scheduler(RoundRobin algo);
+    RoundRobin();
     /* destructor */
-    ~Scheduler();
-    /* gets the next proc to be executed. does not change any states in procs.*/
-    int next(Process procs[], int size);
-
-  private:
-    /* the current process index */
-    int current_;
-    /* internal scheduling algorithm */
-    RoundRobin algorithm_;
+    virtual ~RoundRobin();
+    /*
+     * determines the next proc to be executed in round robin style.
+     *
+     * @returns int the index of the next proc to be executed or -1 if no
+     * proc is READY or no proc available
+     */
+    int next(Process** procs, int cur_proc, int nr_of_procs);
 };
 
-#endif /* SCHEDULER_H_ */
+#endif /* ROUNDROBIN_H_ */
