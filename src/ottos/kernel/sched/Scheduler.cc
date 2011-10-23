@@ -26,7 +26,7 @@
 #include "RoundRobin.h"
 
 Scheduler::Scheduler(RoundRobin algo) {
-  current_ = 0;
+  current_ = -1;            /* no proc has started yet; current_ is -1 */
   algorithm_ = algo;
 }
 
