@@ -40,22 +40,21 @@ class Scheduler {
     Scheduler(ProcessManager* process_manager);
     /* destructor */
     ~Scheduler();
+    // initializes the Scheduler
+    void init(void);
+    /* runs the scheduler */
+    void run(void);
+
+  private:
+    /* the current process index */
+    int current_;
+    /* internal scheduling algorithm */
+    ProcessManager* process_manager_;
+
     /* gets the next proc to be executed. does not change any states in procs.*/
     pid_t next();
     /* returns the index of the current proc */
     pid_t current(void);
-    // initializes the Scheduler
-    void init(void);
-
-    void run(void);
-  private:
-    /* the current process index */
-    int current_;
-    /* the current process pid */
-    pid_t cpid_;
-    /* internal scheduling algorithm */
-    ProcessManager* process_manager_;
-
 };
 
 #endif /* SCHEDULER_H_ */

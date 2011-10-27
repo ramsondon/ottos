@@ -52,6 +52,10 @@ int ProcessManager::switch_process(pid_t to)
   return -1;
 }
 
+pid_t ProcessManager::current_process() {
+  return current_;
+}
+
 pid_t ProcessManager::add(Process *proc)
 {
   // TODO(fdomig@gmail.com) must use ATOMIC_START

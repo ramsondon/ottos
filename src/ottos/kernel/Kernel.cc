@@ -84,7 +84,7 @@ void Kernel::run()
   // }
 
   // start scheduling
-  // scheduler->next();
+  scheduler->run();
 }
 
 
