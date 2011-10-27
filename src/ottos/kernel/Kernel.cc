@@ -59,8 +59,17 @@ void Kernel::run()
   Process* p = new Process();
   process_manager->add(p);
 
+  // pseudo code for creation of the first process
+  //
+  // if (fork() == 0) {
+  //     switch_to_user_mode();
+  //     exit(exec(p->pid));
+  // } else {
+  //     waitpid(p->pid);
+  // }
+
   // start scheduling
-  // scheduler->next();
+  scheduler->next();
 }
 
 
