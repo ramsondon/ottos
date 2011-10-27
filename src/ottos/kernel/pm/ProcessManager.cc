@@ -37,7 +37,9 @@ ProcessManager::~ProcessManager() {
 }
 
 void ProcessManager::init() {
-
+  for(int i = 0;i<PROCESS_MAX_COUNT; i++) {
+    process_table_[i] = NULL;
+  }
 }
 
 int ProcessManager::run(function_t function)
@@ -49,7 +51,17 @@ int ProcessManager::run(function_t function)
 
 int ProcessManager::switch_process(pid_t to)
 {
-  return -1;
+  // TODO(fdomig@gmail.com) must use ATOMIC_START
+  // TODO save process relevant data (registers, etc)
+  process_table_[current_]->state = READY;
+
+  current_ = to;
+  process_table_[current_]->state = RUNNING;
+
+  process_table_[to]->func();
+
+  // TODO(fdomig@gmail.com) must use ATOMIC_END
+  return 0;
 }
 
 pid_t ProcessManager::current_process() {
@@ -60,9 +72,10 @@ pid_t ProcessManager::add(Process *proc)
 {
   // TODO(fdomig@gmail.com) must use ATOMIC_START
   for(int i = 0;i<PROCESS_MAX_COUNT; i++) {
-    if (process_table_[i] != NULL) {
+    if (process_table_[i] == NULL) {
       process_table_[i] = proc;
       proc->pid = (pid_t) i;
+      proc->state = READY;
       return proc->pid;
     }
   }

@@ -1,4 +1,4 @@
-/* SyscallHandler.h
+/* led_1_test.c
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -21,22 +21,44 @@
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#ifndef SYSCALLHANDLER_H_
-#define SYSCALLHANDLER_H_
+#include <ottos/system.h>
 
-class Scheduler;
+#include "led_test.h"
 
-class SyscallHandler {
-  public:
-    SyscallHandler(Scheduler* scheduler);
-    virtual ~SyscallHandler();
+int toggle_led1() {
+  volatile int i;
 
-    void handle();
-  private:
-    Scheduler* scheduler_;
+  *(volatile unsigned long *)GPIO5_OE |= SET_BIT(LED_DEVICE_USR0);
 
+  for (i = 0;; i++) {
+    if (i > 100000) {
+      i = 0;
 
-    void syscall_yield();
-};
+      // switch led 1
+      *(volatile unsigned long *) GPIO5_DATAOUT ^= SET_BIT(LED_DEVICE_USR0);
 
-#endif /* SYSCALLHANDLER_H_ */
+      sched_yield();
+    }
+  }
+
+  return 0;
+}
+
+int toggle_led2() {
+  volatile int i;
+
+  *(volatile unsigned long *)GPIO5_OE |= SET_BIT(LED_DEVICE_USR1);
+
+  for (i = 0;; i++) {
+    if (i > 100000) {
+      i = 0;
+
+      // switch led 2
+      *(volatile unsigned long *) GPIO5_DATAOUT ^= SET_BIT(LED_DEVICE_USR1);
+
+      sched_yield();
+    }
+  }
+
+  return 0;
+}

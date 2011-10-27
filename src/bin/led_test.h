@@ -1,4 +1,4 @@
-/* SyscallHandler.h
+/* led_1_test.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -21,22 +21,24 @@
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#ifndef SYSCALLHANDLER_H_
-#define SYSCALLHANDLER_H_
+#ifndef LED_1_TEST_H_
+#define LED_1_TEST_H_
 
-class Scheduler;
+#define GPIO5_OE 0x49054034       /* GPIO5 output enable address */
+#define GPIO5_DATAOUT 0x4905603C  /* GPIO5 data out register address*/
 
-class SyscallHandler {
-  public:
-    SyscallHandler(Scheduler* scheduler);
-    virtual ~SyscallHandler();
+#define SET_BIT(bit) (1<<bit)     /* Sets the specified bit to 1 */
 
-    void handle();
-  private:
-    Scheduler* scheduler_;
+extern int toggle_led1(void);
+extern int toggle_led2(void);
 
 
-    void syscall_yield();
-};
+typedef enum LED_DEVICE
+{
+// Led USR0
+  LED_DEVICE_USR0 = 22,
+// Led USR1
+  LED_DEVICE_USR1 = 21
+} LED_DEVICE;
 
-#endif /* SYSCALLHANDLER_H_ */
+#endif /* LED_1_TEST_H_ */
