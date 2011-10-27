@@ -32,7 +32,6 @@
 
 Scheduler::Scheduler(ProcessManager* process_manager) {
   current_ = -1;            /* no proc has started yet; current_ is -1 */
-  cpid_ = PID_INVALID;
   process_manager_ = process_manager;
 }
 
@@ -45,6 +44,7 @@ void Scheduler::init() {
 
 pid_t Scheduler::next() {
 
+  // get process table
   Process** process_table = process_manager_->process_table();
 
   // schedule round robin
@@ -53,9 +53,8 @@ pid_t Scheduler::next() {
 
     // if next process is ready
     if (process_table[i] != 0 && process_table[i]->state == READY) {
-//      current_ = i;
-//      return process_table[current_]->pid;
-      return process_table[i]->pid;
+      current_ = i;
+      return process_table[current_]->pid;
     }
   }
 
