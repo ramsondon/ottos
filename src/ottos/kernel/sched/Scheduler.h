@@ -40,7 +40,9 @@ class Scheduler {
     /* destructor */
     ~Scheduler();
     /* gets the next proc to be executed. does not change any states in procs.*/
-    int next(Process procs[], int size);
+    int next(Process** procs, int size);
+    /* returns the index of the current proc */
+    int current(void);
 
   private:
     /* the current process index */
