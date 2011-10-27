@@ -1,4 +1,4 @@
-/* const.h
+/* SyscallHandler.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,23 +17,17 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 21.10.2011
- *      Author: Franziskus Domig <fdomig@gmail.com>
+ *  Created on: 27 Oct 2011
+ *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#ifndef CONST_H_
-#define CONST_H_
+#ifndef SYSCALLHANDLER_H_
+#define SYSCALLHANDLER_H_
 
-#define EXTERN  extern
-#define PRIVATE static
-#define PUBLIC
+class SyscallHandler {
+  public:
+    SyscallHandler();
+    virtual ~SyscallHandler();
+};
 
-#define NULL    0
-
-#define TRUE    1
-#define FALSE   0
-
-#define PID_INVALID -1
-
-
-#endif /* CONST_H_ */
+#endif /* SYSCALLHANDLER_H_ */
