@@ -36,7 +36,7 @@
 class Scheduler {
   public:
     /* constructor */
-    Scheduler(RoundRobin algo);
+    Scheduler();
     /* destructor */
     ~Scheduler();
     /* gets the next proc to be executed. does not change any states in procs.*/
