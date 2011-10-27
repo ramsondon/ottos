@@ -36,6 +36,9 @@ class ProcessManager {
 
     int run(function_t function);
     int switchProcess(pid_t to);
+    pid_t add(Process* proc);
+    void init();
+
 
   private:
     pid_t current_;

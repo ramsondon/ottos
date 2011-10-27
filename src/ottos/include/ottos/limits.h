@@ -24,7 +24,7 @@
 #ifndef LIMITS_H_
 #define LIMITS_H_
 
-// TODO include hal to get memory size and so on
+// TODO(thomas.bargetz.gmail.com) include hal to get memory size and so on
 
 #define MEMORY_SIZE 100
 #define PROCESS_SIZE 10

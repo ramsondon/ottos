@@ -40,11 +40,13 @@ void Kernel::init()
 {
   // TODO(thomas.bargetz@gmail.com) create kernel space and user space in memory
 
-  // create the scheduler
-  *scheduler = Scheduler();
-
   // create the process manager
   *process_manager = ProcessManager();
+  process_manager->init();
+
+  // create the scheduler
+  //*scheduler = Scheduler(process_manager);
+  // scheduler->init();
 
   // create the system call handler
   *syscall_handler = SyscallHandler();
@@ -53,6 +55,11 @@ void Kernel::init()
 void Kernel::run()
 {
   // TODO(thomas.bargetz@gmail.com) create init process
+  Process* p = new Process(PID_INVALID);
+  process_manager->add(p);
+
+  // start scheduling
+  // scheduler->next();
 }
 
 

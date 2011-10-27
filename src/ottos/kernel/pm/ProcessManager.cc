@@ -21,6 +21,10 @@
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
+#include <ottos/const.h>
+
+#include "Process.h"
+
 #include "ProcessManager.h"
 
 ProcessManager::ProcessManager() {
@@ -30,6 +34,10 @@ ProcessManager::ProcessManager() {
 
 ProcessManager::~ProcessManager() {
   // TODO Auto-generated destructor stub
+}
+
+void ProcessManager::init() {
+
 }
 
 int ProcessManager::run(function_t function)
@@ -43,5 +51,21 @@ int ProcessManager::switchProcess(pid_t to)
 {
   return -1;
 }
+
+pid_t ProcessManager::add(Process *proc)
+{
+  // TODO(fdomig@gmail.com) must use ATOMIC_START
+  for(int i = 0;i<PROCESS_MAX_COUNT; i++) {
+    if (process_table_[i] != NULL) {
+      process_table_[i] = proc;
+      proc->pid = (pid_t) i;
+      return proc->pid;
+    }
+  }
+  return PID_INVALID;
+  // TODO(fdomig@gmail.com) must use ATOMIC_END
+}
+
+
 
 
