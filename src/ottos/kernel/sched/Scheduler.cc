@@ -39,6 +39,10 @@ Scheduler::Scheduler(ProcessManager* process_manager) {
 Scheduler::~Scheduler() {
 }
 
+void Scheduler::init() {
+
+}
+
 pid_t Scheduler::next() {
 
   Process** process_table = process_manager_->process_table();
