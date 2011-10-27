@@ -47,6 +47,7 @@ class Scheduler {
     // initializes the Scheduler
     void init(void);
 
+    void run(void);
   private:
     /* the current process index */
     int current_;
@@ -55,7 +56,6 @@ class Scheduler {
     /* internal scheduling algorithm */
     ProcessManager* process_manager_;
 
-    void run(void);
 };
 
 #endif /* SCHEDULER_H_ */
