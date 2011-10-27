@@ -47,7 +47,7 @@ int ProcessManager::run(function_t function)
 
 
 
-int ProcessManager::switchProcess(pid_t to)
+int ProcessManager::switch_process(pid_t to)
 {
   return -1;
 }
