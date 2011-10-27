@@ -22,7 +22,7 @@
  */
 
 #include "SchedulerTest.h"
-
+#include <stdio.h>
 #include "../../../../ottos/kernel/sched/Scheduler.h"
 #include "../../../../ottos/kernel/sched/RoundRobin.h"
 
@@ -38,27 +38,26 @@ void SchedulerTest::run() {
   // FIXME: make array instead of malloc and then uncomment
   // make private variables for that init stuff
 
-//  int MAX_PROC = 5;
-//   Process* procs = (Process*)malloc(sizeof(Process)*MAX_PROC);
-//   procs[0] = Process(0);
-//   procs[0].state = READY;
-//   procs[1] = Process(1);
-//   procs[1].state = READY;
-//   procs[2] = Process(2);
-//   procs[2].state = READY;
-//   procs[3] = 0;
-//   procs[4] = 0;
-//   RoundRobin rr;
-//   Scheduler sched(rr);
-//
-//
-//   // run first process
-//   procs[sched.next(&procs, MAX_PROC)].state = RUNNING;
-//
-//   while (true) {
-//     int running = sched.current();
-//     procs[sched.next(&procs, MAX_PROC)].state = RUNNING;
-//     procs[running].state = READY;
-//     printf("Running %d\n", procs[sched.current()].pid);
-//   }
+  const int MAX_PROC = 5;
+   Process* procs[MAX_PROC];
+   procs[0] = new Process(0);
+   procs[0]->state = READY;
+   procs[1] = new Process(1);
+   procs[1]->state = READY;
+   procs[2] = new Process(2);
+   procs[2]->state = READY;
+   procs[3] = 0;
+   procs[4] = 0;
+   Scheduler sched;
+
+
+   // run first process
+   procs[sched.next(procs, MAX_PROC)]->state = RUNNING;
+
+   while (true) {
+     int running = sched.current();
+     procs[sched.next(procs, MAX_PROC)]->state = RUNNING;
+     procs[running]->state = READY;
+     printf("Running %d\n", procs[sched.current()]->pid);
+   }
 }

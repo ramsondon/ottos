@@ -25,9 +25,9 @@
 #include "../pm/Process.h"
 #include "RoundRobin.h"
 
-Scheduler::Scheduler(RoundRobin algo) {
+Scheduler::Scheduler() {
   current_ = -1;            /* no proc has started yet; current_ is -1 */
-  algorithm_ = algo;
+  algorithm_ = RoundRobin();
 }
 
 Scheduler::~Scheduler() {
