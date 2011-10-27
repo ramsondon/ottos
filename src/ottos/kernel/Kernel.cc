@@ -25,6 +25,7 @@
 
 #include "sched/Scheduler.h"
 #include "pm/ProcessManager.h"
+#include "pm/Process.h"
 #include "sys/SyscallHandler.h"
 
 #include "Kernel.h"
