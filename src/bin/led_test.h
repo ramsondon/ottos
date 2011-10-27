@@ -29,8 +29,8 @@
 
 #define SET_BIT(bit) (1<<bit)     /* Sets the specified bit to 1 */
 
-extern void toggle_led1();
-extern void toggle_led2();
+extern int toggle_led1(void);
+extern int toggle_led2(void);
 
 
 typedef enum LED_DEVICE

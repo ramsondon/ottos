@@ -34,9 +34,12 @@ class Process {
   public:
     Process();
     virtual ~Process();
+
     pid_t pid;
     int priority;
     ProcessState state;
+
+    function_t func;
 };
 
 #endif /* PROCESS_H_ */

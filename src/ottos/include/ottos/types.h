@@ -25,6 +25,6 @@
 #define OTTOS_TYPES_H_
 
 typedef int pid_t;
-typedef int (*function_t)(const void*);
+typedef int (*function_t)();
 
 #endif /* OTTOS_TYPES_H_ */

@@ -25,7 +25,7 @@
 
 #include "led_test.h"
 
-void toggle_led1() {
+int toggle_led1() {
   volatile int i;
 
   *(volatile unsigned long *)GPIO5_OE |= SET_BIT(LED_DEVICE_USR0);
@@ -40,9 +40,11 @@ void toggle_led1() {
       sched_yield();
     }
   }
+
+  return 0;
 }
 
-void toggle_led2() {
+int toggle_led2() {
   volatile int i;
 
   *(volatile unsigned long *)GPIO5_OE |= SET_BIT(LED_DEVICE_USR1);
@@ -57,4 +59,6 @@ void toggle_led2() {
       sched_yield();
     }
   }
+
+  return 0;
 }
