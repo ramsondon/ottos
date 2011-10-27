@@ -24,9 +24,10 @@
 #ifndef SCHEDULER_H_
 #define SCHEDULER_H_
 
-#include "../pm/Process.h"
-#include "RoundRobin.h"
+#include <ottos/types.h>
 
+class Process;
+class ProcessManager;
 
 /* class Scheduler
  *
@@ -36,19 +37,23 @@
 class Scheduler {
   public:
     /* constructor */
-    Scheduler();
+    Scheduler(ProcessManager* process_manager);
     /* destructor */
     ~Scheduler();
     /* gets the next proc to be executed. does not change any states in procs.*/
-    int next(Process** procs, int size);
+    pid_t next();
     /* returns the index of the current proc */
-    int current(void);
+    pid_t current(void);
+    // initializes the Scheduler
+    void init(void);
 
   private:
     /* the current process index */
     int current_;
+    /* the current process pid */
+    pid_t cpid_;
     /* internal scheduling algorithm */
-    RoundRobin algorithm_;
+    ProcessManager* process_manager_;
 };
 
 #endif /* SCHEDULER_H_ */

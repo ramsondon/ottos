@@ -21,23 +21,43 @@
  *      Author: Matthias Schmid <m.schmid@students.fhv.at>
  */
 
-#include "Scheduler.h"
-#include "../pm/Process.h"
-#include "RoundRobin.h"
+#include <ottos/limits.h>
+#include <ottos/const.h>
+#include <ottos/types.h>
 
-Scheduler::Scheduler() {
+#include "Scheduler.h"
+
+#include "../pm/Process.h"
+#include "../pm/ProcessManager.h"
+
+Scheduler::Scheduler(ProcessManager* process_manager) {
   current_ = -1;            /* no proc has started yet; current_ is -1 */
-  algorithm_ = RoundRobin();
+  cpid_ = PID_INVALID;
+  process_manager_ = process_manager;
 }
 
 Scheduler::~Scheduler() {
 }
 
-int Scheduler::next(Process** procs, int size) {
-  current_ = algorithm_.next(procs, current_, size);
-  return current_;
+pid_t Scheduler::next() {
+
+  Process** process_table = process_manager_->process_table();
+
+  // schedule round robin
+  for (int i = (current_ + 1) % PROCESS_MAX_COUNT; i < PROCESS_MAX_COUNT;
+        i = (i + 1) % PROCESS_MAX_COUNT) {
+
+    // if next process is ready
+    if (process_table[i] != 0 && process_table[i]->state == READY) {
+      current_ = i;
+      return process_table[current_]->pid;
+    }
+  }
+
+  // the next process could not be determined
+  return PID_INVALID;
 }
 
-int Scheduler::current(void) {
-  return current_;
+pid_t Scheduler::current(void) {
+  return process_manager_->process_table()[current_]->pid;
 }
