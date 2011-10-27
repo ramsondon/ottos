@@ -23,9 +23,13 @@
 
 #include <stdio.h>
 
-#include "kernel/pm/Process.h"
+#include "kernel/Kernel.h"
 
 int main(int argc, char **argv) {
+
+  Kernel k = Kernel();
+  k.init();
+  k.run();
 
   return 0;
 }
