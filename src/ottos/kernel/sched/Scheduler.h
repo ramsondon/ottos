@@ -18,7 +18,7 @@
  *
  *
  *  Created on: Oct 21, 2011
- *      Author: Matthias Schmid <m.schmid@students.fhv.at>
+ *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
 #ifndef SCHEDULER_H_
@@ -54,6 +54,8 @@ class Scheduler {
     pid_t cpid_;
     /* internal scheduling algorithm */
     ProcessManager* process_manager_;
+
+    void run(void);
 };
 
 #endif /* SCHEDULER_H_ */

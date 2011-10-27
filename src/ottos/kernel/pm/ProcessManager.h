@@ -35,7 +35,7 @@ class ProcessManager {
     virtual ~ProcessManager();
 
     int run(function_t function);
-    int switchProcess(pid_t to);
+    int switch_process(pid_t to);
     pid_t add(Process* proc);
     void init();
 

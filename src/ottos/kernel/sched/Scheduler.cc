@@ -18,7 +18,7 @@
  *
  *
  *  Created on: Oct 21, 2011
- *      Author: Matthias Schmid <m.schmid@students.fhv.at>
+ *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
 #include <ottos/limits.h>
@@ -53,13 +53,24 @@ pid_t Scheduler::next() {
 
     // if next process is ready
     if (process_table[i] != 0 && process_table[i]->state == READY) {
-      current_ = i;
-      return process_table[current_]->pid;
+//      current_ = i;
+//      return process_table[current_]->pid;
+      return process_table[i]->pid;
     }
   }
 
   // the next process could not be determined
   return PID_INVALID;
+}
+
+void Scheduler::run() {
+
+  while (true) {
+
+    pid_t proc = next();
+    process_manager_->switch_process(proc);
+
+  }
 }
 
 pid_t Scheduler::current(void) {
