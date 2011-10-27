@@ -32,7 +32,7 @@ enum ProcessState {
 
 class Process {
   public:
-    Process(const pid_t pid);
+    Process();
     virtual ~Process();
     pid_t pid;
     int priority;
