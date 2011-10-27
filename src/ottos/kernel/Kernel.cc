@@ -21,31 +21,38 @@
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#include "Kernel.h"
+#include <ottos/const.h>
+
 #include "sched/Scheduler.h"
 #include "pm/ProcessManager.h"
 #include "sys/SyscallHandler.h"
 
+#include "Kernel.h"
+
 
 Kernel::Kernel() {
-  // TODO Auto-generated constructor stub
-
 }
 
 Kernel::~Kernel() {
-  // TODO Auto-generated destructor stub
 }
 
 void Kernel::init()
 {
+  // TODO(thomas.bargetz@gmail.com) create kernel space and user space in memory
+
   // create the scheduler
-  scheduler = Scheduler();
+  *scheduler = Scheduler();
 
-  // create the processmanager
-  process_manager = ProcessManager();
+  // create the process manager
+  *process_manager = ProcessManager();
 
-  // create the syscallhandler
-  syscall_handler = SyscallHandler();
+  // create the system call handler
+  *syscall_handler = SyscallHandler();
+}
+
+void Kernel::run()
+{
+  // TODO(thomas.bargetz@gmail.com) create init process
 }
 
 

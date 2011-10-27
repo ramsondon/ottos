@@ -31,3 +31,17 @@ ProcessManager::ProcessManager() {
 ProcessManager::~ProcessManager() {
   // TODO Auto-generated destructor stub
 }
+
+int ProcessManager::run(function_t function)
+{
+  return -1;
+}
+
+
+
+int ProcessManager::switchProcess(pid_t to)
+{
+  return -1;
+}
+
+
