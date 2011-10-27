@@ -46,8 +46,8 @@ void Kernel::init()
   process_manager->init();
 
   // create the scheduler
-  //*scheduler = Scheduler(process_manager);
-  // scheduler->init();
+  *scheduler = Scheduler(process_manager);
+  scheduler->init();
 
   // create the system call handler
   *syscall_handler = SyscallHandler();
@@ -56,7 +56,7 @@ void Kernel::init()
 void Kernel::run()
 {
   // TODO(thomas.bargetz@gmail.com) create init process
-  Process* p = new Process(PID_INVALID);
+  Process* p = new Process();
   process_manager->add(p);
 
   // start scheduling
