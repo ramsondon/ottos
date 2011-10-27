@@ -22,10 +22,11 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 
-#include "kernel/pm/Process.h"
 
 int main(int argc, char **argv) {
+
 
   return 0;
 }
