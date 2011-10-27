@@ -21,13 +21,39 @@
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
+#include <ottos/syscalls.h>
+#include <ottos/types.h>
+
+#include "../sched/Scheduler.h"
+
 #include "SyscallHandler.h"
 
-SyscallHandler::SyscallHandler() {
-  // TODO Auto-generated constructor stub
+SyscallHandler::SyscallHandler(Scheduler* scheduler)
+  : scheduler_(scheduler) {
 
 }
 
 SyscallHandler::~SyscallHandler() {
   // TODO Auto-generated destructor stub
+}
+
+void SyscallHandler::handle() {
+  // read register X to identify syscall id
+  SystemCall call = (SystemCall)1; // registerXY.value
+
+  switch (call) {
+    case SCHEDULER_YIELD:
+      syscall_yield();
+      break;
+    default:
+      // error
+      break;
+  }
+}
+
+void SyscallHandler::syscall_yield() {
+  // the current process called yield
+  // switch to next process in the scheduler
+
+  scheduler_->run();
 }

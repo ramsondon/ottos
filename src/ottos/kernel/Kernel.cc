@@ -28,6 +28,8 @@
 #include "pm/Process.h"
 #include "sys/SyscallHandler.h"
 
+#include "../../bin/led_test.h"
+
 #include "Kernel.h"
 
 
@@ -42,22 +44,35 @@ void Kernel::init()
   // TODO(thomas.bargetz@gmail.com) create kernel space and user space in memory
 
   // create the process manager
-  *process_manager = ProcessManager();
+  process_manager = new ProcessManager();
   process_manager->init();
 
   // create the scheduler
-  *scheduler = Scheduler(process_manager);
+  scheduler = new Scheduler(process_manager);
   scheduler->init();
 
   // create the system call handler
-  *syscall_handler = SyscallHandler();
+  syscall_handler = new SyscallHandler(scheduler);
 }
 
 void Kernel::run()
 {
+  Process* led1 = new Process();
+  led1->func = toggle_led1;
+
+  Process* led2 = new Process();
+  led2->func = toggle_led2;
+
+  process_manager->add(led1);
+  process_manager->add(led2);
+
+
+
+
   // TODO(thomas.bargetz@gmail.com) create init process
-  Process* p = new Process();
-  process_manager->add(p);
+
+  // Process* p = new Process();
+  // process_manager->add(p);
 
   // pseudo code for creation of the first process
   //
@@ -69,7 +84,7 @@ void Kernel::run()
   // }
 
   // start scheduling
-  scheduler->next();
+  // scheduler->next();
 }
 
 
