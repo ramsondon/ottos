@@ -1,4 +1,4 @@
-/* SyscallHandler.h
+/* system.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -21,22 +21,9 @@
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#ifndef SYSCALLHANDLER_H_
-#define SYSCALLHANDLER_H_
+#ifndef SYSTEM_H_
+#define SYSTEM_H_
 
-class Scheduler;
+extern int sched_yield();
 
-class SyscallHandler {
-  public:
-    SyscallHandler(Scheduler* scheduler);
-    virtual ~SyscallHandler();
-
-    void handle();
-  private:
-    Scheduler* scheduler_;
-
-
-    void syscall_yield();
-};
-
-#endif /* SYSCALLHANDLER_H_ */
+#endif /* SYSTEM_H_ */

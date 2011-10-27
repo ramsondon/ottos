@@ -1,4 +1,4 @@
-/* SyscallHandler.h
+/* syscalls.cc
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -21,22 +21,15 @@
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#ifndef SYSCALLHANDLER_H_
-#define SYSCALLHANDLER_H_
+#include <ottos/system.h>
 
-class Scheduler;
-
-class SyscallHandler {
-  public:
-    SyscallHandler(Scheduler* scheduler);
-    virtual ~SyscallHandler();
-
-    void handle();
-  private:
-    Scheduler* scheduler_;
+int sched_yield(){
+  // generate a systemcall for the scheduler
+  // write the SCHEDULER_YIELD systemcall in the register
 
 
-    void syscall_yield();
-};
+  // switch to kernel mode to handle the systemcall
 
-#endif /* SYSCALLHANDLER_H_ */
+  // TODO read return register
+  return 0;
+}
