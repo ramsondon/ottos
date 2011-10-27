@@ -66,6 +66,8 @@ pid_t ProcessManager::add(Process *proc)
   // TODO(fdomig@gmail.com) must use ATOMIC_END
 }
 
-
+Process** ProcessManager::process_table() {
+  return process_table_;
+}
 
 

@@ -39,6 +39,7 @@ class ProcessManager {
     pid_t add(Process* proc);
     void init();
 
+    Process** process_table();
 
   private:
     pid_t current_;
