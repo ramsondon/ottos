@@ -1,4 +1,4 @@
-/* const.h
+/* ProcessManager.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,23 +17,34 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 21.10.2011
- *      Author: Franziskus Domig <fdomig@gmail.com>
+ *  Created on: 27 Oct 2011
+ *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#ifndef CONST_H_
-#define CONST_H_
+#ifndef PROCESSMANAGER_H_
+#define PROCESSMANAGER_H_
 
-#define EXTERN  extern
-#define PRIVATE static
-#define PUBLIC
+#include <ottos/types.h>
+#include <ottos/limits.h>
 
-#define NULL    0
+class Process;
 
-#define TRUE    1
-#define FALSE   0
+class ProcessManager {
+  public:
+    ProcessManager();
+    virtual ~ProcessManager();
 
-#define PID_INVALID -1
+    int run(function_t function);
+    int switchProcess(pid_t to);
+    pid_t add(Process* proc);
+    void init();
 
 
-#endif /* CONST_H_ */
+  private:
+    pid_t current_;
+
+    // the pid_t of a process is the index in the process table
+    Process* process_table_[PROCESS_MAX_COUNT];
+};
+
+#endif /* PROCESSMANAGER_H_ */

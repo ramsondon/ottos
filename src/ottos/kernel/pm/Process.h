@@ -34,7 +34,7 @@ class Process {
   public:
     Process(const pid_t pid);
     virtual ~Process();
-    const pid_t pid;
+    pid_t pid;
     int priority;
     ProcessState state;
 };

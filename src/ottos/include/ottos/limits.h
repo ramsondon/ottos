@@ -1,4 +1,4 @@
-/* const.h
+/* limits.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,23 +17,18 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 21.10.2011
- *      Author: Franziskus Domig <fdomig@gmail.com>
+ *  Created on: 27 Oct 2011
+ *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#ifndef CONST_H_
-#define CONST_H_
+#ifndef LIMITS_H_
+#define LIMITS_H_
 
-#define EXTERN  extern
-#define PRIVATE static
-#define PUBLIC
+// TODO(thomas.bargetz.gmail.com) include hal to get memory size and so on
 
-#define NULL    0
+#define MEMORY_SIZE 100
+#define PROCESS_SIZE 10
 
-#define TRUE    1
-#define FALSE   0
+#define PROCESS_MAX_COUNT (MEMORY_SIZE / PROCESS_SIZE)
 
-#define PID_INVALID -1
-
-
-#endif /* CONST_H_ */
+#endif /* LIMITS_H_ */
