@@ -1,4 +1,4 @@
-/* types.h
+/* ProcessManager.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,14 +17,31 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 21.10.2011
- *      Author: Franziskus Domig <fdomig@gmail.com>
+ *  Created on: 27 Oct 2011
+ *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#ifndef OTTOS_TYPES_H_
-#define OTTOS_TYPES_H_
+#ifndef PROCESSMANAGER_H_
+#define PROCESSMANAGER_H_
 
-typedef int pid_t;
-typedef int (*function_t)(const void*);
+#include <ottos/types.h>
+#include <ottos/limits.h>
 
-#endif /* OTTOS_TYPES_H_ */
+class Process;
+
+class ProcessManager {
+  public:
+    ProcessManager();
+    virtual ~ProcessManager();
+
+    int run(function_t function);
+    int switchProcess(pid_t to);
+
+  private:
+    pid_t current_;
+
+    // the pid_t of a process is the index in the process table
+    Process* process_table_[PROCESS_MAX_COUNT];
+};
+
+#endif /* PROCESSMANAGER_H_ */

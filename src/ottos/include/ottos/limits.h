@@ -1,4 +1,4 @@
-/* types.h
+/* limits.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,14 +17,18 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 21.10.2011
- *      Author: Franziskus Domig <fdomig@gmail.com>
+ *  Created on: 27 Oct 2011
+ *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#ifndef OTTOS_TYPES_H_
-#define OTTOS_TYPES_H_
+#ifndef LIMITS_H_
+#define LIMITS_H_
 
-typedef int pid_t;
-typedef int (*function_t)(const void*);
+// TODO include hal to get memory size and so on
 
-#endif /* OTTOS_TYPES_H_ */
+#define MEMORY_SIZE 100
+#define PROCESS_SIZE 10
+
+#define PROCESS_MAX_COUNT (MEMORY_SIZE / PROCESS_SIZE)
+
+#endif /* LIMITS_H_ */

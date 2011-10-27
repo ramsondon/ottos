@@ -1,4 +1,4 @@
-/* types.h
+/* Kernel.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,14 +17,30 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 21.10.2011
- *      Author: Franziskus Domig <fdomig@gmail.com>
+ *  Created on: 27 Oct 2011
+ *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#ifndef OTTOS_TYPES_H_
-#define OTTOS_TYPES_H_
+#ifndef KERNEL_H_
+#define KERNEL_H_
 
-typedef int pid_t;
-typedef int (*function_t)(const void*);
+// forward declarations
+class Scheduler;
+class ProcessManager;
+class SyscallHandler;
 
-#endif /* OTTOS_TYPES_H_ */
+class Kernel {
+  public:
+    Kernel();
+    virtual ~Kernel();
+
+    Scheduler& scheduler;
+    ProcessManager& process_manager;
+    SyscallHandler& syscall_handler;
+
+
+    // intializes all components of the operating system
+    void init();
+};
+
+#endif /* KERNEL_H_ */

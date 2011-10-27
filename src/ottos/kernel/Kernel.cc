@@ -1,4 +1,4 @@
-/* types.h
+/* Kernel.cpp
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,14 +17,35 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 21.10.2011
- *      Author: Franziskus Domig <fdomig@gmail.com>
+ *  Created on: 27 Oct 2011
+ *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#ifndef OTTOS_TYPES_H_
-#define OTTOS_TYPES_H_
+#include "Kernel.h"
+#include <ottos/kernel/Scheduler.h>
+#include <ottos/kernel/ProcessManager.h>
+#include <ottos/kernel/SyscallHandler.h>
 
-typedef int pid_t;
-typedef int (*function_t)(const void*);
 
-#endif /* OTTOS_TYPES_H_ */
+Kernel::Kernel() {
+  // TODO Auto-generated constructor stub
+
+}
+
+Kernel::~Kernel() {
+  // TODO Auto-generated destructor stub
+}
+
+void Kernel::init()
+{
+  // create the scheduler
+  scheduler = Scheduler();
+
+  // create the processmanager
+  process_manager = ProcessManager();
+
+  // create the syscallhandler
+  syscall_handler = SyscallHandler();
+}
+
+
