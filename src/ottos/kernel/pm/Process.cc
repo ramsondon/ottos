@@ -1,4 +1,4 @@
-/* ottos.cc
+/* Process.cpp
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,15 +17,19 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Oct 19, 2011
- *      Author: Matthias Schmid <m.schmid@students.fhv.at>
+ *  Created on: 21.10.2011
+ *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#include <stdio.h>
+#include <ottos/const.h>
 
-#include "kernel/pm/Process.h"
+#include "Process.h"
 
-int main(int argc, char **argv) {
+Process::Process(const pid_t pid)
+  : pid(pid) {
 
-  return 0;
+}
+
+Process::~Process() {
+
 }

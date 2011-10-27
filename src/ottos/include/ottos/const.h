@@ -1,4 +1,4 @@
-/* ottos.cc
+/* const.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,15 +17,21 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Oct 19, 2011
- *      Author: Matthias Schmid <m.schmid@students.fhv.at>
+ *  Created on: 21.10.2011
+ *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#include <stdio.h>
+#ifndef CONST_H_
+#define CONST_H_
 
-#include "kernel/pm/Process.h"
+#define EXTERN  extern
+#define PRIVATE static
+#define PUBLIC
 
-int main(int argc, char **argv) {
+#define NULL    ((void *)0)
 
-  return 0;
-}
+#define TRUE    1
+#define FALSE   0
+
+
+#endif /* CONST_H_ */
