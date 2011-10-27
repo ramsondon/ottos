@@ -25,8 +25,7 @@
 
 #include "Process.h"
 
-Process::Process(const pid_t pid)
-  : pid(pid) {
+Process::Process() {
 
 }
 
