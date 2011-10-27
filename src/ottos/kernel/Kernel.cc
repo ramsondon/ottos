@@ -22,9 +22,9 @@
  */
 
 #include "Kernel.h"
-#include <ottos/kernel/Scheduler.h>
-#include <ottos/kernel/ProcessManager.h>
-#include <ottos/kernel/SyscallHandler.h>
+#include "sched/Scheduler.h"
+#include "pm/ProcessManager.h"
+#include "sys/SyscallHandler.h"
 
 
 Kernel::Kernel() {
