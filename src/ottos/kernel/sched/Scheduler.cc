@@ -33,8 +33,11 @@ Scheduler::Scheduler(RoundRobin algo) {
 Scheduler::~Scheduler() {
 }
 
-int Scheduler::next(Process procs[], int size) {
-  current_ = algorithm_.next(&procs, current_, size);
+int Scheduler::next(Process** procs, int size) {
+  current_ = algorithm_.next(procs, current_, size);
   return current_;
 }
 
+int Scheduler::current(void) {
+  return current_;
+}

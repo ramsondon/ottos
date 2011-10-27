@@ -1,4 +1,4 @@
-/* Scheduler.h
+/* SchedulerTest.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,38 +17,18 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Oct 21, 2011
+ *  Created on: Oct 27, 2011
  *      Author: Matthias Schmid <m.schmid@students.fhv.at>
  */
 
-#ifndef SCHEDULER_H_
-#define SCHEDULER_H_
+#ifndef SCHEDULERTEST_H_
+#define SCHEDULERTEST_H_
 
-#include "../pm/Process.h"
-#include "RoundRobin.h"
-
-
-/* class Scheduler
- *
- * schedules the current processes.
- *
- */
-class Scheduler {
+class SchedulerTest {
   public:
-    /* constructor */
-    Scheduler(RoundRobin algo);
-    /* destructor */
-    ~Scheduler();
-    /* gets the next proc to be executed. does not change any states in procs.*/
-    int next(Process** procs, int size);
-    /* returns the index of the current proc */
-    int current(void);
-
-  private:
-    /* the current process index */
-    int current_;
-    /* internal scheduling algorithm */
-    RoundRobin algorithm_;
+    SchedulerTest();
+    virtual ~SchedulerTest();
+    void run();
 };
 
-#endif /* SCHEDULER_H_ */
+#endif /* SCHEDULERTEST_H_ */
