@@ -34,15 +34,17 @@ class Kernel {
     Kernel();
     virtual ~Kernel();
 
-    Scheduler* scheduler;
-    ProcessManager* process_manager;
-    SyscallHandler* syscall_handler;
-
-    // Initialises all components of the operating system
     void init();
-
-    // start the fun
     void run();
+
+    Scheduler* scheduler();
+    ProcessManager* process_manager();
+    SyscallHandler* syscall_handler();
+
+  private:
+    Scheduler* scheduler_;
+    ProcessManager* process_manager_;
+    SyscallHandler* syscall_handler_;
 };
 
 #endif /* KERNEL_H_ */
