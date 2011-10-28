@@ -35,11 +35,21 @@ class Process {
     Process();
     virtual ~Process();
 
-    pid_t pid;
-    int priority;
-    ProcessState state;
+    pid_t pid();
+    void set_pid(pid_t pid);
+    int priority();
+    void set_priority(int priority);
+    ProcessState state();
+    void set_state(ProcessState state);
+    function_t func();
+    void set_func(function_t function);
 
-    function_t func;
+  private:
+    pid_t pid_;
+    int priority_;
+    ProcessState state_;
+
+    function_t func_;
 };
 
 #endif /* PROCESS_H_ */

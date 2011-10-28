@@ -58,10 +58,10 @@ void Kernel::init()
 void Kernel::run()
 {
   Process* led1 = new Process();
-  led1->func = toggle_led1;
+  led1->set_func(toggle_led1);
 
   Process* led2 = new Process();
-  led2->func = toggle_led2;
+  led2->set_func(toggle_led2);
 
   process_manager->add(led1);
   process_manager->add(led2);

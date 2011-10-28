@@ -31,7 +31,7 @@
 #include "../pm/ProcessManager.h"
 
 Scheduler::Scheduler(ProcessManager* process_manager) {
-  current_ = -1;            /* no proc has started yet; current_ is -1 */
+  current_ = -1; /* no proc has started yet; current_ is -1 */
   process_manager_ = process_manager;
 }
 
@@ -48,13 +48,13 @@ pid_t Scheduler::next() {
   Process** process_table = process_manager_->process_table();
 
   // schedule round robin
-  for (int i = (current_ + 1) % PROCESS_MAX_COUNT; i < PROCESS_MAX_COUNT;
-        i = (i + 1) % PROCESS_MAX_COUNT) {
+  for (int i = (current_ + 1) % PROCESS_MAX_COUNT; i < PROCESS_MAX_COUNT; i
+      = (i + 1) % PROCESS_MAX_COUNT) {
 
     // if next process is ready
-    if (process_table[i] != 0 && process_table[i]->state == READY) {
+    if (process_table[i] != 0 && process_table[i]->state() == READY) {
       current_ = i;
-      return process_table[current_]->pid;
+      return process_table[current_]->pid();
     }
   }
 
@@ -73,5 +73,5 @@ void Scheduler::run() {
 }
 
 pid_t Scheduler::current(void) {
-  return process_manager_->process_table()[current_]->pid;
+  return process_manager_->process_table()[current_]->pid();
 }
