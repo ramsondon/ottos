@@ -36,13 +36,9 @@ class ProcessManager;
  */
 class Scheduler {
   public:
-    /* constructor */
     Scheduler(ProcessManager* process_manager);
-    /* destructor */
-    ~Scheduler();
-    // initializes the Scheduler
+    virtual ~Scheduler();
     void init(void);
-    /* runs the scheduler */
     void run(void);
 
   private:
