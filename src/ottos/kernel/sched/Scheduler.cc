@@ -20,6 +20,7 @@
  *  Created on: Oct 21, 2011
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
+#include <vector>
 
 #include <ottos/limits.h>
 #include <ottos/const.h>
@@ -45,7 +46,7 @@ void Scheduler::init() {
 pid_t Scheduler::next() {
 
   // get process table
-  Process** process_table = process_manager_->process_table();
+  std::vector<Process *> process_table = *process_manager_->process_table();
 
   // schedule round robin
   for (int i = (current_ + 1) % PROCESS_MAX_COUNT; i < PROCESS_MAX_COUNT; i
@@ -73,5 +74,6 @@ void Scheduler::run() {
 }
 
 pid_t Scheduler::current(void) {
-  return process_manager_->process_table()[current_]->pid();
+  // FIXME(m.schmid@students.fhv.at)
+  return (*process_manager_->process_table())[current_]->pid();
 }

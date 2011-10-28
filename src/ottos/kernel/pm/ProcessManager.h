@@ -24,6 +24,8 @@
 #ifndef PROCESSMANAGER_H_
 #define PROCESSMANAGER_H_
 
+#include <vector>
+
 #include <ottos/types.h>
 #include <ottos/limits.h>
 
@@ -36,20 +38,15 @@ class ProcessManager {
 
     int run(function_t function);
     int switch_process(pid_t to);
-
-    /* returns the current pid */
     pid_t current_process(void);
-
     pid_t add(Process* proc);
     void init();
 
-    Process** process_table();
+    std::vector<Process *>* process_table();
 
   private:
     pid_t current_;
-
-    // the pid_t of a process is the index in the process table
-    Process* process_table_[PROCESS_MAX_COUNT];
+    std::vector<Process *> process_table_;
 };
 
 #endif /* PROCESSMANAGER_H_ */

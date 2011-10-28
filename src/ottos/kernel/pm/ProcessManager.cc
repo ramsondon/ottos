@@ -21,25 +21,21 @@
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
+#include <vector>
+
 #include <ottos/const.h>
 
 #include "Process.h"
-
 #include "ProcessManager.h"
 
 ProcessManager::ProcessManager() {
-  // TODO Auto-generated constructor stub
-
 }
 
 ProcessManager::~ProcessManager() {
-  // TODO Auto-generated destructor stub
 }
 
 void ProcessManager::init() {
-  for(int i = 0;i<PROCESS_MAX_COUNT; i++) {
-    process_table_[i] = NULL;
-  }
+  process_table_ = std::vector<Process *>(PROCESS_MAX_COUNT);
 }
 
 int ProcessManager::run(function_t function)
@@ -58,7 +54,7 @@ int ProcessManager::switch_process(pid_t to)
   current_ = to;
   process_table_[current_]->set_state(RUNNING);
 
-  process_table_[to]->func();
+  process_table_[to]->func()();
 
   // TODO(fdomig@gmail.com) must use ATOMIC_END
   return 0;
@@ -83,8 +79,8 @@ pid_t ProcessManager::add(Process *proc)
   // TODO(fdomig@gmail.com) must use ATOMIC_END
 }
 
-Process** ProcessManager::process_table() {
-  return process_table_;
+std::vector<Process *>* ProcessManager::process_table() {
+  return &process_table_;
 }
 
 
