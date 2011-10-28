@@ -24,17 +24,13 @@
 #include <ottos/syscalls.h>
 #include <ottos/types.h>
 
-#include "../sched/Scheduler.h"
-
 #include "SyscallHandler.h"
 
-SyscallHandler::SyscallHandler(Scheduler* scheduler)
-  : scheduler_(scheduler) {
+SyscallHandler::SyscallHandler() {
 
 }
 
 SyscallHandler::~SyscallHandler() {
-  // TODO Auto-generated destructor stub
 }
 
 void SyscallHandler::handle() {
@@ -54,6 +50,4 @@ void SyscallHandler::handle() {
 void SyscallHandler::syscall_yield() {
   // the current process called yield
   // switch to next process in the scheduler
-
-  scheduler_->run();
 }

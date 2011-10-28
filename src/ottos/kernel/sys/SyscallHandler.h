@@ -24,18 +24,14 @@
 #ifndef SYSCALLHANDLER_H_
 #define SYSCALLHANDLER_H_
 
-class Scheduler;
-
 class SyscallHandler {
   public:
-    SyscallHandler(Scheduler* scheduler);
+    SyscallHandler();
     virtual ~SyscallHandler();
 
     void handle();
+
   private:
-    Scheduler* scheduler_;
-
-
     void syscall_yield();
 };
 

@@ -44,27 +44,27 @@ void Kernel::init()
   // TODO(thomas.bargetz@gmail.com) create kernel space and user space in memory
 
   // create the process manager
-  process_manager = new ProcessManager();
-  process_manager->init();
+  process_manager_ = new ProcessManager();
+  process_manager_->init();
 
   // create the scheduler
-  scheduler = new Scheduler(process_manager);
-  scheduler->init();
+  scheduler_ = new Scheduler(process_manager_);
+  scheduler_->init();
 
   // create the system call handler
-  syscall_handler = new SyscallHandler(scheduler);
+  syscall_handler_ = new SyscallHandler();
 }
 
 void Kernel::run()
 {
   Process* led1 = new Process();
-  led1->func = toggle_led1;
+  led1->set_func(toggle_led1);
 
   Process* led2 = new Process();
-  led2->func = toggle_led2;
+  led2->set_func(toggle_led2);
 
-  process_manager->add(led1);
-  process_manager->add(led2);
+  process_manager_->add(led1);
+  process_manager_->add(led2);
 
 
 
@@ -84,7 +84,28 @@ void Kernel::run()
   // }
 
   // start scheduling
-  scheduler->run();
+  scheduler_->run();
 }
+
+Scheduler *Kernel::scheduler()
+{
+  return scheduler_;
+}
+
+
+
+ProcessManager *Kernel::process_manager()
+{
+  return process_manager_;
+}
+
+
+
+SyscallHandler *Kernel::syscall_handler()
+{
+  return syscall_handler_;
+}
+
+
 
 

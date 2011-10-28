@@ -32,3 +32,57 @@ Process::Process() {
 Process::~Process() {
 
 }
+
+pid_t Process::pid()
+{
+  return pid_;
+}
+
+
+
+function_t Process::func()
+{
+  return func_;
+}
+
+
+
+int Process::priority()
+{
+  return priority_;
+}
+
+
+
+void Process::set_func(function_t function)
+{
+  func_ = function;
+}
+
+
+
+void Process::set_state(ProcessState state)
+{
+  state_ = state;
+}
+
+
+
+void Process::set_priority(int priority)
+{
+  priority_ = priority;
+}
+
+
+
+ProcessState Process::state()
+{
+  return state_;
+}
+
+
+
+void Process::set_pid(pid_t pid)
+{
+  pid_ = pid;
+}
