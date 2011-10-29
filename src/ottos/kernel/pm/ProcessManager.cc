@@ -48,13 +48,41 @@ int ProcessManager::run(function_t function)
 int ProcessManager::switch_process(pid_t to)
 {
   // TODO(fdomig@gmail.com) must use ATOMIC_START
-  // TODO save process relevant data (registers, etc)
+
+  // save the execution state
+  //SAVE_REGISTERS;
+
+  // TODO remove this when process image is available
+
+  // this assembler function saves the registers into the registers variable
+  save_registers();
+
+  // set the register values
+  process_table_[current_]->set_registers(registers);
+
+  // set the state of the current process to ready
   process_table_[current_]->set_state(READY);
 
+
+  // set new process as current process
   current_ = to;
+
+  // mark the new process as running
   process_table_[current_]->set_state(RUNNING);
 
-  process_table_[to]->func()();
+  // load the registers of the new process
+  int* _registers = process_table_[current_]->registers();
+  for(int i = 0; i < 16; i++) {
+    registers[i] = _registers[i];
+  }
+  load_registers();
+
+  // TODO switch to the new process image
+
+  // and load the saved execution state
+  //LOAD_REGISTERS;
+
+  //process_table_[to]->func()();
 
   // TODO(fdomig@gmail.com) must use ATOMIC_END
   return 0;

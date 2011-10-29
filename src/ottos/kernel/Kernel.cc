@@ -57,6 +57,8 @@ void Kernel::init()
 
 void Kernel::run()
 {
+  toggle_led1();
+
   Process* led1 = new Process();
   led1->set_func(toggle_led1);
 

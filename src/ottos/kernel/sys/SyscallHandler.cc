@@ -45,9 +45,14 @@ void SyscallHandler::handle() {
       // error
       break;
   }
+
+
 }
 
-void SyscallHandler::syscall_yield() {
-  // the current process called yield
-  // switch to next process in the scheduler
+void SyscallHandler::syscall_yield()
+{
 }
+
+
+
+

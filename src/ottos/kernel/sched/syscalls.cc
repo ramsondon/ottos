@@ -23,13 +23,27 @@
 
 #include <ottos/system.h>
 
+#pragma INTERRUPT["SWI"]
+interrupt void swi_handler(void);
+
 int sched_yield(){
   // generate a systemcall for the scheduler
   // write the SCHEDULER_YIELD systemcall in the register
 
 
+  _enable_interrupts();
+  _call_swi(??);
+
   // switch to kernel mode to handle the systemcall
 
   // TODO read return register
   return 0;
+}
+
+#pragma INTERRUPT["SWI"]
+interrupt void swi_handler(void) {
+  volatile int i = 0;
+  if(i++ > 1) {
+    i--;
+  }
 }

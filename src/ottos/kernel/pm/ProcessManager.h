@@ -29,6 +29,17 @@
 #include <ottos/types.h>
 #include <ottos/limits.h>
 
+#define SAVE_REGISTERS asm("\tPUSH {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13}")
+#define LOAD_REGISTERS asm("\tPOP {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13}")
+
+extern "C" {
+  extern void save_registers();
+  extern void load_registers();
+}
+
+extern int registers[16];
+
+
 class Process;
 
 class ProcessManager {

@@ -44,10 +44,15 @@ class Process {
     function_t func();
     void set_func(function_t function);
 
+    int* registers();
+    void set_registers(int* registers);
+
   private:
     pid_t pid_;
     int priority_;
     ProcessState state_;
+
+    int registers_[16];
 
     function_t func_;
 };

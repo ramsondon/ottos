@@ -86,3 +86,20 @@ void Process::set_pid(pid_t pid)
 {
   pid_ = pid;
 }
+
+int *Process::registers()
+{
+  return registers_;
+}
+
+
+
+void Process::set_registers(int *registers)
+{
+  // copy the array
+  for(int i = 0; i < 16; i++) {
+    registers_[i] = registers[i];
+  }
+}
+
+
