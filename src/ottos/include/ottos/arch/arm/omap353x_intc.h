@@ -48,7 +48,6 @@
 #define INTCPS_THRESHOLD 0x0068
 
 /* mpu n and m multiplicative registers base offset*/
-
 #define INTCPS_ITR 0x0080
 #define INTCPS_MIR 0x0084
 #define INTCPS_MIR_CLEAR 0x0088
@@ -73,8 +72,6 @@
 #define INTCPS_PENDING_IRQn(n) MULTI_REG(INTCPS_PENDING_IRQ, INTCPS_N_REG, n)
 #define INTCPS_PENDING_FIQn(n) MULTI_REG(INTCPS_PENDING_FIQ, INTCPS_N_REG, n)
 #define INTCPS_ILRm(m) MULTI_REG(INTCPS_ILR, INTCPS_M_REG, m)
-
-
 
 /* modem interrupt controller register address offset - all 32 bits width */
 #define INTC_SYSCONFIG 0x0010 /* RW */
