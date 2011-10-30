@@ -21,6 +21,7 @@
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 #include <vector>
+#include <queue>
 
 #include <ottos/limits.h>
 #include <ottos/const.h>
@@ -44,6 +45,7 @@ void Scheduler::init() {
 }
 
 pid_t Scheduler::next() {
+
 
   // get process table
   std::vector<Process *> process_table = *process_manager_->process_table();
