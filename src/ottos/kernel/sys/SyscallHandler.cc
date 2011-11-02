@@ -26,16 +26,13 @@
 
 #include "SyscallHandler.h"
 
-SyscallHandler::SyscallHandler() {
-
+void syscall_yield() {
+  sched->run();
 }
 
-SyscallHandler::~SyscallHandler() {
-}
+void handle_SWI(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 
-void SyscallHandler::handle() {
-  // read register X to identify syscall id
-  SystemCall call = (SystemCall)1; // registerXY.value
+  SystemCall call = (SystemCall)r0;
 
   switch (call) {
     case SCHEDULER_YIELD:
@@ -45,12 +42,6 @@ void SyscallHandler::handle() {
       // error
       break;
   }
-
-
-}
-
-void SyscallHandler::syscall_yield()
-{
 }
 
 

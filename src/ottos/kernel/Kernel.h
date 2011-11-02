@@ -29,6 +29,8 @@ class Scheduler;
 class ProcessManager;
 class SyscallHandler;
 
+extern Scheduler* sched;
+
 class Kernel {
   public:
     Kernel();

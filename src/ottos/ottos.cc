@@ -21,14 +21,12 @@
  *      Author: Matthias Schmid <m.schmid@students.fhv.at>
  */
 
-#include <stdio.h>
-
 #include "kernel/Kernel.h"
-#include "kernel/intc/interrupt.h"
+#include "kernel/sched/Scheduler.h"
+
+Scheduler* sched;
 
 int main(int argc, char **argv) {
-
-  swi();
 
   Kernel k = Kernel();
   k.init();

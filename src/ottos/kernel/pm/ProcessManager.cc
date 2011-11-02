@@ -21,6 +21,14 @@
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
+asm("\t .bss _stack_pointer, 4");
+asm("\t .bss _old_stack_pointer, 4");
+asm("\t .bss _func_pointer, 4");
+asm("\t .global _stack_pointer");
+asm("\t .global _old_stack_pointer");
+asm("\t .global _func_pointer");
+
+
 #include <vector>
 
 #include <ottos/const.h>
@@ -29,12 +37,16 @@
 #include "ProcessManager.h"
 
 ProcessManager::ProcessManager() {
+  current_ = PID_INVALID;
 }
 
 ProcessManager::~ProcessManager() {
 }
 
 void ProcessManager::init() {
+  asm("stack_pointer_a .field _stack_pointer, 32");
+  asm("func_pointer_a .field _func_pointer, 32");
+
   process_table_ = std::vector<Process *>(PROCESS_MAX_COUNT);
 }
 
@@ -43,46 +55,67 @@ int ProcessManager::run(function_t function)
   return -1;
 }
 
-
-
+#include <stdio.h>
 int ProcessManager::switch_process(pid_t to)
 {
   // TODO(fdomig@gmail.com) must use ATOMIC_START
 
-  // save the execution state
-  //SAVE_REGISTERS;
 
-  // TODO remove this when process image is available
+  if(current_ != PID_INVALID) {
+    // save registers
 
-  // this assembler function saves the registers into the registers variable
-  save_registers();
+    stack_pointer = process_table_[current_]->stack_pointer();
 
-  // set the register values
-  process_table_[current_]->set_registers(registers);
+    // save stack point to kernel stack
+    asm("\t PUSH {r0}");
+    asm("\t LDR r0, old_stack_pointer_a");
+    asm("\t STR sp, [r0, #0]");
+    asm("\t POP {r0}");
 
-  // set the state of the current process to ready
-  process_table_[current_]->set_state(READY);
+    // switch to process stack
+    asm("\t LDR sp, stack_pointer_a");
 
+    // save the process' registers
+    SAVE_REGISTERS;
 
-  // set new process as current process
+    // switch back to kernel stack
+    asm("\t LDR sp, old_stack_poiter_a");
+
+    // set process to ready
+    process_table_[current_]->set_state(READY);
+  }
+
   current_ = to;
-
-  // mark the new process as running
   process_table_[current_]->set_state(RUNNING);
 
-  // load the registers of the new process
-  int* _registers = process_table_[current_]->registers();
-  for(int i = 0; i < 16; i++) {
-    registers[i] = _registers[i];
+  stack_pointer = process_table_[current_]->stack_pointer();
+
+  if(process_table_[current_]->executed() != 0) {
+
+    // switch to process stack
+    asm("\t LDR sp, stack_pointer_a");
+
+    // load the process' registers
+    LOAD_REGISTERS;
+
+    // switch to process
+    asm("\t MOV pc, lr");
+
+  } else {
+
+    process_table_[current_]->mark_as_executed();
+
+    function_t asdf = process_table_[current_]->func();
+    func_pointer = (int)asdf;
+
+    asm("\t LDR r0, func_pointer_a");
+    asm("\t LDR r1, [r0, #0]");
+
+    // switch to process stack
+    //asm("\t SUB sp, sp, stack_pointer_a");
+    asm("\t LDR sp, stack_pointer_a");
+    asm("\t MOV pc, r1");
   }
-  load_registers();
-
-  // TODO switch to the new process image
-
-  // and load the saved execution state
-  //LOAD_REGISTERS;
-
-  //process_table_[to]->func()();
 
   // TODO(fdomig@gmail.com) must use ATOMIC_END
   return 0;
@@ -97,9 +130,14 @@ pid_t ProcessManager::add(Process *proc)
   // TODO(fdomig@gmail.com) must use ATOMIC_START
   for(int i = 0;i<PROCESS_MAX_COUNT; i++) {
     if (process_table_[i] == NULL) {
+
       process_table_[i] = proc;
       proc->set_pid(static_cast<pid_t>(i));
       proc->set_state(READY);
+
+      // allocate separate stack
+      proc->set_stack_pointer(i * 64 + 12);
+
       return proc->pid();
     }
   }
