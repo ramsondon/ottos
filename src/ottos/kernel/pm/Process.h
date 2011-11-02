@@ -44,12 +44,27 @@ class Process {
     function_t func();
     void set_func(function_t function);
 
+    int* registers();
+    void set_registers(int* registers);
+
+    int executed();
+    void mark_as_executed();
+
+    int stack_pointer();
+    void set_stack_pointer(int sp);
+
   private:
     pid_t pid_;
     int priority_;
     ProcessState state_;
 
+    int registers_[16];
+
     function_t func_;
+
+    int executed_;
+
+    int stack_pointer_;
 };
 
 #endif /* PROCESS_H_ */

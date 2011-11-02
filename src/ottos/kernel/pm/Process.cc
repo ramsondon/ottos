@@ -26,7 +26,7 @@
 #include "Process.h"
 
 Process::Process() {
-
+  executed_ = 0;
 }
 
 Process::~Process() {
@@ -86,3 +86,48 @@ void Process::set_pid(pid_t pid)
 {
   pid_ = pid;
 }
+
+int *Process::registers()
+{
+  return registers_;
+}
+
+
+
+void Process::set_registers(int *registers)
+{
+  // copy the array
+  for(int i = 0; i < 16; i++) {
+    registers_[i] = registers[i];
+  }
+}
+
+int Process::executed()
+{
+  return executed_;
+}
+
+
+
+void Process::mark_as_executed()
+{
+  executed_ = 1;
+}
+
+int Process::stack_pointer()
+{
+  return stack_pointer_;
+}
+
+
+
+void Process::set_stack_pointer(int sp)
+{
+  stack_pointer_ = sp;
+}
+
+
+
+
+
+

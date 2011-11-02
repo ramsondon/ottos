@@ -22,14 +22,9 @@
  */
 
 #include <ottos/system.h>
+#include <ottos/syscalls.h>
+#include "../sys/SyscallHandler.h"
 
-int sched_yield(){
-  // generate a systemcall for the scheduler
-  // write the SCHEDULER_YIELD systemcall in the register
-
-
-  // switch to kernel mode to handle the systemcall
-
-  // TODO read return register
-  return 0;
+void sched_yield(){
+  swi(SCHEDULER_YIELD);
 }

@@ -24,6 +24,6 @@
 #ifndef SYSTEM_H_
 #define SYSTEM_H_
 
-extern int sched_yield();
+extern void sched_yield();
 
 #endif /* SYSTEM_H_ */
