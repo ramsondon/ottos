@@ -46,10 +46,10 @@
 //#pragma SWI_ALIAS(INTC_ENABLE_FIQ)
 //extern void enable_fiq();
 
-#pragma SWI_ALIAS(48)
-extern void swi();
+//#pragma SWI_ALIAS(48)
+//extern void swi();
 
-extern "C" void c_intSWI(/*unsigned r0, unsigned r1, unsigned r2, unsigned r3*/);
+//extern "C" void c_intSWI(/*unsigned r0, unsigned r1, unsigned r2, unsigned r3*/);
 extern "C" void c_intIRQ();
 
 #endif /* INTERRUPT_H_ */

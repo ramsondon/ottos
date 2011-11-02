@@ -29,6 +29,13 @@
 #include <ottos/types.h>
 #include <ottos/limits.h>
 
+#define SAVE_REGISTERS asm("\tPUSH {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r14}")
+#define LOAD_REGISTERS asm("\tPOP {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r14}")
+
+extern int stack_pointer;
+extern int old_stack_pointer;
+extern int func_pointer;
+
 class Process;
 
 class ProcessManager {

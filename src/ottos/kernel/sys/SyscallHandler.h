@@ -24,15 +24,14 @@
 #ifndef SYSCALLHANDLER_H_
 #define SYSCALLHANDLER_H_
 
-class SyscallHandler {
-  public:
-    SyscallHandler();
-    virtual ~SyscallHandler();
+#include "../sched/Scheduler.h"
 
-    void handle();
+extern Scheduler* sched;
 
-  private:
-    void syscall_yield();
-};
+#pragma SWI_ALIAS(1)
+extern void swi(int syscall_nr);
+
+#pragma INTERRUPT(SWI)
+extern "C" void handle_SWI(unsigned r0, unsigned r1, unsigned r2, unsigned r3);
 
 #endif /* SYSCALLHANDLER_H_ */
