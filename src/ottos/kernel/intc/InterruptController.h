@@ -1,4 +1,4 @@
-/* Process.h
+/* InterruptController.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,44 +17,21 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 21.10.2011
- *      Author: Franziskus Domig <fdomig@gmail.com>
+ *  Created on: Oct 30, 2011
+ *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef PROCESS_H_
-#define PROCESS_H_
+#ifndef INTERRUPTCONTROLLER_H_
+#define INTERRUPTCONTROLLER_H_
 
-#include <ottos/types.h>
-
-enum ProcessState {
-  READY, BLOCKED, RUNNING
-};
-
-class Process {
+class InterruptController {
   public:
-    Process();
-    virtual ~Process();
+    InterruptController();
+    virtual ~InterruptController();
+    void add_handler(int handler_id, void (*fn)(void*));
 
-    pid_t pid();
-    void set_pid(pid_t pid);
-    int priority();
-    void set_priority(int priority);
-    ProcessState state();
-    void set_state(ProcessState state);
-    function_t func();
-    void set_func(function_t function);
 
-    int* registers();
-    void set_registers(int* registers);
-
-  private:
-    pid_t pid_;
-    int priority_;
-    ProcessState state_;
-
-    int registers_[16];
-
-    function_t func_;
+    int software_interrupt(int id);
 };
 
-#endif /* PROCESS_H_ */
+#endif /* INTERRUPTCONTROLLER_H_ */

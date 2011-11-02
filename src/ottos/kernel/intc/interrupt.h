@@ -1,4 +1,4 @@
-/* Scheduler.h
+/* interrupt.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,40 +17,39 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Oct 21, 2011
+ *  Created on: Oct 30, 2011
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef SCHEDULER_H_
-#define SCHEDULER_H_
+#ifndef INTERRUPT_H_
+#define INTERRUPT_H_
 
-#include <ottos/types.h>
+#include <stdio.h>
 
-class Process;
-class ProcessManager;
+/* software interrupt function identifiers */
+//#define INTC_DISABLE_IRQ 0
+//#define INTC_ENABLE_IRQ 1
+//#define INTC_DISABLE_FIQ 2
+//#define INTC_ENABLE_FIQ 3
+//
+//
+///* software interrupt function declarations */
+//#pragma SWI_ALIAS(INTC_DISABLE_IRQ)
+//extern void disable_irq();
+//
+//#pragma SWI_ALIAS(INTC_ENABLE_IRQ)
+//extern void enable_irq();
+//
+//#pragma SWI_ALIAS(INTC_DISABLE_FIQ)
+//extern void disable_fiq();
+//
+//#pragma SWI_ALIAS(INTC_ENABLE_FIQ)
+//extern void enable_fiq();
 
-/* class Scheduler
- *
- * schedules the current processes.
- *
- */
-class Scheduler {
-  public:
-    Scheduler(ProcessManager* process_manager);
-    virtual ~Scheduler();
-    void init(void);
-    void run(void);
+#pragma SWI_ALIAS(48)
+extern void swi();
 
-  private:
-    /* the current process index */
-    int current_;
-    /* internal scheduling algorithm */
-    ProcessManager* process_manager_;
+extern "C" void c_intSWI(/*unsigned r0, unsigned r1, unsigned r2, unsigned r3*/);
+extern "C" void c_intIRQ();
 
-    /* gets the next proc to be executed. does not change any states in procs.*/
-    pid_t next();
-    /* returns the index of the current proc */
-    pid_t current(void);
-};
-
-#endif /* SCHEDULER_H_ */
+#endif /* INTERRUPT_H_ */

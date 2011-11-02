@@ -68,9 +68,6 @@ void Kernel::run()
   process_manager_->add(led1);
   process_manager_->add(led2);
 
-
-
-
   // TODO(thomas.bargetz@gmail.com) create init process
 
   // Process* p = new Process();

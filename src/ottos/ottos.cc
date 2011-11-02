@@ -24,8 +24,11 @@
 #include <stdio.h>
 
 #include "kernel/Kernel.h"
+#include "kernel/intc/interrupt.h"
 
 int main(int argc, char **argv) {
+
+  swi();
 
   Kernel k = Kernel();
   k.init();
