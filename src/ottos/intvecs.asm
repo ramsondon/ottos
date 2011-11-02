@@ -12,3 +12,6 @@
 
 	.sect ".intswi"
 	B C_INTSWI ; Software interrupt
+
+	.sect ".intirq"
+	B C_INTIRQ ; Interrupt Request

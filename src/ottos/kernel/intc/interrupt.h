@@ -50,6 +50,6 @@
 extern void swi();
 
 extern "C" void c_intSWI(/*unsigned r0, unsigned r1, unsigned r2, unsigned r3*/);
-
+extern "C" void c_intIRQ();
 
 #endif /* INTERRUPT_H_ */

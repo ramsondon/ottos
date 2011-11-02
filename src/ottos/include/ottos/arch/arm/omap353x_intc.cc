@@ -24,11 +24,15 @@
 #include "../../../../kernel/intc/interrupt.h"
 #include <stdio.h>
 
+#pragma INTERRUPT(IRQ)
+extern "C" void c_intIRQ() {
+
+}
+
 #pragma INTERRUPT(SWI)
 extern "C" void c_intSWI(/*unsigned r0, unsigned r1, unsigned r2, unsigned r3*/) {
-  _disable_interrupts();
-  printf("hello\n");
-  _enable_interrupts();
+
+
 //  asm(" ldrb r3, [lr, #-1]");
 //  switch (r3) {
 //    case 0:

@@ -15,7 +15,9 @@ MEMORY
 
 SECTIONS
 {
-   .inswi      > 0x4020FFCC
+   .intswi     > 0x4020FFCC
+   .intirq     > 0x4020FFDC 
+ 
 
    .const      > ext_ddr
    .bss        > ext_ddr
