@@ -27,6 +27,7 @@
 #include "pm/ProcessManager.h"
 #include "pm/Process.h"
 #include "sys/SyscallHandler.h"
+#include "intc/interrupt.h"
 
 #include "../../bin/led_test.h"
 
@@ -67,7 +68,7 @@ void Kernel::run()
   process_manager_->add(led2);
 
 
-
+  swi();
 
   // TODO(thomas.bargetz@gmail.com) create init process
 
