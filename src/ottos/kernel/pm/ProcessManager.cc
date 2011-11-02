@@ -45,6 +45,7 @@ ProcessManager::~ProcessManager() {
 
 void ProcessManager::init() {
   asm("stack_pointer_a .field _stack_pointer, 32");
+  asm("old_stack_pointer_a .field _old_stack_pointer, 32");
   asm("func_pointer_a .field _func_pointer, 32");
 
   process_table_ = std::vector<Process *>(PROCESS_MAX_COUNT);
@@ -79,7 +80,7 @@ int ProcessManager::switch_process(pid_t to)
     SAVE_REGISTERS;
 
     // switch back to kernel stack
-    asm("\t LDR sp, old_stack_poiter_a");
+    asm("\t LDR sp, old_stack_pointer_a");
 
     // set process to ready
     process_table_[current_]->set_state(READY);
