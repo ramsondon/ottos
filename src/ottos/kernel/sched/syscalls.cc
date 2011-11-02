@@ -31,8 +31,8 @@ int sched_yield(){
   // write the SCHEDULER_YIELD systemcall in the register
 
 
-  _enable_interrupts();
-  _call_swi(??);
+  //_enable_interrupts();
+  //_call_swi(??);
 
   // switch to kernel mode to handle the systemcall
 
