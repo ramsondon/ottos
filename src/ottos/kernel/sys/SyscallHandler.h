@@ -24,6 +24,7 @@
 #ifndef SYSCALLHANDLER_H_
 #define SYSCALLHANDLER_H_
 
+#include <ottos/const.h>
 #include "../Kernel.h"
 
 extern Kernel* kernel;
@@ -32,6 +33,6 @@ extern Kernel* kernel;
 extern void swi(int syscall_nr);
 
 #pragma INTERRUPT(SWI)
-extern "C" void handle_SWI(unsigned r0, unsigned r1, unsigned r2, unsigned r3);
+EXTERN_C void handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3);
 
 #endif /* SYSCALLHANDLER_H_ */

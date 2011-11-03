@@ -25,46 +25,58 @@
 #define PROCESS_H_
 
 #include <ottos/types.h>
+#include <ottos/limits.h>
 
 enum ProcessState {
   READY, BLOCKED, RUNNING
 };
 
+#include <stdio.h>
 class Process {
   public:
     Process();
     virtual ~Process();
 
-    pid_t pid();
-    void set_pid(pid_t pid);
-    int priority();
-    void set_priority(int priority);
-    ProcessState state();
-    void set_state(ProcessState state);
-    function_t func();
-    void set_func(function_t function);
+    inline pid_t pid() { return pid_; }
+    inline void set_pid(pid_t pid) { pid_ = pid; }
 
-    int* registers();
-    void set_registers(int* registers);
+    inline int priority() { return priority_; }
+    inline void set_priority(int priority) { priority = priority; }
 
-    int executed();
-    void mark_as_executed();
+    inline ProcessState state() { return state_; }
+    inline void set_state(ProcessState state) { state_ = state; }
 
-    int stack_pointer();
-    void set_stack_pointer(int sp);
+    inline function_t func() { return func_; }
+    inline void set_func(function_t function) { func_ = function; }
+
+    inline int* registers() { return registers_; }
+    inline void set_registers(int* r) {
+      for(int i = 0; i<REGISTER_SIZE; i++) registers_[i] = r[i];
+    }
+
+    inline int executed() { return executed_; }
+    inline void mark_as_executed() { executed_ = 1; }
+
+    int stack_pointer() { return stack_pointer_; }
+    inline void set_stack_pointer(int sp) { stack_pointer_ = sp; }
+
+    int entry() { return entry_;}
+    inline void set_entry(int entry) { entry_ = entry;}
 
   private:
     pid_t pid_;
     int priority_;
     ProcessState state_;
 
-    int registers_[16];
+    int registers_[REGISTER_SIZE];
 
     function_t func_;
 
     int executed_;
 
     int stack_pointer_;
+
+    int entry_;
 };
 
 #endif /* PROCESS_H_ */

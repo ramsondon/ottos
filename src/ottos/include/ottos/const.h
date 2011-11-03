@@ -28,6 +28,8 @@
 #define PRIVATE static
 #define PUBLIC
 
+#define EXTERN_C extern "C"
+
 #define NULL    0
 
 #define TRUE    1

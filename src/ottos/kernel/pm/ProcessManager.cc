@@ -21,6 +21,8 @@
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
+// allocate space for the global variables which
+// are necessary for the context switch
 asm("\t .bss _stack_pointer, 4");
 asm("\t .bss _kernel_stack_pointer, 4");
 asm("\t .bss _func_pointer, 4");
@@ -44,6 +46,8 @@ ProcessManager::~ProcessManager() {
 }
 
 void ProcessManager::init() {
+  // to access the global variables allocated in the .bss
+  // segment, a .field declaration is necessary
   asm("stack_pointer_a .field _stack_pointer, 32");
   asm("kernel_stack_pointer_a .field _kernel_stack_pointer, 32");
   asm("func_pointer_a .field _func_pointer, 32");
@@ -61,94 +65,137 @@ int ProcessManager::switch_process(pid_t to)
 {
   // TODO(fdomig@gmail.com) must use ATOMIC_START
 
+  // at this point we are in the kernel stack!
 
   if(current_ != PID_INVALID) {
-    // save registers
-
-
+    // set the global stack_pointer variable to switch to the process stack
     stack_pointer = process_table_[current_]->stack_pointer();
-    printf("process_stack_pointer: %x\n", stack_pointer);
 
-    // save kernel stack pointer
-    asm("\t PUSH {r0, sp}");
-    asm("\t LDR r0, kernel_stack_pointer_a");
-    asm("\t ADD sp, sp, #8");
-    asm("\t STR sp, [r0, #0]");
-    asm("\t SUB sp, sp, #8");
-    asm("\t POP {r0, sp}");
-
-    printf("kernel_stack_pointer: %x\n", kernel_stack_pointer);
-    printf("current %i\n", current_);
-    printf("switching to process stack\n");
-
-    // switch to process stack
-    asm("\t LDR sp, stack_pointer_a");
-
-    // save the process' registers
+    // before saving the state of the current process
+    // we need to save the state of the kernel
     SAVE_REGISTERS;
 
-    // store new stack pointer of the process
-    asm("\t STR sp, stack_pointer_a");
+    // save the new stack pointer of the kernel
+    asm("\t LDR r0, kernel_stack_pointer_a");
+    asm("\t STR sp, [r0, #0]");
 
-    // switch back to kernel stack
-    asm("\t LDR sp, kernel_stack_pointer_a");
+    // save the state of the active process
+    // push the registers (state) on the stack of the process
 
-    printf("back in kernel stack\n");
-    printf("current %i\n", current_);
-    printf("new process_stack_pointer: %x\n", stack_pointer);
+    // switch to the process' stack
+    asm("\t LDR r0, stack_pointer_a");
+    asm("\t LDR r0, [r0, #0]");
+    asm("\t MOV sp, r0");
 
-    // save new stack pointer of the process
+    // save the state of the active process
+    SAVE_REGISTERS;
+
+    // save the new stack pointer of the active process
+    asm("\t LDR r0, stack_pointer_a");
+    asm("\t STR sp, [r0, #0]");
+
+    // switch back to the kernel stack
+    asm("\t LDR r0, kernel_stack_pointer_a");
+    asm("\t LDR r0, [r0, #0]");
+    asm("\t MOV sp, r0");
+
+    // restore the kernel state
+    LOAD_REGISTERS;
+
+    // save the new stackpointer of the active process
     process_table_[current_]->set_stack_pointer(stack_pointer);
-
-    // set process to ready
     process_table_[current_]->set_state(READY);
+
+    //printf("accessing of current process stack pointer in (kernel) mode: %x\n", process_table_[current_]->stack_pointer());
   }
 
   current_ = to;
   process_table_[current_]->set_state(RUNNING);
 
-  stack_pointer = process_table_[current_]->stack_pointer();
-  printf("new process_stack_pointer: %x\n", stack_pointer);
+  //printf("accessing of new process stack pointer in (kernel) mode: %x\n", process_table_[current_]->stack_pointer());
 
   if(process_table_[current_]->executed() != 0) {
+    // reload the state of the new process
 
-    printf("switch to process stack\n");
+    //printf("accessing of new process stack pointer in (kernel) mode: %x\n", process_table_[current_]->stack_pointer());
 
-    // switch to process stack
-    asm("\t LDR sp, stack_pointer_a");
+    func_pointer = process_table_[current_]->entry();
 
-    // load the process' registers
+    //printf("jump to pid:%d\taddr:%x\n", current_, func_pointer);
+
+    //printf("accessing of new process stack pointer in (kernel) mode: %x\n", process_table_[current_]->stack_pointer());
+
+    // load the stack of the new process
+    stack_pointer = process_table_[current_]->stack_pointer();
+
+    //printf("stack_pointer: %x\n", stack_pointer);
+
+    // save the kernel state
+    SAVE_REGISTERS;
+
+    // save the new stack pointer of the kernel
+    asm("\t LDR r0, kernel_stack_pointer_a");
+    asm("\t STR sp, [r0, #0]");
+
+    // switch to the new process stack
+    asm("\t LDR r0, stack_pointer_a");
+    asm("\t LDR r0, [r0, #0]");
+    asm("\t MOV sp, r0");
+
+    // restore the process state
     LOAD_REGISTERS;
 
-    // switch to process
-    asm("\t MOV pc, lr");
+    // load the process entry address
+    asm("\t LDR r0, func_pointer_a");
+    asm("\t LDR r0, [r0, #0]");
 
+    // set the return address of the new process to here
+    asm("\t MOV lr, pc");
+
+    // jump to process
+    asm("\t MOV pc, r0");
   } else {
-
+    // the process hasn't been started yet
     process_table_[current_]->mark_as_executed();
 
-    function_t asdf = process_table_[current_]->func();
-    func_pointer = (int)asdf;
+    // save the entry point of the process
+    func_pointer = (int)process_table_[current_]->func();
 
-    asm("\t PUSH {r0}");
-    asm("\t LDR r0, func_pointer_a");
-    asm("\t LDR r1, [r0, #0]");
-    asm("\t POP {r0}");
+    // load the stack of the new process
+    stack_pointer = process_table_[current_]->stack_pointer();
 
-    /*
-    // save kernel stack pointer
-    asm("\t PUSH {r0}");
+    // save the kernel state
+    SAVE_REGISTERS;
+
+    // save the new stack pointer of the kernel
     asm("\t LDR r0, kernel_stack_pointer_a");
-    asm("\t ADD sp, sp, #8");
     asm("\t STR sp, [r0, #0]");
-    asm("\t SUB sp, sp, #8");
-    asm("\t POP {r0}");
-*/
 
-    // switch to process stack
-    asm("\t LDR sp, stack_pointer_a");
-    asm("\t MOV pc, r1");
+    // switch to the new process stack
+    asm("\t LDR r0, stack_pointer_a");
+    asm("\t LDR r0, [r0, #0]");
+    asm("\t MOV sp, r0");
+
+    // load the process entry address
+    asm("\t LDR r0, func_pointer_a");
+    asm("\t LDR r0, [r0, #0]");
+
+    // set the return address of the new process to here
+    asm("\t MOV lr, pc");
+
+    // jump to process
+    asm("\t MOV pc, r0");
   }
+
+  // this is the return point of a process when the process finished
+  // switch back to kernel stack
+  asm("\t LDR r0, kernel_stack_pointer_a");
+  asm("\t LDR r0, [r0, #0]");
+  asm("\t MOV sp, r0");
+
+  // restore the kernel state
+  LOAD_REGISTERS;
+
 
   // TODO(fdomig@gmail.com) must use ATOMIC_END
   return 0;
@@ -169,36 +216,13 @@ pid_t ProcessManager::add(Process *proc)
       proc->set_state(READY);
 
       // allocate separate stack
-      proc->set_stack_pointer(i * 64 + 12);
+      proc->set_stack_pointer(0x8200F000 + i * 0x00010000);
 
       return proc->pid();
     }
   }
   return PID_INVALID;
   // TODO(fdomig@gmail.com) must use ATOMIC_END
-}
-
-void ProcessManager::switch_to_kernel_stack()
-{
-  // save stack pointer of current process
-  //if(current_ != PID_INVALID) {
-
-  printf("saving process stack pointer\n");
-
-    asm("\t PUSH {r0}");
-    asm("\t LDR r0, stack_pointer_a");
-    asm("\t ADD sp, sp, #8");
-    asm("\t STR sp, [r0, #0]");
-    asm("\t SUB sp, sp, #8");
-    asm("\t POP {r0}");
-
-    printf("process_stack_pointer to save: %x\n", stack_pointer);
-  //}
-
-  //asm("\t LDR sp, kernel_stack_pointer_a");
-  if(current_ != PID_INVALID) {
-    process_table_[current_]->set_stack_pointer(stack_pointer);
-  }
 }
 
 std::vector<Process *>* ProcessManager::process_table() {

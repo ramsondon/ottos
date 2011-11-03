@@ -22,6 +22,8 @@
  */
 
 #include <ottos/system.h>
+#include <ottos/syscalls.h>
+#include "../ottos/kernel/sys/SyscallHandler.h"
 
 #include "led_test.h"
 
@@ -31,13 +33,14 @@ int toggle_led1() {
   *(volatile unsigned long *)GPIO5_OE |= SET_BIT(LED_DEVICE_USR0);
 
   for (i = 0;; i++) {
-    if (i > 100000) {
+    if(i > 100000) {
       i = 0;
 
       // switch led 1
       *(volatile unsigned long *) GPIO5_DATAOUT ^= SET_BIT(LED_DEVICE_USR0);
 
-      sched_yield();
+      swi(1);
+      //sched_yield();
     }
   }
 
@@ -50,13 +53,14 @@ int toggle_led2() {
   *(volatile unsigned long *)GPIO5_OE |= SET_BIT(LED_DEVICE_USR1);
 
   for (i = 0;; i++) {
-    if (i > 100000) {
+    if(i > 100000) {
       i = 0;
 
       // switch led 2
       *(volatile unsigned long *) GPIO5_DATAOUT ^= SET_BIT(LED_DEVICE_USR1);
 
-      sched_yield();
+      swi(1);
+      //sched_yield();
     }
   }
 
