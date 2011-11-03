@@ -32,6 +32,6 @@ extern Scheduler* sched;
 extern void swi(int syscall_nr);
 
 #pragma INTERRUPT(SWI)
-extern "C" void handle_SWI(unsigned r0, unsigned r1, unsigned r2, unsigned r3);
+extern "C" void handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3);
 
 #endif /* SYSCALLHANDLER_H_ */

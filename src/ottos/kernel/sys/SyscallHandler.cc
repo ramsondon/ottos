@@ -30,7 +30,7 @@ void syscall_yield() {
   sched->run();
 }
 
-void handle_SWI(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
+void handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 
   SystemCall call = (SystemCall)r0;
 
