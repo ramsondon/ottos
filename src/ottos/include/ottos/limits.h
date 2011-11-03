@@ -31,4 +31,6 @@
 
 #define PROCESS_MAX_COUNT (MEMORY_SIZE / PROCESS_SIZE)
 
+#define REGISTER_SIZE 16
+
 #endif /* LIMITS_H_ */
