@@ -24,10 +24,11 @@
 #ifndef INTERRUPTCONTROLLER_H_
 #define INTERRUPTCONTROLLER_H_
 
+#include <ottos/const.h>
 
 /* The Interrupt Routine for IRQs */
 #pragma INTERRUPT(IRQ)
-extern "C" void handle_irq();
+EXTERN_C void handle_irq();
 
 class InterruptController {
   public:

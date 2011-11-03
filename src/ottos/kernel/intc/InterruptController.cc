@@ -35,7 +35,7 @@ void InterruptController::add_handler(int handler_id, void (*fn)(void*)) {
 }
 
 /* handles the Interrupt Routines IRQ */
-extern "C" void handle_irq() {
+void handle_irq() {
 
 }
 
