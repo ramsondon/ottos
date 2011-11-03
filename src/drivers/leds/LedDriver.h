@@ -1,4 +1,4 @@
-/* led_1_test.c
+/* LedDriver.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,42 +17,26 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 27 Oct 2011
- *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
+ *  Created on: 03.11.2011
+ *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#include <ottos/system.h>
+#ifndef LEDDRIVER_H_
+#define LEDDRIVER_H_
 
-#include "../drivers/leds/LedDriver.h"
+#include <Driver.h>
 
-#include "led_test.h"
+class LedDriver : public Driver {
+  public:
+    LedDriver(int dev);
+    virtual ~LedDriver();
+    virtual int open();
+    virtual int close();
+    virtual int read(int count, char* buffer) { return -1; };
+    virtual int write(int count, char* buffer);
+    virtual int ioctl() { return -1; };
+    virtual int create() { return -1; };
 
-int toggle_led1() {
-  LedDriver d = LedDriver(LED_DEVICE_USR0);
-  char buffer = (char) 1;
+};
 
-  while (1 == 1) {
-    d.write(1, &buffer);
-    for (volatile int i = 0; i < 100000; i++) {
-    }
-    buffer = (buffer == 1) ? 0 : 1;
-    sched_yield();
-  }
-
-  return 0;
-}
-
-int toggle_led2() {
-  LedDriver d = LedDriver(LED_DEVICE_USR1);
-  char buffer = (char) 1;
-
-  while (1 == 1) {
-    d.write(1, &buffer);
-    for (volatile int i = 0; i < 100000; i++) {
-    }
-    buffer = (buffer == 1) ? 0 : 1;
-    sched_yield();
-  }
-
-  return 0;
-}
+#endif /* LEDDRIVER_H_ */

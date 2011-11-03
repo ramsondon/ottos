@@ -1,4 +1,4 @@
-/* led_1_test.c
+/* LedDriver.cc
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,42 +17,42 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 27 Oct 2011
- *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
+ *  Created on: 03.11.2011
+ *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#include <ottos/system.h>
+#include "LedDriver.h"
 
-#include "../drivers/leds/LedDriver.h"
+#include "../../hal/leds.h"
 
-#include "led_test.h"
-
-int toggle_led1() {
-  LedDriver d = LedDriver(LED_DEVICE_USR0);
-  char buffer = (char) 1;
-
-  while (1 == 1) {
-    d.write(1, &buffer);
-    for (volatile int i = 0; i < 100000; i++) {
-    }
-    buffer = (buffer == 1) ? 0 : 1;
-    sched_yield();
-  }
-
-  return 0;
+LedDriver::LedDriver(int dev) :
+  Driver(dev) {
 }
 
-int toggle_led2() {
-  LedDriver d = LedDriver(LED_DEVICE_USR1);
-  char buffer = (char) 1;
+LedDriver::~LedDriver() {
+}
 
-  while (1 == 1) {
-    d.write(1, &buffer);
-    for (volatile int i = 0; i < 100000; i++) {
-    }
-    buffer = (buffer == 1) ? 0 : 1;
-    sched_yield();
+int LedDriver::open() {
+  *(volatile unsigned long *) GPIO5_OE |= (1 << dev_);
+  return 1;
+}
+
+int LedDriver::close() {
+  *(volatile unsigned long *) GPIO5_OE &= ~(1 << dev_);
+  return 1;
+}
+
+int LedDriver::write(int count, char* buffer) {
+  int what = (int) *buffer;
+  switch (what) {
+    case LED_ON:
+      *(volatile unsigned long *) GPIO5_DATAOUT |= (1 << dev_);
+      break;
+    case LED_OFF:
+      *(volatile unsigned long *) GPIO5_DATAOUT &= ~(1 << dev_);
+      break;
+    default:
+      return -1;
   }
-
   return 0;
 }
