@@ -23,41 +23,35 @@
 
 #include <ottos/system.h>
 
+#include "../drivers/leds/LedDriver.h"
+
 #include "led_test.h"
 
 int toggle_led1() {
-  volatile int i;
+  LedDriver d = LedDriver(LED_DEVICE_USR0);
+  char buffer = (char) 1;
 
-  *(volatile unsigned long *)GPIO5_OE |= SET_BIT(LED_DEVICE_USR0);
-
-  for (i = 0;; i++) {
-    if (i > 100000) {
-      i = 0;
-
-      // switch led 1
-      *(volatile unsigned long *) GPIO5_DATAOUT ^= SET_BIT(LED_DEVICE_USR0);
-
-      sched_yield();
+  while (1 == 1) {
+    d.write(1, &buffer);
+    for (volatile int i = 0; i < 100000; i++) {
     }
+    buffer = (buffer == 1) ? 0 : 1;
+    sched_yield();
   }
 
   return 0;
 }
 
 int toggle_led2() {
-  volatile int i;
+  LedDriver d = LedDriver(LED_DEVICE_USR1);
+  char buffer = (char) 1;
 
-  *(volatile unsigned long *)GPIO5_OE |= SET_BIT(LED_DEVICE_USR1);
-
-  for (i = 0;; i++) {
-    if (i > 100000) {
-      i = 0;
-
-      // switch led 2
-      *(volatile unsigned long *) GPIO5_DATAOUT ^= SET_BIT(LED_DEVICE_USR1);
-
-      sched_yield();
+  while (1 == 1) {
+    d.write(1, &buffer);
+    for (volatile int i = 0; i < 100000; i++) {
     }
+    buffer = (buffer == 1) ? 0 : 1;
+    sched_yield();
   }
 
   return 0;
