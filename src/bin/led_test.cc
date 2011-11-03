@@ -29,6 +29,7 @@
 
 int toggle_led1() {
   LedDriver d = LedDriver(LED_DEVICE_USR0);
+  d.open();
   char buffer = (char) 1;
 
   while (1 == 1) {
@@ -38,6 +39,7 @@ int toggle_led1() {
     buffer = (buffer == 1) ? 0 : 1;
     sched_yield();
   }
+  d.close();
 
   return 0;
 }
@@ -45,6 +47,7 @@ int toggle_led1() {
 int toggle_led2() {
   LedDriver d = LedDriver(LED_DEVICE_USR1);
   char buffer = (char) 1;
+  d.open();
 
   while (1 == 1) {
     d.write(1, &buffer);
@@ -53,6 +56,7 @@ int toggle_led2() {
     buffer = (buffer == 1) ? 0 : 1;
     sched_yield();
   }
+  d.close();
 
   return 0;
 }

@@ -32,7 +32,7 @@ class LedDriver : public Driver {
     virtual ~LedDriver();
     virtual int open();
     virtual int close();
-    virtual int read(int count, char* buffer) { return -1; };
+    virtual int read(int count, char* buffer);
     virtual int write(int count, char* buffer);
     virtual int ioctl() { return -1; };
     virtual int create() { return -1; };
