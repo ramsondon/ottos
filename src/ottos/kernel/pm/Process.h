@@ -39,6 +39,8 @@ class Process {
     inline pid_t pid() { return pid_; }
     inline void set_pid(pid_t pid) { pid_ = pid; }
 
+    inline pid_t get_pid() { return pid_; }
+
     inline int priority() { return priority_; }
     inline void set_priority(int priority) { priority = priority; }
 
