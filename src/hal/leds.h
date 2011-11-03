@@ -1,4 +1,4 @@
-/* led_1_test.c
+/* leds.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,42 +17,24 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 27 Oct 2011
- *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
+ *  Created on: 03.11.2011
+ *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#include <ottos/system.h>
+#ifndef LEDS_H_
+#define LEDS_H_
 
-#include "../drivers/leds/LedDriver.h"
+#define GPIO5_OE      0x49054034  /* GPIO5 output enable address */
+#define GPIO5_DATAOUT 0x4905603C  /* GPIO5 data out register address*/
 
-#include "led_test.h"
+#define LED_ON        1
+#define LED_OFF       0
 
-int toggle_led1() {
-  LedDriver d = LedDriver(LED_DEVICE_USR0);
-  char buffer = (char) 1;
+typedef enum LED_DEVICE
+{
+  LED_DEVICE_USR0 = 22,
+  LED_DEVICE_USR1 = 21
+} LED_DEVICE;
 
-  while (1 == 1) {
-    d.write(1, &buffer);
-    for (volatile int i = 0; i < 100000; i++) {
-    }
-    buffer = (buffer == 1) ? 0 : 1;
-    sched_yield();
-  }
 
-  return 0;
-}
-
-int toggle_led2() {
-  LedDriver d = LedDriver(LED_DEVICE_USR1);
-  char buffer = (char) 1;
-
-  while (1 == 1) {
-    d.write(1, &buffer);
-    for (volatile int i = 0; i < 100000; i++) {
-    }
-    buffer = (buffer == 1) ? 0 : 1;
-    sched_yield();
-  }
-
-  return 0;
-}
+#endif /* LEDS_H_ */
