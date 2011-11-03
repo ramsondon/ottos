@@ -40,7 +40,7 @@ class Process {
     inline void set_pid(pid_t pid) { pid_ = pid; }
 
     inline int priority() { return priority_; }
-    inline void set_priority(int priority) { priority = priority; }
+    inline void set_priority(int priority) { priority_ = priority; }
 
     inline ProcessState state() { return state_; }
     inline void set_state(ProcessState state) { state_ = state; }
