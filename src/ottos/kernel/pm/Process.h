@@ -31,6 +31,7 @@ enum ProcessState {
   READY, BLOCKED, RUNNING
 };
 
+#include <stdio.h>
 class Process {
   public:
     Process();
@@ -59,6 +60,9 @@ class Process {
     int stack_pointer() { return stack_pointer_; }
     inline void set_stack_pointer(int sp) { stack_pointer_ = sp; }
 
+    int entry() { return entry_;}
+    inline void set_entry(int entry) { entry_ = entry;}
+
   private:
     pid_t pid_;
     int priority_;
@@ -71,6 +75,8 @@ class Process {
     int executed_;
 
     int stack_pointer_;
+
+    int entry_;
 };
 
 #endif /* PROCESS_H_ */
