@@ -51,7 +51,7 @@ void Kernel::init()
   scheduler_ = new Scheduler(process_manager_);
   scheduler_->init();
 
-  sched = scheduler_;
+  kernel = this;
 }
 
 void Kernel::run()

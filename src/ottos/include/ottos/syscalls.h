@@ -25,7 +25,7 @@
 #define SYSCALLS_H_
 
 typedef enum SystemCall {
-  SCHEDULER_YIELD
+  SCHEDULER_YIELD = 1
 } SystemCall;
 
 #endif /* SYSCALLS_H_ */

@@ -24,7 +24,7 @@
 #include "kernel/Kernel.h"
 #include "kernel/sched/Scheduler.h"
 
-Scheduler* sched;
+Kernel* kernel;
 
 int main(int argc, char **argv) {
 

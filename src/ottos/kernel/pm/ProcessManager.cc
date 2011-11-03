@@ -22,10 +22,10 @@
  */
 
 asm("\t .bss _stack_pointer, 4");
-asm("\t .bss _old_stack_pointer, 4");
+asm("\t .bss _kernel_stack_pointer, 4");
 asm("\t .bss _func_pointer, 4");
 asm("\t .global _stack_pointer");
-asm("\t .global _old_stack_pointer");
+asm("\t .global _kernel_stack_pointer");
 asm("\t .global _func_pointer");
 
 
@@ -45,7 +45,7 @@ ProcessManager::~ProcessManager() {
 
 void ProcessManager::init() {
   asm("stack_pointer_a .field _stack_pointer, 32");
-  asm("old_stack_pointer_a .field _old_stack_pointer, 32");
+  asm("kernel_stack_pointer_a .field _kernel_stack_pointer, 32");
   asm("func_pointer_a .field _func_pointer, 32");
 
   process_table_ = std::vector<Process *>(PROCESS_MAX_COUNT);
@@ -65,13 +65,21 @@ int ProcessManager::switch_process(pid_t to)
   if(current_ != PID_INVALID) {
     // save registers
 
-    stack_pointer = process_table_[current_]->stack_pointer();
 
-    // save stack point to kernel stack
-    asm("\t PUSH {r0}");
-    asm("\t LDR r0, old_stack_pointer_a");
+    stack_pointer = process_table_[current_]->stack_pointer();
+    printf("process_stack_pointer: %x\n", stack_pointer);
+
+    // save kernel stack pointer
+    asm("\t PUSH {r0, sp}");
+    asm("\t LDR r0, kernel_stack_pointer_a");
+    asm("\t ADD sp, sp, #8");
     asm("\t STR sp, [r0, #0]");
-    asm("\t POP {r0}");
+    asm("\t SUB sp, sp, #8");
+    asm("\t POP {r0, sp}");
+
+    printf("kernel_stack_pointer: %x\n", kernel_stack_pointer);
+    printf("current %i\n", current_);
+    printf("switching to process stack\n");
 
     // switch to process stack
     asm("\t LDR sp, stack_pointer_a");
@@ -79,8 +87,18 @@ int ProcessManager::switch_process(pid_t to)
     // save the process' registers
     SAVE_REGISTERS;
 
+    // store new stack pointer of the process
+    asm("\t STR sp, stack_pointer_a");
+
     // switch back to kernel stack
-    asm("\t LDR sp, old_stack_pointer_a");
+    asm("\t LDR sp, kernel_stack_pointer_a");
+
+    printf("back in kernel stack\n");
+    printf("current %i\n", current_);
+    printf("new process_stack_pointer: %x\n", stack_pointer);
+
+    // save new stack pointer of the process
+    process_table_[current_]->set_stack_pointer(stack_pointer);
 
     // set process to ready
     process_table_[current_]->set_state(READY);
@@ -90,8 +108,11 @@ int ProcessManager::switch_process(pid_t to)
   process_table_[current_]->set_state(RUNNING);
 
   stack_pointer = process_table_[current_]->stack_pointer();
+  printf("new process_stack_pointer: %x\n", stack_pointer);
 
   if(process_table_[current_]->executed() != 0) {
+
+    printf("switch to process stack\n");
 
     // switch to process stack
     asm("\t LDR sp, stack_pointer_a");
@@ -109,11 +130,22 @@ int ProcessManager::switch_process(pid_t to)
     function_t asdf = process_table_[current_]->func();
     func_pointer = (int)asdf;
 
+    asm("\t PUSH {r0}");
     asm("\t LDR r0, func_pointer_a");
     asm("\t LDR r1, [r0, #0]");
+    asm("\t POP {r0}");
+
+    /*
+    // save kernel stack pointer
+    asm("\t PUSH {r0}");
+    asm("\t LDR r0, kernel_stack_pointer_a");
+    asm("\t ADD sp, sp, #8");
+    asm("\t STR sp, [r0, #0]");
+    asm("\t SUB sp, sp, #8");
+    asm("\t POP {r0}");
+*/
 
     // switch to process stack
-    //asm("\t SUB sp, sp, stack_pointer_a");
     asm("\t LDR sp, stack_pointer_a");
     asm("\t MOV pc, r1");
   }
@@ -144,6 +176,29 @@ pid_t ProcessManager::add(Process *proc)
   }
   return PID_INVALID;
   // TODO(fdomig@gmail.com) must use ATOMIC_END
+}
+
+void ProcessManager::switch_to_kernel_stack()
+{
+  // save stack pointer of current process
+  //if(current_ != PID_INVALID) {
+
+  printf("saving process stack pointer\n");
+
+    asm("\t PUSH {r0}");
+    asm("\t LDR r0, stack_pointer_a");
+    asm("\t ADD sp, sp, #8");
+    asm("\t STR sp, [r0, #0]");
+    asm("\t SUB sp, sp, #8");
+    asm("\t POP {r0}");
+
+    printf("process_stack_pointer to save: %x\n", stack_pointer);
+  //}
+
+  //asm("\t LDR sp, kernel_stack_pointer_a");
+  if(current_ != PID_INVALID) {
+    process_table_[current_]->set_stack_pointer(stack_pointer);
+  }
 }
 
 std::vector<Process *>* ProcessManager::process_table() {

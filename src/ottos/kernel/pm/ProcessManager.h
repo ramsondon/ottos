@@ -33,7 +33,7 @@
 #define LOAD_REGISTERS asm("\tPOP {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r14}")
 
 extern int stack_pointer;
-extern int old_stack_pointer;
+extern int kernel_stack_pointer;
 extern int func_pointer;
 
 class Process;
@@ -48,6 +48,8 @@ class ProcessManager {
     pid_t current_process(void);
     pid_t add(Process* proc);
     void init();
+
+    void switch_to_kernel_stack();
 
     std::vector<Process *>* process_table();
 

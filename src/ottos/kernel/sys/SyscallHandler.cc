@@ -24,15 +24,24 @@
 #include <ottos/syscalls.h>
 #include <ottos/types.h>
 
+#include "../pm/ProcessManager.h"
+#include "../sched/Scheduler.h"
 #include "SyscallHandler.h"
 
 void syscall_yield() {
-  sched->run();
+
+  // restore kernel stack
+  kernel->process_manager()->switch_to_kernel_stack();
+
+  // run scheduler
+  kernel->scheduler()->run();
 }
 
 void handle_SWI(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 
-  SystemCall call = (SystemCall)r0;
+  syscall_yield();
+
+  /*SystemCall call = (SystemCall)r0;
 
   switch (call) {
     case SCHEDULER_YIELD:
@@ -42,6 +51,7 @@ void handle_SWI(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
       // error
       break;
   }
+  */
 }
 
 

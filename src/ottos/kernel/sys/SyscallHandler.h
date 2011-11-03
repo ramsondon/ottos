@@ -24,9 +24,9 @@
 #ifndef SYSCALLHANDLER_H_
 #define SYSCALLHANDLER_H_
 
-#include "../sched/Scheduler.h"
+#include "../Kernel.h"
 
-extern Scheduler* sched;
+extern Kernel* kernel;
 
 #pragma SWI_ALIAS(1)
 extern void swi(int syscall_nr);
