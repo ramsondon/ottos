@@ -21,7 +21,7 @@
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#include "../../../../kernel/intc/interrupt.h"
+#include "../../../kernel/intc/interrupt.h"
 #include <stdio.h>
 
 #pragma INTERRUPT(IRQ)
