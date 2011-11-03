@@ -25,6 +25,6 @@
 #include <ottos/syscalls.h>
 #include "../sys/SyscallHandler.h"
 
-void sched_yield(){
+void sched_yield() {
   swi(SCHEDULER_YIELD);
 }

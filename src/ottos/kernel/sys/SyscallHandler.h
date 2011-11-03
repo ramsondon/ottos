@@ -25,11 +25,9 @@
 #define SYSCALLHANDLER_H_
 
 #include <ottos/const.h>
+#include "../Kernel.h"
 
-#include "../sched/Scheduler.h"
-
-
-extern Scheduler* sched;
+extern Kernel* kernel;
 
 #pragma SWI_ALIAS(1)
 extern void swi(int syscall_nr);

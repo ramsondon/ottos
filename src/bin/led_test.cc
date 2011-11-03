@@ -22,12 +22,15 @@
  */
 
 #include <ottos/system.h>
+#include <ottos/syscalls.h>
+#include "../ottos/kernel/sys/SyscallHandler.h"
 
 #include "../drivers/leds/LedDriver.h"
 
 #include "led_test.h"
 
 int toggle_led1() {
+
   LedDriver d = LedDriver(LED_DEVICE_USR0);
   char buffer = (char) 1;
 
@@ -36,13 +39,14 @@ int toggle_led1() {
     for (volatile int i = 0; i < 100000; i++) {
     }
     buffer = (buffer == 1) ? 0 : 1;
-    sched_yield();
+    swi(SCHEDULER_YIELD);
   }
 
   return 0;
 }
 
 int toggle_led2() {
+
   LedDriver d = LedDriver(LED_DEVICE_USR1);
   char buffer = (char) 1;
 
@@ -51,7 +55,7 @@ int toggle_led2() {
     for (volatile int i = 0; i < 100000; i++) {
     }
     buffer = (buffer == 1) ? 0 : 1;
-    sched_yield();
+    swi(SCHEDULER_YIELD);
   }
 
   return 0;
