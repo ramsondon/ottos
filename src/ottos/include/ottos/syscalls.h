@@ -24,8 +24,13 @@
 #ifndef SYSCALLS_H_
 #define SYSCALLS_H_
 
-typedef enum SystemCall {
-  SCHEDULER_YIELD = 1
-} SystemCall;
+#define SYS_YIELD 1
+/**
+ * I/O System calls
+ */
+#define SYS_OPEN  2
+#define SYS_CLOSE 3
+#define SYS_READ  4
+#define SYS_WRITE 5
 
 #endif /* SYSCALLS_H_ */
