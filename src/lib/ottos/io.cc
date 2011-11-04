@@ -1,4 +1,4 @@
-/* syscalls.cc
+/* io.cc
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,14 +17,24 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 27 Oct 2011
- *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
+ *  Created on: 04.11.2011
+ *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
+#include <ottos/io.h>
+#include <ottos/types.h>
 #include <ottos/system.h>
-#include <ottos/syscalls.h>
-#include "../sys/SyscallHandler.h"
 
-void sched_yield() {
-  swi(SCHEDULER_YIELD);
+file_t* fopen(char* filename, char* mode) {
+  int flags = 0;
+  file_t* fp = (file_t *) sys_open(filename, flags);
+  return fp;
+}
+
+int fclose(file_t* fp) {
+  return 0;
+}
+
+int fwrite(file_t* fp, size_t size, size_t count, char* buffer) {
+  return 0;
 }

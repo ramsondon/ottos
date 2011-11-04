@@ -87,14 +87,12 @@ void handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 
   //printf("pid:%d\tlr:%x\tnew stack pointer: %x\n", currentProcess->pid(), return_register, currentProcess->stack_pointer());
 
-  SystemCall call = SCHEDULER_YIELD; // (SystemCall)r0
+  int call = SYS_YIELD; // (SystemCall)r0
 
   switch (call) {
-    case SCHEDULER_YIELD:
-
+    case SYS_YIELD:
       // execute the system call
       kernel->scheduler()->run();
-
       break;
     default:
       // error

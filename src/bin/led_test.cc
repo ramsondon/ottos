@@ -22,8 +22,7 @@
  */
 
 #include <ottos/system.h>
-#include <ottos/syscalls.h>
-#include "../ottos/kernel/sys/SyscallHandler.h"
+#include <ottos/io.h>
 
 #include "../drivers/leds/LedDriver.h"
 
@@ -40,7 +39,7 @@ int toggle_led1() {
     for (volatile int i = 0; i < 100000; i++) {
     }
     buffer = (buffer == 1) ? 0 : 1;
-    swi(SCHEDULER_YIELD);
+    sys_yield();
   }
   d.close();
 
@@ -58,9 +57,18 @@ int toggle_led2() {
     for (volatile int i = 0; i < 100000; i++) {
     }
     buffer = (buffer == 1) ? 0 : 1;
-    swi(SCHEDULER_YIELD);
+    sys_yield();
   }
   d.close();
+
+  return 0;
+}
+
+int test_file_operations() {
+  file_t* fp = fopen("/dev/led01", "w");
+  char buffer = 1;
+  fwrite(fp, sizeof(char), 1, &buffer);
+  fclose(fp);
 
   return 0;
 }

@@ -29,9 +29,6 @@
 
 extern Kernel* kernel;
 
-#pragma SWI_ALIAS(1)
-extern void swi(int syscall_nr);
-
 #pragma INTERRUPT(SWI)
 EXTERN_C void handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3);
 
