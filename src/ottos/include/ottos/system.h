@@ -24,6 +24,20 @@
 #ifndef SYSTEM_H_
 #define SYSTEM_H_
 
-extern void sched_yield();
+#include <ottos/const.h>
+#include <ottos/types.h>
+
+/**
+ * Scheduler system calls
+ */
+EXTERN void sys_yield();
+
+/**
+ * I/O system calls
+ */
+EXTERN address_t sys_open(char* filename, int flags);
+EXTERN size_t sys_read();
+EXTERN size_t sys_write();
+EXTERN int sys_close();
 
 #endif /* SYSTEM_H_ */

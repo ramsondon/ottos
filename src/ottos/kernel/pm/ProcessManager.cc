@@ -23,6 +23,7 @@
 
 // allocate space for the global variables which
 // are necessary for the context switch
+
 asm("\t .bss _stack_pointer, 4");
 asm("\t .bss _kernel_stack_pointer, 4");
 asm("\t .bss _func_pointer, 4");
