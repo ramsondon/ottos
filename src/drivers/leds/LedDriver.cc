@@ -56,3 +56,7 @@ int LedDriver::write(int count, char* buffer) {
   }
   return 0;
 }
+
+int LedDriver::read(int count, char* buffer) {
+  *buffer = (char) (*(volatile unsigned long *) GPIO5_DATAOUT & (1<<dev_) ? LED_ON : LED_OFF);
+}
