@@ -30,23 +30,21 @@ asm("reg_val_a .field _reg_val, 32");
 
 extern int reg_val;
 
-#define PUT_TO_REGISTER(reg, val) ({ \
-  reg_val = val; \
-  asm volatile("\t LDR "reg", reg_val_a"); \
-})
+#define PUT_TO_REGISTER(reg, val) \
+  reg_val = (int) val; \
+  asm("\t LDR "reg", reg_val_a");
 
-#define READ_FROM_REGISTER(reg, var) ({ \
+#define READ_FROM_REGISTER(reg, var) \
   PUT_TO_REGISTER(reg, var); \
-  asm volatile("\t STR "reg", ["reg",#0]"); \
-  var = reg_val; \
-})
+  asm("\t STR "reg", ["reg",#0]"); \
+  var = (int) reg_val;
 
 #pragma SWI_ALIAS(1)
 EXTERN void swi(int syscall_nr);
 
-#define REG_0 r0
-#define REG_1 r1
-#define REG_2 r2
+#define REG_0 "r0"
+#define REG_1 "r1"
+#define REG_2 "r2"
 
 EXTERN
 
@@ -57,22 +55,24 @@ void sys_yield() {
 address_t sys_open(char* filename, int flags) {
 
   // store registers temporary
-  /*int t[2] = {0, 0};
-  READ_FROM_REGISTER(REG_1, t[0]);
-  READ_FROM_REGISTER(REG_2, t[1]);
+  int t[2] = {0, 0};
+  READ_FROM_REGISTER(REG_1, &t[0]);
+  READ_FROM_REGISTER(REG_2, &t[1]);
 
-  // put sys call params
+  // put system call parameters
   PUT_TO_REGISTER(REG_1, (int) filename);
   PUT_TO_REGISTER(REG_2, flags);
+
+  // set system call
   swi(SYS_OPEN);
 
-  // read return */
+  // read return
   address_t address = (address_t) 0;
-  /* READ_FROM_REGISTER(0, address);
+  READ_FROM_REGISTER(REG_0, address);
 
   // reset registers to temporary state
   PUT_TO_REGISTER(REG_1, t[0]);
   PUT_TO_REGISTER(REG_2, t[1]);
-  */
+
   return address;
 }
