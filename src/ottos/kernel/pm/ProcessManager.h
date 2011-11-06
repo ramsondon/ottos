@@ -47,7 +47,8 @@ class ProcessManager {
     virtual ~ProcessManager();
 
     int run(function_t function);
-    pid_t current_process(void);
+    inline pid_t current_process() { return current_; }
+    inline void set_current_process(pid_t pid) { current_ = pid; }
 
     void init();
     pid_t add(Process* proc);

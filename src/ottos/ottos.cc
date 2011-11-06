@@ -21,16 +21,46 @@
  *      Author: Matthias Schmid <m.schmid@students.fhv.at>
  */
 
+#include <ottos/system.h>
 #include "kernel/Kernel.h"
-#include "kernel/sched/Scheduler.h"
 
 Kernel* kernel;
 
+#include "../../bin/led_test.h"
+
 int main(int argc, char **argv) {
 
-  Kernel k = Kernel();
-  k.init();
-  k.run();
+	kernel = new Kernel();
+	kernel->init();
+	kernel->run();
 
-  return 0;
+	// switch to user mode
+	asm("\t CPS 0x10");
+	sys_yield();
+
+//	// schedule the next process
+//	Process* nextProcess = kernel->process_manager()->process_table()->at(kernel->scheduler()->next());
+//	kernel->process_manager()->set_current_process(nextProcess->pid());
+//
+//	printf("next pid: %d\n", nextProcess->pid());
+//
+//
+//		// switch to the process stack
+//	bla = nextProcess->stack_pointer();
+//	bla2 = (int)nextProcess->func();
+//	asm("\t LDR r5, bla_a \n" \
+//		"\t LDR sp, [r5] \n" \
+//
+//	// start the process
+//
+//		"\t LDR r5, bla2_a \n" \
+//		"\t LDR r5, [r5] \n" \
+//
+//	// switch to usermode
+//		"\t CPS 0x10 \n" \
+//
+//	// jump to process
+//		"\t MOV pc, r5");
+
+	return 0;
 }

@@ -41,14 +41,16 @@ class Scheduler {
     void init(void);
     void run(void);
 
+    /* gets the next proc to be executed. does not change any states in procs.*/
+    pid_t next();
+
   private:
     /* the current process index */
     int current_;
     /* internal scheduling algorithm */
     ProcessManager* process_manager_;
 
-    /* gets the next proc to be executed. does not change any states in procs.*/
-    pid_t next();
+
     /* returns the index of the current proc */
     pid_t current(void);
 };

@@ -26,6 +26,9 @@
 #include "Process.h"
 
 Process::Process() {
+	for(int i = 0; i < PROCESS_MAX_COUNT; i++) {
+		registers_[i] = 0x0;
+	}
   executed_ = 0;
 }
 
