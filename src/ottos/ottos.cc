@@ -22,17 +22,22 @@
  */
 
 #include <ottos/system.h>
-#include "kernel/Kernel.h"
-
-Kernel* kernel;
 
 #include "../../bin/led_test.h"
+#include "kernel/intc/InterruptHandler.h"
+#include "kernel/pm/Process_c.h"
 
 int main(int argc, char **argv) {
 
-	kernel = new Kernel();
-	kernel->init();
-	kernel->run();
+//	kernel = new Kernel();
+//	kernel->init();
+//	kernel->run();
+
+	started = FALSE;
+
+	init_process_table();
+	create_process(1, (int)toggle_led1);
+	create_process(1, (int)toggle_led2);
 
 	// switch to user mode
 	asm("\t CPS 0x10");
