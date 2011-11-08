@@ -75,11 +75,11 @@ int main(int argc, char **argv) {
 
   GPTimerController gptController;
   gptController.init(3, 1000000);
-  gptController.start(3);
+  gptController.start(3, MATCH_INTERRUPT);
   printf("init GPT2... \n");
 
   gptController.init(4, 1500000);
-  gptController.start(4);
+  gptController.start(4, MATCH_INTERRUPT);
   printf("init GPT3... \n");
 
   // enable IRQs

@@ -50,7 +50,7 @@ class GPTimerController {
     virtual ~GPTimerController();
 
     void init(int timer, int tick_time);
-    void start(int timer);
+    void start(int timer, TimerInterruptMode interrupt_mode);
     void stop(int timer);
     void clear(int timer);
     void reset(int timer);

@@ -50,8 +50,8 @@ void GPTimerController::init(int timer, int tick_time) {
   timer_[timer-1].init(tick_time);
 }
 
-void GPTimerController::start(int timer) {
-  timer_[timer-1].start();
+void GPTimerController::start(int timer, TimerInterruptMode interrupt_mode) {
+  timer_[timer-1].start(interrupt_mode);
 }
 
 void GPTimerController::stop(int timer) {

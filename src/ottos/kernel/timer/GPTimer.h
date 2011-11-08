@@ -41,7 +41,7 @@ class GPTimer {
 
     void init(int tick_time);
     void init(int ticks, int load_ticks);
-    void start();
+    void start(TimerInterruptMode interrupt_mode);
     void stop();
     void clear();
     void reset();
