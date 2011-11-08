@@ -27,7 +27,7 @@
 
 int toggle_led1() {
   volatile int i;
-
+/*
   *(volatile unsigned long *)GPIO5_OE |= SET_BIT(LED_DEVICE_USR0);
 
   for (i = 0;; i++) {
@@ -40,13 +40,13 @@ int toggle_led1() {
       sched_yield();
     }
   }
-
+*/
   return 0;
 }
 
 int toggle_led2() {
   volatile int i;
-
+/*
   *(volatile unsigned long *)GPIO5_OE |= SET_BIT(LED_DEVICE_USR1);
 
   for (i = 0;; i++) {
@@ -59,6 +59,6 @@ int toggle_led2() {
       sched_yield();
     }
   }
-
+*/
   return 0;
 }

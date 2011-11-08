@@ -25,6 +25,7 @@
 #define OTTOS_TYPES_H_
 
 typedef int pid_t;
+typedef volatile unsigned int* address;
 typedef int (*function_t)();
 
 #endif /* OTTOS_TYPES_H_ */

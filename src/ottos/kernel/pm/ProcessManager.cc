@@ -20,14 +20,14 @@
  *  Created on: 27 Oct 2011
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
-
+/*
 asm("\t .bss _stack_pointer, 4");
 asm("\t .bss _old_stack_pointer, 4");
 asm("\t .bss _func_pointer, 4");
 asm("\t .global _stack_pointer");
 asm("\t .global _old_stack_pointer");
 asm("\t .global _func_pointer");
-
+*/
 
 #include <vector>
 
@@ -44,9 +44,12 @@ ProcessManager::~ProcessManager() {
 }
 
 void ProcessManager::init() {
+  /*
+
   asm("stack_pointer_a .field _stack_pointer, 32");
   asm("old_stack_pointer_a .field _old_stack_pointer, 32");
   asm("func_pointer_a .field _func_pointer, 32");
+   */
 
   process_table_ = std::vector<Process *>(PROCESS_MAX_COUNT);
 }
@@ -61,20 +64,22 @@ int ProcessManager::switch_process(pid_t to)
 {
   // TODO(fdomig@gmail.com) must use ATOMIC_START
 
-
+/*
   if(current_ != PID_INVALID) {
     // save registers
 
     stack_pointer = process_table_[current_]->stack_pointer();
 
     // save stack point to kernel stack
+
     asm("\t PUSH {r0}");
     asm("\t LDR r0, old_stack_pointer_a");
     asm("\t STR sp, [r0, #0]");
     asm("\t POP {r0}");
 
+
     // switch to process stack
-    asm("\t LDR sp, stack_pointer_a");
+    //asm("\t LDR sp, stack_pointer_a");
 
     // save the process' registers
     SAVE_REGISTERS;
@@ -117,7 +122,7 @@ int ProcessManager::switch_process(pid_t to)
     asm("\t LDR sp, stack_pointer_a");
     asm("\t MOV pc, r1");
   }
-
+*/
   // TODO(fdomig@gmail.com) must use ATOMIC_END
   return 0;
 }
@@ -128,6 +133,7 @@ pid_t ProcessManager::current_process() {
 
 pid_t ProcessManager::add(Process *proc)
 {
+  /*
   // TODO(fdomig@gmail.com) must use ATOMIC_START
   for(int i = 0;i<PROCESS_MAX_COUNT; i++) {
     if (process_table_[i] == NULL) {
@@ -142,6 +148,7 @@ pid_t ProcessManager::add(Process *proc)
       return proc->pid();
     }
   }
+  */
   return PID_INVALID;
   // TODO(fdomig@gmail.com) must use ATOMIC_END
 }
