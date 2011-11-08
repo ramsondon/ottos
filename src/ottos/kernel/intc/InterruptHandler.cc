@@ -38,7 +38,6 @@ extern int return_address;
 extern int function_pointer;
 
 
-#pragma TASK
 void handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 
 
@@ -165,15 +164,18 @@ void handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 		// switch back to the interrupt handler
 		asm("\t CPS 0x13");
 
-
-
 		// ******************************
 		// ****** INTERRUPPT STACK ******
 		// ******************************
 
-		// set the new return address
+		// set the return address of the interrupt handler to the entry
+		// point of the process
 		asm("\t LDR lr, function_pointer \n" \
 			"\t LDR lr, [lr]");
+
+		// jump to process and leave the interrupt
+		asm("\t STM sp, {lr} \n" \
+			"\t LDM sp, {pc}^");
 
 	} else {
 
@@ -216,8 +218,13 @@ void handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 		// ****** INTERRUPPT STACK ******
 		// ******************************
 
-		// set the new return address
+		// set the return address of the interrupt handler to the entry
+		// point of the process
 		asm("\t LDR lr, function_pointer \n" \
 			"\t LDR lr, [lr]");
+
+		// jump to process and leave the interrupt
+		asm("\t STM sp, {lr} \n" \
+			"\t LDM sp, {pc}^");
 	}
 }
