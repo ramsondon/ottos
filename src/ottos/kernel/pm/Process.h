@@ -57,11 +57,11 @@ class Process {
     inline int executed() { return executed_; }
     inline void mark_as_executed() { executed_ = 1; }
 
-    inline int stack_pointer() { return stack_pointer_; }
-    inline void set_stack_pointer(int sp) { stack_pointer_ = sp; }
+    inline int stack_pointer() { return registers_[13]; }
+    inline void set_stack_pointer(int sp) { registers_[13] = sp; }
 
-    inline int entry() { return entry_;}
-    inline void set_entry(int entry) { entry_ = entry;}
+    inline int entry() { return registers_[15];}
+    inline void set_entry(int entry) { registers_[15] = entry;}
 
   private:
     pid_t pid_;

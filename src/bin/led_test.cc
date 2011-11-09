@@ -30,36 +30,73 @@
 
 int toggle_led1() {
 
-  LedDriver d = LedDriver(LED_DEVICE_USR0);
-  d.open();
-  char buffer = (char) 1;
+	*(volatile unsigned long *)GPIO5_OE |= SET_BIT(LED_DEVICE_USR0);
+	for(int i = 0;; i++) {
+		if(i > 100000) {
+			i = 0;
 
-  while (1 == 1) {
-    d.write(1, &buffer);
-    for (volatile int i = 0; i < 100000; i++) {
-    }
-    buffer = (buffer == 1) ? 0 : 1;
-    sys_yield();
-  }
-  d.close();
+			*(volatile unsigned long *) GPIO5_DATAOUT ^= SET_BIT(LED_DEVICE_USR0);
+			sys_yield();
+		}
+	}
+
+//  LedDriver d = LedDriver(LED_DEVICE_USR0);
+//  d.open();
+//  char buffer = (char) 1;
+//
+//  while (1 == 1) {
+//    d.write(1, &buffer);
+//    for (volatile int i = 0; i < 100000; i++) {
+//    }
+//    buffer = (buffer == 1) ? 0 : 1;
+//    sys_yield();
+//
+//  }
+//  d.close();
+
+//	int i = 5;
+//	while(i > 0) {
+//		printf("led1: before yield: i=%d\n", i);
+//		i--;
+//		sys_yield();
+//		printf("led1: after yield: i=%d\n", i);
+//	}
 
   return 0;
 }
 
 int toggle_led2() {
 
-  LedDriver d = LedDriver(LED_DEVICE_USR1);
-  char buffer = (char) 1;
-  d.open();
+	*(volatile unsigned long *)GPIO5_OE |= SET_BIT(LED_DEVICE_USR1);
+	for(int i = 0;; i++) {
+		if(i > 100000) {
+			i = 0;
 
-  while (1 == 1) {
-    d.write(1, &buffer);
-    for (volatile int i = 0; i < 100000; i++) {
-    }
-    buffer = (buffer == 1) ? 0 : 1;
-    sys_yield();
-  }
-  d.close();
+			*(volatile unsigned long *) GPIO5_DATAOUT ^= SET_BIT(LED_DEVICE_USR1);
+			sys_yield();
+		}
+	}
+//
+//  LedDriver d = LedDriver(LED_DEVICE_USR1);
+//  char buffer = (char) 1;
+//  d.open();
+//
+//  while (1 == 1) {
+//    d.write(1, &buffer);
+//    for (volatile int i = 0; i < 100000; i++) {
+//    }
+//    buffer = (buffer == 1) ? 0 : 1;
+//    sys_yield();
+//  }
+//  d.close();
+
+//	int i = 10;
+//	while(i > 0) {
+//		printf("led2: before yield: i=%d\n", i);
+//		i--;
+//		sys_yield();
+//		printf("led2: after yield: i=%d\n", i);
+//	}
 
   return 0;
 }
