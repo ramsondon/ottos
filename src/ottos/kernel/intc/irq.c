@@ -7,9 +7,9 @@
 
 #include <ottos/const.h>
 
-#include "../pm/Process_c.h"
-#include "../sched/Scheduler_c.h"
-#include "InterruptHandler.h"
+#include "../pm/process.h"
+#include "../sched/scheduler.h"
+#include "irq.h"
 
 asm(	"\t .bss _stack_pointer_interrupted, 4 \n" \
 		"\t .bss _stack_pointer_restored, 4 \n" \

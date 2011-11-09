@@ -5,8 +5,8 @@
  *      Author: Thomas
  */
 
-#include "../pm/Process_c.h"
-#include "Scheduler_c.h"
+#include "../pm/process.h"
+#include "scheduler.h"
 
 void schedule_next() {
 

@@ -24,8 +24,8 @@
 #include <ottos/system.h>
 
 #include "../../bin/led_test.h"
-#include "kernel/intc/InterruptHandler.h"
-#include "kernel/pm/Process_c.h"
+#include "kernel/intc/irq.h"
+#include "kernel/pm/process.h"
 
 int main(int argc, char **argv) {
 

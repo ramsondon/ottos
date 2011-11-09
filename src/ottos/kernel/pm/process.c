@@ -7,7 +7,7 @@
 
 #include <stdlib.h>
 
-#include "Process_c.h"
+#include "process.h"
 
 // the process table contains all processes of the
 // operating system
