@@ -17,7 +17,6 @@ SECTIONS
 {
    .intswi     > 0x4020FFCC
    .intirq     > 0x4020FFDC
-   .intfiq     > 0x4020FFE0
 
    .const      > ext_ddr
    .bss        > ext_ddr
