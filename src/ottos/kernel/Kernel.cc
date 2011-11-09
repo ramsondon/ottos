@@ -50,14 +50,10 @@ void Kernel::init()
   // create the scheduler
   scheduler_ = new Scheduler(process_manager_);
   scheduler_->init();
-
-  sched = scheduler_;
 }
 
 void Kernel::run()
 {
-  //toggle_led1();
-
   Process* led1 = new Process();
   led1->set_func(toggle_led1);
 
@@ -82,7 +78,7 @@ void Kernel::run()
   // }
 
   // start scheduling
-  scheduler_->run();
+  //scheduler_->run();
 }
 
 Scheduler *Kernel::scheduler()

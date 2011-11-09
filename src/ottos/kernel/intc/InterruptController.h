@@ -24,6 +24,7 @@
 #ifndef INTERRUPTCONTROLLER_H_
 #define INTERRUPTCONTROLLER_H_
 
+#include <ottos/const.h>
 
 #define INTCPS_CONTROL (address) 0x48200048   // MPU_INTC + INTCPS_CONTROL
 #define INTCPS_SIR_IRQ (address) 0x48200040   // MPU_INTC + INTCPS_SIR_IRQ
@@ -32,9 +33,6 @@
 #define INTCPS_MIR_SET_1 (address) 0x482000A8 // MPU_INTC +
 #define INTCPS_MIR_SET_2 (address) 0x482000C8 // MPU_INTC +
 
-
-/* The Interrupt Routine for IRQs */
-//extern "C" void handle_irq();
 
 class InterruptController {
   public:

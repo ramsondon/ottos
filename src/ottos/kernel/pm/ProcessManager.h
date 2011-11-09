@@ -32,9 +32,12 @@
 #define SAVE_REGISTERS asm("\tPUSH {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r14}")
 #define LOAD_REGISTERS asm("\tPOP {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r14}")
 
+// global variables which are necessary for the context switch
 extern int stack_pointer;
-extern int old_stack_pointer;
+extern int kernel_stack_pointer;
 extern int func_pointer;
+
+// the syscall function to
 
 class Process;
 
@@ -44,10 +47,12 @@ class ProcessManager {
     virtual ~ProcessManager();
 
     int run(function_t function);
-    int switch_process(pid_t to);
-    pid_t current_process(void);
-    pid_t add(Process* proc);
+    inline pid_t current_process() { return current_; }
+    inline void set_current_process(pid_t pid) { current_ = pid; }
+
     void init();
+    pid_t add(Process* proc);
+    int switch_process(pid_t to);
 
     std::vector<Process *>* process_table();
 

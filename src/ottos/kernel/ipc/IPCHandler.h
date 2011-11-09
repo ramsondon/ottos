@@ -1,4 +1,4 @@
-/* syscalls.cc
+/* IPCHandler.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,14 +17,23 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 27 Oct 2011
- *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
+ *  Created on: Nov 6, 2011
+ *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#include <ottos/system.h>
-#include <ottos/syscalls.h>
-#include "../sys/SyscallHandler.h"
+#ifndef IPCHANDLER_H_
+#define IPCHANDLER_H_
 
-void sched_yield(){
-  swi(SCHEDULER_YIELD);
-}
+#include <ottos/types.h>
+
+class Message;
+
+class IPCHandler {
+  public:
+    IPCHandler();
+    virtual ~IPCHandler();
+    int send_message(pid_t proc, Message* msg);
+    int receive_message();
+};
+
+#endif /* IPCHANDLER_H_ */

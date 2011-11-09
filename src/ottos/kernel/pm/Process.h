@@ -31,6 +31,7 @@ enum ProcessState {
   READY, BLOCKED, RUNNING
 };
 
+#include <stdio.h>
 class Process {
   public:
     Process();
@@ -40,7 +41,7 @@ class Process {
     inline void set_pid(pid_t pid) { pid_ = pid; }
 
     inline int priority() { return priority_; }
-    inline void set_priority(int priority) { priority = priority; }
+    inline void set_priority(int priority) { priority_ = priority; }
 
     inline ProcessState state() { return state_; }
     inline void set_state(ProcessState state) { state_ = state; }
@@ -56,8 +57,11 @@ class Process {
     inline int executed() { return executed_; }
     inline void mark_as_executed() { executed_ = 1; }
 
-    int stack_pointer() { return stack_pointer_; }
-    inline void set_stack_pointer(int sp) { stack_pointer_ = sp; }
+    inline int stack_pointer() { return registers_[13]; }
+    inline void set_stack_pointer(int sp) { registers_[13] = sp; }
+
+    inline int entry() { return registers_[15];}
+    inline void set_entry(int entry) { registers_[15] = entry;}
 
   private:
     pid_t pid_;
@@ -71,6 +75,8 @@ class Process {
     int executed_;
 
     int stack_pointer_;
+
+    int entry_;
 };
 
 #endif /* PROCESS_H_ */

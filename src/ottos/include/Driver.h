@@ -1,4 +1,4 @@
-/* Scheduler.h
+/* Driver.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,42 +17,29 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Oct 21, 2011
- *      Author: Matthias Schmid <ramsondon@gmail.com>
+ *  Created on: 03.11.2011
+ *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#ifndef SCHEDULER_H_
-#define SCHEDULER_H_
+#ifndef DRIVER_H_
+#define DRIVER_H_
 
-#include <ottos/types.h>
-
-class Process;
-class ProcessManager;
-
-/* class Scheduler
- *
- * schedules the current processes.
- *
+/**
+ * Abstract driver class which *must* be implemented by each specific driver.
  */
-class Scheduler {
+class Driver {
   public:
-    Scheduler(ProcessManager* process_manager);
-    virtual ~Scheduler();
-    void init(void);
-    void run(void);
+    Driver(int dev) : dev_(dev) { };
+    virtual ~Driver() { };
+    virtual int create() = 0;
+    virtual int open() = 0;
+    virtual int close() = 0;
+    virtual int read(int count, char* buffer) = 0;
+    virtual int write(int count, char* buffer) = 0;
+    virtual int ioctl() = 0;
 
-    /* gets the next proc to be executed. does not change any states in procs.*/
-    pid_t next();
-
-  private:
-    /* the current process index */
-    int current_;
-    /* internal scheduling algorithm */
-    ProcessManager* process_manager_;
-
-
-    /* returns the index of the current proc */
-    pid_t current(void);
+  protected:
+    int dev_;
 };
 
-#endif /* SCHEDULER_H_ */
+#endif /* DRIVER_H_ */

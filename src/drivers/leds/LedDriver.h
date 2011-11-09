@@ -1,4 +1,4 @@
-/* Scheduler.h
+/* LedDriver.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,42 +17,26 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Oct 21, 2011
- *      Author: Matthias Schmid <ramsondon@gmail.com>
+ *  Created on: 03.11.2011
+ *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#ifndef SCHEDULER_H_
-#define SCHEDULER_H_
+#ifndef LEDDRIVER_H_
+#define LEDDRIVER_H_
 
-#include <ottos/types.h>
+#include <Driver.h>
 
-class Process;
-class ProcessManager;
-
-/* class Scheduler
- *
- * schedules the current processes.
- *
- */
-class Scheduler {
+class LedDriver : public Driver {
   public:
-    Scheduler(ProcessManager* process_manager);
-    virtual ~Scheduler();
-    void init(void);
-    void run(void);
+    LedDriver(int dev);
+    virtual ~LedDriver();
+    virtual int open();
+    virtual int close();
+    virtual int read(int count, char* buffer);
+    virtual int write(int count, char* buffer);
+    virtual int ioctl() { return -1; };
+    virtual int create() { return -1; };
 
-    /* gets the next proc to be executed. does not change any states in procs.*/
-    pid_t next();
-
-  private:
-    /* the current process index */
-    int current_;
-    /* internal scheduling algorithm */
-    ProcessManager* process_manager_;
-
-
-    /* returns the index of the current proc */
-    pid_t current(void);
 };
 
-#endif /* SCHEDULER_H_ */
+#endif /* LEDDRIVER_H_ */

@@ -1,4 +1,4 @@
-/* Process.cpp
+/* LedDriver.cc
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,21 +17,47 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 21.10.2011
+ *  Created on: 03.11.2011
  *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#include <ottos/const.h>
+#include "LedDriver.h"
 
-#include "Process.h"
+#include "../../hal/leds.h"
 
-Process::Process() {
-	for(int i = 0; i < PROCESS_MAX_COUNT; i++) {
-		registers_[i] = 0x0;
-	}
-  executed_ = 0;
+LedDriver::LedDriver(int dev) :
+  Driver(dev) {
 }
 
-Process::~Process() {
+LedDriver::~LedDriver() {
+}
 
+int LedDriver::open() {
+  *(volatile unsigned long *) GPIO5_OE |= (1 << dev_);
+  return 1;
+}
+
+int LedDriver::close() {
+  *(volatile unsigned long *) GPIO5_OE &= ~(1 << dev_);
+  return 1;
+}
+
+int LedDriver::write(int count, char* buffer) {
+  int what = (int) *buffer;
+  switch (what) {
+    case LED_ON:
+      *(volatile unsigned long *) GPIO5_DATAOUT |= (1 << dev_);
+      break;
+    case LED_OFF:
+      *(volatile unsigned long *) GPIO5_DATAOUT &= ~(1 << dev_);
+      break;
+    default:
+      return -1;
+  }
+  return 0;
+}
+
+int LedDriver::read(int count, char* buffer) {
+  *buffer = (char) (*(volatile unsigned long *) GPIO5_DATAOUT & (1<<dev_) ? LED_ON : LED_OFF);
+  return 0;
 }

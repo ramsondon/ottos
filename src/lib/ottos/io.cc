@@ -1,4 +1,4 @@
-/* Scheduler.h
+/* io.cc
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,42 +17,24 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Oct 21, 2011
- *      Author: Matthias Schmid <ramsondon@gmail.com>
+ *  Created on: 04.11.2011
+ *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#ifndef SCHEDULER_H_
-#define SCHEDULER_H_
-
+#include <ottos/io.h>
 #include <ottos/types.h>
+#include <ottos/system.h>
 
-class Process;
-class ProcessManager;
+file_t* fopen(char* filename, char* mode) {
+  int flags = 0;
+  file_t* fp = (file_t *) sys_open(filename, flags);
+  return fp;
+}
 
-/* class Scheduler
- *
- * schedules the current processes.
- *
- */
-class Scheduler {
-  public:
-    Scheduler(ProcessManager* process_manager);
-    virtual ~Scheduler();
-    void init(void);
-    void run(void);
+int fclose(file_t* fp) {
+  return 0;
+}
 
-    /* gets the next proc to be executed. does not change any states in procs.*/
-    pid_t next();
-
-  private:
-    /* the current process index */
-    int current_;
-    /* internal scheduling algorithm */
-    ProcessManager* process_manager_;
-
-
-    /* returns the index of the current proc */
-    pid_t current(void);
-};
-
-#endif /* SCHEDULER_H_ */
+int fwrite(file_t* fp, size_t size, size_t count, char* buffer) {
+  return 0;
+}

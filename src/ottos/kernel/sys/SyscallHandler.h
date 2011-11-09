@@ -1,12 +1,12 @@
 /* SyscallHandler.h
- * 
+ *
  * Copyright (c) 2011 The ottos project.
  *
  * This work is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
  * any later version.
- * 
+ *
  * This work is distributed in the hope that it will be useful, but without
  * any warranty; without even the implied warranty of merchantability or
  * fitness for a particular purpose. See the GNU Lesser General Public License
@@ -24,14 +24,12 @@
 #ifndef SYSCALLHANDLER_H_
 #define SYSCALLHANDLER_H_
 
-#include "../sched/Scheduler.h"
+#include <ottos/const.h>
+#include "../Kernel.h"
 
-extern Scheduler* sched;
-
-#pragma SWI_ALIAS(1)
-extern void swi(int syscall_nr);
+extern Kernel* kernel;
 
 #pragma INTERRUPT(SWI)
-extern "C" void handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3);
+EXTERN_C void handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3);
 
 #endif /* SYSCALLHANDLER_H_ */
