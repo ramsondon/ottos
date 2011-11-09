@@ -1,12 +1,12 @@
-/* SyscallHandler.h
- *
+/* led_1_test.c
+ * 
  * Copyright (c) 2011 The ottos project.
  *
  * This work is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
  * any later version.
- *
+ * 
  * This work is distributed in the hope that it will be useful, but without
  * any warranty; without even the implied warranty of merchantability or
  * fitness for a particular purpose. See the GNU Lesser General Public License
@@ -21,15 +21,50 @@
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#ifndef SYSCALLHANDLER_H_
-#define SYSCALLHANDLER_H_
+#include <ottos/system.h>
+#include <ottos/io.h>
 
-#include <ottos/const.h>
-#include "../Kernel.h"
+#include "led_test.h"
 
-extern Kernel* kernel;
+int toggle_led1() {
 
-#pragma INTERRUPT(SWI)
-EXTERN_C void handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3);
+  int i;
 
-#endif /* SYSCALLHANDLER_H_ */
+	*(volatile unsigned long *)GPIO5_OE |= SET_BIT(LED_DEVICE_USR0);
+	for(i = 0;; i++) {
+		if(i > 100000) {
+			i = 0;
+
+			*(volatile unsigned long *) GPIO5_DATAOUT ^= SET_BIT(LED_DEVICE_USR0);
+			sys_yield();
+		}
+	}
+
+  return 0;
+}
+
+int toggle_led2() {
+
+  int i;
+
+	*(volatile unsigned long *)GPIO5_OE |= SET_BIT(LED_DEVICE_USR1);
+	for(i = 0;; i++) {
+		if(i > 100000) {
+			i = 0;
+
+			*(volatile unsigned long *) GPIO5_DATAOUT ^= SET_BIT(LED_DEVICE_USR1);
+			sys_yield();
+		}
+	}
+
+  return 0;
+}
+
+int test_file_operations() {
+  file_t* fp = fopen("/dev/led01", "w");
+  char buffer = 1;
+  fwrite(fp, sizeof(char), 1, &buffer);
+  fclose(fp);
+
+  return 0;
+}
