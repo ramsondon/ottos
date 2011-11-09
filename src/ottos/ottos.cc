@@ -30,8 +30,6 @@
 
 #include <stdio.h>
 
-Scheduler* sched;
-
 #define GPIO5_OE 0x49054034       /* GPIO5 output enable address */
 #define GPIO5_DATAOUT 0x4905603C  /* GPIO5 data out register address*/
 
@@ -68,7 +66,7 @@ int main(int argc, char **argv) {
   k.init();
   k.run();
   */
-
+/*
   // set up gptimer 1
   InterruptController ic = InterruptController();
   ic.add_handler(39, toggle_led_1);
@@ -92,7 +90,7 @@ int main(int argc, char **argv) {
   gptController.reset(4);
 
   while (true) {}
-
+*/
   return 0;
 }
 
