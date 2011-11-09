@@ -5,12 +5,10 @@
  *      Author: Thomas
  */
 
-#include "../pm/Process_c.h"
-#include "Scheduler_c.h"
+#include "../pm/process.h"
+#include "scheduler.h"
 
 void schedule_next() {
-
-	static int current = -1;
 
 	int i = 0;
 	// scheudle round robin

@@ -7,9 +7,9 @@
 
 #include <ottos/const.h>
 
-#include "../pm/Process_c.h"
-#include "../sched/Scheduler_c.h"
-#include "InterruptHandler.h"
+#include "../pm/process.h"
+#include "../sched/scheduler.h"
+#include "irq.h"
 
 asm(	"\t .bss _stack_pointer_interrupted, 4 \n" \
 		"\t .bss _stack_pointer_restored, 4 \n" \
@@ -37,11 +37,11 @@ extern int stack_pointer_restored;
 extern int return_address;
 extern int function_pointer;
 
+void handle_irq() {
+
+}
 
 void handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
-
-
-
 
 	// TODO HANDLE INTERRUPT
 	// TODO when starting a new process, what's the return register?

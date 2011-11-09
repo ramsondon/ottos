@@ -39,7 +39,7 @@ extern int reg_val;
   asm("\t STR "reg", ["reg",#0]"); \
   var = (int) reg_val;
 
-#pragma SWI_ALIAS(1)
+#pragma SWI_ALIAS(swi, 1)
 EXTERN void swi(int syscall_nr);
 
 #define REG_0 "r0"
@@ -54,6 +54,8 @@ void sys_yield() {
 
 address_t sys_open(char* filename, int flags) {
 
+  address_t  address = (address_t) (void*)0;
+
   // store registers temporary
   int t[2] = {0, 0};
   //READ_FROM_REGISTER(REG_1, &t[0]);
@@ -67,7 +69,7 @@ address_t sys_open(char* filename, int flags) {
   swi(SYS_OPEN);
 
   // read return
-  address_t address = (address_t) 0;
+
   READ_FROM_REGISTER(REG_0, address);
 
   // reset registers to temporary state
