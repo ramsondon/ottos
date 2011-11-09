@@ -43,9 +43,6 @@ void handle_irq() {
 
 void handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 
-
-
-
 	// TODO HANDLE INTERRUPT
 	// TODO when starting a new process, what's the return register?
 

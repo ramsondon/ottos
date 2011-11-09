@@ -10,8 +10,6 @@
 
 void schedule_next() {
 
-	static int current = -1;
-
 	int i = 0;
 	// scheudle round robin
 	for (i = (active_process + 1) % PROCESS_MAX_COUNT; i < PROCESS_MAX_COUNT; i
