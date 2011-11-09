@@ -24,7 +24,10 @@
 #ifndef IPCHANDLER_H_
 #define IPCHANDLER_H_
 
+#include <ottos/types.h>
+
 class Message;
+
 
 class IPCHandler {
   public:
