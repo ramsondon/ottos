@@ -37,6 +37,9 @@ extern int stack_pointer_restored;
 extern int return_address;
 extern int function_pointer;
 
+void handle_irq() {
+
+}
 
 void handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 
