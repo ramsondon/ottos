@@ -56,8 +56,8 @@ address_t sys_open(char* filename, int flags) {
 
   // store registers temporary
   int t[2] = {0, 0};
-  READ_FROM_REGISTER(REG_1, &t[0]);
-  READ_FROM_REGISTER(REG_2, &t[1]);
+  //READ_FROM_REGISTER(REG_1, &t[0]);
+  //READ_FROM_REGISTER(REG_2, &t[1]);
 
   // put system call parameters
   PUT_TO_REGISTER(REG_1, (int) filename);
