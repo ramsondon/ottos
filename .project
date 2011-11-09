@@ -26,7 +26,7 @@
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.buildCommand</key>
-					<value>${CCS_INSTALL_ROOT}/utils/gmake/gmake</value>
+					<value>${CCS_UTILS_DIR}/bin/gmake</value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.buildLocation</key>
@@ -74,7 +74,7 @@
 		</buildCommand>
 	</buildSpec>
 	<natures>
-		<nature>com.ti.ccstudio.managedbuild.core.ccsNature</nature>
+		<nature>com.ti.ccstudio.core.ccsNature</nature>
 		<nature>org.eclipse.cdt.core.cnature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.managedBuildNature</nature>
 		<nature>org.eclipse.cdt.core.ccnature</nature>

@@ -28,48 +28,51 @@
 #ifndef OMAP353X_TIMER_H_
 #define OMAP353X_TIMER_H_
 
+#define GPTIMER_COUNT 11
 
 /* OMAP3530 General Purpose Timer Base Addresses */
-#define GPTIMER1 0x48318000
-#define GPTIMER2 0x49032000
-#define GPTIMER3 0x49034000
-#define GPTIMER4 0x49036000
-#define GPTIMER5 0x49038000
-#define GPTIMER6 0x4903A000
-#define GPTIMER7 0x4903C000
-#define GPTIMER8 0x4903E000
-#define GPTIMER9 0x49040000
-#define GPTIMER10 0x48086000
-#define GPTIMER11 0x48088000
+#define GPTIMER1 (address)0x48318000
+#define GPTIMER2 (address)0x49032000
+#define GPTIMER3 (address)0x49034000
+#define GPTIMER4 (address)0x49036000
+#define GPTIMER5 (address)0x49038000
+#define GPTIMER6 (address)0x4903A000
+#define GPTIMER7 (address)0x4903C000
+#define GPTIMER8 (address)0x4903E000
+#define GPTIMER9 (address)0x49040000
+#define GPTIMER10 (address)0x48086000
+#define GPTIMER11 (address)0x48088000
 
 /* General Purpose Timer Registers */
-#define GPT_TIDR 0x000        /* Base Address */
-#define GPT_TIOCP_CFG 0x010   /*  */
-#define GPT_TISTAT 0x014
-#define GPT_TISR 0x018        /* Pending interrupts in the module */
-#define GPT_TIER 0x01C        /* controls enable/disable interrupt events */
-#define GPT_TWER 0x020
-#define GPT_TCLR 0x024        /*  */
-#define GPT_TCRR 0x028
-#define GPT_TLDR 0x02C        /* Timer Load Register */
-#define GPT_TTGR 0x030
-#define GPT_TWPS 0x034
-#define GPT_TMAR 0x038
-#define GPT_TCAR1 0x03C
-#define GPT_TSICR 0x040
-#define GPT_TCAR2 0x044
-#define GPT_TPIR 0x048
-#define GPT_TNIR 0x04C
-#define GPT_TCVR 0x050
-#define GPT_TOCR 0x054
-#define GPT_TOWR 0x058
+#define GPT_TIDR 0x00        /* Base Address */
+#define GPT_TIOCP_CFG 0x10   /*  */
+#define GPT_TISTAT 0x14
+#define GPT_TISR 0x18        /* Pending interrupts in the module */
+#define GPT_TIER 0x1C        /* controls enable/disable interrupt events */
+#define GPT_TWER 0x20
+#define GPT_TCLR 0x24        /*  */
+#define GPT_TCRR 0x28
+#define GPT_TLDR 0x2C        /* Timer Load Register */
+#define GPT_TTGR 0x30
+#define GPT_TWPS 0x34
+#define GPT_TMAR 0x38
+#define GPT_TCAR1 0x3C
+#define GPT_TSICR 0x40
+#define GPT_TCAR2 0x44
+#define GPT_TPIR 0x48
+#define GPT_TNIR 0x4C
+#define GPT_TCVR 0x50
+#define GPT_TOCR 0x54
+#define GPT_TOWR 0x58
 
 /* TIER / TISR flags */
-#define TCAR_IT_FLAG (1<<2)   /* capture interrupts */
-#define OVF_IT_FLAG (1<<1)    /* overflow interrupts */
-#define MAT_IT_FLAG (1<<0)    /* match interrupts */
+#define TISR_CAPTURE 2      /* capture interrupts */
+#define TISR_OVERFLOW 1     /* overflow interrupts */
+#define TISR_MATCH 0        /* match interrupts */
 
-
-
+/* TCLR flags */
+#define TCLR_COMPARE 6
+#define TCLR_AUTORELOAD 1
+#define TCLR_START 0
 
 #endif /* TIMER_H_ */

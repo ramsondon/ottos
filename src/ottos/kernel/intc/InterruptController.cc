@@ -22,20 +22,57 @@
  */
 
 #include "InterruptController.h"
+#include <arch/arm/omap353x_timer.h>
+//#include <arch/arm/omap353x_intc.h>
+#include <ottos/types.h>
+#include <stdio.h>
+
+InterruptController* globalIntHandler;
+
+/* handles the Interrupt Routines IRQ */
+
+#pragma INTERRUPT (IRQ)
+extern "C" void handle_irq() {
+  /* get the number of the interrupt */
+  int irqId =  *(INTCPS_SIR_IRQ);
+
+  /* forward the interrupt to the handler routine */
+  globalIntHandler->handle_Irq(irqId);
+
+  *(INTCPS_CONTROL) |= 0x1;
+}
 
 InterruptController::InterruptController() {
+  globalIntHandler = this;
 }
 
 InterruptController::~InterruptController() {
 
 }
 
-void InterruptController::add_handler(int handler_id, void (*fn)(void*)) {
+void InterruptController::add_handler(int handler_id, void (*fn)(void)) {
+  int_handler_[handler_id] = fn;
 
+  int registerNr = handler_id / 32;
+  int irqBit = handler_id % 32;
+
+  /* activate the specific interrupt (interrupt mask) */
+  switch (registerNr)  {
+  case 0:
+    *INTCPS_MIR_SET_0 |= (1 << irqBit);
+    break;
+  case 1:
+    *INTCPS_MIR_SET_1 |= (1 << irqBit);
+    break;
+  case 2:
+    *INTCPS_MIR_SET_2 |= (1 << irqBit);
+    break;
+  }
 }
 
-/* handles the Interrupt Routines IRQ */
-void handle_irq() {
 
+void InterruptController::handle_Irq(int irq_id) {
+  /* call handler function */
+  //printf("handle irq with id: %i ... \n", irq_id);
+  (*int_handler_[irq_id])();
 }
-
