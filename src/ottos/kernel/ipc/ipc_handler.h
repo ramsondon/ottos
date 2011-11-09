@@ -21,20 +21,8 @@
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef IPCHANDLER_H_
-#define IPCHANDLER_H_
-
-#include <ottos/types.h>
-
-class Message;
+#ifndef IPC_HANDLER_H_
+#define IPC_HANDLER_H_
 
 
-class IPCHandler {
-  public:
-    IPCHandler();
-    virtual ~IPCHandler();
-    int send_message(pid_t proc, Message* msg);
-    int receive_message();
-};
-
-#endif /* IPCHANDLER_H_ */
+#endif /* IPC_HANDLER_H_ */
