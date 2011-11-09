@@ -26,15 +26,23 @@
 
 #include <ottos/const.h>
 
-/* The Interrupt Routine for IRQs */
-#pragma INTERRUPT(IRQ)
-EXTERN_C void handle_irq();
+#define INTCPS_CONTROL (address) 0x48200048   // MPU_INTC + INTCPS_CONTROL
+#define INTCPS_SIR_IRQ (address) 0x48200040   // MPU_INTC + INTCPS_SIR_IRQ
+
+#define INTCPS_MIR_SET_0 (address) 0x48200088 // MPU_INTC +
+#define INTCPS_MIR_SET_1 (address) 0x482000A8 // MPU_INTC +
+#define INTCPS_MIR_SET_2 (address) 0x482000C8 // MPU_INTC +
+
 
 class InterruptController {
   public:
     InterruptController();
     virtual ~InterruptController();
-    void add_handler(int handler_id, void (*fn)(void*));
+    void add_handler(int handler_id, void (*fn)(void));
+    void handle_Irq(int irq_id);
+
+  private:
+    void (*int_handler_[100])(void);
 };
 
 #endif /* INTERRUPTCONTROLLER_H_ */
