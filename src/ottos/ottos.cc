@@ -29,6 +29,8 @@
 #include "kernel/pm/Process_c.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+
 
 #define GPIO5_OE 0x49054034       /* GPIO5 output enable address */
 #define GPIO5_DATAOUT 0x4905603C  /* GPIO5 data out register address*/
@@ -58,6 +60,7 @@ void toggle_led_2() {
 
   gptc.reset(4);
 }
+
 
 
 int main(int argc, char **argv) {
