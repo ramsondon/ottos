@@ -34,30 +34,33 @@
 #define FAT_MAGIC_BEGIN 0x55
 #define FAT_MAGIC_END   0xAA
 
+
 typedef struct {
   uint8_t boot_flag;    // should be ignored
   uint8_t chs_start[3]; // should be ignored
-  unit8_t type_code;    // Ox0B or 0x0C represent FAT32
+  uint8_t type_code;    // Ox0B or 0x0C represent FAT32
   uint8_t chs_end[3];   // should be ignored
   uint32_t lba_begin;   // begin of the partition on the disk
   uint32_t nr_sectors;  // redundant to FAT32 file system itself
 } fat_partition_t;
 
+
 typedef struct {
   uint16_t bytes_per_sector;    // has to be 512
   uint8_t sectors_per_cluster;  // has to be one of 1,2,4,8,16,32,64,128
-  unit16_t nr_reserved_sectors; // usually 0x20
+  uint16_t nr_reserved_sectors; // usually 0x20
   uint8_t nr_fat;               // number of FATs; always 2
   uint32_t sectors_per_fat;     // depends on disk size
   uint32_t root_cluster;        // usually 0x00000002
   uint16_t signature;           // must be 0x55AA (see MAGIC)
 } fat_volume_id;
 
+
 typedef struct {
   uint8_t name[11];    // 11 byte short filename; 8.3 e.g. "xxxxxxxx.xxx"
   uint8_t attr;        // 0 (LSB) = read only
                        // 1       = hidden
-                       // 2       = system (file is operating system)
+                       // 2      = system (file is operating system)
                        // 3       = volume id; filename is volume id
                        // 4       = is a sub directory
                        // 5       = archive; has been changed since last backup
