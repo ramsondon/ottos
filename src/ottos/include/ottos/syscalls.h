@@ -24,13 +24,23 @@
 #ifndef SYSCALLS_H_
 #define SYSCALLS_H_
 
-#define SYS_YIELD 1
-/**
- * I/O System calls
+/*
+ * Process system calls
  */
-#define SYS_OPEN  2
-#define SYS_CLOSE 3
-#define SYS_READ  4
-#define SYS_WRITE 5
+#define SYS_YIELD   1
+
+/**
+ * I/O system calls
+ */
+#define SYS_OPEN    2
+#define SYS_CLOSE   3
+#define SYS_READ    4
+#define SYS_WRITE   5
+
+/*
+ * IPC system calls
+ */
+#define SYS_SEND    6
+#define SYS_RECEIVE 7
 
 #endif /* SYSCALLS_H_ */

@@ -24,6 +24,8 @@
 #ifndef OTTOS_TYPES_H_
 #define OTTOS_TYPES_H_
 
+#include <ottos/const.h>
+
 typedef int pid_t;
 typedef volatile unsigned int* address;
 typedef int (*function_t)();
@@ -31,5 +33,6 @@ typedef int (*function_t)();
 typedef unsigned long address_t;
 typedef unsigned int size_t;
 typedef address_t file_t;
+
 
 #endif /* OTTOS_TYPES_H_ */
