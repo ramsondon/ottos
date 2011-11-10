@@ -1,4 +1,4 @@
-/* IPCHandler.h
+/* IPCHandler.cpp
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -21,8 +21,6 @@
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef IPC_HANDLER_H_
-#define IPC_HANDLER_H_
+#include "ipc.h"
 
 
-#endif /* IPC_HANDLER_H_ */
