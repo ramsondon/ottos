@@ -17,7 +17,9 @@
 #define CHANGEDCACHE    0x00000004
 #define CHANGEICACHE    0x00001000
 
+struct mastertable {
 
+};
 
 
 #endif /* MMU_H_ */
