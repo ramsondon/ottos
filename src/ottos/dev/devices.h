@@ -34,9 +34,10 @@ typedef struct device_map_entry_t {
 } device_map_entry_t;
 
 
-/* initializes all devices for usage */
+/* initialize all available devices */
 EXTERN void devices_init();
 
+/* returns the driver_t for device_t */
 EXTERN driver_t devices_driver(device_t dev);
 
 #endif /* DEVICES_H_ */

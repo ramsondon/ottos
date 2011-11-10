@@ -24,39 +24,53 @@
 #include <ottos/system.h>
 #include <ottos/io.h>
 
+// TODO(ramsondon@gmail.com) remove when swi handles SYS_OPEN
+#include <ottos/dev/device.h>
+// TODO(ramsondon@gmail.com) remove when swi handles SYS_OPEN
+#include <ottos/drivers/driver.h>
+
 #include "led_test.h"
 
 int toggle_led1() {
 
   int i;
+  char buffer;
+  char state;
+  driver_t drv = driver_driver(LED_0);
 
-	*(volatile unsigned long *)GPIO5_OE |= SET_BIT(LED_DEVICE_USR0);
+  drv.open(LED_0);
 	for(i = 0;; i++) {
 		if(i > 100000) {
-			i = 0;
 
-			*(volatile unsigned long *) GPIO5_DATAOUT ^= SET_BIT(LED_DEVICE_USR0);
+		  drv.read(LED_0, 1, &state);
+			buffer = ((int)state == 0)? 1 : 0;
+			drv.write(LED_0, 1, &buffer);
+		  i = 0;
 			sys_yield();
 		}
 	}
-
+	drv.close(LED_0);
   return 0;
 }
 
 int toggle_led2() {
 
   int i;
+  char buffer;
+  char state;
+  driver_t drv = driver_driver(LED_1);
 
-	*(volatile unsigned long *)GPIO5_OE |= SET_BIT(LED_DEVICE_USR1);
+  drv.open(LED_1);
 	for(i = 0;; i++) {
 		if(i > 100000) {
-			i = 0;
-
-			*(volatile unsigned long *) GPIO5_DATAOUT ^= SET_BIT(LED_DEVICE_USR1);
+		  drv.read(LED_1, 1, &state);
+      buffer = ((int)state == 0)? 1 : 0;
+      drv.write(LED_1, 1, &buffer);
+      i = 0;
 			sys_yield();
 		}
 	}
-
+	drv.close(LED_1);
   return 0;
 }
 

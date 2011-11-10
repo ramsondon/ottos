@@ -33,7 +33,7 @@
 typedef int ioctl_t;
 
 /*
- * driver_t
+ * struct driver_t
  * The device driver interface of the ottOS
  */
 typedef struct driver_t {
@@ -46,9 +46,10 @@ typedef struct driver_t {
 } driver_t;
 
 /*
- * returns a valid driver with empty function stubs
+ * Returns a valid driver with empty function stubs
  */
 EXTERN driver_t driver_null();
+EXTERN driver_t driver_driver(device_t dev);
 
 
 #endif /* DRIVER_H_ */

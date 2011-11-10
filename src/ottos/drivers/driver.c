@@ -22,6 +22,7 @@
  */
 
 #include <ottos/drivers/driver.h>
+#include "../dev/devices.h"
 
 /*
  * NULL driver_t stub functions
@@ -57,4 +58,9 @@ driver_t driver_null() {
   drv.open = driver_null_open;
   drv.read = driver_null_read;
   drv.write = driver_null_write;
+  return drv;
+}
+
+driver_t driver_driver(device_t dev) {
+  return devices_driver(dev);
 }

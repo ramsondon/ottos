@@ -33,8 +33,8 @@
  */
 static device_map_entry_t device_container[DEVICE_MAX_COUNT];
 
+/*internal init functions */
 static device_map_entry_t devices_create(device_t device, driver_t driver);
-
 static void device_led_init();
 
 /*

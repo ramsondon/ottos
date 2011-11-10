@@ -30,7 +30,8 @@ typedef int device_t;
 /*
  * Device identifiers
  *
- * WARNING: always check the <ottos/limits.h> for DEVICE_MAX_COUNT
+ * WARNING: always check the <ottos/limits.h> for DEVICE_MAX_COUNT when adding
+ *          new devices.
  */
 #define DEVICE_INVALID  -1
 
