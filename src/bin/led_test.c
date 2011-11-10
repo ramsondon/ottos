@@ -36,7 +36,7 @@ int toggle_led1() {
   int i;
   char buffer;
   char state;
-  driver_t drv = driver_driver(LED_0);
+  driver_t drv = driver_get(LED_0);
 
   drv.open(LED_0);
 	for(i = 0;; i++) {
@@ -58,7 +58,7 @@ int toggle_led2() {
   int i;
   char buffer;
   char state;
-  driver_t drv = driver_driver(LED_1);
+  driver_t drv = driver_get(LED_1);
 
   drv.open(LED_1);
 	for(i = 0;; i++) {

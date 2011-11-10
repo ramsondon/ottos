@@ -49,7 +49,7 @@ typedef struct driver_t {
  * Returns a valid driver with empty function stubs
  */
 EXTERN driver_t driver_null();
-EXTERN driver_t driver_driver(device_t dev);
+EXTERN driver_t driver_get(device_t dev);
 
 
 #endif /* DRIVER_H_ */

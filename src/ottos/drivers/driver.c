@@ -61,6 +61,6 @@ driver_t driver_null() {
   return drv;
 }
 
-driver_t driver_driver(device_t dev) {
+driver_t driver_get(device_t dev) {
   return devices_driver(dev);
 }
