@@ -1,4 +1,4 @@
-/* ottos.cc
+/* device.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,32 +17,27 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Oct 19, 2011
- *      Author: Matthias Schmid <m.schmid@students.fhv.at>
+ *  Created on: Nov 10, 2011
+ *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#include <ottos/system.h>
-
-#include "../../bin/led_test.h"
-#include "kernel/intc/irq.h"
-#include "kernel/pm/process.h"
-#include "dev/devices.h"
-
-int main(int argc, char **argv) {
-
-  // initialize device manager
-  devices_init();
-
-	started = FALSE;
-
-	init_process_table();
-	create_process(1, (int)toggle_led1);
-	create_process(1, (int)toggle_led2);
-
-	// switch to user mode
-	asm("\t CPS 0x10");
-	sys_yield();
+#ifndef DEVICE_H_
+#define DEVICE_H_
 
 
-	return 0;
-}
+typedef int device_t;
+
+/*
+ * Device identifiers
+ *
+ * WARNING: always check the <ottos/limits.h> for DEVICE_MAX_COUNT when adding
+ *          new devices.
+ */
+#define DEVICE_INVALID  -1
+
+#define LED_0           11
+#define LED_1           12
+
+
+
+#endif /* DEVICE_H_ */

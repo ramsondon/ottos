@@ -1,4 +1,4 @@
-/* ottos.cc
+/* device_manager.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,32 +17,27 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Oct 19, 2011
- *      Author: Matthias Schmid <m.schmid@students.fhv.at>
+ *  Created on: Nov 10, 2011
+ *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#include <ottos/system.h>
+#ifndef DEVICES_H_
+#define DEVICES_H_
 
-#include "../../bin/led_test.h"
-#include "kernel/intc/irq.h"
-#include "kernel/pm/process.h"
-#include "dev/devices.h"
+#include <ottos/const.h>
+#include <ottos/dev/device.h>
+#include <ottos/drivers/driver.h>
 
-int main(int argc, char **argv) {
-
-  // initialize device manager
-  devices_init();
-
-	started = FALSE;
-
-	init_process_table();
-	create_process(1, (int)toggle_led1);
-	create_process(1, (int)toggle_led2);
-
-	// switch to user mode
-	asm("\t CPS 0x10");
-	sys_yield();
+typedef struct device_map_entry_t {
+    device_t dev;
+    driver_t driver;
+} device_map_entry_t;
 
 
-	return 0;
-}
+/* initialize all available devices */
+EXTERN void devices_init();
+
+/* returns the driver_t for device_t */
+EXTERN driver_t devices_driver(device_t dev);
+
+#endif /* DEVICES_H_ */

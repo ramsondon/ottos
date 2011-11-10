@@ -1,4 +1,4 @@
-/* ottos.cc
+/* led.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,32 +17,21 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Oct 19, 2011
- *      Author: Matthias Schmid <m.schmid@students.fhv.at>
+ *  Created on: Nov 10, 2011
+ *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#include <ottos/system.h>
+#ifndef LED_H_
+#define LED_H_
 
-#include "../../bin/led_test.h"
-#include "kernel/intc/irq.h"
-#include "kernel/pm/process.h"
-#include "dev/devices.h"
+#include <ottos/drivers/driver.h>
+#include <ottos/dev/device.h>
 
-int main(int argc, char **argv) {
+int led_open(device_t dev);
+int led_close(device_t dev);
+int led_read(device_t dev, int count, char* buffer);
+int led_write(device_t dev, int count, char* buffer);
+int led_ioctl(device_t dev, ioctl_t msg);
+int led_create(device_t dev);
 
-  // initialize device manager
-  devices_init();
-
-	started = FALSE;
-
-	init_process_table();
-	create_process(1, (int)toggle_led1);
-	create_process(1, (int)toggle_led2);
-
-	// switch to user mode
-	asm("\t CPS 0x10");
-	sys_yield();
-
-
-	return 0;
-}
+#endif /* LED_H_ */
