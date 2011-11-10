@@ -21,13 +21,6 @@
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#include "IPCHandler.h"
+#include "ipc.h"
 
-IPCHandler::IPCHandler() {
-  // TODO Auto-generated constructor stub
 
-}
-
-IPCHandler::~IPCHandler() {
-  // TODO Auto-generated destructor stub
-}

@@ -1,12 +1,12 @@
-/* SyscallHandler.h
- *
+/* device.h
+ * 
  * Copyright (c) 2011 The ottos project.
  *
  * This work is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
  * any later version.
- *
+ * 
  * This work is distributed in the hope that it will be useful, but without
  * any warranty; without even the implied warranty of merchantability or
  * fitness for a particular purpose. See the GNU Lesser General Public License
@@ -17,19 +17,16 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 27 Oct 2011
- *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
+ *  Created on: Nov 10, 2011
+ *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef SYSCALLHANDLER_H_
-#define SYSCALLHANDLER_H_
+#ifndef DEVICE_H_
+#define DEVICE_H_
 
-#include <ottos/const.h>
-#include "../Kernel.h"
 
-extern Kernel* kernel;
+typedef struct device_t {
+    int dev;
+} device_t;
 
-#pragma INTERRUPT(SWI)
-EXTERN_C void handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3);
-
-#endif /* SYSCALLHANDLER_H_ */
+#endif /* DEVICE_H_ */

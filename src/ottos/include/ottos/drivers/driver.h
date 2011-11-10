@@ -1,4 +1,4 @@
-/* Scheduler.h
+/* driver.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,42 +17,32 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Oct 21, 2011
+ *  Created on: Nov 10, 2011
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef SCHEDULER_H_
-#define SCHEDULER_H_
+#ifndef DRIVER_H_
+#define DRIVER_H_
 
-#include <ottos/types.h>
+#include <ottos/dev/device.h>
 
-class Process;
-class ProcessManager;
-
-/* class Scheduler
- *
- * schedules the current processes.
- *
+/*
+ * The driver specific I/O control execution flag
  */
-class Scheduler {
-  public:
-    Scheduler(ProcessManager* process_manager);
-    virtual ~Scheduler();
-    void init(void);
-    void run(void);
+typedef int ioctl_t;
 
-    /* gets the next proc to be executed. does not change any states in procs.*/
-    pid_t next();
+/*
+ * driver_t
+ * The device driver interface of the ottOS
+ */
+typedef struct driver_t {
+    int (*open)(device_t* dev);
+    int (*close)(device_t* dev);
+    int (*read)(device_t* dev, int count, char* buffer);
+    int (*write)(device_t* dev, int count, char* buffer);
+    int (*ioctl)(device_t* dev, ioctl_t msg);
+    int (*create)(device_t* dev);
+} driver_t;
 
-  private:
-    /* the current process index */
-    int current_;
-    /* internal scheduling algorithm */
-    ProcessManager* process_manager_;
 
-
-    /* returns the index of the current proc */
-    pid_t current(void);
-};
-
-#endif /* SCHEDULER_H_ */
+#endif /* DRIVER_H_ */

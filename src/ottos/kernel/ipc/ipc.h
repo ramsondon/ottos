@@ -1,4 +1,4 @@
-/* InterruptController.h
+/* IPCHandler.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,32 +17,18 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Oct 30, 2011
+ *  Created on: Nov 6, 2011
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef INTERRUPTCONTROLLER_H_
-#define INTERRUPTCONTROLLER_H_
+#ifndef IPC_H_
+#define IPC_H_
 
-#include <ottos/const.h>
+#include <ottos/types.h>
 
-#define INTCPS_CONTROL (address) 0x48200048   // MPU_INTC + INTCPS_CONTROL
-#define INTCPS_SIR_IRQ (address) 0x48200040   // MPU_INTC + INTCPS_SIR_IRQ
-
-#define INTCPS_MIR_SET_0 (address) 0x48200088 // MPU_INTC +
-#define INTCPS_MIR_SET_1 (address) 0x482000A8 // MPU_INTC +
-#define INTCPS_MIR_SET_2 (address) 0x482000C8 // MPU_INTC +
+typedef struct message_t {
+    int pid_t;
+} message_t;
 
 
-class InterruptController {
-  public:
-    InterruptController();
-    virtual ~InterruptController();
-    void add_handler(int handler_id, void (*fn)(void));
-    void handle_Irq(int irq_id);
-
-  private:
-    void (*int_handler_[100])(void);
-};
-
-#endif /* INTERRUPTCONTROLLER_H_ */
+#endif /* IPC_H_ */
