@@ -1,4 +1,4 @@
-/* device.h
+/* device_manager.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -21,22 +21,22 @@
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef DEVICE_H_
-#define DEVICE_H_
+#ifndef DEVICES_H_
+#define DEVICES_H_
+
+#include <ottos/const.h>
+#include <ottos/dev/device.h>
+#include <ottos/drivers/driver.h>
+
+typedef struct device_map_entry_t {
+    device_t dev;
+    driver_t driver;
+} device_map_entry_t;
 
 
-typedef int device_t;
+/* initializes all devices for usage */
+EXTERN void devices_init();
 
-/*
- * Device identifiers
- *
- * WARNING: always check the <ottos/limits.h> for DEVICE_MAX_COUNT
- */
-#define DEVICE_INVALID  -1
+EXTERN driver_t devices_driver(device_t dev);
 
-#define LED_0           11
-#define LED_1           12
-
-
-
-#endif /* DEVICE_H_ */
+#endif /* DEVICES_H_ */
