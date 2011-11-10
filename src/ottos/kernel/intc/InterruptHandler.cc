@@ -170,7 +170,7 @@ void handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 
 		// set the return address of the interrupt handler to the entry
 		// point of the process
-		asm("\t LDR lr, function_pointer \n" \
+ 		asm("\t LDR lr, function_pointer \n" \
 			"\t LDR lr, [lr]");
 
 		// jump to process and leave the interrupt
