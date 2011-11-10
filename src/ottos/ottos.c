@@ -26,14 +26,12 @@
 #include "../../bin/led_test.h"
 #include "kernel/intc/irq.h"
 #include "kernel/pm/process.h"
+#include "dev/devices.h"
 
 int main(int argc, char **argv) {
 
-//	kernel = new Kernel();
-//	kernel->init();
-//	kernel->run();
-
-
+  // initialize device manager
+  devices_init();
 
 	started = FALSE;
 
@@ -45,29 +43,6 @@ int main(int argc, char **argv) {
 	asm("\t CPS 0x10");
 	sys_yield();
 
-//	// schedule the next process
-//	Process* nextProcess = kernel->process_manager()->process_table()->at(kernel->scheduler()->next());
-//	kernel->process_manager()->set_current_process(nextProcess->pid());
-//
-//	printf("next pid: %d\n", nextProcess->pid());
-//
-//
-//		// switch to the process stack
-//	bla = nextProcess->stack_pointer();
-//	bla2 = (int)nextProcess->func();
-//	asm("\t LDR r5, bla_a \n" \
-//		"\t LDR sp, [r5] \n" \
-//
-//	// start the process
-//
-//		"\t LDR r5, bla2_a \n" \
-//		"\t LDR r5, [r5] \n" \
-//
-//	// switch to usermode
-//		"\t CPS 0x10 \n" \
-//
-//	// jump to process
-//		"\t MOV pc, r5");
 
 	return 0;
 }
