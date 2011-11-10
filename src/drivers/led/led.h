@@ -1,4 +1,4 @@
-/* device.h
+/* led.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -21,29 +21,17 @@
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef DEVICE_H_
-#define DEVICE_H_
+#ifndef LED_H_
+#define LED_H_
 
-/*
- * Device identifiers
- *
- * WARNING: always check the <ottos/limits.h> for DEVICE_MAX_COUNT
- */
-#define DEVICE_INVALID  -1
+#include <ottos/drivers/driver.h>
+#include <ottos/dev/device.h>
 
-#define LED_0           11
-#define LED_1           12
+int led_open(device_t* dev);
+int led_close(device_t* dev);
+int led_read(device_t* dev, int count, char* buffer);
+int led_write(device_t* dev, int count, char* buffer);
+int led_ioctl(device_t* dev, ioctl_t msg);
+int led_create(device_t* dev);
 
-
-/*
- * device_t
- *
- * Represents a device for ottOS
- */
-typedef struct device_t {
-    int dev;
-} device_t;
-
-
-
-#endif /* DEVICE_H_ */
+#endif /* LED_H_ */
