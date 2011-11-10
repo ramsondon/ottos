@@ -21,8 +21,14 @@
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef IPC_HANDLER_H_
-#define IPC_HANDLER_H_
+#ifndef IPC_H_
+#define IPC_H_
+
+#include <ottos/types.h>
+
+typedef struct message_t {
+    int pid_t;
+} message_t;
 
 
-#endif /* IPC_HANDLER_H_ */
+#endif /* IPC_H_ */
