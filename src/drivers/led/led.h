@@ -27,11 +27,11 @@
 #include <ottos/drivers/driver.h>
 #include <ottos/dev/device.h>
 
-int led_open(device_t* dev);
-int led_close(device_t* dev);
-int led_read(device_t* dev, int count, char* buffer);
-int led_write(device_t* dev, int count, char* buffer);
-int led_ioctl(device_t* dev, ioctl_t msg);
-int led_create(device_t* dev);
+int led_open(device_t dev);
+int led_close(device_t dev);
+int led_read(device_t dev, int count, char* buffer);
+int led_write(device_t dev, int count, char* buffer);
+int led_ioctl(device_t dev, ioctl_t msg);
+int led_create(device_t dev);
 
 #endif /* LED_H_ */

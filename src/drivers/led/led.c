@@ -28,13 +28,13 @@
 #include "../../hal/leds.h"
 
 
-static int led_device_bit(device_t* dev);
+static int led_device_bit(device_t dev);
 
 
 /*
  * Enable data output for led device_t
  */
-int led_open(device_t* dev) {
+int led_open(device_t dev) {
 
   // determine the led device bit for device_t dev
   int bit = led_device_bit(dev);
@@ -49,7 +49,7 @@ int led_open(device_t* dev) {
 /*
  * Disable data output for led device_t
  */
-int led_close(device_t* dev) {
+int led_close(device_t dev) {
 
   // determine the led device bit for device_t dev
   int bit = led_device_bit(dev);
@@ -61,7 +61,7 @@ int led_close(device_t* dev) {
   return FALSE;
 }
 
-int led_read(device_t* dev, int count, char* buffer) {
+int led_read(device_t dev, int count, char* buffer) {
 
   int bit = led_device_bit(dev);
   if (bit != DEVICE_INVALID) {
@@ -72,7 +72,7 @@ int led_read(device_t* dev, int count, char* buffer) {
   return FALSE;
 }
 
-int led_write(device_t* dev, int count, char* buffer) {
+int led_write(device_t dev, int count, char* buffer) {
 
   int task = (int) *buffer;
   int bit = led_device_bit(dev);
@@ -93,11 +93,11 @@ int led_write(device_t* dev, int count, char* buffer) {
   return TRUE;
 }
 
-int led_ioctl(device_t* dev, ioctl_t msg) {
+int led_ioctl(device_t dev, ioctl_t msg) {
   return FALSE;
 }
 
-int led_create(device_t* dev) {
+int led_create(device_t dev) {
   return FALSE;
 }
 
@@ -105,11 +105,11 @@ int led_create(device_t* dev) {
  * Returns the bit to set for a specific led device or -1 if led does not
  * exist.
  */
-int led_device_bit(device_t* dev) {
+int led_device_bit(device_t dev) {
 
-  if (dev->dev == LED_0) {
+  if (dev == LED_0) {
     return LED_DEVICE_USR0;
-  } else if (dev->dev == LED_1) {
+  } else if (dev == LED_1) {
     return LED_DEVICE_USR1;
   }
   return DEVICE_INVALID;
