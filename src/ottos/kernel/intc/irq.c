@@ -128,7 +128,7 @@ void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 	}
 
 	// now we schedule the next process
-	schedule_next();
+	scheduler_next();
 
 	// mark the new process as running
 	process_table[process_active]->state = RUNNING;

@@ -10,6 +10,6 @@
 
 #include <ottos/const.h>
 
-EXTERN void schedule_next();
+EXTERN void scheduler_next();
 
 #endif /* SCHEDULER_C_H_ */

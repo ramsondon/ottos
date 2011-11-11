@@ -8,7 +8,7 @@
 #include "../pm/process.h"
 #include "scheduler.h"
 
-void schedule_next() {
+void scheduler_next() {
 
 	int i = 0;
 	// scheudle round robin
