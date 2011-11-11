@@ -27,6 +27,10 @@
 #include <ottos/types.h>
 #include <ottos/const.h>
 
+#define STDIN    0
+#define STDOUT   1
+#define STDERR   2
+
 /**
  * Open a file.
  *
@@ -39,7 +43,7 @@
  *             TODO(fdomig@gmail.com) add more modes
  * @return file The file pointer.
  */
-EXTERN file_t* fopen(char* filename, char* mode);
+//EXTERN file_t* fopen(char* filename, char* mode);
 
 /**
  * Close a file
@@ -47,7 +51,7 @@ EXTERN file_t* fopen(char* filename, char* mode);
  * @param fp The file pointer.
  * @return The status code.
  */
-EXTERN int fclose(file_t* fp);
+//EXTERN int fclose(file_t* fp);
 
 /**
  * Writes a buffer to a given file.
@@ -58,6 +62,6 @@ EXTERN int fclose(file_t* fp);
  * @param buffer The buffer to write to the file.
  * @return The status code.
  */
-EXTERN int fwrite(file_t* fp, size_t size, size_t count, char* buffer);
+//EXTERN int fwrite(file_t* fp, size_t size, size_t count, char* buffer);
 
 #endif /* OTTOS_IO_H_ */
