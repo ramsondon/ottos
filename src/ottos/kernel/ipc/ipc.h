@@ -26,9 +26,4 @@
 
 #include <ottos/types.h>
 
-typedef struct message_t {
-    int pid_t;
-} message_t;
-
-
 #endif /* IPC_H_ */

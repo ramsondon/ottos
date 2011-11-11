@@ -1,8 +1,24 @@
-/*
- * InterruptHandler.c
+/* irq.h
  *
- *  Created on: 07.11.2011
- *      Author: Thomas
+ * Copyright (c) 2011 The ottos project.
+ *
+ * This work is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This work is distributed in the hope that it will be useful, but without
+ * any warranty; without even the implied warranty of merchantability or
+ * fitness for a particular purpose. See the GNU Lesser General Public License
+ * for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ *
+ *
+ *  Created on: 11.11.2011
+ *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
 #include <ottos/const.h>
@@ -16,14 +32,14 @@ asm(	"\t .bss _stack_pointer_interrupted, 4 \n" \
 		"\t .bss _stack_pointer_kernel, 4 \n" \
 		"\t .bss _return_address, 4 \n" \
 		"\t .bss _function_pointer, 4 \n" \
-		"\t .bss _started, 4 \n" \
+		"\t .bss _irq_started, 4 \n" \
 
 		"\t .global _stack_pointer_interrupted \n" \
 		"\t .global _stack_pointer_restored \n" \
 		"\t .global _stack_pointer_kernel\n" \
 		"\t .global _return_address \n" \
 		"\t .global _function_pointer \n" \
-		"\t .global _started \n" \
+		"\t .global _irq_started \n" \
 
 		"function_pointer .field _function_pointer, 32 \n" \
 		"stack_pointer_interrupted .field _stack_pointer_interrupted, 32 \n" \
@@ -37,11 +53,11 @@ extern int stack_pointer_restored;
 extern int return_address;
 extern int function_pointer;
 
-void handle_irq() {
+void irq_handle() {
 
 }
 
-void handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
+void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 
 	// TODO HANDLE INTERRUPT
 	// TODO when starting a new process, what's the return register?
@@ -85,8 +101,8 @@ void handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 	// ****** PROCESS STACK *********
 	// ******************************
 
-	if(started == FALSE) {
-		started = TRUE;
+	if(irq_started == FALSE) {
+		irq_started = TRUE;
 	} else {
 
 		// now save all registers inclusive CPSR
@@ -128,7 +144,7 @@ void handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 	}
 
 	// now we schedule the next process
-	schedule_next();
+	scheduler_next();
 
 	// mark the new process as running
 	process_table[process_active]->state = RUNNING;

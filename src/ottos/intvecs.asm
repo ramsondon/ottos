@@ -1,10 +1,10 @@
 		.if __TI_EABI_ASSEMBLER
-			.asg handle_swi, C_INTSWI
-			.asg handle_irq, C_INTIRQ
+			.asg irq_handle_swi, C_INTSWI
+			.asg irq_handle, C_INTIRQ
 ;			.asg handle_fiq, C_INTFIQ
 		.else
-			.asg _handle_swi, C_INTSWI
-			.asg _handle_irq, C_INTIRQ
+			.asg _irq_handle_swi, C_INTSWI
+			.asg _irq_handle, C_INTIRQ
 ;			.asg _handle_fiq, C_INTFIQ
 		.endif
 
