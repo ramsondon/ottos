@@ -24,7 +24,7 @@
 #include <ottos/system.h>
 
 #include "../../bin/led_test.h"
-#include "kernel/kernel.h"
+#include <ottos/kernel.h>
 #include "kernel/intc/irq.h"
 #include "kernel/pm/process.h"
 #include "dev/devices.h"
@@ -40,6 +40,8 @@ int main(int argc, char **argv) {
 
 	process_create(1, (int)toggle_led1);
 	process_create(1, (int)toggle_led2);
+
+	kernel_panic("Could not start OttOS");
 
 	// switch to user mode
 	kernel_to_user_mode();

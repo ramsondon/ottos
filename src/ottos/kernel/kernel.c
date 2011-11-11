@@ -1,4 +1,4 @@
-/* kernel.h
+/* kernel.c
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -21,11 +21,21 @@
  *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#ifndef KERNEL_H_
-#define KERNEL_H_
+#include <ottos/kernel.h>
+#include <ottos/io.h>
 
-inline void kernel_to_user_mode() {
-  asm("\t CPS 0x10");
+void kernel_panic(const char* str) {
+  kernel_print("**** KERNEL PANIC ****\n");
+  kernel_print(sprintf("%s\n", str));
+  kernel_print("**** KERNEL PANIC ****\n");
+
+  kernel_halt();
 }
 
-#endif /* KERNEL_H_ */
+void kernel_print(const char* str) {
+  printf(str);
+}
+
+void kernel_halt() {
+  for(;;);
+}
