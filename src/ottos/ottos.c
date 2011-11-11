@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
   // initialize device manager
   devices_init();
 
-	started = FALSE;
+	irq_started = FALSE;
 
 	process_table_init();
 
