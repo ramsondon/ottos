@@ -26,7 +26,7 @@
 
 void kernel_panic(const char* str) {
   kernel_print("**** KERNEL PANIC ****\n");
-  kernel_print(sprintf("%s\n", str));
+  kernel_print(str);
   kernel_print("**** KERNEL PANIC ****\n");
 
   kernel_halt();
