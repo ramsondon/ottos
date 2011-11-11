@@ -1,4 +1,4 @@
-/* ottos.cc
+/* kernel.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,34 +17,15 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Oct 19, 2011
- *      Author: Matthias Schmid <m.schmid@students.fhv.at>
+ *  Created on: 11.11.2011
+ *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#include <ottos/system.h>
+#ifndef KERNEL_H_
+#define KERNEL_H_
 
-#include "../../bin/led_test.h"
-#include "kernel/kernel.h"
-#include "kernel/intc/irq.h"
-#include "kernel/pm/process.h"
-#include "dev/devices.h"
-
-int main(int argc, char **argv) {
-
-  // initialize device manager
-  devices_init();
-
-	started = FALSE;
-
-	process_table_init();
-
-	process_create(1, (int)toggle_led1);
-	process_create(1, (int)toggle_led2);
-
-	// switch to user mode
-	kernel_to_user_mode();
-	sys_yield();
-
-
-	return 0;
+inline void kernel_to_user_mode() {
+  asm("\t CPS 0x10");
 }
+
+#endif /* KERNEL_H_ */

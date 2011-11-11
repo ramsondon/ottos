@@ -122,20 +122,20 @@ void handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 
 	// now we save the new stack pointer of the interrupted process and
 	// set the state to ready
-	if(active_process != PID_INVALID) {
-		process_table[active_process]->stack_pointer = stack_pointer_interrupted;
-		process_table[active_process]->state = READY;
+	if(process_active != PID_INVALID) {
+		process_table[process_active]->stack_pointer = stack_pointer_interrupted;
+		process_table[process_active]->state = READY;
 	}
 
 	// now we schedule the next process
 	schedule_next();
 
 	// mark the new process as running
-	process_table[active_process]->state = RUNNING;
+	process_table[process_active]->state = RUNNING;
 
 	// check if the process has been started
-	if(process_table[active_process]->started == FALSE) {
-		process_table[active_process]->started = TRUE;
+	if(process_table[process_active]->started == FALSE) {
+		process_table[process_active]->started = TRUE;
 
 		// the process hasn't been started yet
 		// we have to start the process in the user mode
@@ -145,11 +145,11 @@ void handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 
 		// to start the process we simply set the return address
 		// of the handler to the process start (function pointer address)
-		function_pointer = process_table[active_process]->initialAddress;
+		function_pointer = process_table[process_active]->initial_address;
 
 		// the new process has its own stack and we have to set
 		// the stack pointer of it
-		stack_pointer_interrupted = process_table[active_process]->stack_pointer;
+		stack_pointer_interrupted = process_table[process_active]->stack_pointer;
 
 		// save the kernel context
 		// TODO restore r0
@@ -183,7 +183,7 @@ void handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 		// to restore the context we have to switch to the
 		// process stack
 		// therefore we set the stack pointer of the process
-		stack_pointer_restored = process_table[active_process]->stack_pointer;
+		stack_pointer_restored = process_table[process_active]->stack_pointer;
 
 		// save the kernel context
 		asm("\t STMFD sp!, {r0-r12} \n" \

@@ -12,11 +12,11 @@ void schedule_next() {
 
 	int i = 0;
 	// scheudle round robin
-	for (i = (active_process + 1) % PROCESS_MAX_COUNT; i < PROCESS_MAX_COUNT; i
+	for (i = (process_active + 1) % PROCESS_MAX_COUNT; i < PROCESS_MAX_COUNT; i
 			= (i + 1) % PROCESS_MAX_COUNT) {
 
 		if (process_table[i] != NULL && process_table[i]->state == READY) {
-			active_process = i;
+			process_active = i;
 			return;
 		}
 	}
