@@ -1,4 +1,4 @@
-/* limits.h
+/* device_manager.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,22 +17,27 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 27 Oct 2011
- *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
+ *  Created on: Nov 10, 2011
+ *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef LIMITS_H_
-#define LIMITS_H_
+#ifndef DEVICES_H_
+#define DEVICES_H_
 
-// TODO(thomas.bargetz.gmail.com) include hal to get memory size and so on
+#include <ottos/const.h>
+#include <ottos/dev/device.h>
+#include <ottos/drivers/driver.h>
 
-#define MEMORY_SIZE 100
-#define PROCESS_SIZE 10
+typedef struct device_map_entry_t {
+    device_t dev;
+    driver_t driver;
+} device_map_entry_t;
 
-#define PROCESS_MAX_COUNT (MEMORY_SIZE / PROCESS_SIZE)
 
-#define REGISTER_SIZE 16
+/* initialize all available devices */
+EXTERN void devices_init();
 
-#define DEVICE_MAX_COUNT 30
+/* returns the driver_t for device_t */
+EXTERN driver_t devices_driver(device_t dev);
 
-#endif /* LIMITS_H_ */
+#endif /* DEVICES_H_ */

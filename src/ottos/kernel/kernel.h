@@ -1,4 +1,4 @@
-/* limits.h
+/* kernel.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,22 +17,15 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 27 Oct 2011
- *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
+ *  Created on: 11.11.2011
+ *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#ifndef LIMITS_H_
-#define LIMITS_H_
+#ifndef KERNEL_H_
+#define KERNEL_H_
 
-// TODO(thomas.bargetz.gmail.com) include hal to get memory size and so on
+inline void kernel_to_user_mode() {
+  asm("\t CPS 0x10");
+}
 
-#define MEMORY_SIZE 100
-#define PROCESS_SIZE 10
-
-#define PROCESS_MAX_COUNT (MEMORY_SIZE / PROCESS_SIZE)
-
-#define REGISTER_SIZE 16
-
-#define DEVICE_MAX_COUNT 30
-
-#endif /* LIMITS_H_ */
+#endif /* KERNEL_H_ */

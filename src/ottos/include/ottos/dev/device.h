@@ -25,8 +25,19 @@
 #define DEVICE_H_
 
 
-typedef struct device_t {
-    int dev;
-} device_t;
+typedef int device_t;
+
+/*
+ * Device identifiers
+ *
+ * WARNING: always check the <ottos/limits.h> for DEVICE_MAX_COUNT when adding
+ *          new devices.
+ */
+#define DEVICE_INVALID  -1
+
+#define LED_0           11
+#define LED_1           12
+
+
 
 #endif /* DEVICE_H_ */

@@ -24,6 +24,7 @@
 #ifndef DRIVER_H_
 #define DRIVER_H_
 
+#include <ottos/const.h>
 #include <ottos/dev/device.h>
 
 /*
@@ -32,17 +33,27 @@
 typedef int ioctl_t;
 
 /*
- * driver_t
+ * struct driver_t
  * The device driver interface of the ottOS
  */
 typedef struct driver_t {
-    int (*open)(device_t* dev);
-    int (*close)(device_t* dev);
-    int (*read)(device_t* dev, int count, char* buffer);
-    int (*write)(device_t* dev, int count, char* buffer);
-    int (*ioctl)(device_t* dev, ioctl_t msg);
-    int (*create)(device_t* dev);
+    int (*open)(device_t dev);
+    int (*close)(device_t dev);
+    int (*read)(device_t dev, int count, char* buffer);
+    int (*write)(device_t dev, int count, char* buffer);
+    int (*ioctl)(device_t dev, ioctl_t msg);
+    int (*create)(device_t dev);
 } driver_t;
+
+/*
+ * Returns a valid driver with empty function stubs
+ */
+EXTERN driver_t driver_null();
+
+/*
+ * Returns the driver for device dev
+ */
+EXTERN driver_t driver_get(device_t dev);
 
 
 #endif /* DRIVER_H_ */

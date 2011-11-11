@@ -1,4 +1,4 @@
-/* limits.h
+/* led.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,22 +17,21 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 27 Oct 2011
- *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
+ *  Created on: Nov 10, 2011
+ *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef LIMITS_H_
-#define LIMITS_H_
+#ifndef LED_H_
+#define LED_H_
 
-// TODO(thomas.bargetz.gmail.com) include hal to get memory size and so on
+#include <ottos/drivers/driver.h>
+#include <ottos/dev/device.h>
 
-#define MEMORY_SIZE 100
-#define PROCESS_SIZE 10
+int led_open(device_t dev);
+int led_close(device_t dev);
+int led_read(device_t dev, int count, char* buffer);
+int led_write(device_t dev, int count, char* buffer);
+int led_ioctl(device_t dev, ioctl_t msg);
+int led_create(device_t dev);
 
-#define PROCESS_MAX_COUNT (MEMORY_SIZE / PROCESS_SIZE)
-
-#define REGISTER_SIZE 16
-
-#define DEVICE_MAX_COUNT 30
-
-#endif /* LIMITS_H_ */
+#endif /* LED_H_ */
