@@ -24,24 +24,23 @@ typedef struct {
     int priority;
     enum ProcessState state;
     // the initial address of the process (entry point, function pointer)
-    int initialAddress;
+    int initial_address;
     int stack_pointer;
-
     int started;
-} Process_t;
+} process_t;
 
 // the process table contains all processes of the
 // operating system
-EXTERN Process_t* process_table[PROCESS_MAX_COUNT];
+EXTERN process_t* process_table[PROCESS_MAX_COUNT];
 // helper variable to find the next free entry in the process table
-EXTERN int next_free_entry;
+EXTERN int process_next_free_entry;
 // helper variable to identify the active process (state = running)
-EXTERN int active_process;
+EXTERN int process_active;
 
 // initializes the process table with NULL values
-void init_process_table();
+void process_table_init();
 
 // creates a new process and returns the pid of it
-pid_t create_process(int priority, int initialAddress);
+pid_t process_create(int priority, int initial_address);
 
 #endif /* PROCESS_C_H_ */

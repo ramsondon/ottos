@@ -24,6 +24,7 @@
 #include <ottos/system.h>
 
 #include "../../bin/led_test.h"
+#include "kernel/kernel.h"
 #include "kernel/intc/irq.h"
 #include "kernel/pm/process.h"
 #include "dev/devices.h"
@@ -35,12 +36,13 @@ int main(int argc, char **argv) {
 
 	started = FALSE;
 
-	init_process_table();
-	create_process(1, (int)toggle_led1);
-	create_process(1, (int)toggle_led2);
+	process_table_init();
+
+	process_create(1, (int)toggle_led1);
+	process_create(1, (int)toggle_led2);
 
 	// switch to user mode
-	asm("\t CPS 0x10");
+	kernel_to_user_mode();
 	sys_yield();
 
 
