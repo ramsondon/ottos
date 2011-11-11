@@ -41,7 +41,8 @@ int main(int argc, char **argv) {
 	process_create(1, (int)toggle_led1);
 	process_create(1, (int)toggle_led2);
 
-	kernel_panic("Could not start OttOS");
+	//kernel_panic("Could not start OttOS");
+
 
 	// switch to user mode
 	kernel_to_user_mode();
