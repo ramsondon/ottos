@@ -1,4 +1,4 @@
-/* io.cc
+/* kernel.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,26 +17,35 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 04.11.2011
+ *  Created on: 11.11.2011
  *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#include <ottos/io.h>
-#include <ottos/types.h>
-#include <ottos/system.h>
+#ifndef KERNEL_H_
+#define KERNEL_H_
 
-/*
-file_t* fopen(char* filename, char* mode) {
-  int flags = 0;
-  file_t* fp = (file_t *) sys_open(filename, flags);
-  return fp;
+/**
+ * Must be executed without doing a function call. That is why this function
+ * has to be inlined by the compiler.
+ */
+inline void kernel_to_user_mode() {
+  asm("\t CPS 0x10");
 }
 
-int fclose(file_t* fp) {
-  return 0;
-}
+/**
+ * Print a kernel panic message and halt the system.
+ */
+extern void kernel_panic(const char* str);
 
-int fwrite(file_t* fp, size_t size, size_t count, char* buffer) {
-  return 0;
-}
-*/
+/**
+ * Print a kernel message to STDOUT.
+ */
+extern void kernel_print(const char* str);
+
+/**
+ * Halt the system. This should only be called within a kernel_panic call
+ * or at shutdown.
+ */
+extern void kernel_halt();
+
+#endif /* KERNEL_H_ */
