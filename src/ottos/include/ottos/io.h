@@ -27,6 +27,9 @@
 #include <ottos/types.h>
 #include <ottos/const.h>
 
+// include stdio as long as we do not have our own
+#include <stdio.h>
+
 #define STDIN    0
 #define STDOUT   1
 #define STDERR   2
