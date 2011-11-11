@@ -1,4 +1,4 @@
-/* device_manager.h
+/* devices.h
  * 
  * Copyright (c) 2011 The ottos project.
  *

@@ -1,4 +1,4 @@
-/* devmanager.c
+/* devices.c
  * 
  * Copyright (c) 2011 The ottos project.
  *
