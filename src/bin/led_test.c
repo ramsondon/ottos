@@ -40,7 +40,7 @@ int toggle_led1() {
 
   drv.open(LED_0);
 	for(i = 0;; i++) {
-		if(i > 100000) {
+		if(i > 1000000) {
 
 		  drv.read(LED_0, 1, &state);
 			buffer = ((int)state == 0)? 1 : 0;
