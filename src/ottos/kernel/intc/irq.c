@@ -100,9 +100,7 @@ void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
   // ****** PROCESS STACK *********
   // ******************************
 
-  if (irq_started == FALSE) {
-    irq_started = TRUE;
-  } else {
+  if (irq_started == TRUE) {
 
     // now save all registers inclusive CPSR
     asm("\t STMFD sp!, {r0-r12} \n"
@@ -134,11 +132,15 @@ void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
       // switch to system mode and kernel stack
       asm("\t CPS 0x1F");
 
-      // to switch to the next process we have to switch
-      // to the kernel stack and the restore the context
-      asm("\t LDR sp, stack_pointer_kernel \n"
-          "\t LDR sp, [sp] \n"
-          "\t LDMFD sp!, {r0-r12}");
+      if(irq_started == TRUE) {
+        // to switch to the next process we have to switch
+        // to the kernel stack and the restore the context
+        asm("\t LDR sp, stack_pointer_kernel \n"
+            "\t LDR sp, [sp] \n"
+            "\t LDMFD sp!, {r0-r12}");
+      } else {
+        irq_started = TRUE;
+      }
 
       // ******************************
       // ****** KERNEL STACK **********
