@@ -1,4 +1,4 @@
-/* syscalls.cc
+/* system.c
  * 
  * Copyright (c) 2011 The ottos project.
  *

@@ -1,4 +1,4 @@
-/* types.h
+/* kernel.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,26 +17,35 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 21.10.2011
+ *  Created on: 11.11.2011
  *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#ifndef OTTOS_TYPES_H_
-#define OTTOS_TYPES_H_
+#ifndef KERNEL_H_
+#define KERNEL_H_
 
-#include <ottos/const.h>
-#include <stdlib.h>
+/**
+ * Must be executed without doing a function call. That is why this function
+ * has to be inlined by the compiler.
+ */
+inline void kernel_to_user_mode() {
+  asm("\t CPS 0x10");
+}
 
-typedef int pid_t;
-typedef volatile unsigned int* address;
-typedef int (*function_t)();
+/**
+ * Print a kernel panic message and halt the system.
+ */
+extern void kernel_panic(const char* str);
 
-typedef unsigned long address_t;
-typedef address_t file_t;
+/**
+ * Print a kernel message to STDOUT.
+ */
+extern void kernel_print(const char* str);
 
-typedef struct message_t {
-    int pid_t;
-} message_t;
+/**
+ * Halt the system. This should only be called within a kernel_panic call
+ * or at shutdown.
+ */
+extern void kernel_halt();
 
-
-#endif /* OTTOS_TYPES_H_ */
+#endif /* KERNEL_H_ */

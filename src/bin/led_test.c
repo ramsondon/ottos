@@ -74,11 +74,3 @@ int toggle_led2() {
   return 0;
 }
 
-int test_file_operations() {
-  file_t* fp = fopen("/dev/led01", "w");
-  char buffer = 1;
-  fwrite(fp, sizeof(char), 1, &buffer);
-  fclose(fp);
-
-  return 0;
-}
