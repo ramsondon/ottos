@@ -1,4 +1,4 @@
-/* driver.c
+/* kernel.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,14 +17,35 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Nov 10, 2011
- *      Author: Matthias Schmid <ramsondon@gmail.com>
+ *  Created on: 11.11.2011
+ *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#include <ottos/drivers/driver.h>
-#include "../dev/devices.h"
+#ifndef KERNEL_H_
+#define KERNEL_H_
 
-
-driver_t driver_get(device_t dev) {
-  return devices_driver(dev);
+/**
+ * Must be executed without doing a function call. That is why this function
+ * has to be inlined by the compiler.
+ */
+inline void kernel_to_user_mode() {
+  asm("\t CPS 0x10");
 }
+
+/**
+ * Print a kernel panic message and halt the system.
+ */
+extern void kernel_panic(const char* str);
+
+/**
+ * Print a kernel message to STDOUT.
+ */
+extern void kernel_print(const char* str);
+
+/**
+ * Halt the system. This should only be called within a kernel_panic call
+ * or at shutdown.
+ */
+extern void kernel_halt();
+
+#endif /* KERNEL_H_ */
