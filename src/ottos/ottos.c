@@ -28,8 +28,12 @@
 #include "kernel/intc/irq.h"
 #include "kernel/pm/process.h"
 #include "dev/devices.h"
+#include "kernel/mmu/mmu.h"
+
 
 int main(int argc, char **argv) {
+
+   mmu_init();
 
   // initialize device manager
   devices_init();

@@ -22,44 +22,33 @@
  *
 */
 #include "mmu.h"
+#include <ottos/types.h>
 
-unsigned int cnt3;
-int cnt,cnt2;
-int i;
-unsigned int *PTEptr;
-unsigned int PTE;
-int index;
+void mmu_init(){
+  unsigned int i;
+     address tableAddress = (address)0x40200000;
+     // Set Domain Access control register to 0101 0101 0101 0101 0101 0101 0101 0101
+     asm("\t MOV r1, #0x5557\n");
+     asm("\t MOVT r1, #0x5555\n");
+     asm("\t MCR p15, #0, r1, c3, c0, #0\n");
 
-//MasterTable mit NULL initialisieren
+     // Set the Master Table Pointer to the internal ram
+     asm("\t MOV r1, #0x0000\n");
+     asm("\t MOVT r1, #0x4020\n");
+     asm("\t MCR p15, #0, r1, c2, c0, #0\n");
 
-void mastertable_init (unsigned int *PTEptr){
+     // Initialize Master Table
+     for (i = 0x00000000; i < 0xFFF00000; i += 0x00100000) {
+         *tableAddress = i | 0xC12;
+         tableAddress++;
+     }
+     *tableAddress = 0xFFF00C12;
 
-PTEptr = (unsigned int *)0x83000000;   /* set base address PT */
-
-		for ( i=0; i<256;i++)
-		{
-			*PTEptr = 0;PTEptr++;
-		}
+     // Enable MMU
+     asm("\t MRC p15, #0, r1, c1, c0, #0\n");
+     asm("\t ORR r1, r1, #0x1\n");
+     asm("\t MCR p15, #0, r1, c1, c0, #0\n");
 
 }
-
-
-void mastertable_fill(unsigned int *PTEptr, int PTE){
-	PTEptr = (unsigned int *)0x83000000;   /* get base address PT */
-	PTEptr += 0x80000000 >> 20;  /* set to first PTE in   VA80000000 */
-	PTEptr += 0x100-1;     /* set to last PTE in region */
-
-	PTE = 80000000 & 0xfff00000;     /* set physical address */
-	PTE |= (0x03 & 0x3) << 10;       /* set Access Permissions  (3= full RW */
-	PTE |= 3    << 5;        /* set domain for section */
-	PTE |=  (2 & 0x3) << 2;     /* set cache & WB attributes (2 = write through*/
-	PTE |= 0x2;                             /* set as section entry */
-
-	for (i =0x100 - 1; i >= 0; i--) /* fill PTE in region */
-		{
-			*PTEptr-- = PTE + (i << 20);  /* i = 1 MB section */
-		}
-}
-
 
 

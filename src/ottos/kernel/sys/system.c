@@ -24,6 +24,7 @@
 #include <ottos/system.h>
 #include <ottos/syscalls.h>
 
+
 asm("\t .bss _reg_val, 4");
 asm("\t .global _reg_val");
 asm("reg_val_a .field _reg_val, 32");
@@ -78,3 +79,5 @@ address_t sys_open(char* filename, int flags) {
 
   return address;
 }
+
+

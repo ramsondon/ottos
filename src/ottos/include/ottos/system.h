@@ -40,6 +40,8 @@ EXTERN size_t sys_read();
 EXTERN size_t sys_write();
 EXTERN int sys_close();
 
+EXTERN void sys_mmu();
+
 /*
  * IPC system calls
  */
