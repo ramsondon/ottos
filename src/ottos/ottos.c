@@ -27,10 +27,23 @@
 #include <ottos/kernel.h>
 #include "kernel/intc/irq.h"
 #include "kernel/pm/process.h"
+#include "kernel/timer/timer.h"
 #include "dev/devices.h"
 
-int main(int argc, char **argv) {
 
+void toggle_led_1() {
+  //printf("Timer 3 fired interrupt... \n");
+  *(volatile unsigned long *)GPIO5_DATAOUT ^= SET_BIT(22);
+}
+
+void toggle_led_2() {
+  //printf("Timer 4 fired interrupt... \n");
+  *(volatile unsigned long *)GPIO5_DATAOUT ^= SET_BIT(21);
+}
+
+
+int main(int argc, char **argv) {
+  /*
   // initialize device manager
   devices_init();
 
@@ -47,7 +60,14 @@ int main(int argc, char **argv) {
 	// switch to user mode
 	kernel_to_user_mode();
 	sys_yield();
+	*/
 
+  timer_init();
+  timer_add_handler(toggle_led_1, 5000);
+  timer_add_handler(toggle_led_2, 10000);
+  _enable_interrupts();
+
+  while (TRUE) {}
 
 	return 0;
 }
