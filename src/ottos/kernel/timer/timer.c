@@ -22,7 +22,6 @@
  */
 
 #include "timer.h"
-#include "../kernel.h"
 #include "../../hal/gpt.h"
 #include "../dev/devices.h"
 #include "../intc/irq.h"
