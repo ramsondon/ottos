@@ -29,7 +29,11 @@
 // flag to check if the interrupt is called the first time
 extern int irq_started;
 
-void irq_init();
+EXTERN void irq_init();
+
+EXTERN void irq_enable();
+
+EXTERN void irq_disable();
 
 #pragma INTERRUPT(irq_handle, IRQ)
 EXTERN void irq_handle();
@@ -37,6 +41,6 @@ EXTERN void irq_handle();
 #pragma INTERRUPT(irq_handle_swi, SWI)
 EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3);
 
-void irq_add_handler(int irq_id, void (*fn)(void));
+EXTERN void irq_add_handler(int irq_id, void (*fn)(void));
 
 #endif /* INTERRUPTHANDLER_H_ */
