@@ -385,6 +385,12 @@ EXTERN void irq_handle() {
   // ****** INTERRUPT STACK *******
   // ******************************
 
+  // TODO lr -4 = the interrupt handler
+  // returns by default to this address.
+  // so i expected that we also have to
+  // return to this address. but its
+  // just a guess ;)
+
   // store the return address
   asm("\t PUSH {r0} \n"
       "\t LDR r0, return_address \n"
