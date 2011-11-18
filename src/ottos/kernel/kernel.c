@@ -33,6 +33,7 @@ void kernel_panic(const char* str) {
 }
 
 void kernel_print(const char* str) {
+  // TODO(fdomig@gmail.com) Has to be refactored to use an own printf()
   printf(str);
 }
 
