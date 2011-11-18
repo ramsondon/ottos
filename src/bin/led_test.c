@@ -40,13 +40,13 @@ int toggle_led1() {
 
   drv.open(LED_0);
 	for(i = 0;; i++) {
-		if(i > 1000000) {
+		if(i > 10000) {
 
 		  drv.read(LED_0, 1, &state);
 			buffer = ((int)state == 0)? 1 : 0;
 			drv.write(LED_0, 1, &buffer);
 		  i = 0;
-			sys_yield();
+			//sys_yield();
 		}
 	}
 	drv.close(LED_0);
@@ -62,12 +62,12 @@ int toggle_led2() {
 
   drv.open(LED_1);
 	for(i = 0;; i++) {
-		if(i > 100000) {
+		if(i > 10000) {
 		  drv.read(LED_1, 1, &state);
       buffer = ((int)state == 0)? 1 : 0;
       drv.write(LED_1, 1, &buffer);
       i = 0;
-			sys_yield();
+			//sys_yield();
 		}
 	}
 	drv.close(LED_1);

@@ -32,23 +32,43 @@
 
 
 void toggle_led_1() {
-  //printf("Timer 3 fired interrupt... \n");
-  *(volatile unsigned long *)GPIO5_DATAOUT ^= SET_BIT(22);
+  int i;
+  for(i = 0;;i++) {
+    if(i > 10000) {
+      i = 0;
+      *(volatile unsigned long *)GPIO5_DATAOUT ^= SET_BIT(22);
+    }
+  }
 }
 
 void toggle_led_2() {
-  //printf("Timer 4 fired interrupt... \n");
-  *(volatile unsigned long *)GPIO5_DATAOUT ^= SET_BIT(21);
+  int i;
+  for(i = 0;;i++) {
+    if(i > 10000) {
+      i = 0;
+      *(volatile unsigned long *)GPIO5_DATAOUT ^= SET_BIT(21);
+    }
+  }
 }
 
 void timer_test() {
+  irq_started = FALSE;
+
+  process_table_init();
+
+  process_create(1, (int)toggle_led1);
+  process_create(1, (int)toggle_led2);
+
+  devices_init();
+
   irq_init();
 
   timer_init();
-  timer_add_handler(toggle_led_1, 5000);
-  timer_add_handler(toggle_led_2, 10000);
+  //timer_add_handler(toggle_led_1, 5000);
+  //timer_add_handler(toggle_led_2, 10000);
 
   irq_enable();
+  kernel_to_user_mode();
 }
 
 void devices_test() {

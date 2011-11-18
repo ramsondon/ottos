@@ -46,7 +46,8 @@ void devices_init() {
   // initialize the device map with zero values
   int i;
   for (i = 0; i < DEVICE_MAX_COUNT; i++) {
-    device_container[i]->dev = DEVICE_INVALID;
+    device_container[i] = NULL;
+    //device_container[i]->dev = DEVICE_INVALID;
   }
 
   /* initialize all devices */
