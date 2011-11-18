@@ -99,6 +99,13 @@ void irq_handle_irq(int irq_id) {
 }
 
 void swi_context_switch() {
+  // we saved some registers on the stack to return
+  // to the previous process in the irq_handle
+  // function. but now we are making a context switch
+  // and therefore we have to reset the stack pointer
+  asm("\t LDR sp, stack_pointer_interrupt_handler \n"
+      "\t LDR sp, [sp]");
+
   // switch to system mode and kernel stack
   asm("\t CPS 0x1F");
 
@@ -364,6 +371,7 @@ EXTERN void irq_handle() {
   // before a context switch
   asm("\t PUSH {r0} \n"
       "\t LDR r0, stack_pointer_interrupt_handler \n"
+      // 4 bytes for the r0 register on the stack
       "\t ADD sp, sp, #4 \n"
       "\t STR sp, [r0] \n"
       "\t SUB sp, sp, #4 \n"
@@ -437,7 +445,7 @@ EXTERN void irq_handle() {
       "\t SUBS pc, lr, #4");
 }
 
-
+#pragma TASK(irq_handle_swi)
 EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 
   // TODO when starting a new process, what's the return register?
@@ -459,6 +467,25 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
   // TOP OF STACK -1		cpsr
   // IN BETWEEN			r0 - r11
   // BOTTOM OF STACK		r12
+
+  // save the original stack pointer of the
+  // interrupt handler, so we can reset it
+  // before a context switch
+  asm("\t PUSH {r0} \n"
+      "\t LDR r0, stack_pointer_interrupt_handler \n"
+      // we have to save the correct stack pointer
+      // 4 bytes = lr register which is pushed on the stack
+      // when entering a function
+      // 4 * 4 bytes = 16 bytes parameters
+      // total = 20 bytes
+      "\t ADD sp, sp, #20 \n"
+      "\t STR sp, [r0] \n"
+      "\t SUB sp, sp, #20 \n"
+      "\t POP {r0}");
+
+  // if no context switch is necessary, we
+  // will return to the previous process
+  asm("\t STMFD sp!, {r0-r3, r12, lr}");
 
   // ******************************
   // ****** INTERRUPT STACK *******
@@ -520,4 +547,9 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
       // ignore
       break;
   }
+
+  // when we are here, no context switch happened
+  // so we return the the previous process
+  asm("\t LDMFD sp!, {r0-r3, r12, lr} \n" \
+      "\t SUBS pc, lr, #4");
 }

@@ -85,6 +85,8 @@ void process_test() {
   process_create(1, (int)toggle_led1);
   process_create(1, (int)toggle_led2);
 
+  devices_init();
+
   // switch to user mode
   kernel_to_user_mode();
   sys_yield();
@@ -94,8 +96,8 @@ void process_test() {
 
 int main(int argc, char **argv) {
 
-  process_test();
-  //timer_test();
+  //process_test();
+  timer_test();
 
   for(;;);
 
