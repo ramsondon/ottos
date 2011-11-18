@@ -55,7 +55,7 @@
 #define UART_SPR_REG        0x01C /* RW */
 #define UART_TLR_REG        0x01C /* RW */
 #define UART_XOFF2_REG      0x01C /* RW */
-#define UART_MDR1_REG       0x020 /* RW */
+#define UART_MDR1_REG       0x020 /* RW Mode Definition CIR/IrDA */
 #define UART_MDR2_REG       0x024 /* RW */
 #define UART_SFLSR_REG      0x028 /* R */
 #define UART_UASR_REG       0x038 /* R */
@@ -68,6 +68,17 @@
 #define UART_SYSC_REG       0x054 /* RW */
 #define UART_SYSS_REG       0x058 /* R */
 #define UART_WER_REG        0x05C /* RW */
+
+
+/* UART Mode Select */
+#define UART_MODE_SELECT_16XMOD       0x000
+#define UART_MODE_SELECT_SIR          0x001
+#define UART_MODE_SELECT_16XAUTO_BAUD 0x002
+#define UART_MODE_SELECT_13XMODE      0x003
+#define UART_MODE_SELECT_MIR          0x004
+#define UART_MODE_SELECT_FIR          0x005
+#define UART_MODE_SELECT_CIR          0x006
+#define UART_MODE_SELECT_DISABLE      0x007
 
 
 
@@ -85,6 +96,7 @@
 #define UART3_ACREG_REG     0x03C /* RW */
 #define UART3_EBLR_REG      0x048 /* RW */
 #define UART3_CFPS_REG      0x060 /* RW */
+
 
 
 
