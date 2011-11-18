@@ -40,8 +40,8 @@ static void timer_interrupt_handler() {
   for (i = 0; i < timer_count_; i++) {
     timers_[i].curr_ticks -= DEFAULT_TICKS;
     if ((timers_[i].init_ticks >= 0) && (timers_[i].curr_ticks <= 0)) {
-      timers_[i].handle();
       timers_[i].curr_ticks = timers_[i].init_ticks;
+      timers_[i].handle();
     }
   }
 

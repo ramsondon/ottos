@@ -34,7 +34,7 @@
 void toggle_led_1() {
   int i;
   for(i = 0;;i++) {
-    if(i > 10000) {
+    if(i > 1000000) {
       i = 0;
       *(volatile unsigned long *)GPIO5_DATAOUT ^= SET_BIT(22);
     }
@@ -44,7 +44,7 @@ void toggle_led_1() {
 void toggle_led_2() {
   int i;
   for(i = 0;;i++) {
-    if(i > 10000) {
+    if(i > 1000000) {
       i = 0;
       *(volatile unsigned long *)GPIO5_DATAOUT ^= SET_BIT(21);
     }
@@ -64,8 +64,10 @@ void timer_test() {
   irq_init();
 
   timer_init();
-  //timer_add_handler(toggle_led_1, 5000);
+  //timer_add_handler(toggle_led_1, 5nor000);
   //timer_add_handler(toggle_led_2, 10000);
+
+  irq_register_context_switch();
 
   irq_enable();
   kernel_to_user_mode();
@@ -92,7 +94,8 @@ void process_test() {
 
 int main(int argc, char **argv) {
 
-  timer_test();
+  process_test();
+  //timer_test();
 
   for(;;);
 
