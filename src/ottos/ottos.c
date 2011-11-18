@@ -41,33 +41,37 @@ void toggle_led_2() {
   *(volatile unsigned long *)GPIO5_DATAOUT ^= SET_BIT(21);
 }
 
-
-int main(int argc, char **argv) {
-  /*
-  // initialize device manager
-  devices_init();
-
-	irq_started = FALSE;
-
-	process_table_init();
-
-	process_create(1, (int)toggle_led1);
-	process_create(1, (int)toggle_led2);
-
-	//kernel_panic("Could not start OttOS");
-
-
-	// switch to user mode
-	kernel_to_user_mode();
-	sys_yield();
-	*/
-
+void timer_test() {
   timer_init();
   timer_add_handler(toggle_led_1, 5000);
   timer_add_handler(toggle_led_2, 10000);
   _enable_interrupts();
+}
 
-  while (TRUE) {}
+void devices_test() {
+  devices_init();
+}
+
+void process_test() {
+  irq_started = FALSE;
+
+  process_table_init();
+
+  process_create(1, (int)toggle_led1);
+  process_create(1, (int)toggle_led2);
+
+  // switch to user mode
+  kernel_to_user_mode();
+  sys_yield();
+
+}
+
+
+int main(int argc, char **argv) {
+
+  timer_test();
+
+  for(;;);
 
 	return 0;
 }
