@@ -42,10 +42,13 @@ void toggle_led_2() {
 }
 
 void timer_test() {
+  irq_init();
+
   timer_init();
   timer_add_handler(toggle_led_1, 5000);
   timer_add_handler(toggle_led_2, 10000);
-  _enable_interrupts();
+
+  irq_enable();
 }
 
 void devices_test() {

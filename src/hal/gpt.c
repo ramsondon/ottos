@@ -44,51 +44,51 @@ void gpt_init(device_t gpt_timer, enum TimerInterruptMode interrupt_mode, int ti
     case GPTIMER_2:
     case GPTIMER_10:
       /* millisecond timers */
-      *((mem_address_t)(gpt_baseaddresses[gpt_timer]+GPT_TLDR)) = 0xFFFFFFE0; // ~1ms
-      *((mem_address_t)(gpt_baseaddresses[gpt_timer]+GPT_TCRR)) = 0xFFFFFFE0; // ~1ms
-      *((mem_address_t)(gpt_baseaddresses[gpt_timer]+GPT_TPIR)) = pos_inc;
-      *((mem_address_t)(gpt_baseaddresses[gpt_timer]+GPT_TNIR)) = neg_inc;
+      *((mem_address_t*)(gpt_baseaddresses[gpt_timer]+GPT_TLDR)) = 0xFFFFFFE0; // ~1ms
+      *((mem_address_t*)(gpt_baseaddresses[gpt_timer]+GPT_TCRR)) = 0xFFFFFFE0; // ~1ms
+      *((mem_address_t*)(gpt_baseaddresses[gpt_timer]+GPT_TPIR)) = pos_inc;
+      *((mem_address_t*)(gpt_baseaddresses[gpt_timer]+GPT_TNIR)) = neg_inc;
       break;
 
     default:
-      *((mem_address_t)(gpt_baseaddresses[gpt_timer]+GPT_TLDR)) = load_ticks;
-      *((mem_address_t)(gpt_baseaddresses[gpt_timer]+GPT_TMAR)) = ticks;
+      *((mem_address_t*)(gpt_baseaddresses[gpt_timer]+GPT_TLDR)) = load_ticks;
+      *((mem_address_t*)(gpt_baseaddresses[gpt_timer]+GPT_TMAR)) = ticks;
       break;
   }
 
   /* clear int status bits */
-  *((mem_address_t)(gpt_baseaddresses[gpt_timer]+GPT_TISR)) = ~0;
+  *((mem_address_t*)(gpt_baseaddresses[gpt_timer]+GPT_TISR)) = ~0;
 
   /* counts the number of overflows; if this register matches the GPT_TOWR register an interrupt is thrown */
-  *((mem_address_t)(gpt_baseaddresses[gpt_timer]+GPT_TOCR)) = 0;
+  *((mem_address_t*)(gpt_baseaddresses[gpt_timer]+GPT_TOCR)) = 0;
 
   /* number of overflow which have to occurs until an interrupt is thrown */
-  *((mem_address_t)(gpt_baseaddresses[gpt_timer]+GPT_TOWR)) = 10;
+  *((mem_address_t*)(gpt_baseaddresses[gpt_timer]+GPT_TOWR)) = 10;
 
   /* set clock source to the 32 */
-  CLEAR_BIT((mem_address_t)(CM_CLKSEL_PER), CM_CLKSEL_GPT2);
+  CLEAR_BIT((mem_address_t*)(CM_CLKSEL_PER), CM_CLKSEL_GPT2);
 
-  SET_BIT((mem_address_t)(gpt_baseaddresses[gpt_timer]+GPT_TCLR), TCLR_COMPARE);
-  SET_BIT((mem_address_t)(gpt_baseaddresses[gpt_timer]+GPT_TCLR), TCLR_AUTORELOAD);
+  SET_BIT((mem_address_t*)(gpt_baseaddresses[gpt_timer]+GPT_TCLR), TCLR_COMPARE);
+  SET_BIT((mem_address_t*)(gpt_baseaddresses[gpt_timer]+GPT_TCLR), TCLR_AUTORELOAD);
 
   /* enable overflow and match trigger */
-  SET_BIT((mem_address_t)(gpt_baseaddresses[gpt_timer]+GPT_TCLR), TCLR_TRG_OVF_MAT);
+  SET_BIT((mem_address_t*)(gpt_baseaddresses[gpt_timer]+GPT_TCLR), TCLR_TRG_OVF_MAT);
 
   /* disable prescale */
-  CLEAR_BIT((mem_address_t)(gpt_baseaddresses[gpt_timer]+GPT_TCLR), TCLR_PRESCALE);
+  CLEAR_BIT((mem_address_t*)(gpt_baseaddresses[gpt_timer]+GPT_TCLR), TCLR_PRESCALE);
 }
 
 void gpt_start(device_t gpt_timer, enum TimerInterruptMode interrupt_mode) {
-  SET_BIT((mem_address_t)(gpt_baseaddresses[gpt_timer]+GPT_TIER), interrupt_mode);
-  SET_BIT((mem_address_t)(gpt_baseaddresses[gpt_timer]+GPT_TCLR), TCLR_START);
+  SET_BIT((mem_address_t*)(gpt_baseaddresses[gpt_timer]+GPT_TIER), interrupt_mode);
+  SET_BIT((mem_address_t*)(gpt_baseaddresses[gpt_timer]+GPT_TCLR), TCLR_START);
 }
 
 /*
  * Stops the timer and disable interrupts from this timer
  */
 void gpt_stop(device_t gpt_timer) {
-  *((mem_address_t)(gpt_baseaddresses[gpt_timer]+GPT_TIER)) &= 0;
-  CLEAR_BIT((mem_address_t)(gpt_baseaddresses[gpt_timer]+GPT_TCLR), TCLR_START);
+  *((mem_address_t*)(gpt_baseaddresses[gpt_timer]+GPT_TIER)) &= 0;
+  CLEAR_BIT((mem_address_t*)(gpt_baseaddresses[gpt_timer]+GPT_TCLR), TCLR_START);
   gpt_reset(gpt_timer);
 }
 
@@ -96,14 +96,14 @@ void gpt_stop(device_t gpt_timer) {
  * Clear all pending timer interrupts
  */
 void gpt_clear(device_t gpt_timer) {
-  SET_BIT((mem_address_t)(gpt_baseaddresses[gpt_timer]+GPT_TISR), TISR_CAPTURE);
-  SET_BIT((mem_address_t)(gpt_baseaddresses[gpt_timer]+GPT_TISR), TISR_OVERFLOW);
-  SET_BIT((mem_address_t)(gpt_baseaddresses[gpt_timer]+GPT_TISR), TISR_MATCH);
+  SET_BIT((mem_address_t*)(gpt_baseaddresses[gpt_timer]+GPT_TISR), TISR_CAPTURE);
+  SET_BIT((mem_address_t*)(gpt_baseaddresses[gpt_timer]+GPT_TISR), TISR_OVERFLOW);
+  SET_BIT((mem_address_t*)(gpt_baseaddresses[gpt_timer]+GPT_TISR), TISR_MATCH);
 }
 
 /*
  * Resets the timer --> set the timer counter register back to 0
  */
 void gpt_reset(device_t gpt_timer) {
-  *((mem_address_t)(gpt_baseaddresses[gpt_timer]+GPT_TCRR)) = 0;
+  *((mem_address_t*)(gpt_baseaddresses[gpt_timer]+GPT_TCRR)) = 0;
 }
