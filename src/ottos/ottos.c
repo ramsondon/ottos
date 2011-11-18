@@ -96,8 +96,8 @@ void process_test() {
 
 int main(int argc, char **argv) {
 
-  //process_test();
-  timer_test();
+  process_test();
+  //timer_test();
 
   for(;;);
 

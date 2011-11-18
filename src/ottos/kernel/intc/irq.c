@@ -451,7 +451,7 @@ EXTERN void irq_handle() {
       "\t SUBS pc, lr, #4");
 }
 
-#pragma TASK(irq_handle_swi)
+//#pragma TASK(irq_handle_swi)
 EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 
   // TODO when starting a new process, what's the return register?
@@ -488,10 +488,10 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
       "\t STR sp, [r0] \n"
       "\t SUB sp, sp, #20 \n"
       "\t POP {r0}");
-
-  // if no context switch is necessary, we
-  // will return to the previous process
-  asm("\t STMFD sp!, {r0-r3, r12, lr}");
+//
+//  // if no context switch is necessary, we
+//  // will return to the previous process
+//  asm("\t STMFD sp!, {r0-r3, r12, lr}");
 
   // ******************************
   // ****** INTERRUPT STACK *******
@@ -554,8 +554,8 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
       break;
   }
 
-  // when we are here, no context switch happened
-  // so we return the the previous process
-  asm("\t LDMFD sp!, {r0-r3, r12, lr} \n" \
-      "\t SUBS pc, lr, #4");
+//  // when we are here, no context switch happened
+//  // so we return the the previous process
+//  asm("\t LDMFD sp!, {r0-r3, r12, lr} \n" \
+//      "\t SUBS pc, lr, #4");
 }
