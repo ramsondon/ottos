@@ -56,6 +56,13 @@ extern int function_pointer;
 
 static void (*int_handler_[IRQ_MAX_COUNT])();
 
+void irq_init() {
+  int i = 0;
+  for (i = 0; i < IRQ_MAX_COUNT; i++) {
+    int_handler[i] = NULL;
+  }
+}
+
 void irq_add_handler(int irq_id, void (*fn)(void)) {
   int register_nb = irq_id / 32;
   int_handler_[irq_id] = fn;
@@ -65,7 +72,9 @@ void irq_add_handler(int irq_id, void (*fn)(void)) {
 }
 
 void irq_handle_irq(int irq_id) {
-  int_handler_[irq_id]();
+  if (int_handler_[irq_id] != NULL) {
+    int_handler_[irq_id]();
+  }
 }
 
 EXTERN void irq_handle() {
