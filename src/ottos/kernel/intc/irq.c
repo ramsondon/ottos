@@ -23,7 +23,7 @@
 
 #include <ottos/syscalls.h>
 #include <ottos/const.h>
-
+#include <arch/arm/omap353x_intc.h>
 #include "../pm/process.h"
 #include "../sched/scheduler.h"
 #include "irq.h"
@@ -54,11 +54,30 @@ extern int stack_pointer_restored;
 extern int return_address;
 extern int function_pointer;
 
-void irq_handle() {
+static void (*int_handler_[IRQ_MAX_COUNT])();
 
+void irq_add_handler(int irq_id, void (*fn)(void)) {
+  int register_nb = irq_id / 32;
+  int_handler_[irq_id] = fn;
+
+  /* activate the specific interrupt (interrupt mask) */
+  *((mem_address_t)(MPU_INTC + INTCPS_MIR_CLEARn(register_nb))) |= (1 << (irq_id % 32));
 }
 
-void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
+void irq_handle_irq(int irq_id) {
+  int_handler_[irq_id]();
+}
+
+EXTERN void irq_handle() {
+  /* get the number of the interrupt */
+  int irq_id = *((mem_address_t)(MPU_INTC + INTCPS_SIR_IRQ));
+
+  /* forward the interrupt to the handler routine */
+  irq_handle_irq(irq_id);
+  *((mem_address_t)(MPU_INTC + INTCPS_CONTROL)) |= 0x1;
+}
+
+EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 
   // TODO HANDLE INTERRUPT
   // TODO when starting a new process, what's the return register?
@@ -100,9 +119,7 @@ void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
   // ****** PROCESS STACK *********
   // ******************************
 
-  if (irq_started == FALSE) {
-    irq_started = TRUE;
-  } else {
+  if (irq_started == TRUE) {
 
     // now save all registers inclusive CPSR
     asm("\t STMFD sp!, {r0-r12} \n"
@@ -134,11 +151,15 @@ void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
       // switch to system mode and kernel stack
       asm("\t CPS 0x1F");
 
-      // to switch to the next process we have to switch
-      // to the kernel stack and the restore the context
-      asm("\t LDR sp, stack_pointer_kernel \n"
-          "\t LDR sp, [sp] \n"
-          "\t LDMFD sp!, {r0-r12}");
+      if(irq_started == TRUE) {
+        // to switch to the next process we have to switch
+        // to the kernel stack and the restore the context
+        asm("\t LDR sp, stack_pointer_kernel \n"
+            "\t LDR sp, [sp] \n"
+            "\t LDMFD sp!, {r0-r12}");
+      } else {
+        irq_started = TRUE;
+      }
 
       // ******************************
       // ****** KERNEL STACK **********

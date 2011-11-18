@@ -10,6 +10,10 @@
 
 #include <stdint.h>
 
+#define MAX_TASKS 10
+
+
 void mmu_init();
+void mmu_initMemoryForTask(int taskId);
 
 #endif /* MMU_H_ */
