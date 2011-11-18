@@ -23,7 +23,10 @@
 
 #include <ottos/syscalls.h>
 #include <ottos/const.h>
+#include <ottos/memory.h>
+
 #include <arch/arm/omap353x_intc.h>
+
 #include "../pm/process.h"
 #include "../sched/scheduler.h"
 #include "irq.h"
@@ -57,10 +60,7 @@ extern int function_pointer;
 static void (*int_handler_[IRQ_MAX_COUNT])();
 
 void irq_init() {
-  int i = 0;
-  for (i = 0; i < IRQ_MAX_COUNT; i++) {
-    int_handler_[i] = NULL;
-  }
+  ARRAY_INIT(int_handler_, IRQ_MAX_COUNT, NULL);
 }
 
 void irq_enable() {
