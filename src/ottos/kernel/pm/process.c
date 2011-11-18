@@ -25,12 +25,19 @@
 
 #include "process.h"
 
-// the process table contains all processes of the
-// operating system
+/**
+ * The process table contains all processes of the operating system
+ */
 process_t* process_table[PROCESS_MAX_COUNT];
-// helper variable to find the next free entry in the process table
+
+/**
+ * Helper variable to find the next free entry in the process table
+ */
 int process_next_free_entry = 0;
-// helper variable to identify the active process (state = running)
+
+/**
+ * Helper variable to identify the active process (state = running)
+ */
 int process_active = -1;
 
 void process_update_next_free_entry() {

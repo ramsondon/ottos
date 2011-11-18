@@ -1,4 +1,4 @@
-/* IPCHandler.h
+/* memory.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,13 +17,19 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Nov 6, 2011
- *      Author: Matthias Schmid <ramsondon@gmail.com>
+ *  Created on: 18.11.2011
+ *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#ifndef IPC_H_
-#define IPC_H_
+#ifndef MEMORY_H_
+#define MEMORY_H_
 
-#include <ottos/types.h>
 
-#endif /* IPC_H_ */
+#define ARRAY_INIT(array, size, value) \
+  { int i=0; \
+  for(;i<size;i++) { \
+    array[i]=value; } \
+  }
+
+
+#endif /* MEMORY_H_ */

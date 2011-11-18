@@ -23,7 +23,10 @@
 
 #include <ottos/syscalls.h>
 #include <ottos/const.h>
+#include <ottos/memory.h>
+
 #include <arch/arm/omap353x_intc.h>
+
 #include "../pm/process.h"
 #include "../sched/scheduler.h"
 #include "irq.h"
@@ -56,25 +59,39 @@ extern int function_pointer;
 
 static void (*int_handler_[IRQ_MAX_COUNT])();
 
+void irq_init() {
+  ARRAY_INIT(int_handler_, IRQ_MAX_COUNT, NULL);
+}
+
+void irq_enable() {
+  _enable_IRQ();
+}
+
+void irq_disable() {
+  _disable_IRQ();
+}
+
 void irq_add_handler(int irq_id, void (*fn)(void)) {
   int register_nb = irq_id / 32;
   int_handler_[irq_id] = fn;
 
   /* activate the specific interrupt (interrupt mask) */
-  *((mem_address_t)(MPU_INTC + INTCPS_MIR_CLEARn(register_nb))) |= (1 << (irq_id % 32));
+  *((mem_address_t*)(MPU_INTC + INTCPS_MIR_CLEARn(register_nb))) |= (1 << (irq_id % 32));
 }
 
 void irq_handle_irq(int irq_id) {
-  int_handler_[irq_id]();
+  if (int_handler_[irq_id] != NULL) {
+    int_handler_[irq_id]();
+  }
 }
 
 EXTERN void irq_handle() {
   /* get the number of the interrupt */
-  int irq_id = *((mem_address_t)(MPU_INTC + INTCPS_SIR_IRQ));
+  int irq_id = *((mem_address_t*)(MPU_INTC + INTCPS_SIR_IRQ));
 
   /* forward the interrupt to the handler routine */
   irq_handle_irq(irq_id);
-  *((mem_address_t)(MPU_INTC + INTCPS_CONTROL)) |= 0x1;
+  *((mem_address_t*)(MPU_INTC + INTCPS_CONTROL)) |= 0x1;
 }
 
 EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {

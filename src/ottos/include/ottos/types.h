@@ -28,7 +28,7 @@
 #include <stdlib.h>
 
 typedef int pid_t;
-typedef volatile unsigned int* mem_address_t;
+typedef volatile unsigned int mem_address_t;
 typedef int (*function_t)();
 
 typedef unsigned long address_t;

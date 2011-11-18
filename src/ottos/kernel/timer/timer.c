@@ -33,7 +33,7 @@ static system_timer_t timers_[MAX_TIMER_COUNT];
 static int timer_count_ = 0;
 
 /* this function is called by the irq handler when an interrupt occurs */
-void timer_interrupt_handler() {
+static void timer_interrupt_handler() {
   int i = 0;
   gpt_clear(GPTIMER_2);
 
