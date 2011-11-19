@@ -70,6 +70,7 @@
 #define UART_WER_REG        0x05C /* RW */
 
 
+
 /* UART Mode Select */
 #define UART_MODE_SELECT_16XMOD       0x000
 #define UART_MODE_SELECT_SIR          0x001
