@@ -61,8 +61,8 @@ void process_test() {
 
   process_table_init();
 
-  process_create(1, (int)toggle_led1);
-  process_create(1, (int)toggle_led2);
+  process_create(1, (int)toggle_led1_yield);
+  process_create(1, (int)toggle_led2_yield);
 
   devices_init();
 
