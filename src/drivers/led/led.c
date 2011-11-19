@@ -30,7 +30,6 @@
 
 static int led_device_bit(device_t dev);
 
-
 /*
  * Enable data output for led device_t
  */
@@ -42,7 +41,7 @@ int led_open(device_t dev) {
     return FALSE;
   }
   // enable output at gpio5
-  *(volatile unsigned long *) GPIO5_OE |= (1 << bit);
+  *(mem_address_t*) GPIO5_OE |= (1 << bit);
   return TRUE;
 }
 
@@ -55,7 +54,7 @@ int led_close(device_t dev) {
   int bit = led_device_bit(dev);
   if (bit != DEVICE_INVALID) {
     // disable output at gpio5
-    *(volatile unsigned long *) GPIO5_OE &= ~(1 << bit);
+    *(mem_address_t*) GPIO5_OE &= ~(1 << bit);
     return TRUE;
   }
   return FALSE;
@@ -65,7 +64,7 @@ int led_read(device_t dev, int count, char* buffer) {
 
   int bit = led_device_bit(dev);
   if (bit != DEVICE_INVALID) {
-    *buffer = (char) (*(volatile unsigned long *) GPIO5_DATAOUT & (1 << bit)
+    *buffer = (char) (*(mem_address_t*) GPIO5_DATAOUT & (1 << bit)
         ? LED_ON : LED_OFF);
     return TRUE;
   }
@@ -82,10 +81,10 @@ int led_write(device_t dev, int count, char* buffer) {
 
   switch (task) {
     case LED_ON:
-      *(volatile unsigned long *) GPIO5_DATAOUT |= (1 << bit);
+      *(mem_address_t*) GPIO5_DATAOUT |= (1 << bit);
       break;
     case LED_OFF:
-      *(volatile unsigned long *) GPIO5_DATAOUT &= ~(1 << bit);
+      *(mem_address_t*) GPIO5_DATAOUT &= ~(1 << bit);
       break;
     default:
       return FALSE;
