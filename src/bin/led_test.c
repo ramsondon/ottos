@@ -31,6 +31,49 @@
 
 #include "led_test.h"
 
+int toggle_led1_yield() {
+
+  int i;
+  char buffer;
+  char state;
+  driver_t drv = driver_get(LED_0);
+
+  drv.open(LED_0);
+  for(i = 0;; i++) {
+    if(i > 100000) {
+
+      drv.read(LED_0, 1, &state);
+      buffer = ((int)state == 0)? 1 : 0;
+      drv.write(LED_0, 1, &buffer);
+      i = 0;
+      sys_yield();
+    }
+  }
+  drv.close(LED_0);
+  return 0;
+}
+
+int toggle_led2_yield() {
+
+  int i;
+  char buffer;
+  char state;
+  driver_t drv = driver_get(LED_1);
+
+  drv.open(LED_1);
+  for(i = 0;; i++) {
+    if(i > 100000) {
+      drv.read(LED_1, 1, &state);
+      buffer = ((int)state == 0)? 1 : 0;
+      drv.write(LED_1, 1, &buffer);
+      i = 0;
+      sys_yield();
+    }
+  }
+  drv.close(LED_1);
+  return 0;
+}
+
 int toggle_led1() {
 
   int i;
@@ -46,7 +89,6 @@ int toggle_led1() {
 			buffer = ((int)state == 0)? 1 : 0;
 			drv.write(LED_0, 1, &buffer);
 		  i = 0;
-			sys_yield();
 		}
 	}
 	drv.close(LED_0);
@@ -67,7 +109,6 @@ int toggle_led2() {
       buffer = ((int)state == 0)? 1 : 0;
       drv.write(LED_1, 1, &buffer);
       i = 0;
-			sys_yield();
 		}
 	}
 	drv.close(LED_1);
