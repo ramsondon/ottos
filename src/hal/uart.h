@@ -24,12 +24,8 @@
 #ifndef UART_H_
 #define UART_H_
 
-
-/* UART software reset */
-#define UART_SOFTRESET(uart) (*(uart + UART_SYSC_REG) |= (1<<1))
-
-/* UART reset done */
-#define UART_RESETDONE(uart) (int)READ_BIT((uart + UART_SYSS_REG), 0)
+#define UART_PROTOCOL_SERIAL   0x0003
+#define UART_BAUDRATE_16X115_2 0x001A
 
 
 /*
@@ -39,7 +35,7 @@
   STOP: 1bit
   FLOW CONTROL: none (Critical)
 */
-void uart_init(mem_address_t* uart_base_addr, int baudrate);
+void uart_init(mem_address_t* uart_base_addr, int baudrate, int uart_mode, int protocol);
 
 void uart_software_reset(mem_address_t* uart_base_addr);
 
