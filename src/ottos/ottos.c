@@ -30,27 +30,6 @@
 #include "kernel/timer/timer.h"
 #include "dev/devices.h"
 
-
-void toggle_led_1() {
-  int i;
-  for(i = 0;;i++) {
-    if(i > 1000000) {
-      i = 0;
-      *(volatile unsigned long *)GPIO5_DATAOUT ^= SET_BIT(22);
-    }
-  }
-}
-
-void toggle_led_2() {
-  int i;
-  for(i = 0;;i++) {
-    if(i > 1000000) {
-      i = 0;
-      *(volatile unsigned long *)GPIO5_DATAOUT ^= SET_BIT(21);
-    }
-  }
-}
-
 void timer_test() {
   irq_started = FALSE;
 
