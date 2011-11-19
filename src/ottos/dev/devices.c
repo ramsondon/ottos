@@ -24,8 +24,10 @@
 #include <stdlib.h>
 #include <ottos/limits.h>
 #include <ottos/dev/device.h>
+#include <ottos/memory.h>
 
 #include "devices.h"
+
 
 #include "../../drivers/led/led.h"
 
@@ -44,10 +46,7 @@ static void device_led_init();
 void devices_init() {
 
   // initialize the device map with zero values
-  int i;
-  for (i = 0; i < DEVICE_MAX_COUNT; i++) {
-    device_container[i]->dev = DEVICE_INVALID;
-  }
+  ARRAY_INIT(device_container, DEVICE_MAX_COUNT, NULL);
 
   /* initialize all devices */
   // TODO: insert init functions for devices
