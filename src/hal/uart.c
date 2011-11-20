@@ -45,9 +45,6 @@
 #define UART_RESETDONE(uart_mem_addr_ptr) (int)(*(uart_mem_addr_ptr + \
   UART_SYSS_REG/sizeof(mem_address_t)) & (1<<0))
 
-#define UART_DISABLE_FLOW_CONTROL(uart_mem_addr_ptr) \
-  *(uart_mem_addr_ptr + UART_EFR_REG/sizeof(mem_address_t)) &= UART_FLOW_CONTROL_DISABLE_FLAG;
-
 #define UART_BAUDRATE_MASK_LSB 0x00FF
 
 /*
