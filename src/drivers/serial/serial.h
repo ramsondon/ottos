@@ -34,5 +34,13 @@ int serial_write(device_t dev, int count, char* buffer);
 int serial_ioctl(device_t dev, ioctl_t msg);
 int serial_create(device_t dev);
 
+static driver_t omap_serial_driver = {
+  serial_open,
+  serial_close,
+  serial_read,
+  serial_write,
+  serial_ioctl,
+  serial_create
+};
 
 #endif /* SERIAL_H_ */

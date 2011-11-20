@@ -24,7 +24,7 @@
 #ifndef DEVICE_H_
 #define DEVICE_H_
 
-#define DEVICE_DRIVER_INIT(dev, driver) (devices_create(dev, driver))
+#define DEVICE_DRIVER_REGISTER(device_t, driver_t) (devices_create(device_t, driver_t))
 
 
 typedef int device_t;

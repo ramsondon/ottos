@@ -27,6 +27,12 @@
 #include "serial.h"
 #include "../../hal/uart.h"
 
+int serial_create(device_t dev) {
+
+  uart_init((mem_address_t*) UART3, UART_MODE_16X, uart_protocol_rs232, 0x0);
+  return TRUE;
+}
+
 int serial_open(device_t dev) {
   return FALSE;
 }
@@ -37,14 +43,10 @@ int serial_read(device_t dev, int count, char* buffer) {
   return FALSE;
 }
 int serial_write(device_t dev, int count, char* buffer) {
+  uart_write((mem_address_t*) UART3, buffer);
   return FALSE;
 }
 int serial_ioctl(device_t dev, ioctl_t msg) {
   return FALSE;
 }
-int serial_create(device_t dev) {
 
-  uart_init((mem_address_t*) UART3, UART_BAUDRATE_16X115_2,
-            UART_MODE_SELECT_16X, UART_PROTOCOL_SERIAL);
-  return TRUE;
-}

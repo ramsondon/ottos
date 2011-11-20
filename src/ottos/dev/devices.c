@@ -40,8 +40,6 @@ static device_map_entry_t* device_container[DEVICE_MAX_COUNT];
 
 /*internal init functions */
 static int devices_create(device_t dev, driver_t driver);
-static void device_led_init();
-static void device_serial_init();
 
 /*
  * Initializes all device_t
@@ -53,41 +51,13 @@ void devices_init() {
 
   /* initialize all devices */
   // TODO(ramsondon@gmail.com) insert init functions for devices (!!REFACTOR!!)
-  device_led_init();
-  device_serial_init();
+  devices_create(LED_0, omap_led_driver);
+  devices_create(LED_1, omap_led_driver);
+  devices_create(SERIAL_0, omap_serial_driver);
 }
 
 driver_t devices_driver(device_t dev) {
   return device_container[dev]->driver;
-}
-
-/*
- * creates the led driver and initializes the device map entries
- */
-void device_led_init() {
-
-  // register led driver
-  driver_t led_driver;
-  led_driver.open = led_open;
-  led_driver.close = led_close;
-  led_driver.create = led_create;
-  led_driver.ioctl = led_ioctl;
-  led_driver.read = led_read;
-  led_driver.write = led_write;
-
-  devices_create(LED_0, led_driver);
-  devices_create(LED_1, led_driver);
-}
-
-void device_serial_init() {
-  driver_t serial_driver;
-  serial_driver.close = serial_close;
-  serial_driver.create = serial_create;
-  serial_driver.ioctl = serial_ioctl;
-  serial_driver.read = serial_read;
-  serial_driver.write = serial_write;
-
-  devices_create(SERIAL_0, serial_driver);
 }
 
 /*
