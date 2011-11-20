@@ -24,11 +24,13 @@
 #include <ottos/system.h>
 
 #include "../../bin/led_test.h"
+#include "../../bin/serial_test.h"
 #include <ottos/kernel.h>
 #include "kernel/intc/irq.h"
 #include "kernel/pm/process.h"
 #include "kernel/timer/timer.h"
 #include "dev/devices.h"
+#include "../hal/uart.h"
 
 void timer_test() {
   irq_started = FALSE;
@@ -72,11 +74,22 @@ void process_test() {
 
 }
 
+void serial_test() {
+
+  devices_init();
+  irq_init();
+  irq_enable();
+
+  serial_test_create();
+}
+
 
 int main(int argc, char **argv) {
 
   process_test();
   //timer_test();
+  //serial_test();
+
 
   for(;;);
 
