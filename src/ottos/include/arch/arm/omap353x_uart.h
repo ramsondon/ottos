@@ -37,22 +37,22 @@
  * 8 bit width
  */
 #define UART_DLL_REG        0x000 /* RW */
-#define UART_RHR_REG        0x000 /* R */
-#define UART_THR_REG        0x000 /* W */
+#define UART_RHR_REG        0x000 /* R FIFO read */
+#define UART_THR_REG        0x000 /* W FIFO transmission */
 #define UART_DLH_REG        0x004 /* RW */
 #define UART_IER_REG        0x004 /* RW */
 #define UART_IIR_REG        0x008 /* R */
-#define UART_FCR_REG        0x008 /* W */
+#define UART_FCR_REG        0x008 /* W FIFO Control */
 #define UART_EFR_REG        0x008 /* RW */
 
 #define UART_EFR_ENHANCED_EN 4
 
 #define UART_LCR_REG        0x00C /* RW */
 
-/* UART Configuration mode */
+/* UART LCR Configuration mode */
+#define UART_LCR_CONFIG_MODE_A 0x0080
 #define UART_LCR_CONFIG_MODE_B 0x00BF
 #define UART_LCR_REG_OP_MODE   0x0000
-
 /* UART LCR register bits*/
 #define UART_LCR_CHAR_LEN   0 /* 0 and 1 bit */
 #define UART_LCR_NB_STOP    2
@@ -63,7 +63,7 @@
 #define UART_LCR_DIV_EN     7
 
 
-#define UART_MCR_REG        0x010 /* RW */
+#define UART_MCR_REG        0x010 /* RW Modem Control */
 #define UART_XON1_ADDR1_REG 0x010 /* RW */
 #define UART_LSR_REG        0x014 /* R */
 #define UART_XON2_ADDR2_REG 0x014 /* RW */
@@ -74,32 +74,29 @@
 #define UART_TLR_REG        0x01C /* RW */
 #define UART_XOFF2_REG      0x01C /* RW */
 #define UART_MDR1_REG       0x020 /* RW Mode Definition CIR/IrDA */
+
+/* UART Mode Select */
+#define UART_MDR1_MODE_SELECT_16X          0x000
+#define UART_MDR1_MODE_SELECT_SIR          0x001
+#define UART_MDR1_MODE_SELECT_16X_AUTOBAUD 0x002
+#define UART_MDR1_MODE_SELECT_13X          0x003
+#define UART_MDR1_MODE_SELECT_MIR          0x004
+#define UART_MDR1_MODE_SELECT_FIR          0x005
+#define UART_MDR1_MODE_SELECT_CIR          0x006
+#define UART_MDR1_MODE_SELECT_DISABLE      0x007
+
 #define UART_MDR2_REG       0x024 /* RW */
 #define UART_SFLSR_REG      0x028 /* R */
 #define UART_UASR_REG       0x038 /* R */
 #define UART_BLR_REG        0x038 /* RW */
 
-#define UART_SCR_REG        0x040 /* RW */
+#define UART_SCR_REG        0x040 /* RW Supplementary Control */
 #define UART_SSR_REG        0x044 /* R */
 
 #define UART_MVR_REG        0x050 /* R */
 #define UART_SYSC_REG       0x054 /* RW */
 #define UART_SYSS_REG       0x058 /* R */
 #define UART_WER_REG        0x05C /* RW */
-
-
-
-/* UART Mode Select */
-#define UART_MODE_SELECT_16X          0x000
-#define UART_MODE_SELECT_SIR          0x001
-#define UART_MODE_SELECT_16XAUTO_BAUD 0x002
-#define UART_MODE_SELECT_13XMODE      0x003
-#define UART_MODE_SELECT_MIR          0x004
-#define UART_MODE_SELECT_FIR          0x005
-#define UART_MODE_SELECT_CIR          0x006
-#define UART_MODE_SELECT_DISABLE      0x007
-
-
 
 
 /*
