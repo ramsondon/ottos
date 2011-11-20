@@ -38,5 +38,7 @@ typedef struct message_t {
     int pid_t;
 } message_t;
 
+typedef unsigned char uint_8_t;
+
 
 #endif /* OTTOS_TYPES_H_ */
