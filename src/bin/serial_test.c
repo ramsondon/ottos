@@ -31,6 +31,7 @@ int serial_test_create(void) {
 
   driver_t sd = driver_get(SERIAL_0);
   sd.create(SERIAL_0);
+  sd.write(SERIAL_0, 8, "matthias");
 
   return 1;
 }
