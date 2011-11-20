@@ -29,6 +29,8 @@
 // flag to check if the interrupt is called the first time
 extern int irq_started;
 
+EXTERN void irq_register_context_switch();
+
 EXTERN void irq_init();
 
 EXTERN void irq_enable();
