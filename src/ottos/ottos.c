@@ -30,6 +30,8 @@
 #include "kernel/timer/timer.h"
 #include "dev/devices.h"
 
+#include "sd_mmc.h"
+//#include "mmchs.h"
 
 void toggle_led_1() {
   //printf("Timer 3 fired interrupt... \n");
@@ -69,10 +71,27 @@ void process_test() {
 
 }
 
+void sdcard_test() {
+  sd_mmc_init();
+
+  sd_mmc_identification();
+
+
+  // DOMINIK:
+  //mmchs_init();
+  //sendCMD0();
+  //sendCMD5();
+
+  //sendCMD55();
+  //mmchs_cardIdent();
+  //sendCMD0();
+  //for (i = 0; i < 10000; i++) {}
+  //sendCMD5();
+}
 
 int main(int argc, char **argv) {
 
-  timer_test();
+  sdcard_test();
 
   for(;;);
 
