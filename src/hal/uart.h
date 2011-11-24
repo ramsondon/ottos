@@ -93,7 +93,7 @@ static struct uart_protocol_format_t uart_protocol_rs232 =
 
 void uart_init(mem_address_t* uart_base_addr, int uart_mode,
                struct uart_protocol_format_t protocol,
-               uint_8_t flowcontrol);
+               uint8_t flowcontrol);
 
 void uart_write(mem_address_t* uart_base_addr, char c);
 char uart_read(mem_address_t* uart_base_addr);
