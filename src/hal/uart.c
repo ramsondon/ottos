@@ -48,19 +48,36 @@
 #define UART_BAUDRATE_MASK_LSB 0x00FF
 
 /*
- * The Mode Registers must be configured after the configuration of the
- * DLL_REG, DLH_REG, LCR_REG registers
+ * Private Functions
  */
+static void uart_software_reset(mem_address_t* uart_base_addr);
+static void uart_disable(mem_address_t* uart_base_addr);
+static void uart_switch_lcr_mode(mem_address_t* uart_base_addr,
+                                 unsigned int lcr_mode);
+static void uart_set_protocol_data_len(mem_address_t* uart_base_addr,
+                                       unsigned short len);
+static void uart_set_protocol_stop_bit(mem_address_t* uart_base_addr,
+                                       unsigned short nb_stop);
+static void uart_set_protocol_parity(mem_address_t* uart_base_addr,
+                                     unsigned int parity);
 
-static void uart_interrupt_handler() {
-  // TODO(ramsondon@gmail.com): implement interrupt handling
-  // when interrupts enabled
+
+/*
+ * Software Reset and disabling UART unit, to access DLL, DHL register.
+ */
+void uart_reset(mem_address_t* uart_base_addr) {
+
+  /* reset UART */
+  uart_software_reset(uart_base_addr);
+
+  /* disable UART to enable access DLL, DLH registers (for setting baudrate) */
+  uart_disable(uart_base_addr);
 }
 
 /*
  * Initiates a software reset of UART uart_base_addr
  */
-void uart_software_reset(mem_address_t* uart_base_addr) {
+static void uart_software_reset(mem_address_t* uart_base_addr) {
 
   int busy_wait = 0;
   /*
@@ -80,7 +97,7 @@ void uart_software_reset(mem_address_t* uart_base_addr) {
 /*
  * Disables the UART instance
  */
-void uart_disable(mem_address_t* uart_base_addr) {
+static void uart_disable(mem_address_t* uart_base_addr) {
   *(uart_base_addr + UART_MDR1_REG / sizeof(mem_address_t))
       = UART_MDR1_MODE_SELECT_DISABLE;
 }
@@ -199,21 +216,12 @@ void uart_set_flow_control(mem_address_t* uart_base_addr, uint8_t flow_control) 
   *(uart_base_addr + UART_EFR_REG / sizeof(mem_address_t)) = flow_control;
 }
 
-void uart_disable_dma_mode(mem_address_t* uart_base_addr) {
-  CLEAR_BIT((uart_base_addr + UART_SCR_REG/sizeof(mem_address_t)), UART_SCR_DMA_MODE_2_0);
-  CLEAR_BIT((uart_base_addr + UART_SCR_REG/sizeof(mem_address_t)), UART_SCR_DMA_MODE_2_1);
-}
-
 void uart_enable_enhanced_func(mem_address_t* uart_base_addr) {
   SET_BIT((uart_base_addr + UART_EFR_REG/sizeof(mem_address_t)),
       UART_EFR_ENHANCED_EN);
 }
 
 void uart_enable_tcr(mem_address_t* uart_base_addr) {
-
-  /* TCR can only be written when we have enabled enhanced func of EFR */
-  uart_enable_enhanced_func(uart_base_addr);
-
   SET_BIT((uart_base_addr + UART_MCR_REG/sizeof(mem_address_t)),
       UART_MCR_TCR_TLR);
 }
@@ -227,6 +235,8 @@ int uart_fifo_is_full(mem_address_t* uart_base_addr) {
 }
 
 /*
+ *
+ *
  * DMA is disabled
  */
 void uart_init_fifo(mem_address_t* uart_base_addr) {
@@ -262,7 +272,8 @@ void uart_init_fifo(mem_address_t* uart_base_addr) {
   SET_BIT((uart_base_addr + UART_SCR_REG/sizeof(mem_address_t)), UART_SCR_RX_TRIG_GRANU1);
   SET_BIT((uart_base_addr + UART_SCR_REG/sizeof(mem_address_t)), UART_SCR_TX_TRIG_GRANU1);
   CLEAR_BIT((uart_base_addr + UART_SCR_REG/sizeof(mem_address_t)), UART_SCR_DMA_MODE_CTL);
-  uart_disable_dma_mode(uart_base_addr);
+
+  // TODO: disable DMA mode
 
   // TODO:(ramsondon@gmail.com) restore EFR enhanced flag
 
@@ -276,6 +287,7 @@ void uart_init_fifo(mem_address_t* uart_base_addr) {
  * clear interrupts and set sleep mode
  */
 void uart_clear_interrupts(mem_address_t* uart_base_addr) {
+
   /* clear IER and goto SLEEP MODE */
   *(uart_base_addr + UART_IER_REG / sizeof(mem_address_t)) = 0x0;
 }
@@ -285,92 +297,29 @@ void uart_enable_loopback(mem_address_t* uart_base_addr) {
       |= UART_MCR_LOOPBACK_EN;
 }
 
-static inline void uart_init_irq_handler() {
-
-  // TODO(ramsondon@gmail.com): Check point where to add interrupt handler for UART
-  // rename this function to uart_init_uart(...)
-  // make general init function for module in which all interrupt handlers are
-  // registered or allow driver specific interrupt handling for uart unit
-  //
-  irq_add_handler(UART1_IRQ, uart_interrupt_handler);
-  irq_add_handler(UART2_IRQ, uart_interrupt_handler);
-  irq_add_handler(UART3_IRQ, uart_interrupt_handler);
-}
-
+/*
+ * The Mode Registers must be configured after the configuration of the
+ * DLL_REG, DLH_REG, LCR_REG registers
+ */
 void uart_init(mem_address_t* uart_base_addr, int uart_mode,
                struct uart_protocol_format_t protocol, uint8_t flowcontrol) {
 
-  int efr_enh = 0;
+  uart_reset(uart_base_addr);
 
-  /* reset UART */
-  uart_software_reset(uart_base_addr);
-
-  /* disable UART to enable access DLL and DLH registers */
-  uart_disable(uart_base_addr);
-
-  /*
-   * INITIALIZE FIFO QUEUE
-   */
-  //  uart_init_fifo(uart_base_addr);
-
-  /* enable access to ERF register */
-  //  XXX: at this time; when we come from uart_init_fifo() we are in config mode
-  //        b and ERF ENHANCED FLAG is already set.
-
-  uart_switch_to_config_mode_b(uart_base_addr);
-
-  /* save enhanced function write enable state */
-  efr_enh = READ_BIT((uart_base_addr + UART_EFR_REG/sizeof(mem_address_t)),
-      UART_EFR_ENHANCED_EN);
-  /* enable enhanced function write access (IER register [7:4]) */
-  uart_enable_enhanced_func(uart_base_addr);
-
-  /* switch to operational mode to enable access to IER register */
-  // TODO(ramsondon@gmail.com): check registers values
-  uart_switch_to_register_operational_mode(uart_base_addr);
-
-  /* clear interrupts and goto sleep mode */
-  uart_clear_interrupts(uart_base_addr);
-
-  /* enable access to DLL and DLH register */
+  /* switch to config mode b to write to EFR and LCR */
   uart_switch_to_config_mode_b(uart_base_addr);
 
   /* change the baudrate and clocksettings */
   uart_set_baudrate(uart_base_addr, protocol.baudrate);
 
-  //  uart_switch_to_register_operational_mode(uart_base_addr);
-
-  /* TODO(ramsondon@gmail.com): STEP 9, load interrupt configuration in IER register */
-  //  SET_BIT((uart_base_addr + UART_IER_REG/sizeof(mem_address_t)), UART_IER_RHR_IT);
-  //  SET_BIT((uart_base_addr + UART_IER_REG/sizeof(mem_address_t)), UART_IER_THR_IT);
-
-  /* switch back to config mode b */
-  //  uart_switch_to_config_mode_b(uart_base_addr);
-
-  /* restore enhanced mode setting */
-  //  if (efr_enh > 0) {
-  //    SET_BIT((uart_base_addr + UART_EFR_REG/sizeof(mem_address_t)), UART_EFR_ENHANCED_EN);
-  //  } else {
-  //    CLEAR_BIT((uart_base_addr + UART_EFR_REG/sizeof(mem_address_t)), UART_EFR_ENHANCED_EN);
-  //  }
+  /* set flow control flags */
+  uart_set_flow_control(uart_base_addr, flowcontrol);
 
   /* set protocol format */
   uart_set_protocol_format(uart_base_addr, protocol);
 
-  /* set flow control flags */
-  uart_set_flow_control(uart_base_addr, flowcontrol);
-
-  /* switch back to operational mode */
-  uart_switch_to_register_operational_mode(uart_base_addr);
-
   /* load the new UART mode */
   uart_set_mode(uart_base_addr, uart_mode);
-
-  // FIXME: CHECK read/write in loopback while uart unit not working
-  uart_enable_loopback(uart_base_addr);
-
-  // TODO(ramsondon@gmail.com): check how to remove this stuff from here
-  uart_init_irq_handler();
 }
 
 /*
@@ -393,10 +342,12 @@ int uart_is_empty_write_queue(mem_address_t* uart_base_addr) {
   return (status == 0);
 }
 
+/* writes one character to the UART device */
 void uart_write(mem_address_t* uart_base_addr, char* buffer) {
   *(uart_base_addr + UART_THR_REG/sizeof(mem_address_t)) = *buffer;
 }
 
+/* reads one character from the UART device */
 void uart_read(mem_address_t* uart_base_addr, char* buffer) {
   *buffer = *(uart_base_addr + UART_RHR_REG/sizeof(mem_address_t));
 }

@@ -23,20 +23,38 @@
 #include <stdio.h>
 
 #include <ottos/drivers/driver.h>
+#include <ottos/memory.h>
 
 #include "../drivers/serial/serial.h"
 
-
+static driver_t serial_test_serial_test_driver;
 
 int serial_test_create(void) {
-  char read[1];
-  driver_t sd = driver_get(SERIAL_0);
-  sd.create(SERIAL_0);
-  sd.write(SERIAL_0, 1, "R");
+  serial_test_serial_test_driver = driver_get(SERIAL_0);
+  serial_test_serial_test_driver.create(SERIAL_0);
+  return 1;
+}
 
-  read[0] = NULL;
-  sd.read(SERIAL_0,1, read);
-  printf("%c\n", read[0]);
+void serial_test_start_msg() {
+  char buffer[] = {"Welcome to Matthias BeagleBoard Serial driver Test Program\n\0"};
+  ARRAY_INIT(buffer, 1, NULL);
+  serial_test_serial_test_driver.write(SERIAL_0,50, buffer);
+}
+
+
+int serial_test_communicate(void) {
+
+  char buffer[1];
+  ARRAY_INIT(buffer, 1, NULL);
+
+  serial_test_serial_test_driver.read(SERIAL_0,1, buffer);
+  switch(buffer[0]) {
+    // The Enter Button will send a \r carriage return, but we want a newline
+    case '\r':
+      serial_test_serial_test_driver.write(SERIAL_0,1,"\n");
+    default:
+      serial_test_serial_test_driver.write(SERIAL_0,1,buffer);
+  }
 
   return 1;
 }

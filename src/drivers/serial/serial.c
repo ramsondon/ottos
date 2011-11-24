@@ -29,7 +29,8 @@
 
 int serial_create(device_t dev) {
 
-  uart_init((mem_address_t*) UART3, UART_MODE_16X, uart_protocol_rs232, 0x0);
+  uart_init((mem_address_t*) UART3, UART_MODE_16X, uart_protocol_rs232,
+            UART_FLOW_CONTROL_DISABLE_FLAG);
   return TRUE;
 }
 

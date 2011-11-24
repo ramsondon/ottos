@@ -27,5 +27,7 @@
 #include <ottos/types.h>
 
 EXTERN int serial_test_create(void);
+EXTERN void serial_test_start_msg(void);
+EXTERN int serial_test_communicate(void);
 
 #endif /* SERIAL_TEST_H_ */
