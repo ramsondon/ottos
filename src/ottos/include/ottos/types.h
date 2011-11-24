@@ -25,7 +25,13 @@
 #define OTTOS_TYPES_H_
 
 #include <ottos/const.h>
-#include <stdlib.h>
+#include <stdint.h>
+
+
+#ifndef _SIZE_T
+#define _SIZE_T
+typedef uint32_t size_t;
+#endif
 
 typedef int pid_t;
 typedef volatile unsigned int mem_address_t;
@@ -37,8 +43,6 @@ typedef address_t file_t;
 typedef struct message_t {
     int pid_t;
 } message_t;
-
-typedef unsigned char uint_8_t;
 
 
 #endif /* OTTOS_TYPES_H_ */

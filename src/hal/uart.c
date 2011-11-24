@@ -196,7 +196,7 @@ void uart_set_protocol_format(mem_address_t* uart_base_addr,
 }
 
 void uart_set_flow_control(mem_address_t* uart_base_addr,
-                           uint_8_t flow_control) {
+                           uint8_t flow_control) {
   *(uart_base_addr + UART_EFR_REG/sizeof(mem_address_t)) = flow_control;
 }
 
@@ -299,7 +299,7 @@ static inline void uart_init_irq_handler() {
 
 void uart_init(mem_address_t* uart_base_addr, int uart_mode,
                struct uart_protocol_format_t protocol,
-               uint_8_t flowcontrol) {
+               uint8_t flowcontrol) {
 
   int efr_enh = 0;
 
