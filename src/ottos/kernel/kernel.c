@@ -23,6 +23,7 @@
 
 #include <ottos/kernel.h>
 #include <ottos/io.h>
+#include <ottos/string.h>
 
 void kernel_panic(const char* str) {
   kernel_print("**** KERNEL PANIC ****\n");
@@ -30,6 +31,17 @@ void kernel_panic(const char* str) {
   kernel_print("**** KERNEL PANIC ****\n");
 
   kernel_halt();
+}
+
+void kernel_error(ERROR_CODE code, const char* message) {
+  char code_str[8];
+  itoa(code, code_str, 10);
+
+  kernel_print("ERROR [");
+  kernel_print(code_str);
+  kernel_print("]: ");
+  kernel_print(message);
+  kernel_print("\n");
 }
 
 void kernel_print(const char* str) {
@@ -47,9 +59,9 @@ void kernel_sleep(int ms) {
     // this is approximately 1ms on Beagleboard C4 without caching
     // @see http://code.google.com/p/puppybits/source/browse/lib/ksleep.c
     for (i=0; i<1000; i++) {
-      asm("\tmov r0, r0\n" \
-      "\tmov r0, r0\n" \
-      "\tmov r0, r0");
+      asm("\t mov r0, r0 ;\n" \
+      "\t mov r0, r0 ;\n" \
+      "\t mov r0, r0");
     }
   }
 }
