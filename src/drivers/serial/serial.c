@@ -40,10 +40,11 @@ int serial_close(device_t dev) {
   return FALSE;
 }
 int serial_read(device_t dev, int count, char* buffer) {
+  buffer[0] = uart_read((mem_address_t*)UART3);
   return FALSE;
 }
 int serial_write(device_t dev, int count, char* buffer) {
-  uart_write((mem_address_t*) UART3, buffer);
+  uart_write((mem_address_t*) UART3, buffer[0]);
   return FALSE;
 }
 int serial_ioctl(device_t dev, ioctl_t msg) {

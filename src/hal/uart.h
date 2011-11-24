@@ -95,7 +95,8 @@ void uart_init(mem_address_t* uart_base_addr, int uart_mode,
                struct uart_protocol_format_t protocol,
                uint_8_t flowcontrol);
 
-void uart_write(mem_address_t* uart_base_addr, char* buffer);
+void uart_write(mem_address_t* uart_base_addr, char c);
+char uart_read(mem_address_t* uart_base_addr);
 
 void uart_software_reset(mem_address_t* uart_base_addr);
 

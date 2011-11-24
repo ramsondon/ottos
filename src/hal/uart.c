@@ -53,7 +53,8 @@
  */
 
 static void uart_interrupt_handler() {
-
+  // TODO(ramsondon@gmail.com): implement interrupt handling
+  // when interrupts enabled
 }
 
 /*
@@ -311,19 +312,19 @@ void uart_init(mem_address_t* uart_base_addr, int uart_mode,
   /*
    * INITIALIZE FIFO QUEUE
    */
-  uart_init_fifo(uart_base_addr);
+//  uart_init_fifo(uart_base_addr);
 
   /* enable access to ERF register */
 //  XXX: at this time; when we come from uart_init_fifo() we are in config mode
 //        b and ERF ENHANCED FLAG is already set.
 
-//  uart_switch_to_config_mode_b(uart_base_addr);
-//
-//  /* save enhanced function write enable state */
-//  efr_enh = READ_BIT((uart_base_addr + UART_EFR_REG/sizeof(mem_address_t)),
-//      UART_EFR_ENHANCED_EN);
-//  /* enable enhanced function write access (IER register [7:4]) */
-//  uart_enable_enhanced_func(uart_base_addr);
+  uart_switch_to_config_mode_b(uart_base_addr);
+
+  /* save enhanced function write enable state */
+  efr_enh = READ_BIT((uart_base_addr + UART_EFR_REG/sizeof(mem_address_t)),
+      UART_EFR_ENHANCED_EN);
+  /* enable enhanced function write access (IER register [7:4]) */
+  uart_enable_enhanced_func(uart_base_addr);
 
   /* switch to operational mode to enable access to IER register */
   // TODO(ramsondon@gmail.com): check registers values
@@ -348,11 +349,11 @@ void uart_init(mem_address_t* uart_base_addr, int uart_mode,
 //  uart_switch_to_config_mode_b(uart_base_addr);
 
   /* restore enhanced mode setting */
-  if (efr_enh > 0) {
-    SET_BIT((uart_base_addr + UART_EFR_REG/sizeof(mem_address_t)), UART_EFR_ENHANCED_EN);
-  } else {
-    CLEAR_BIT((uart_base_addr + UART_EFR_REG/sizeof(mem_address_t)), UART_EFR_ENHANCED_EN);
-  }
+//  if (efr_enh > 0) {
+//    SET_BIT((uart_base_addr + UART_EFR_REG/sizeof(mem_address_t)), UART_EFR_ENHANCED_EN);
+//  } else {
+//    CLEAR_BIT((uart_base_addr + UART_EFR_REG/sizeof(mem_address_t)), UART_EFR_ENHANCED_EN);
+//  }
 
   /* set protocol format */
   uart_set_protocol_format(uart_base_addr, protocol);
@@ -366,13 +367,18 @@ void uart_init(mem_address_t* uart_base_addr, int uart_mode,
   /* load the new UART mode */
   uart_set_mode(uart_base_addr, uart_mode);
 
+  // FIXME: CHECK read/write in loopback while uart unit not working
   uart_enable_loopback(uart_base_addr);
 
   // TODO(ramsondon@gmail.com): check how to remove this stuff from here
   uart_init_irq_handler();
 }
 
-void uart_write(mem_address_t* uart_base_addr, char* buffer) {
-  *(uart_base_addr + UART_THR_REG / sizeof(mem_address_t)) = *buffer;
+void uart_write(mem_address_t* uart_base_addr, char c) {
+  *(uart_base_addr + UART_THR_REG / sizeof(mem_address_t)) = c;
+}
+
+char uart_read(mem_address_t* uart_base_addr) {
+  return (*uart_base_addr + UART_RHR_REG /sizeof(mem_address_t));
 }
 

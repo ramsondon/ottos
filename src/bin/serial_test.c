@@ -20,6 +20,7 @@
  *  Created on: Nov 19, 2011
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
+#include <stdio.h>
 
 #include <ottos/drivers/driver.h>
 
@@ -28,10 +29,14 @@
 
 
 int serial_test_create(void) {
-
+  char read[1];
   driver_t sd = driver_get(SERIAL_0);
   sd.create(SERIAL_0);
-  sd.write(SERIAL_0, 8, "matthias");
+  sd.write(SERIAL_0, 1, "R");
+
+  read[0] = NULL;
+  sd.read(SERIAL_0,1, read);
+  printf("%c\n", read[0]);
 
   return 1;
 }
