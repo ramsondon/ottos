@@ -77,18 +77,20 @@ void process_test() {
 void serial_test() {
 
   devices_init();
-  irq_init();
-  irq_enable();
 
   serial_test_create();
+  serial_test_start_msg();
+  while(1) {
+    serial_test_communicate();
+  }
 }
 
 
 int main(int argc, char **argv) {
 
-  process_test();
+  //process_test();
   //timer_test();
-  //serial_test();
+  serial_test();
 
 
   for(;;);
