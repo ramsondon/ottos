@@ -91,12 +91,37 @@ static struct uart_protocol_format_t uart_protocol_rs232 =
     { UART_PROTOCOL_BAUDRATE_16X115_2, UART_PROTOCOL_DATA_LENGTH_8,
       UART_PROTOCOL_NB_STOP_1, UART_PROTOCOL_PARITY_NONE };
 
+/*
+ * Inits UART module uart_base_addr. Use defines (mem_address_t*) UART1, UART2,
+ * or UART3.
+ */
 void uart_init(mem_address_t* uart_base_addr, int uart_mode,
                struct uart_protocol_format_t protocol,
                uint8_t flowcontrol);
 
-void uart_write(mem_address_t* uart_base_addr, char c);
-char uart_read(mem_address_t* uart_base_addr);
+/*
+ * Writes one character to the UART device. This function does not check if the
+ * transmission queue is empty. check with uart_is_empty_write_queue() for
+ * all bytes to write.
+ */
+void uart_write(mem_address_t* uart_base_addr, char* buffer);
+
+/*
+ * Reds one character from the UART device into the buffer. This function does
+ * not check if the receive queue is empty. check with
+ * uart_is_empty_read_queue() for all bytes to read.
+ */
+void uart_read(mem_address_t* uart_base_addr, char* buffer);
+
+/*
+ * Returns 1 if the UART transmission queue is empty, else 0
+ */
+int uart_is_empty_write_queue(mem_address_t* uart_base_addr);
+
+/*
+ * Returns 1 if the UART receiving queue is empty, else 0
+ */
+int uart_is_empty_read_queue(mem_address_t* uart_base_addr);
 
 void uart_software_reset(mem_address_t* uart_base_addr);
 

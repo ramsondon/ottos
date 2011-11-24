@@ -195,9 +195,8 @@ void uart_set_protocol_format(mem_address_t* uart_base_addr,
   uart_set_protocol_parity(uart_base_addr, protocol.parity);
 }
 
-void uart_set_flow_control(mem_address_t* uart_base_addr,
-                           uint8_t flow_control) {
-  *(uart_base_addr + UART_EFR_REG/sizeof(mem_address_t)) = flow_control;
+void uart_set_flow_control(mem_address_t* uart_base_addr, uint8_t flow_control) {
+  *(uart_base_addr + UART_EFR_REG / sizeof(mem_address_t)) = flow_control;
 }
 
 void uart_disable_dma_mode(mem_address_t* uart_base_addr) {
@@ -282,7 +281,8 @@ void uart_clear_interrupts(mem_address_t* uart_base_addr) {
 }
 
 void uart_enable_loopback(mem_address_t* uart_base_addr) {
-  *(uart_base_addr + UART_MCR_REG /sizeof(mem_address_t)) |= UART_MCR_LOOPBACK_EN;
+  *(uart_base_addr + UART_MCR_REG / sizeof(mem_address_t))
+      |= UART_MCR_LOOPBACK_EN;
 }
 
 static inline void uart_init_irq_handler() {
@@ -298,8 +298,7 @@ static inline void uart_init_irq_handler() {
 }
 
 void uart_init(mem_address_t* uart_base_addr, int uart_mode,
-               struct uart_protocol_format_t protocol,
-               uint8_t flowcontrol) {
+               struct uart_protocol_format_t protocol, uint8_t flowcontrol) {
 
   int efr_enh = 0;
 
@@ -312,11 +311,11 @@ void uart_init(mem_address_t* uart_base_addr, int uart_mode,
   /*
    * INITIALIZE FIFO QUEUE
    */
-//  uart_init_fifo(uart_base_addr);
+  //  uart_init_fifo(uart_base_addr);
 
   /* enable access to ERF register */
-//  XXX: at this time; when we come from uart_init_fifo() we are in config mode
-//        b and ERF ENHANCED FLAG is already set.
+  //  XXX: at this time; when we come from uart_init_fifo() we are in config mode
+  //        b and ERF ENHANCED FLAG is already set.
 
   uart_switch_to_config_mode_b(uart_base_addr);
 
@@ -339,21 +338,21 @@ void uart_init(mem_address_t* uart_base_addr, int uart_mode,
   /* change the baudrate and clocksettings */
   uart_set_baudrate(uart_base_addr, protocol.baudrate);
 
-//  uart_switch_to_register_operational_mode(uart_base_addr);
+  //  uart_switch_to_register_operational_mode(uart_base_addr);
 
   /* TODO(ramsondon@gmail.com): STEP 9, load interrupt configuration in IER register */
-//  SET_BIT((uart_base_addr + UART_IER_REG/sizeof(mem_address_t)), UART_IER_RHR_IT);
-//  SET_BIT((uart_base_addr + UART_IER_REG/sizeof(mem_address_t)), UART_IER_THR_IT);
+  //  SET_BIT((uart_base_addr + UART_IER_REG/sizeof(mem_address_t)), UART_IER_RHR_IT);
+  //  SET_BIT((uart_base_addr + UART_IER_REG/sizeof(mem_address_t)), UART_IER_THR_IT);
 
   /* switch back to config mode b */
-//  uart_switch_to_config_mode_b(uart_base_addr);
+  //  uart_switch_to_config_mode_b(uart_base_addr);
 
   /* restore enhanced mode setting */
-//  if (efr_enh > 0) {
-//    SET_BIT((uart_base_addr + UART_EFR_REG/sizeof(mem_address_t)), UART_EFR_ENHANCED_EN);
-//  } else {
-//    CLEAR_BIT((uart_base_addr + UART_EFR_REG/sizeof(mem_address_t)), UART_EFR_ENHANCED_EN);
-//  }
+  //  if (efr_enh > 0) {
+  //    SET_BIT((uart_base_addr + UART_EFR_REG/sizeof(mem_address_t)), UART_EFR_ENHANCED_EN);
+  //  } else {
+  //    CLEAR_BIT((uart_base_addr + UART_EFR_REG/sizeof(mem_address_t)), UART_EFR_ENHANCED_EN);
+  //  }
 
   /* set protocol format */
   uart_set_protocol_format(uart_base_addr, protocol);
@@ -374,11 +373,30 @@ void uart_init(mem_address_t* uart_base_addr, int uart_mode,
   uart_init_irq_handler();
 }
 
-void uart_write(mem_address_t* uart_base_addr, char c) {
-  *(uart_base_addr + UART_THR_REG / sizeof(mem_address_t)) = c;
+/*
+ * Returns 1 if uart read fifo queue is empty.
+ * If the Queue has at least one character the result will be 1.
+ */
+int uart_is_empty_read_queue(mem_address_t* uart_base_addr) {
+  int status = (int) READ_BIT((uart_base_addr +
+          UART_LSR_REG/sizeof(mem_address_t)), UART_LSR_RX_FIFO_E);
+  return (status == 0);
 }
 
-char uart_read(mem_address_t* uart_base_addr) {
-  return (*uart_base_addr + UART_RHR_REG /sizeof(mem_address_t));
+/*
+ * Returns 1 if uart transmission fifo queue is empty.
+ * If the Queue has at least one character the result will be 1.
+ */
+int uart_is_empty_write_queue(mem_address_t* uart_base_addr) {
+  int status = (int) READ_BIT((uart_base_addr +
+          UART_LSR_REG/sizeof(mem_address_t)), UART_LSR_TX_FIFO_E);
+  return (status == 0);
 }
 
+void uart_write(mem_address_t* uart_base_addr, char* buffer) {
+  *(uart_base_addr + UART_THR_REG/sizeof(mem_address_t)) = *buffer;
+}
+
+void uart_read(mem_address_t* uart_base_addr, char* buffer) {
+  *buffer = *(uart_base_addr + UART_RHR_REG/sizeof(mem_address_t));
+}
