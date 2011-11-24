@@ -36,9 +36,8 @@ int serial_test_create(void) {
 }
 
 void serial_test_start_msg() {
-  char buffer[] = {"Welcome to Matthias BeagleBoard Serial driver Test Program\n\0"};
-  ARRAY_INIT(buffer, 1, NULL);
-  serial_test_serial_test_driver.write(SERIAL_0,50, buffer);
+  char* buffer = "Welcome\n";
+  serial_test_serial_test_driver.write(SERIAL_0,8, buffer);
 }
 
 
