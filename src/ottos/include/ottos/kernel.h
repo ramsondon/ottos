@@ -24,6 +24,8 @@
 #ifndef KERNEL_H_
 #define KERNEL_H_
 
+#include <ottos/const.h>
+
 /**
  * Must be executed without doing a function call. That is why this function
  * has to be inlined by the compiler.
@@ -47,5 +49,10 @@ extern void kernel_print(const char* str);
  * or at shutdown.
  */
 extern void kernel_halt();
+
+/**
+ * Sleep for a given time in milliseconds.
+ */
+EXTERN void kernel_sleep(int ms);
 
 #endif /* KERNEL_H_ */

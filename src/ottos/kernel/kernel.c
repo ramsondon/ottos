@@ -40,3 +40,16 @@ void kernel_print(const char* str) {
 void kernel_halt() {
   for(;;);
 }
+
+void kernel_sleep(int ms) {
+  int i;
+  while (ms--) {
+    // this is approximately 1ms on Beagleboard C4 without caching
+    // @see http://code.google.com/p/puppybits/source/browse/lib/ksleep.c
+    for (i=0; i<1000; i++) {
+      asm("\tmov r0, r0\n" \
+      "\tmov r0, r0\n" \
+      "\tmov r0, r0");
+    }
+  }
+}
