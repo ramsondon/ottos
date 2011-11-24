@@ -88,9 +88,9 @@ void serial_test() {
 
 int main(int argc, char **argv) {
 
-  //process_test();
+  process_test();
   //timer_test();
-  serial_test();
+  //serial_test();
 
 
   for(;;);
