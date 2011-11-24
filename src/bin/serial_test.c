@@ -27,6 +27,8 @@
 
 #include "../drivers/serial/serial.h"
 
+#include <ottos/system.h>
+
 static driver_t serial_test_serial_test_driver;
 
 int serial_test_create(void) {
@@ -36,8 +38,8 @@ int serial_test_create(void) {
 }
 
 void serial_test_start_msg() {
-  char* buffer = "Welcome\n";
-  serial_test_serial_test_driver.write(SERIAL_0,8, buffer);
+  char* buffer = "\n\rWelcome to Serial Driver Test\n\r\0\0\0\0\0\0\0\0\0";
+  serial_test_serial_test_driver.write(SERIAL_0,40, buffer);
 }
 
 
@@ -50,10 +52,29 @@ int serial_test_communicate(void) {
   switch(buffer[0]) {
     // The Enter Button will send a \r carriage return, but we want a newline
     case '\r':
-      serial_test_serial_test_driver.write(SERIAL_0,1,"\n");
+      serial_test_serial_test_driver.write(SERIAL_0,2,"\r\n");
     default:
       serial_test_serial_test_driver.write(SERIAL_0,1,buffer);
   }
 
   return 1;
+}
+
+int serial_test_test() {
+  serial_test_create();
+  serial_test_start_msg();
+  while(1) {
+    serial_test_communicate();
+  }
+  return 0;
+}
+
+int serial_test_test_yield() {
+  serial_test_create();
+  serial_test_start_msg();
+  while(1) {
+    serial_test_communicate();
+    sys_yield();
+  }
+  return 0;
 }

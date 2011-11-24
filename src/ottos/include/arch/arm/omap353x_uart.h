@@ -114,8 +114,10 @@
 #define UART_XON1_ADDR1_REG 0x010 /* RW */
 #define UART_LSR_REG        0x014 /* R */
 
-#define UART_LSR_RX_FIFO_E  0x00   /* 0 BIT */
-#define UART_LSR_TX_FIFO_E  0x10  /* 5 BIT */
+#define UART_LSR_RX_FIFO_E  0 /* 0 BIT */
+#define UART_LSR_TX_FIFO_E  5 /* 5 BIT */
+#define UART_LSR_TX_SR_E    6 /* 6 BIT */
+
 
 #define UART_XON2_ADDR2_REG 0x014 /* RW */
 #define UART_MSR_REG        0x018 /* R */

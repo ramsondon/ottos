@@ -34,6 +34,8 @@
 #include <ottos/types.h>
 #include <bits.h>
 
+#include <stdio.h>
+
 #include "uart.h"
 #include "../kernel/intc/irq.h"
 
@@ -337,9 +339,9 @@ int uart_is_empty_read_queue(mem_address_t* uart_base_addr) {
  * If the Queue has at least one character the result will be 1.
  */
 int uart_is_empty_write_queue(mem_address_t* uart_base_addr) {
-  int status = (int) READ_BIT((uart_base_addr +
-          UART_LSR_REG/sizeof(mem_address_t)), UART_LSR_TX_FIFO_E);
-  return (status == 0);
+ int status = READ_BIT((uart_base_addr + UART_LSR_REG/sizeof(mem_address_t)),
+                       UART_LSR_TX_FIFO_E);
+  return (status > 0);
 }
 
 /* writes one character to the UART device */

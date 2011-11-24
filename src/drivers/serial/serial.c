@@ -48,7 +48,8 @@ int serial_read(device_t dev, int count, char* buffer) {
 
   for (; i < count; i++, buffer++) {
     // block while waiting for data
-    while (uart_is_empty_read_queue(uart));
+    while (uart_is_empty_read_queue(uart))
+      ;
     uart_read(uart, buffer);
   }
   return i;
@@ -61,7 +62,8 @@ int serial_write(device_t dev, int count, char* buffer) {
 
   for (; i < count; i++, buffer++) {
    // block while queue is full
-   while (!uart_is_empty_write_queue(uart));
+   while (!uart_is_empty_write_queue(uart))
+     ;
    uart_write(uart, buffer);
   }
 

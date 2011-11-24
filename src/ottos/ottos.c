@@ -76,21 +76,33 @@ void process_test() {
 
 void serial_test() {
 
-  devices_init();
+    irq_started = FALSE;
 
-  serial_test_create();
-  serial_test_start_msg();
-  while(1) {
-    serial_test_communicate();
-  }
+    process_table_init();
+
+    process_create(1, (int)serial_test_test_yield);
+    process_create(1, (int)toggle_led1_yield);
+    process_create(1, (int)toggle_led2_yield);
+
+    devices_init();
+
+//    irq_init();
+//
+//    timer_init();
+//
+//    irq_register_context_switch();
+//
+//    irq_enable();
+    kernel_to_user_mode();
+    sys_yield();
 }
 
 
 int main(int argc, char **argv) {
 
-  process_test();
+//  process_test();
 //  timer_test();
-  //serial_test();
+  serial_test();
 
 
   for(;;);
