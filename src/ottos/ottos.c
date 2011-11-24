@@ -24,20 +24,19 @@
 #include <ottos/system.h>
 
 #include "../../bin/led_test.h"
+#include "../../bin/serial_test.h"
 #include <ottos/kernel.h>
 #include "kernel/intc/irq.h"
 #include "kernel/pm/process.h"
 #include "kernel/timer/timer.h"
 #include "dev/devices.h"
+#include "../hal/uart.h"
 
-<<<<<<< HEAD
+//#include "mmchs.h"
+#include "sd_mmc.h"
+
 void timer_test() {
   irq_started = FALSE;
-=======
-#include "sd_mmc.h"
-//#include "mmchs.h"
->>>>>>> d66efbfe8b28885c535574df052b62ac74ac38b0
-
   process_table_init();
 
   process_create(1, (int)toggle_led1);
@@ -77,29 +76,20 @@ void process_test() {
 
 }
 
-void sdcard_test() {
-  sd_mmc_init();
+void serial_test() {
 
-  sd_mmc_identification();
+  devices_init();
+  irq_init();
+  irq_enable();
 
-
-  // DOMINIK:
-  //mmchs_init();
-  //sendCMD0();
-  //sendCMD5();
-
-  //sendCMD55();
-  //mmchs_cardIdent();
-  //sendCMD0();
-  //for (i = 0; i < 10000; i++) {}
-  //sendCMD5();
+  serial_test_create();
 }
 
 int main(int argc, char **argv) {
 
   //process_test();
   //timer_test();
-  sdcard_test();
+  //serial_test();
 
   for(;;);
 

@@ -1,4 +1,4 @@
-/* types.h
+/* serial_test.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,28 +17,15 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 21.10.2011
- *      Author: Franziskus Domig <fdomig@gmail.com>
+ *  Created on: Nov 19, 2011
+ *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef OTTOS_TYPES_H_
-#define OTTOS_TYPES_H_
+#ifndef SERIAL_TEST_H_
+#define SERIAL_TEST_H_
 
-#include <ottos/const.h>
-#include <stdlib.h>
+#include <ottos/types.h>
 
-typedef int pid_t;
-typedef volatile unsigned int mem_address_t;
-typedef int (*function_t)();
+EXTERN int serial_test_create(void);
 
-typedef unsigned long address_t;
-typedef address_t file_t;
-
-typedef struct message_t {
-    int pid_t;
-} message_t;
-
-typedef unsigned char uint_8_t;
-
-
-#endif /* OTTOS_TYPES_H_ */
+#endif /* SERIAL_TEST_H_ */

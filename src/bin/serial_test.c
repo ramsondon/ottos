@@ -1,4 +1,4 @@
-/* types.h
+/* serial_test.c
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,28 +17,26 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 21.10.2011
- *      Author: Franziskus Domig <fdomig@gmail.com>
+ *  Created on: Nov 19, 2011
+ *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
+#include <stdio.h>
 
-#ifndef OTTOS_TYPES_H_
-#define OTTOS_TYPES_H_
+#include <ottos/drivers/driver.h>
 
-#include <ottos/const.h>
-#include <stdlib.h>
-
-typedef int pid_t;
-typedef volatile unsigned int mem_address_t;
-typedef int (*function_t)();
-
-typedef unsigned long address_t;
-typedef address_t file_t;
-
-typedef struct message_t {
-    int pid_t;
-} message_t;
-
-typedef unsigned char uint_8_t;
+#include "../drivers/serial/serial.h"
 
 
-#endif /* OTTOS_TYPES_H_ */
+
+int serial_test_create(void) {
+  char read[1];
+  driver_t sd = driver_get(SERIAL_0);
+  sd.create(SERIAL_0);
+  sd.write(SERIAL_0, 1, "R");
+
+  read[0] = NULL;
+  sd.read(SERIAL_0,1, read);
+  printf("%c\n", read[0]);
+
+  return 1;
+}

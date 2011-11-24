@@ -25,11 +25,13 @@
 #include <ottos/limits.h>
 #include <ottos/dev/device.h>
 #include <ottos/memory.h>
+#include <ottos/types.h>
 
 #include "devices.h"
 
 
 #include "../../drivers/led/led.h"
+#include "../../drivers/serial/serial.h"
 
 /*
  * instantiated devices; managed by this module
@@ -37,8 +39,7 @@
 static device_map_entry_t* device_container[DEVICE_MAX_COUNT];
 
 /*internal init functions */
-static device_map_entry_t* devices_create(device_t device, driver_t driver);
-static void device_led_init();
+static int devices_create(device_t dev, driver_t driver);
 
 /*
  * Initializes all device_t
@@ -49,9 +50,10 @@ void devices_init() {
   ARRAY_INIT(device_container, DEVICE_MAX_COUNT, NULL);
 
   /* initialize all devices */
-  // TODO: insert init functions for devices
-  device_led_init();
-
+  // TODO(ramsondon@gmail.com) insert init functions for devices (!!REFACTOR!!)
+  devices_create(LED_0, omap_led_driver);
+  devices_create(LED_1, omap_led_driver);
+  devices_create(SERIAL_0, omap_serial_driver);
 }
 
 driver_t devices_driver(device_t dev) {
@@ -59,32 +61,17 @@ driver_t devices_driver(device_t dev) {
 }
 
 /*
- * creates the led driver and initializes the device map entries
- */
-void device_led_init() {
-
-  // register led driver
-  driver_t led_driver;
-  led_driver.open = led_open;
-  led_driver.close = led_close;
-  led_driver.create = led_create;
-  led_driver.ioctl = led_ioctl;
-  led_driver.read = led_read;
-  led_driver.write = led_write;
-
-  device_container[LED_0] = devices_create(LED_0, led_driver);
-  device_container[LED_1] = devices_create(LED_1, led_driver);
-}
-
-/*
  * Creates a new device_map_entry_t
  */
-device_map_entry_t* devices_create(device_t device, driver_t driver) {
+static int devices_create(device_t dev, driver_t driver) {
 
   device_map_entry_t* entry = malloc(sizeof(device_map_entry_t));
-  entry->dev = device;
+  entry->dev = dev;
   entry->driver = driver;
-  return entry;
+
+  if (device_container[dev] != NULL) {
+    return FALSE;
+  }
+  device_container[dev] = entry;
+  return TRUE;
 }
-
-
