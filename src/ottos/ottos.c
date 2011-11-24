@@ -30,8 +30,13 @@
 #include "kernel/timer/timer.h"
 #include "dev/devices.h"
 
+<<<<<<< HEAD
 void timer_test() {
   irq_started = FALSE;
+=======
+#include "sd_mmc.h"
+//#include "mmchs.h"
+>>>>>>> d66efbfe8b28885c535574df052b62ac74ac38b0
 
   process_table_init();
 
@@ -72,11 +77,29 @@ void process_test() {
 
 }
 
+void sdcard_test() {
+  sd_mmc_init();
+
+  sd_mmc_identification();
+
+
+  // DOMINIK:
+  //mmchs_init();
+  //sendCMD0();
+  //sendCMD5();
+
+  //sendCMD55();
+  //mmchs_cardIdent();
+  //sendCMD0();
+  //for (i = 0; i < 10000; i++) {}
+  //sendCMD5();
+}
 
 int main(int argc, char **argv) {
 
-  process_test();
+  //process_test();
   //timer_test();
+  sdcard_test();
 
   for(;;);
 
