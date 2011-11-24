@@ -44,6 +44,10 @@ void kernel_error(ERROR_CODE code, const char* message) {
   kernel_print("\n");
 }
 
+void kernel_debug(ERROR_CODE code, const char* message) {
+
+}
+
 void kernel_print(const char* str) {
   // TODO(fdomig@gmail.com) Has to be refactored to use an own printf()
   printf(str);

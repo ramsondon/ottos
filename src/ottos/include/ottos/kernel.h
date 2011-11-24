@@ -51,6 +51,11 @@ EXTERN void kernel_print(const char* str);
 EXTERN void kernel_error(ERROR_CODE code, const char* message);
 
 /**
+ * Print a kernel debug message to STDOUT.
+ */
+EXTERN void kernel_debug(ERROR_CODE code, const char* message);
+
+/**
  * Halt the system. This should only be called within a kernel_panic call
  * or at shutdown.
  */

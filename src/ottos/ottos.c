@@ -33,7 +33,7 @@
 #include "../hal/uart.h"
 
 //#include "mmchs.h"
-#include "sd_mmc.h"
+//#include "sd_mmc.h"
 
 void timer_test() {
   irq_started = FALSE;
