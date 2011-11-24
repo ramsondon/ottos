@@ -27,7 +27,6 @@
 #include <ottos/const.h>
 #include <stdint.h>
 
-
 #ifndef _SIZE_T
 #define _SIZE_T
 typedef uint32_t size_t;
