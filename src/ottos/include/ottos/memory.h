@@ -33,51 +33,23 @@
     array[i]=value; } \
   }
 
-/*
-#define MMIO_WRITE32(addr, data) \
-    asm("\t ldr r1, ($addr) ;\n" \
-    "\t ldr r0, ($data) ;\n" \
-    "\t str r0, [r1]") */
 #define MMIO_WRITE32(addr, data) \
   (*((mem_address_t *) addr) = data)
-
-/*
-#define MMIO_OR32(addr, or_data) \
-  asm("\t ldr r1, ($addr) ;\n" \
-  "\t ldr r2, ($or_data) ;\n" \
-  "\t ldr r0, [r1] ;\n" \
-  "\t orr r0, r0, r2 ;\n" \
-  "\t str r0, [r1]");*/
 
 #define MMIO_OR32(addr, or_data) \
   (*((mem_address_t *) addr) |= or_data)
 
-/*
-#define MMIO_AND32(addr, and_data) \
-  asm("\t ldr r1, ($addr) ;\n" \
-  "\t ldr r2, ($and_data) ;\n" \
-  "\t ldr r0, [r1] ;\n" \
-  "\t and r0, r0, r2 ;\n" \
-  "\t str r0, [r1]"); */
-
 #define MMIO_AND32(addr, and_data) \
   (*((mem_address_t *) addr) &= and_data)
-
-/*
-#define MMIO_AND_THEN_OR32(addr, and_data, or_data) \
-  asm("\t ldr r1, ($addr) ;\n" \
-  "\t ldr r0, r1 ;\n" \
-  "\t ldr r2, ($and_data) ;\n" \
-  "\t and r0, r0, r2 ;\n" \
-  "\t ldr r2, ($or_data) ;\n" \
-  "\t orr r0, r0, r2 ;\n" \
-  "\t str r0, [r1]"); */
 
 #define MMIO_AND_THEN_OR32(addr, and_data, or_data) \
   MMIO_AND32(addr, and_data); \
   MMIO_OR32(addr, or_data)
 
 #define MMIO_READ32(addr) *((mem_address_t *) addr)
+
+EXTERN void* memory_init_32(void* buffer, size_t length, uint32_t value);
+EXTERN void* memory_init_zero(void* buffer, size_t length);
 
 
 #endif /* MEMORY_H_ */
