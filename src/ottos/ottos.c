@@ -86,7 +86,7 @@ void serial_test() {
 //    process_create(1, (int)toggle_led1_yield);
 //    process_create(1, (int)toggle_led2_yield);
 
-//   process_create(1, (int) serial_test_calculator);
+
    process_create(1, (int) led1_on);
    process_create(1, (int) led1_off);
    process_create(1, (int) toggle_led1);
@@ -95,6 +95,7 @@ void serial_test() {
    process_create(1, (int) serial_test_write_3);
    process_create(1, (int) serial_test_write_4);
    process_create(1, (int) serial_test_write_5);
+//   process_create(1, (int) serial_test_calculator);
 
     devices_init();
 
@@ -115,11 +116,13 @@ void serial_test_calc() {
   devices_init();
   serial_test_calculator();
 }
+
 int main(int argc, char **argv) {
 
 //  process_test();
 //  timer_test();
   serial_test();
+//  serial_test_calc();
 
   for(;;);
 
