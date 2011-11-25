@@ -57,6 +57,16 @@
 #define BIT30 (1 << 30)
 #define BIT31 (1 << 31)
 
+/**
+ * Return a 16 bit signature built from two ASCII characters
+ */
+#define SIGNATURE_16(a, b) ((a) | (b << 8))
+
+/**
+ * Return a 32 bit signature built from four ASCII characters
+ */
+#define SIGNATURE_32(a, b, c, d) (SIGNATURE_16(a, b) | (SIGNATURE_16(c, d) << 16))
+
 #define SET_BIT(addr, offset) *addr |= (1 << offset);
 #define CLEAR_BIT(addr, offset) *addr &= ~(1 << offset);
 #define TOGGLE_BIT(addr, offset) *(addr) ^= (1 << offset);
