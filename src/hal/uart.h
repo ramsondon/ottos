@@ -41,7 +41,7 @@
  */
 #define UART_PROTOCOL_PARITY_NONE       0x0
 
-#define UART_FLOW_CONTROL_DISABLE_FLAG  0x0000
+#define UART_FLOW_CONTROL_DISABLE_FLAG  0x0
 
 
 /* UART Modes */
@@ -53,21 +53,6 @@
 #define UART_MODE_FIR          UART_MDR1_MODE_SELECT_FIR
 #define UART_MODE_CIR          UART_MDR1_MODE_SELECT_CIR
 #define UART_MODE_DISABLE      UART_MDR1_MODE_SELECT_DISABLE
-
-/*
- * UART flow control configuration structure
- * set specific flags to 1 to enable, 0 to disable and call
- * uart_set_flow_control(UART , uart_flow_control_t);
- */
-//typedef struct uart_flow_control_t {
-//    unsigned short auto_rts; /* hardware flow control RTS */
-//    unsigned short auto_cts; /* hardware flow control CTS */
-//    unsigned short tx1;      /* software flow control Transmit xon1/xoff1 */
-//    unsigned short tx2;      /* software flow control Transmit xon2/xoff2 */
-//    unsigned short rx1;      /* software flow control Receive xon1/xoff1 */
-//    unsigned short rx2;      /* software flow control Receive xon2/xoff2 */
-//} uart_flow_control_t;
-
 
 /*
  * UART protocol format
@@ -87,17 +72,95 @@ typedef struct uart_protocol_format_t {
  * STOP: 1bit
  * FLOW CONTROL: none (Critical)
  */
-static struct uart_protocol_format_t uart_protocol_rs232 =
-    { UART_PROTOCOL_BAUDRATE_16X115_2, UART_PROTOCOL_DATA_LENGTH_8,
-      UART_PROTOCOL_NB_STOP_1, UART_PROTOCOL_PARITY_NONE };
+static struct uart_protocol_format_t uart_protocol_rs232 = {
+  UART_PROTOCOL_BAUDRATE_16X115_2,
+  UART_PROTOCOL_DATA_LENGTH_8,
+  UART_PROTOCOL_NB_STOP_1,
+  UART_PROTOCOL_PARITY_NONE
+};
 
+/*
+ * Inits UART module uart_base_addr. Use defines (mem_address_t*) UART1, UART2,
+ * or UART3.
+ */
 void uart_init(mem_address_t* uart_base_addr, int uart_mode,
                struct uart_protocol_format_t protocol,
                uint8_t flowcontrol);
 
-void uart_write(mem_address_t* uart_base_addr, char c);
-char uart_read(mem_address_t* uart_base_addr);
+/*
+ * Disables UART and initiates a software reset
+ */
+void uart_reset(mem_address_t* uart_base_addr);
 
-void uart_software_reset(mem_address_t* uart_base_addr);
+/*
+ * Necessary for FIFO configuration. Sets Config Mode A (0x0080) into LCR
+ * register.
+ */
+void uart_switch_to_config_mode_a(mem_address_t* uart_base_addr);
+
+/* Sets Config Mode B (0x00BF) into LCR register to setup protocol format */
+void uart_switch_to_config_mode_b(mem_address_t* uart_base_addr);
+
+/* Sets operational Mode (0x0000) to LCR register */
+void uart_switch_to_register_operational_mode(mem_address_t* uart_base_addr);
+
+/*
+ * Sets the baudrate. DHL and DLL register MUST be 0x0000 before calling this
+ * function.
+ */
+void uart_set_baudrate(mem_address_t* uart_base_addr, int baudrate);
+
+/*
+ * The UART mode to run the uart_base_addr UART unit.
+ * Use UART_MODE_xxx as params.
+ */
+void uart_set_mode(mem_address_t* uart_base_addr, int uart_mode);
+
+/*
+ * @see: uart_protocol_rs232
+ */
+void uart_set_protocol_format(mem_address_t* uart_base_addr,
+                              uart_protocol_format_t protocol);
+
+/*
+ * Use in Config Mode B
+ */
+void uart_set_flow_control(mem_address_t* uart_base_addr, uint8_t flow_control);
+
+/*
+ * Enables enhanced functionality register access.
+ */
+void uart_enable_enhanced_func(mem_address_t* uart_base_addr);
+
+/*
+ * Enables the access to the MCR (Modem Controller) TCR_TLR register.
+ * uart_enable_enhanced_func() MUST be called first.
+ */
+void uart_enable_tcr(mem_address_t* uart_base_addr);
+
+
+/*
+ * Writes one character to the UART device. This function does not check if the
+ * transmission queue is empty. check with uart_is_empty_write_queue() for
+ * all bytes to write.
+ */
+void uart_write(mem_address_t* uart_base_addr, char* buffer);
+
+/*
+ * Reads one character from the UART device into the buffer. This function does
+ * not check if the receive queue is empty. check with
+ * uart_is_empty_read_queue() for all bytes to read.
+ */
+void uart_read(mem_address_t* uart_base_addr, char* buffer);
+
+/*
+ * Returns 1 if the UART transmission queue is empty, else 0
+ */
+int uart_is_empty_write_queue(mem_address_t* uart_base_addr);
+
+/*
+ * Returns 1 if the UART receiving queue is empty, else 0
+ */
+int uart_is_empty_read_queue(mem_address_t* uart_base_addr);
 
 #endif /* UART_H_ */

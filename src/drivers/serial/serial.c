@@ -27,26 +27,54 @@
 #include "serial.h"
 #include "../../hal/uart.h"
 
-int serial_create(device_t dev) {
+static int init_uart_rs232_ = FALSE;
 
-  uart_init((mem_address_t*) UART3, UART_MODE_16X, uart_protocol_rs232, 0x0);
-  return TRUE;
+int serial_create(device_t dev) {
+  if (dev == SERIAL_0 && init_uart_rs232_ == FALSE) {
+    uart_init((mem_address_t*) UART3, UART_MODE_16X, uart_protocol_rs232,
+            UART_FLOW_CONTROL_DISABLE_FLAG);
+    init_uart_rs232_ = TRUE;
+    return TRUE;
+  }
+  return FALSE;
 }
 
 int serial_open(device_t dev) {
-  return FALSE;
+  return serial_create(dev);
 }
 int serial_close(device_t dev) {
   return FALSE;
 }
+
 int serial_read(device_t dev, int count, char* buffer) {
-  buffer[0] = uart_read((mem_address_t*)UART3);
-  return FALSE;
+
+  mem_address_t* uart = (mem_address_t*)UART3;
+  int i = 0;
+
+  for (; i < count; i++, buffer++) {
+    // block while waiting for data
+    while (uart_is_empty_read_queue(uart))
+      ;
+    uart_read(uart, buffer);
+  }
+  return i;
 }
+
 int serial_write(device_t dev, int count, char* buffer) {
-  uart_write((mem_address_t*) UART3, buffer[0]);
+
+  mem_address_t* uart = (mem_address_t*) UART3;
+  int i = 0;
+
+  for (; i < count; i++, buffer++) {
+   // block while queue is full
+   while (!uart_is_empty_write_queue(uart))
+     ;
+   uart_write(uart, buffer);
+  }
+
   return FALSE;
 }
+
 int serial_ioctl(device_t dev, ioctl_t msg) {
   return FALSE;
 }

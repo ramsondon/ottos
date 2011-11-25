@@ -24,6 +24,7 @@
 #include <ottos/syscalls.h>
 #include <ottos/const.h>
 #include <ottos/memory.h>
+#include <ottos/kernel.h>
 
 #include <arch/arm/omap353x_intc.h>
 
@@ -97,6 +98,27 @@ void irq_handle_irq(int irq_id) {
     int_handler_[irq_id]();
   }
 }
+
+/*
+ * Handles Undefined Interrupt Exception
+ * This means if you as a programmer did something WRONG!
+ */
+void irq_handle_udef() {
+  _disable_interrupts();
+  kernel_panic("undefined\n\r");
+}
+
+void irq_handle_dabt() {
+  _disable_interrupts();
+  kernel_panic("data abort\n\r");
+}
+
+void irq_handle_pabt() {
+  _disable_interrupts();
+  kernel_panic("prefetch abort\n\r");
+}
+
+
 
 void swi_context_switch() {
   // we saved some registers on the stack to return

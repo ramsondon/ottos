@@ -115,3 +115,32 @@ int toggle_led2() {
   return 0;
 }
 
+void led1_on() {
+  int i;
+  char buffer;
+  driver_t drv = driver_get(LED_1);
+  drv.open(LED_1);
+  for(i = 0;; i++) {
+    if(i > 100000) {
+      buffer = 1;
+      drv.write(LED_1, 1, &buffer);
+      i = 0;
+    }
+  }
+  drv.close(LED_1);
+}
+
+void led1_off() {
+  int i;
+  char buffer;
+  driver_t drv = driver_get(LED_1);
+  drv.open(LED_1);
+  for(i = 0;; i++) {
+    if(i > 100000) {
+      buffer = 0;
+      drv.write(LED_1, 1, &buffer);
+      i = 0;
+    }
+  }
+  drv.close(LED_1);
+}
