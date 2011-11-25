@@ -27,11 +27,16 @@
 #include "serial.h"
 #include "../../hal/uart.h"
 
-int serial_create(device_t dev) {
+static int init_uart_rs232_ = FALSE;
 
-  uart_init((mem_address_t*) UART3, UART_MODE_16X, uart_protocol_rs232,
+int serial_create(device_t dev) {
+  if (dev == SERIAL_0 && init_uart_rs232_ == FALSE) {
+    uart_init((mem_address_t*) UART3, UART_MODE_16X, uart_protocol_rs232,
             UART_FLOW_CONTROL_DISABLE_FLAG);
-  return TRUE;
+    init_uart_rs232_ = TRUE;
+    return TRUE;
+  }
+  return FALSE;
 }
 
 int serial_open(device_t dev) {
