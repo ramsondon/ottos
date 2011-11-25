@@ -148,16 +148,16 @@ typedef enum {
 
 typedef struct  {
   uint16_t        RCA;
-  uint32_t        BlockSize;
-  uint32_t        NumBlocks;
-  uint32_t        ClockFrequencySelect;
-  MMCHS_CARD_TYPE CardType;
-  MMCHS_OCR       OCRData;
-  MMCHS_CID       CIDData;
-  MMCHS_CSD       CSDData;
+  uint32_t        block_size;
+  uint32_t        num_blocks;
+  uint32_t        clock_frequency_select;
+  MMCHS_CARD_TYPE card_type;
+  MMCHS_OCR       OCR_data;
+  MMCHS_CID       CID_data;
+  MMCHS_CSD       CSD_data;
 } MMCHS_CARD_INFO;
 
-#define MMCHS_STATUS  unsigned int
+#define MMCHS_STATUS  uint32_t
 
 #define MMCHS_STATUS_SUCCESS     0
 #define MMCHS_STATUS_LOAD_ERROR  1
@@ -165,11 +165,14 @@ typedef struct  {
 
 #define MMCHS_DEBUG_INFO         50
 
-#define MMCHS_ERROR_DEVICE       100
-#define MMCHS_ERROR_UNSUPPORTED  101
-#define MMCHS_ERROR_INVALID      102
+#define MMCHS_ERROR_DEVICE            100
+#define MMCHS_ERROR_UNSUPPORTED       101
+#define MMCHS_ERROR_INVALID           102
+#define MMCHS_ERROR_NO_MEDIA          103
+#define MMCHS_ERROR_INVALID_PARAMETER 104
+#define MMCHS_ERROR_BAD_BUFFER_SIZE   105
+#define MMCHS_ERROR_MEDIA_CHANGED     106
 
-EXTERN void mmchs_test();
-EXTERN void mmchs_init();
+EXTERN MMCHS_STATUS mmchs_init();
 
 #endif /* MMCHS_H_ */
