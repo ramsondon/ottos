@@ -26,6 +26,8 @@
 
 #include <ottos/types.h>
 #include <ottos/const.h>
+#include <ottos/dev/device.h>
+#include <ottos/dev/block.h>
 
 #define MMCHS_MAX_RETRY_COUNT   (100*5)
 
@@ -172,6 +174,10 @@ typedef struct  {
 #define MMCHS_ERROR_INVALID_PARAMETER 104
 #define MMCHS_ERROR_BAD_BUFFER_SIZE   105
 #define MMCHS_ERROR_MEDIA_CHANGED     106
+
+EXTERN EXTERNAL_DEVICE* mmchs_io_device;
+
+EXTERN BLOCK_IO_PROTOCOL mmchs_block_io;
 
 EXTERN MMCHS_STATUS mmchs_init();
 

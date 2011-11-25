@@ -2,12 +2,12 @@
  * 
  * Copyright (c) 2011 The ottos project.
  *
- * This work is free software; you can redistribute it and/or modify it under
+ * this work is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
  * any later version.
  * 
- * This work is distributed in the hope that it will be useful, but without
+ * this work is distributed in the hope that it will be useful, but without
  * any warranty; without even the implied warranty of merchantability or
  * fitness for a particular purpose. See the GNU Lesser General Public License
  * for more details.
@@ -46,20 +46,6 @@ static BLOCK_IO_MEDIA mmchs_media = { SIGNATURE_32('s', 'd', 'i', 'o'), // media
 
 static BOOLEAN mmchs_media_change = FALSE;
 
-static EXTERNAL_DEVICE* mmchs_device;
-
-
-MMCHS_STATUS mmchs_init() {
-  // TODO
-
-  kernel_print("mmchs_init");
-
-  return MMCHS_STATUS_SUCCESS;
-}
-
-/**
- * Internal functions
- */
 static int mmchs_error(MMCHS_STATUS status) {
   return (status != 0);
 }
@@ -157,10 +143,10 @@ static void mmchs_update_clk_freq(uint32_t new_clkd) {
 
 static MMCHS_STATUS mmchs_perform_card_identification() {
   MMCHS_STATUS status;
-  uint32_t CmdArgument = 0;
+  uint32_t cmd_argument = 0;
   uint32_t Response = 0;
-  uint32_t RetryCount = 0;
-  uint8_t SDCmd8Supported = FALSE;
+  uint32_t retry_count = 0;
+  uint8_t SDcmd8Supported = FALSE;
 
   //Enable interrupts.
   MMIO_WRITE32(MMCHS_IE, (BADA_EN | CERR_EN | DEB_EN | DCRC_EN | DTO_EN | CIE_EN
@@ -191,17 +177,17 @@ static MMCHS_STATUS mmchs_perform_card_identification() {
   MMIO_OR32(MMCHS_CON, OD);
 
   //Send CMD0 command.
-  status = mmchs_send_cmd(CMD0, CMD0_INT_EN, CmdArgument);
+  status = mmchs_send_cmd(CMD0, CMD0_INT_EN, cmd_argument);
 
   if (mmchs_error(status)) {
-    kernel_error(MMCHS_ERROR_DEVICE, "Cmd0 fails.\n");
+    kernel_error(MMCHS_ERROR_DEVICE, "cmd0 fails.\n");
     return status;
   }
 
   //kernel_debug(MMCHS_DEBUG_INFO, "CMD0 response: %x\n", MMIO_READ32(MMCHS_RSP10));
 
   //Send CMD5 command.
-  status = mmchs_send_cmd(CMD5, CMD5_INT_EN, CmdArgument);
+  status = mmchs_send_cmd(CMD5, CMD5_INT_EN, cmd_argument);
 
   if (status == MMCHS_STATUS_SUCCESS) {
     /*DEBUG(
@@ -225,18 +211,18 @@ static MMCHS_STATUS mmchs_perform_card_identification() {
   //Send CMD8 command. (New v2.00 command for Voltage check)
   //Only 2.7V - 3.6V is supported for SD2.0, only SD 2.0 card can pass.
   //MMC & SD1.1 card will fail this command.
-  CmdArgument = CMD8_ARG;
-  status = mmchs_send_cmd(CMD8, CMD8_INT_EN, CmdArgument);
+  cmd_argument = CMD8_ARG;
+  status = mmchs_send_cmd(CMD8, CMD8_INT_EN, cmd_argument);
 
   if (status == MMCHS_STATUS_SUCCESS) {
     Response = MMIO_READ32(MMCHS_RSP10);
     //DEBUG((EFI_D_INFO, "CMD8 success. CMD8 response: %x\n", Response));
 
-    if (Response != CmdArgument) {
+    if (Response != cmd_argument) {
       return MMCHS_ERROR_DEVICE;
     }
     //DEBUG((EFI_D_INFO, "Card is SD2.0\n"));
-    SDCmd8Supported = TRUE; //Supports high capacity.
+    SDcmd8Supported = TRUE; //Supports high capacity.
   } else {
     //DEBUG((EFI_D_INFO, "CMD8 fails. Not an SD2.0 card.\n"));
   }
@@ -248,10 +234,10 @@ static MMCHS_STATUS mmchs_perform_card_identification() {
     ;
 
   //Poll till card is busy
-  while (RetryCount < MMCHS_MAX_RETRY_COUNT) {
+  while (retry_count < MMCHS_MAX_RETRY_COUNT) {
     //Send CMD55 command.
-    CmdArgument = 0;
-    status = mmchs_send_cmd(CMD55, CMD55_INT_EN, CmdArgument);
+    cmd_argument = 0;
+    status = mmchs_send_cmd(CMD55, CMD55_INT_EN, cmd_argument);
     if (status == MMCHS_STATUS_SUCCESS) {
       /*DEBUG(
        (EFI_D_INFO, "CMD55 success. CMD55 response: %x\n", MMIO_READ32(
@@ -263,12 +249,12 @@ static MMCHS_STATUS mmchs_perform_card_identification() {
     }
     //Send appropriate command for the card type which got detected.
     if (mmchs_card_info.card_type == SD_CARD) {
-      CmdArgument = ((uint32_t *) &(mmchs_card_info.OCR_data))[0];
+      cmd_argument = ((uint32_t *) &(mmchs_card_info.OCR_data))[0];
       //Set HCS bit.
-      if (SDCmd8Supported) {
-        CmdArgument |= (uint32_t) MMCHS_HCS;
+      if (SDcmd8Supported) {
+        cmd_argument |= (uint32_t) MMCHS_HCS;
       }
-      status = mmchs_send_cmd(ACMD41, ACMD41_INT_EN, CmdArgument);
+      status = mmchs_send_cmd(ACMD41, ACMD41_INT_EN, cmd_argument);
       if (mmchs_error(status)) {
         //DEBUG((MMCHS_DEBUG_INFO, "ACMD41 fails.\n"));
         return status;
@@ -277,8 +263,8 @@ static MMCHS_STATUS mmchs_perform_card_identification() {
       /*DEBUG(
        (EFI_D_INFO, "SD card detected. ACMD41 OCR: %x\n", ((uint32_t *) &(mmchs_card_info.OCR_data))[0]));*/
     } else if (mmchs_card_info.card_type == MMC_CARD) {
-      CmdArgument = 0;
-      status = mmchs_send_cmd(CMD1, CMD1_INT_EN, CmdArgument);
+      cmd_argument = 0;
+      status = mmchs_send_cmd(CMD1, CMD1_INT_EN, cmd_argument);
       if (mmchs_error(status)) {
         //DEBUG((EFI_D_INFO, "CMD1 fails.\n"));
         return status;
@@ -291,7 +277,7 @@ static MMCHS_STATUS mmchs_perform_card_identification() {
     }
     //Poll the card until it is out of its power-up sequence.
     if (mmchs_card_info.OCR_data.Busy == 1) {
-      if (SDCmd8Supported) {
+      if (SDcmd8Supported) {
         mmchs_card_info.card_type = SD_CARD_2;
       }
       //Card is ready. Check CCS (Card capacity status) bit (bit#30).
@@ -306,15 +292,15 @@ static MMCHS_STATUS mmchs_perform_card_identification() {
     }
     kernel_sleep(1);
 
-    RetryCount++;
+    retry_count++;
   }
-  if (RetryCount == MMCHS_MAX_RETRY_COUNT) {
-    //DEBUG((EFI_D_ERROR, "Timeout error. RetryCount: %d\n", RetryCount));
+  if (retry_count == MMCHS_MAX_RETRY_COUNT) {
+    //DEBUG((EFI_D_ERROR, "Timeout error. retry_count: %d\n", retry_count));
     return MMCHS_STATUS_TIMEOUT;
   }
   //Read CID data.
-  CmdArgument = 0;
-  status = mmchs_send_cmd(CMD2, CMD2_INT_EN, CmdArgument);
+  cmd_argument = 0;
+  status = mmchs_send_cmd(CMD2, CMD2_INT_EN, cmd_argument);
   if (mmchs_error(status)) {
     //DEBUG((EFI_D_ERROR, "CMD2 fails. status: %x\n", status));
     return status;
@@ -328,8 +314,8 @@ static MMCHS_STATUS mmchs_perform_card_identification() {
   mmchs_parse_card_cid_data(MMIO_READ32(MMCHS_RSP10), MMIO_READ32(MMCHS_RSP32),
                             MMIO_READ32(MMCHS_RSP54), MMIO_READ32(MMCHS_RSP76));
   //Read RCA
-  CmdArgument = 0;
-  status = mmchs_send_cmd(CMD3, CMD3_INT_EN, CmdArgument);
+  cmd_argument = 0;
+  status = mmchs_send_cmd(CMD3, CMD3_INT_EN, cmd_argument);
   if (mmchs_error(status)) {
     //DEBUG((EFI_D_ERROR, "CMD3 fails. status: %x\n", status));
     return status;
@@ -509,11 +495,11 @@ static void mmchs_card_configuration_data() {
 
 static MMCHS_STATUS mmchs_card_specific_data() {
   MMCHS_STATUS status;
-  uint32_t CmdArgument;
+  uint32_t cmd_argument;
 
   //Send CMD9 to retrieve CSD.
-  CmdArgument = mmchs_card_info.RCA << 16;
-  status = mmchs_send_cmd(CMD9, CMD9_INT_EN, CmdArgument);
+  cmd_argument = mmchs_card_info.RCA << 16;
+  status = mmchs_send_cmd(CMD9, CMD9_INT_EN, cmd_argument);
 
   if (mmchs_error(status)) {
     //DEBUG((EFI_D_ERROR, "CMD9 fails. status: %x\n", status));
@@ -535,12 +521,12 @@ static MMCHS_STATUS mmchs_card_specific_data() {
 }
 
 MMCHS_STATUS mmchs_perform_card_configuration() {
-  uint32_t CmdArgument = 0;
+  uint32_t cmd_argument = 0;
   MMCHS_STATUS status;
 
   //Send CMD7
-  CmdArgument = mmchs_card_info.RCA << 16;
-  status = mmchs_send_cmd(CMD7, CMD7_INT_EN, CmdArgument);
+  cmd_argument = mmchs_card_info.RCA << 16;
+  status = mmchs_send_cmd(CMD7, CMD7_INT_EN, cmd_argument);
   if (mmchs_error(status)) {
     //DEBUG((EFI_D_ERROR, "CMD7 fails. status: %x\n", status));
     return status;
@@ -552,7 +538,7 @@ MMCHS_STATUS mmchs_perform_card_configuration() {
     // set SCR.SD_BUS_WIDTHS to support 4-bit mode, so why bother?
 
     // Send ACMD6 (application specific commands must be prefixed with CMD55)
-    status = mmchs_send_cmd(CMD55, CMD55_INT_EN, CmdArgument);
+    status = mmchs_send_cmd(CMD55, CMD55_INT_EN, cmd_argument);
     if (!mmchs_error(status)) {
       // set device into 4-bit data bus mode
       status = mmchs_send_cmd(ACMD6, ACMD6_INT_EN, 0x2);
@@ -565,8 +551,8 @@ MMCHS_STATUS mmchs_perform_card_configuration() {
   }
 
   //Send CMD16 to set the block length
-  CmdArgument = mmchs_card_info.block_size;
-  status = mmchs_send_cmd(CMD16, CMD16_INT_EN, CmdArgument);
+  cmd_argument = mmchs_card_info.block_size;
+  status = mmchs_send_cmd(CMD16, CMD16_INT_EN, cmd_argument);
   if (mmchs_error(status)) {
     //DEBUG((EFI_D_ERROR, "CMD16 fails. status: %x\n", status));
     return status;
@@ -574,6 +560,163 @@ MMCHS_STATUS mmchs_perform_card_configuration() {
 
   //Change MMCHS clock frequency to what detected card can support.
   mmchs_update_clk_freq(mmchs_card_info.clock_frequency_select);
+
+  return MMCHS_STATUS_SUCCESS;
+}
+
+MMCHS_STATUS mmchs_read_block_data(BLOCK_IO_PROTOCOL *this, void *buffer) {
+  uint32_t mmc_status;
+  uint32_t *data_buffer = buffer;
+  uint32_t data_size = this->media->block_size / 4;
+  uint32_t count;
+  uint32_t retry_count = 0;
+
+  //Check controller status to make sure there is no error.
+  while (retry_count < MMCHS_MAX_RETRY_COUNT) {
+    do {
+      //Read Status.
+      mmc_status = MMIO_READ32(MMCHS_STAT);
+    } while (mmc_status == 0);
+
+    //Check if Buffer read ready (BRR) bit is set?
+    if (mmc_status & BRR) {
+
+      //Clear BRR bit
+      MMIO_OR32(MMCHS_STAT, BRR);
+
+      //Read block worth of data.
+      for (count = 0; count < data_size; count++) {
+        *data_buffer++ = MMIO_READ32(MMCHS_DATA);
+      }
+      break;
+    }
+    retry_count++;
+  }
+
+  if (retry_count == MMCHS_MAX_RETRY_COUNT) {
+    return MMCHS_STATUS_TIMEOUT;
+  }
+
+  return MMCHS_STATUS_SUCCESS;
+}
+
+MMCHS_STATUS mmchs_write_block_data(BLOCK_IO_PROTOCOL *this, void *buffer) {
+  uint32_t mmc_status;
+  uint32_t *data_buffer = buffer;
+  uint32_t data_size = this->media->block_size / 4;
+  uint32_t count;
+  uint32_t retry_count = 0;
+
+  //Check controller status to make sure there is no error.
+  while (retry_count < MMCHS_MAX_RETRY_COUNT) {
+    do {
+      //Read Status.
+      mmc_status = MMIO_READ32(MMCHS_STAT);
+    } while (mmc_status == 0);
+
+    //Check if Buffer write ready (BWR) bit is set?
+    if (mmc_status & BWR) {
+
+      //Clear BWR bit
+      MMIO_OR32(MMCHS_STAT, BWR);
+
+      //Write block worth of data.
+      for (count = 0; count < data_size; count++) {
+        MMIO_WRITE32(MMCHS_DATA, *data_buffer++);
+      }
+
+      break;
+    }
+    retry_count++;
+  }
+
+  if (retry_count == MMCHS_MAX_RETRY_COUNT) {
+    return MMCHS_STATUS_TIMEOUT;
+  }
+
+  return MMCHS_STATUS_SUCCESS;
+}
+
+MMCHS_STATUS mmchs_transfer_block(BLOCK_IO_PROTOCOL *this, uint32_t lba,
+                                  void* buffer,
+                                  MMCHS_OPERATION_TYPE operation_type) {
+  MMCHS_STATUS status;
+  uint32_t mmc_status;
+  uint32_t retry_count = 0;
+  uint32_t cmd = 0;
+  uint32_t cmd_interrupt_enable = 0;
+  uint32_t cmd_argument = 0;
+
+  //Populate the command information based on the operation type.
+  if (operation_type == READ) {
+    cmd = CMD17; //Single block read
+    cmd_interrupt_enable = CMD18_INT_EN;
+  } else if (operation_type == WRITE) {
+    cmd = CMD24; //Single block write
+    cmd_interrupt_enable = CMD24_INT_EN;
+  }
+
+  //Set command argument based on the card access mode (Byte mode or Block mode)
+  if (mmchs_card_info.OCR_data.AccessMode & BIT1) {
+    cmd_argument = lba;
+  } else {
+    cmd_argument = lba * this->media->block_size;
+  }
+
+  //Send Command.
+  status = mmchs_send_cmd(cmd, cmd_interrupt_enable, cmd_argument);
+  if (mmchs_error(status)) {
+    //DEBUG((EFI_D_ERROR, "CMD fails. status: %x\n", status));
+    return status;
+  }
+
+  //Read or Write data.
+  if (operation_type == READ) {
+    status = mmchs_read_block_data(this, buffer);
+    if (mmchs_error(status)) {
+      //DEBUG((EFI_D_ERROR, "ReadBlockData fails.\n"));
+      return status;
+    }
+  } else if (operation_type == WRITE) {
+    status = mmchs_write_block_data(this, buffer);
+    if (mmchs_error(status)) {
+      //DEBUG((EFI_D_ERROR, "WriteBlockData fails.\n"));
+      return status;
+    }
+  }
+
+  //Check for the Transfer completion.
+  while (retry_count < MMCHS_MAX_RETRY_COUNT) {
+    //Read status
+    do {
+      mmc_status = MMIO_READ32(MMCHS_STAT);
+    } while (mmc_status == 0);
+
+    //Check if Transfer complete (TC) bit is set?
+    if (mmc_status & TC) {
+      break;
+
+    } else {
+      //DEBUG((EFI_D_ERROR, "mmc_status for TC: %x\n", mmc_status));
+      //Check if DEB, DCRC or DTO interrupt occured.
+      if ((mmc_status & DEB) | (mmc_status & DCRC) | (mmc_status & DTO)) {
+        //There was an error during the data transfer.
+
+        //Set SRD bit to 1 and wait until it return to 0x0.
+        MMIO_OR32(MMCHS_SYSCTL, SRD);
+        while ((MMIO_READ32(MMCHS_SYSCTL) & SRD) != 0x0)
+          ;
+
+        return MMCHS_ERROR_DEVICE;
+      }
+    }
+    retry_count++;
+  }
+
+  if (retry_count == MMCHS_MAX_RETRY_COUNT) {
+    //DEBUG((EFI_D_ERROR, "TransferBlockData timed out.\n"));
+    return MMCHS_STATUS_TIMEOUT;
+  }
 
   return MMCHS_STATUS_SUCCESS;
 }
@@ -748,12 +891,12 @@ MMCHS_STATUS mmchs_read_write(BLOCK_IO_PROTOCOL *this, uint32_t lba,
 
     block_count = bytes_to_be_tranfered_this_pass / this->media->block_size;
 
-    if (block_count > 1) {
-      //status = dma_blocks(this, lba, buffer, block_count, operation_type);
-    } else {
-      //Transfer a block worth of data.
-      //status = transfer_block(this, lba, buffer, operation_type);
-    }
+    /* Do not use DMA so far ...
+     if (block_count > 1) {
+     status = mmchs_dma_blocks(this, lba, buffer, block_count, operation_type); */
+
+    //Transfer a block worth of data.
+    status = mmchs_transfer_block(this, lba, buffer, operation_type);
 
     if (mmchs_error(status)) {
       //DEBUG((EFI_D_ERROR, "TransferBlockData fails. %x\n", status));
@@ -787,5 +930,33 @@ BLOCK_STATUS mmchs_write_blocks(BLOCK_IO_PROTOCOL *this, uint32_t media_id,
   status = mmchs_read_write(this, (uint32_t) lba, buffer, buffer_size, WRITE);
 
   return status;
-
 }
+
+BLOCK_IO_PROTOCOL mmchs_block_io = { &mmchs_media, mmchs_read_blocks,
+                                     mmchs_write_blocks, };
+
+
+DEV_STATUS mmchs_device_read(EXTERNAL_DEVICE *this, uint32_t reg,
+                             uint32_t length, void* buffer) {
+
+  return mmchs_read_write(&mmchs_block_io, reg, buffer, length, READ);
+}
+
+DEV_STATUS mmchs_device_write(EXTERNAL_DEVICE *this, uint32_t reg,
+                              uint32_t length, void* buffer) {
+
+  return mmchs_read_write(&mmchs_block_io, reg, buffer, length, WRITE);
+}
+
+EXTERNAL_DEVICE* mmchs_io_device;
+
+MMCHS_STATUS mmchs_init() {
+
+  memory_init_zero(&mmchs_card_info, sizeof(mmchs_card_info));
+
+  mmchs_io_device->read = mmchs_device_read;
+  mmchs_io_device->write = mmchs_device_write;
+
+  return MMCHS_STATUS_SUCCESS;
+}
+
