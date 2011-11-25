@@ -32,8 +32,7 @@
 #include "dev/devices.h"
 #include "../hal/uart.h"
 
-//#include "mmchs.h"
-//#include "sd_mmc.h"
+#include "../../drivers/mmchs/mmchs.h"
 
 void timer_test() {
   irq_started = FALSE;
@@ -85,11 +84,16 @@ void serial_test() {
   serial_test_create();
 }
 
+void mmchs_test() {
+  mmchs_init();
+}
+
 int main(int argc, char **argv) {
 
   //process_test();
   //timer_test();
   //serial_test();
+  mmchs_init();
 
   for(;;);
 
