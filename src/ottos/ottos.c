@@ -21,7 +21,11 @@
  *      Author: Matthias Schmid <m.schmid@students.fhv.at>
  */
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #include <ottos/system.h>
+#include <bits.h>
 
 #include "../../bin/led_test.h"
 #include "../../bin/serial_test.h"
@@ -85,15 +89,30 @@ void serial_test() {
 }
 
 void mmchs_test() {
+  uint64_t* buffer;
+  buffer = malloc(sizeof(uint64_t) * 512);
+
   mmchs_init();
+
+  mmchs_io_device->read(mmchs_io_device,
+                       0x00000000,
+                       sizeof(buffer) * 512,
+                       buffer);
+
+  buffer[511] = '\0';
+
+  printf("start\n");
+  printf("%s\n", buffer);
+  printf("end\n");
 }
+
 
 int main(int argc, char **argv) {
 
   //process_test();
   //timer_test();
   //serial_test();
-  mmchs_init();
+  mmchs_test();
 
   for(;;);
 
