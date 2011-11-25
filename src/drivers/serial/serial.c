@@ -40,7 +40,7 @@ int serial_create(device_t dev) {
 }
 
 int serial_open(device_t dev) {
-  return FALSE;
+  return serial_create(dev);
 }
 int serial_close(device_t dev) {
   return FALSE;
