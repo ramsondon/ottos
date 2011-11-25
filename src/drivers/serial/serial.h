@@ -1,4 +1,4 @@
-/* IPCHandler.h
+/* serial.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,18 +17,30 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Nov 6, 2011
+ *  Created on: Nov 19, 2011
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef IPC_H_
-#define IPC_H_
+#ifndef SERIAL_H_
+#define SERIAL_H_
 
-#include <ottos/types.h>
+#include <ottos/drivers/driver.h>
+#include <ottos/dev/device.h>
 
-typedef struct message_t {
-    int pid_t;
-} message_t;
+int serial_open(device_t dev);
+int serial_close(device_t dev);
+int serial_read(device_t dev, int count, char* buffer);
+int serial_write(device_t dev, int count, char* buffer);
+int serial_ioctl(device_t dev, ioctl_t msg);
+int serial_create(device_t dev);
 
+static driver_t omap_serial_driver = {
+  serial_open,
+  serial_close,
+  serial_read,
+  serial_write,
+  serial_ioctl,
+  serial_create
+};
 
-#endif /* IPC_H_ */
+#endif /* SERIAL_H_ */

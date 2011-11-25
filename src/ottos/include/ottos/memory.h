@@ -1,4 +1,4 @@
-/* types.h
+/* memory.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,33 +17,39 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 21.10.2011
+ *  Created on: 18.11.2011
  *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#ifndef OTTOS_TYPES_H_
-#define OTTOS_TYPES_H_
+#ifndef MEMORY_H_
+#define MEMORY_H_
 
-#include <ottos/const.h>
-#include <stdint.h>
+#include <ottos/types.h>
+#include <bits.h>
 
-#ifndef _SIZE_T
-#define _SIZE_T
-typedef uint32_t size_t;
-#endif
+#define ARRAY_INIT(array, size, value) \
+  { int i=0; \
+  for(;i<size;i++) { \
+    array[i]=value; } \
+  }
 
-typedef int BOOLEAN;
+#define MMIO_WRITE32(addr, data) \
+  (*((mem_address_t *) addr) = data)
 
-typedef int pid_t;
-typedef volatile unsigned int mem_address_t;
-typedef int (*function_t)();
+#define MMIO_OR32(addr, or_data) \
+  (*((mem_address_t *) addr) |= or_data)
 
-typedef unsigned long address_t;
-typedef address_t file_t;
+#define MMIO_AND32(addr, and_data) \
+  (*((mem_address_t *) addr) &= and_data)
 
-typedef struct message_t {
-    int pid_t;
-} message_t;
+#define MMIO_AND_THEN_OR32(addr, and_data, or_data) \
+  MMIO_AND32(addr, and_data); \
+  MMIO_OR32(addr, or_data)
+
+#define MMIO_READ32(addr) *((mem_address_t *) addr)
+
+EXTERN void* memory_init_32(void* buffer, size_t length, uint32_t value);
+EXTERN void* memory_init_zero(void* buffer, size_t length);
 
 
-#endif /* OTTOS_TYPES_H_ */
+#endif /* MEMORY_H_ */

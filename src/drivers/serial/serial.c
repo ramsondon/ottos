@@ -1,4 +1,4 @@
-/* driver.c
+/* serial.c
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,14 +17,37 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Nov 10, 2011
+ *  Created on: Nov 19, 2011
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#include <ottos/drivers/driver.h>
-#include "../dev/devices.h"
+#include <arch/arm/omap353x_uart.h>
+#include <ottos/types.h>
 
+#include "serial.h"
+#include "../../hal/uart.h"
 
-driver_t driver_get(device_t dev) {
-  return devices_driver(dev);
+int serial_create(device_t dev) {
+
+  uart_init((mem_address_t*) UART3, UART_MODE_16X, uart_protocol_rs232, 0x0);
+  return TRUE;
 }
+
+int serial_open(device_t dev) {
+  return FALSE;
+}
+int serial_close(device_t dev) {
+  return FALSE;
+}
+int serial_read(device_t dev, int count, char* buffer) {
+  buffer[0] = uart_read((mem_address_t*)UART3);
+  return FALSE;
+}
+int serial_write(device_t dev, int count, char* buffer) {
+  uart_write((mem_address_t*) UART3, buffer[0]);
+  return FALSE;
+}
+int serial_ioctl(device_t dev, ioctl_t msg) {
+  return FALSE;
+}
+

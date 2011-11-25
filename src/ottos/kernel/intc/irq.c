@@ -1,230 +1,561 @@
-/*
- * InterruptHandler.c
+/* irq.h
  *
- *  Created on: 07.11.2011
- *      Author: Thomas
+ * Copyright (c) 2011 The ottos project.
+ *
+ * This work is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This work is distributed in the hope that it will be useful, but without
+ * any warranty; without even the implied warranty of merchantability or
+ * fitness for a particular purpose. See the GNU Lesser General Public License
+ * for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ *
+ *
+ *  Created on: 11.11.2011
+ *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
+#include <ottos/syscalls.h>
 #include <ottos/const.h>
+#include <ottos/memory.h>
+
+#include <arch/arm/omap353x_intc.h>
 
 #include "../pm/process.h"
 #include "../sched/scheduler.h"
 #include "irq.h"
+#include "../timer/timer.h"
 
-asm(	"\t .bss _stack_pointer_interrupted, 4 \n" \
-		"\t .bss _stack_pointer_restored, 4 \n" \
-		"\t .bss _stack_pointer_kernel, 4 \n" \
-		"\t .bss _return_address, 4 \n" \
-		"\t .bss _function_pointer, 4 \n" \
-		"\t .bss _started, 4 \n" \
+asm("\t .bss _stack_pointer_interrupt_handler, 4 \n"
+    "\t .bss _stack_pointer_interrupted, 4 \n"
+    "\t .bss _stack_pointer_restored, 4 \n"
+    "\t .bss _stack_pointer_kernel, 4 \n"
+    "\t .bss _return_address, 4 \n"
+    "\t .bss _function_pointer, 4 \n"
+    "\t .bss _irq_started, 4 \n"
 
-		"\t .global _stack_pointer_interrupted \n" \
-		"\t .global _stack_pointer_restored \n" \
-		"\t .global _stack_pointer_kernel\n" \
-		"\t .global _return_address \n" \
-		"\t .global _function_pointer \n" \
-		"\t .global _started \n" \
+    "\t .global _stack_pointer_interrupt_handler \n"
+    "\t .global _stack_pointer_interrupted \n"
+    "\t .global _stack_pointer_restored \n"
+    "\t .global _stack_pointer_kernel\n"
+    "\t .global _return_address \n"
+    "\t .global _function_pointer \n"
+    "\t .global _irq_started \n"
 
-		"function_pointer .field _function_pointer, 32 \n" \
-		"stack_pointer_interrupted .field _stack_pointer_interrupted, 32 \n" \
-		"stack_pointer_restored .field _stack_pointer_restored, 32 \n" \
-		"stack_pointer_kernel .field _stack_pointer_kernel, 32 \n" \
-		"return_address .field _return_address, 32");
+    "function_pointer .field _function_pointer, 32 \n"
+    "stack_pointer_interrupt_handler .field _stack_pointer_interrupt_handler, 32 \n"
+    "stack_pointer_interrupted .field _stack_pointer_interrupted, 32 \n"
+    "stack_pointer_restored .field _stack_pointer_restored, 32 \n"
+    "stack_pointer_kernel .field _stack_pointer_kernel, 32 \n"
+    "return_address .field _return_address, 32");
 
+extern int stack_pointer_interrupt_handler;
 extern int stack_pointer_kernel;
 extern int stack_pointer_interrupted;
 extern int stack_pointer_restored;
 extern int return_address;
 extern int function_pointer;
 
-void handle_irq() {
+static void (*int_handler_[IRQ_MAX_COUNT])();
 
+void irq_context_switch();
+
+void irq_register_context_switch() {
+  // register context switch
+  timer_add_handler(irq_context_switch, 100);
 }
 
-void handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
+void irq_init() {
+  ARRAY_INIT(int_handler_, IRQ_MAX_COUNT, NULL);
+}
 
-	// TODO HANDLE INTERRUPT
-	// TODO when starting a new process, what's the return register?
+void irq_enable() {
+  _enable_IRQ();
+}
 
-	// we are now in the supervisor mode 0x13
-	// we must save the return address of the supervisor mode
-	// (lr) to return to the user process
+void irq_disable() {
+  _disable_IRQ();
+}
 
-	// then we save all registers on the process stack
-	// then we schedule the next process
+void irq_add_handler(int irq_id, void(*fn)(void)) {
+  int register_nb = irq_id / 32;
+  int_handler_[irq_id] = fn;
 
-	// if the scheduled process hasn't been started yet
-	// 		start the process
-	// otherwise
-	//		restore the context of the process (registers)
+  /* activate the specific interrupt (interrupt mask) */
+  *((mem_address_t*) (MPU_INTC + INTCPS_MIR_CLEARn(register_nb))) |= (1
+      << (irq_id % 32));
+}
 
-	// the stack frame looks like this:
-	// TOP OF STACK 		return address
-	// TOP OF STACK -1		cpsr
-	// IN BETWEEN			r0 - r11
-	// BOTTOM OF STACK		r12
+void irq_handle_irq(int irq_id) {
+  if (int_handler_[irq_id] != NULL) {
+    int_handler_[irq_id]();
+  }
+}
 
+void swi_context_switch() {
+  // we saved some registers on the stack to return
+  // to the previous process in the irq_handle
+  // function. but now we are making a context switch
+  // and therefore we have to reset the stack pointer
+  asm("\t LDR sp, stack_pointer_interrupt_handler \n"
+      "\t LDR sp, [sp]");
 
+  // switch to system mode and kernel stack
+  asm("\t CPS 0x1F");
 
-	// ******************************
-	// ****** INTERRUPT STACK *******
-	// ******************************
+  if (irq_started == TRUE) {
+    // to switch to the next process we have to switch
+    // to the kernel stack and the restore the context
+    asm("\t LDR sp, stack_pointer_kernel \n"
+        "\t LDR sp, [sp] \n"
+        "\t LDMFD sp!, {r0-r12}");
+  } else {
+    irq_started = TRUE;
+  }
 
-	// store the return address
-	asm("\t PUSH {r0} \n" \
-		"\t LDR r0, return_address \n" \
-		"\t STR lr, [r0] \n" \
-		"\t POP {r0}");
+  // ******************************
+  // ****** KERNEL STACK **********
+  // ******************************
 
-	// to save the process context we can switch in the system
-	// mode, because system mode has the same stack
-	asm("\t CPS 0x1F");
+  // now we save the new stack pointer of the interrupted process and
+  // set the state to ready
+  if (process_active != PID_INVALID) {
+    process_table[process_active]->stack_pointer = stack_pointer_interrupted;
+    process_table[process_active]->state = READY;
+  }
 
+  // now we schedule the next process
+  scheduler_next();
 
-	// ******************************
-	// ****** PROCESS STACK *********
-	// ******************************
+  // mark the new process as running
+  process_table[process_active]->state = RUNNING;
 
-	if(started == FALSE) {
-		started = TRUE;
-	} else {
+  // check if the process has been started
+  if (process_table[process_active]->started == FALSE) {
+    process_table[process_active]->started = TRUE;
 
-		// now save all registers inclusive CPSR
-		asm("\t STMFD sp!, {r0-r12} \n" \
-			"\t MRS r0, cpsr \n" \
-			"\t STMFD sp!, {r0}");
+    // the process hasn't been started yet
+    // we have to start the process in the user mode
+    // therefore we can't just call the function pointer
+    // and we have to leave the interrupt handler correctly
+    // (either with return or with the LDMFD assembler instruction
 
-		// save the new return address
-		asm("\t LDR r0, return_address \n" \
-			"\t LDR r0, [r0] \n" \
-			"\t STMFD sp!, {r0}");
+    // to start the process we simply set the return address
+    // of the handler to the process start (function pointer address)
+    function_pointer = process_table[process_active]->initial_address;
 
-		// the new stack pointer of the process has to be saved
-		// to restore the process
-		asm("\t LDR r0, stack_pointer_interrupted \n" \
-			"\t STR sp, [r0]");
+    // the new process has its own stack and we have to set
+    // the stack pointer of it
+    stack_pointer_interrupted = process_table[process_active]->stack_pointer;
 
-		// the register r0 to r12 and the cpsr, plus the new return address
-		// are now on the process stack
+    // save the kernel context
+    // TODO restore r0
+    asm("\t STMFD sp!, {r0-r12} \n"
+        "\t LDR r0, stack_pointer_kernel \n"
+        "\t STR sp, [r0]");
 
-		// to switch to the next process we have to switch
-		// to the kernel stack and the restore the context
-		asm("\t LDR sp, stack_pointer_kernel \n" \
-			"\t LDR sp, [sp] \n" \
-			"\t LDMFD sp!, {r0-r12}");
-	}
+    // load the stack pointer of the process
+    asm("\t LDR sp, stack_pointer_interrupted \n"
+        "\t LDR sp, [sp]");
 
+    // switch back to the interrupt handler
+    asm("\t CPS 0x13");
 
+    // ******************************
+    // ****** INTERRUPPT STACK ******
+    // ******************************
 
-	// ******************************
-	// ****** KERNEL STACK **********
-	// ******************************
+    // set the return address of the interrupt handler to the entry
+    // point of the process
+    asm("\t LDR lr, function_pointer \n"
+        "\t LDR lr, [lr]");
 
-	// now we save the new stack pointer of the interrupted process and
-	// set the state to ready
-	if(active_process != PID_INVALID) {
-		process_table[active_process]->stack_pointer = stack_pointer_interrupted;
-		process_table[active_process]->state = READY;
-	}
+    // jump to process and leave the interrupt
+    asm("\t STMFD sp!, {lr} \n"
+        "\t LDMFD sp!, {pc}^");
 
-	// now we schedule the next process
-	schedule_next();
+  } else {
 
-	// mark the new process as running
-	process_table[active_process]->state = RUNNING;
+    // restore the context of the next process
+    // to restore the context we have to switch to the
+    // process stack
+    // therefore we set the stack pointer of the process
+    stack_pointer_restored = process_table[process_active]->stack_pointer;
 
-	// check if the process has been started
-	if(process_table[active_process]->started == FALSE) {
-		process_table[active_process]->started = TRUE;
+    // save the kernel context
+    asm("\t STMFD sp!, {r0-r12} \n"
+        "\t LDR r0, stack_pointer_kernel \n"
+        "\t STR sp, [r0]");
 
-		// the process hasn't been started yet
-		// we have to start the process in the user mode
-		// therefore we can't just call the function pointer
-		// and we have to leave the interrupt handler correctly
-		// (either with return or with the LDMFD assembler instruction
+    // load the stack pointer of the process
+    asm("\t LDR sp, stack_pointer_restored \n"
+        "\t LDR sp, [sp]");
 
-		// to start the process we simply set the return address
-		// of the handler to the process start (function pointer address)
-		function_pointer = process_table[active_process]->initialAddress;
+    // the return address is at the top of the stack so we need
+    // to read it first
+    asm("\t LDR r0, function_pointer \n"
+        "\t LDR r1, [sp, #0] \n"
+        "\t STR r1, [r0, #0] \n"
+        // move stack pointer to the register r0-r12
+        "\t ADD sp, sp, #4");
 
-		// the new process has its own stack and we have to set
-		// the stack pointer of it
-		stack_pointer_interrupted = process_table[active_process]->stack_pointer;
+    // now read the cpsr register
+    asm("\t LDMFD sp!, {r0} \n"
+        "\t MSR SPSR_cxsf, r0");
 
-		// save the kernel context
-		// TODO restore r0
-		asm("\t STMFD sp!, {r0-r12} \n" \
-			"\t LDR r0, stack_pointer_kernel \n" \
-			"\t STR sp, [r0]");
+    // now read the registers r0-r12
+    asm("\t LDMFD sp!, {r0-r12, lr}");
 
-		// load the stack pointer of the process
-		asm("\t LDR sp, stack_pointer_interrupted \n" \
-			"\t LDR sp, [sp]");
+    // switch back to the interrupt handler
+    asm("\t CPS 0x13");
 
-		// switch back to the interrupt handler
-		asm("\t CPS 0x13");
+    // ******************************
+    // ****** INTERRUPPT STACK ******
+    // ******************************
 
-		// ******************************
-		// ****** INTERRUPPT STACK ******
-		// ******************************
+    // set the return address of the interrupt handler to the entry
+    // point of the process
+    asm("\t LDR lr, function_pointer \n"
+        "\t LDR lr, [lr]");
 
-		// set the return address of the interrupt handler to the entry
-		// point of the process
-		asm("\t LDR lr, function_pointer \n" \
-			"\t LDR lr, [lr]");
+    // jump to process and leave the interrupt
+    asm("\t STMFD sp!, {lr} \n"
+        "\t LDMFD sp!, {pc}^");
+  }
+}
 
-		// jump to process and leave the interrupt
-		asm("\t STM sp, {lr} \n" \
-			"\t LDM sp, {pc}^");
+void irq_context_switch() {
 
-	} else {
+  // we saved some registers on the stack to return
+  // to the previous process in the irq_handle
+  // function. but now we are making a context switch
+  // and therefore we have to reset the stack pointer
+  asm("\t LDR sp, stack_pointer_interrupt_handler \n"
+      "\t LDR sp, [sp]");
 
-		// restore the context of the next process
-		// to restore the context we have to switch to the
-		// process stack
-		// therefore we set the stack pointer of the process
-		stack_pointer_restored = process_table[active_process]->stack_pointer;
+  // switch to system mode and kernel stack
+  asm("\t CPS 0x1F");
 
-		// save the kernel context
-		asm("\t STMFD sp!, {r0-r12} \n" \
-			"\t LDR r0, stack_pointer_kernel \n" \
-			"\t STR sp, [r0]");
+  if (irq_started == TRUE) {
+    // to switch to the next process we have to switch
+    // to the kernel stack and the restore the context
+    asm("\t LDR sp, stack_pointer_kernel \n"
+        "\t LDR sp, [sp] \n"
+        "\t LDMFD sp!, {r0-r12}");
+  } else {
+    irq_started = TRUE;
+  }
 
-		// load the stack pointer of the process
-		asm("\t LDR sp, stack_pointer_restored \n" \
-			"\t LDR sp, [sp]");
+  // ******************************
+  // ****** KERNEL STACK **********
+  // ******************************
 
-		// the return address is at the top of the stack so we need
-		// to read it first
-		asm("\t LDR r0, function_pointer \n" \
-			"\t LDR r1, [sp, #0] \n" \
-			"\t STR r1, [r0, #0] \n" \
-			// move stack pointer to the register r0-r12
-			"\t ADD sp, sp, #4");
+  // now we save the new stack pointer of the interrupted process and
+  // set the state to ready
+  if (process_active != PID_INVALID) {
+    process_table[process_active]->stack_pointer = stack_pointer_interrupted;
+    process_table[process_active]->state = READY;
+  }
 
-		// now read the cpsr register
-		asm("\t LDMFD sp!, {r0} \n" \
-			"\t MSR SPSR_cxsf, r0");
+  // now we schedule the next process
+  scheduler_next();
 
-		// now read the registers r0-r12
-		asm("\t LDMFD sp!, {r0-r12}");
+  // mark the new process as running
+  process_table[process_active]->state = RUNNING;
 
-		// switch back to the interrupt handler
-		asm("\t CPS 0x13");
+  // check if the process has been started
+  if (process_table[process_active]->started == FALSE) {
+    process_table[process_active]->started = TRUE;
 
+    // the process hasn't been started yet
+    // we have to start the process in the user mode
+    // therefore we can't just call the function pointer
+    // and we have to leave the interrupt handler correctly
+    // (either with return or with the LDMFD assembler instruction
 
+    // to start the process we simply set the return address
+    // of the handler to the process start (function pointer address)
+    function_pointer = process_table[process_active]->initial_address;
 
-		// ******************************
-		// ****** INTERRUPPT STACK ******
-		// ******************************
+    // the new process has its own stack and we have to set
+    // the stack pointer of it
+    stack_pointer_interrupted = process_table[process_active]->stack_pointer;
 
-		// set the return address of the interrupt handler to the entry
-		// point of the process
-		asm("\t LDR lr, function_pointer \n" \
-			"\t LDR lr, [lr]");
+    // save the kernel context
+    // TODO restore r0
+    asm("\t STMFD sp!, {r0-r12} \n"
+        "\t LDR r0, stack_pointer_kernel \n"
+        "\t STR sp, [r0]");
 
-		// jump to process and leave the interrupt
-		asm("\t STM sp, {lr} \n" \
-			"\t LDM sp, {pc}^");
-	}
+    // load the stack pointer of the process
+    asm("\t LDR sp, stack_pointer_interrupted \n"
+        "\t LDR sp, [sp]");
+
+    // switch back to the interrupt handler
+    asm("\t CPS 0x12");
+
+    // ******************************
+    // ****** INTERRUPPT STACK ******
+    // ******************************
+
+    // set the return address of the interrupt handler to the entry
+    // point of the process
+    asm("\t LDR lr, function_pointer \n"
+        "\t LDR lr, [lr]");
+
+    // jump to process and leave the interrupt
+    asm("\t STMFD sp!, {lr} \n"
+        "\t LDMFD sp!, {pc}^");
+
+  } else {
+
+    // restore the context of the next process
+    // to restore the context we have to switch to the
+    // process stack
+    // therefore we set the stack pointer of the process
+    stack_pointer_restored = process_table[process_active]->stack_pointer;
+
+    // save the kernel context
+    asm("\t STMFD sp!, {r0-r12} \n"
+        "\t LDR r0, stack_pointer_kernel \n"
+        "\t STR sp, [r0]");
+
+    // load the stack pointer of the process
+    asm("\t LDR sp, stack_pointer_restored \n"
+        "\t LDR sp, [sp]");
+
+    // the return address is at the top of the stack so we need
+    // to read it first
+    asm("\t LDR r0, function_pointer \n"
+        "\t LDR r1, [sp, #0] \n"
+        "\t STR r1, [r0, #0] \n"
+        // move stack pointer to the register r0-r12
+        "\t ADD sp, sp, #4");
+
+    // now read the cpsr register
+    asm("\t LDMFD sp!, {r0} \n"
+        "\t MSR SPSR_cxsf, r0");
+
+    // now read the registers r0-r12
+    asm("\t LDMFD sp!, {r0-r12, lr}");
+
+    // switch back to the interrupt handler
+    asm("\t CPS 0x12");
+
+    // ******************************
+    // ****** INTERRUPPT STACK ******
+    // ******************************
+
+    // set the return address of the interrupt handler to the entry
+    // point of the process
+    asm("\t LDR lr, function_pointer \n"
+        "\t LDR lr, [lr]");
+
+    // jump to process and leave the interrupt
+    asm("\t STMFD sp!, {lr} \n"
+        "\t LDMFD sp!, {pc}^");
+  }
+}
+
+#pragma TASK(irq_handle)
+EXTERN void irq_handle() {
+
+  // save the original stack pointer of the
+  // interrupt handler, so we can reset it
+  // before a context switch
+  asm("\t PUSH {r0} \n"
+      "\t LDR r0, stack_pointer_interrupt_handler \n"
+      // 4 bytes for the r0 register on the stack
+      "\t ADD sp, sp, #4 \n"
+      "\t STR sp, [r0] \n"
+      "\t SUB sp, sp, #4 \n"
+      "\t POP {r0}");
+
+  // if no context switch is necessary, we
+  // will return to the previous process
+  asm("\t STMFD sp!, {r0-r3, r12, lr}");
+
+  // ******************************
+  // ****** INTERRUPT STACK *******
+  // ******************************
+
+  // TODO lr -4 = the interrupt handler
+  // returns by default to this address.
+  // so i expected that we also have to
+  // return to this address. but its
+  // just a guess ;)
+
+  // store the return address
+  asm("\t PUSH {r0} \n"
+      "\t LDR r0, return_address \n"
+      "\t SUB lr, lr, #4 \n"
+      "\t STR lr, [r0] \n"
+      "\t ADD lr, lr, #4 \n"
+      "\t POP {r0}");
+
+  // to save the process context we can switch in the system
+  // mode, because system mode has the same stack
+  asm("\t CPS 0x1F");
+
+  // ******************************
+  // ****** PROCESS STACK *********
+  // ******************************
+
+  if (irq_started == TRUE) {
+
+    // now save all registers inclusive CPSR
+    asm("\t STMFD sp!, {r0-r12, lr} \n"
+        "\t MRS r0, cpsr \n"
+        "\t STMFD sp!, {r0}");
+
+    // save the new return address
+    asm("\t LDR r0, return_address \n"
+        "\t LDR r0, [r0] \n"
+        "\t STMFD sp!, {r0}");
+
+    // the new stack pointer of the process has to be saved
+    // to restore the process
+    asm("\t LDR r0, stack_pointer_interrupted \n"
+        "\t STR sp, [r0]");
+
+    // the register r0 to r12 and the cpsr, plus the new return address
+    // are now on the process stack
+
+    // restore the original stack pointer of the user process
+    // if no context switch will be made
+    // r0-r12 = 13 * 4 = 52 bytes
+    // lr = 4 bytes
+    // cpsr = 4 bytes
+    // return_address = 4 bytes
+    // total = 64 bytes
+    asm("\t ADD sp, sp, #64");
+  }
+
+  // switch to interrupt handler stack
+  asm("\t CPS 0x12");
+
+  *((mem_address_t*) (MPU_INTC + INTCPS_CONTROL)) |= 0x1;
+
+  /* forward the interrupt to the handler routine */
+  irq_handle_irq(*((mem_address_t*) (MPU_INTC + INTCPS_SIR_IRQ)));
+
+  // when we are here, no context switch happened
+  // so we return the the previous process
+  asm("\t LDMFD sp!, {r0-r3, r12, lr} \n" \
+      "\t SUBS pc, lr, #4");
+}
+
+//#pragma TASK(irq_handle_swi)
+EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
+
+  // TODO when starting a new process, what's the return register?
+
+  // we are now in the supervisor mode 0x13
+  // we must save the return address of the supervisor mode
+  // (lr) to return to the user process
+
+  // then we save all registers on the process stack
+  // then we schedule the next process
+
+  // if the scheduled process hasn't been started yet
+  // 		start the process
+  // otherwise
+  //		restore the context of the process (registers)
+
+  // the stack frame looks like this:
+  // TOP OF STACK 		return address
+  // TOP OF STACK -1		cpsr
+  // IN BETWEEN			r0 - r11
+  // BOTTOM OF STACK		r12
+
+  // save the original stack pointer of the
+  // interrupt handler, so we can reset it
+  // before a context switch
+  asm("\t PUSH {r0} \n"
+      "\t LDR r0, stack_pointer_interrupt_handler \n"
+      // we have to save the correct stack pointer
+      // 4 bytes = lr register which is pushed on the stack
+      // when entering a function
+      // 4 * 4 bytes = 16 bytes parameters
+      // total = 20 bytes
+      "\t ADD sp, sp, #20 \n"
+      "\t STR sp, [r0] \n"
+      "\t SUB sp, sp, #20 \n"
+      "\t POP {r0}");
+//
+//  // if no context switch is necessary, we
+//  // will return to the previous process
+//  asm("\t STMFD sp!, {r0-r3, r12, lr}");
+
+  // ******************************
+  // ****** INTERRUPT STACK *******
+  // ******************************
+
+  // store the return address
+  asm("\t PUSH {r0} \n"
+      "\t LDR r0, return_address \n"
+      "\t STR lr, [r0] \n"
+      "\t POP {r0}");
+
+  // to save the process context we can switch in the system
+  // mode, because system mode has the same stack
+  asm("\t CPS 0x1F");
+
+  // ******************************
+  // ****** PROCESS STACK *********
+  // ******************************
+
+  if (irq_started == TRUE) {
+
+    // now save all registers inclusive CPSR
+    asm("\t STMFD sp!, {r0-r12, lr} \n"
+        "\t MRS r0, cpsr \n"
+        "\t STMFD sp!, {r0}");
+
+    // save the new return address
+    asm("\t LDR r0, return_address \n"
+        "\t LDR r0, [r0] \n"
+        "\t STMFD sp!, {r0}");
+
+    // the new stack pointer of the process has to be saved
+    // to restore the process
+    asm("\t LDR r0, stack_pointer_interrupted \n"
+        "\t STR sp, [r0]");
+
+    // the register r0 to r12 and the cpsr, plus the new return address
+    // are now on the process stack
+
+    // restore the original stack pointer of the user process
+    // if no context switch will be made
+    // r0-r12 = 13 * 4 = 52 bytes
+    // lr = 4 bytes
+    // cpsr = 4 bytes
+    // return_address = 4 bytes
+    // total = 64 bytes
+    asm("\t ADD sp, sp, #64");
+  }
+
+  // switch to interrupt handler stack
+  asm("\t CPS 0x13");
+
+  // handle interrupts
+  switch (r0) {
+    case SYS_YIELD:
+      swi_context_switch();
+      break;
+    default:
+      // ignore
+      break;
+  }
+
+//  // when we are here, no context switch happened
+//  // so we return the the previous process
+//  asm("\t LDMFD sp!, {r0-r3, r12, lr} \n" \
+//      "\t SUBS pc, lr, #4");
 }

@@ -1,4 +1,4 @@
-/* driver.c
+/* error.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,14 +17,13 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Nov 10, 2011
- *      Author: Matthias Schmid <ramsondon@gmail.com>
+ *  Created on: 24.11.2011
+ *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#include <ottos/drivers/driver.h>
-#include "../dev/devices.h"
+#ifndef ERROR_H_
+#define ERROR_H_
 
+#define ERROR_CODE unsigned int
 
-driver_t driver_get(device_t dev) {
-  return devices_driver(dev);
-}
+#endif /* ERROR_H_ */

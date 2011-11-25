@@ -1,4 +1,4 @@
-/* driver.c
+/* serial_test.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,14 +17,15 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Nov 10, 2011
+ *  Created on: Nov 19, 2011
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#include <ottos/drivers/driver.h>
-#include "../dev/devices.h"
+#ifndef SERIAL_TEST_H_
+#define SERIAL_TEST_H_
 
+#include <ottos/types.h>
 
-driver_t driver_get(device_t dev) {
-  return devices_driver(dev);
-}
+EXTERN int serial_test_create(void);
+
+#endif /* SERIAL_TEST_H_ */

@@ -21,28 +21,100 @@
  *      Author: Matthias Schmid <m.schmid@students.fhv.at>
  */
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #include <ottos/system.h>
+#include <bits.h>
 
 #include "../../bin/led_test.h"
+#include "../../bin/serial_test.h"
+#include <ottos/kernel.h>
 #include "kernel/intc/irq.h"
 #include "kernel/pm/process.h"
+#include "kernel/timer/timer.h"
 #include "dev/devices.h"
+#include "../hal/uart.h"
+
+#include "../../drivers/mmchs/mmchs.h"
+
+void timer_test() {
+  irq_started = FALSE;
+  process_table_init();
+
+  process_create(1, (int)toggle_led1);
+  process_create(1, (int)toggle_led2);
+
+  devices_init();
+
+  irq_init();
+
+  timer_init();
+  //timer_add_handler(toggle_led_1, 5000);
+  //timer_add_handler(toggle_led_2, 10000);
+
+  irq_register_context_switch();
+
+  irq_enable();
+  kernel_to_user_mode();
+}
+
+void devices_test() {
+  devices_init();
+}
+
+void process_test() {
+  irq_started = FALSE;
+
+  process_table_init();
+
+  process_create(1, (int)toggle_led1_yield);
+  process_create(1, (int)toggle_led2_yield);
+
+  devices_init();
+
+  // switch to user mode
+  kernel_to_user_mode();
+  sys_yield();
+
+}
+
+void serial_test() {
+
+  devices_init();
+  irq_init();
+  irq_enable();
+
+  serial_test_create();
+}
+
+void mmchs_test() {
+  uint64_t* buffer;
+  buffer = malloc(sizeof(uint64_t) * 512);
+
+  mmchs_init();
+
+  mmchs_io_device->read(mmchs_io_device,
+                       0x00000000,
+                       sizeof(buffer) * 512,
+                       buffer);
+
+  buffer[511] = '\0';
+
+  printf("start\n");
+  printf("%s\n", buffer);
+  printf("end\n");
+}
+
 
 int main(int argc, char **argv) {
 
-  // initialize device manager
-  devices_init();
+  //process_test();
+  //timer_test();
+  //serial_test();
+  mmchs_test();
 
-	started = FALSE;
-
-	init_process_table();
-	create_process(1, (int)toggle_led1);
-	create_process(1, (int)toggle_led2);
-
-	// switch to user mode
-	asm("\t CPS 0x10");
-	sys_yield();
-
+  for(;;);
 
 	return 0;
 }

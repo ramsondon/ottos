@@ -1,4 +1,4 @@
-/* driver.c
+/* string.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,14 +17,19 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Nov 10, 2011
- *      Author: Matthias Schmid <ramsondon@gmail.com>
+ *  Created on: 24.11.2011
+ *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#include <ottos/drivers/driver.h>
-#include "../dev/devices.h"
+#ifndef STRING_H_
+#define STRING_H_
 
+#include <ottos/types.h>
 
-driver_t driver_get(device_t dev) {
-  return devices_driver(dev);
-}
+EXTERN size_t strlen(const char* str);
+
+EXTERN char* strrev(char* str);
+
+EXTERN char* itoa(int n, char* s, int b);
+
+#endif /* STRING_H_ */

@@ -1,4 +1,4 @@
-/* driver.c
+/* memory.c
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,14 +17,20 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Nov 10, 2011
- *      Author: Matthias Schmid <ramsondon@gmail.com>
+ *  Created on: 25.11.2011
+ *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#include <ottos/drivers/driver.h>
-#include "../dev/devices.h"
+#include <ottos/memory.h>
+#include <ottos/types.h>
 
+void* memory_init_32(void* buffer, size_t length, uint32_t value) {
+  do {
+    ((uint32_t*) buffer)[--length] = value;
+  } while (length != 0);
+  return buffer;
+}
 
-driver_t driver_get(device_t dev) {
-  return devices_driver(dev);
+void* memory_init_zero(void* buffer, size_t length) {
+  return memory_init_32(buffer, length, 0);
 }

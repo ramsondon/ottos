@@ -77,5 +77,25 @@
 #define INTC_SYSCONFIG 0x0010 /* RW */
 #define INTC_IDLE 0x0050 /* RW */
 
+/* Number of IRQs */
+#define IRQ_MAX_COUNT 95
+
+/* IRQ IDs */
+#define GPT1_IRQ      37
+#define GPT2_IRQ      38
+#define GPT3_IRQ      39
+#define GPT4_IRQ      40
+#define GPT5_IRQ      41
+#define GPT6_IRQ      42
+#define GPT7_IRQ      43
+#define GPT8_IRQ      44
+#define GPT9_IRQ      45
+#define GPT10_IRQ     46
+#define GPT11_IRQ     47
+
+#define UART1_IRQ     72
+#define UART2_IRQ     73
+#define UART3_IRQ     74
+
 
 #endif /* OMAP353X_INTC_H_ */
