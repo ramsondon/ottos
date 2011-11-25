@@ -39,15 +39,21 @@
 #include "uart.h"
 #include "../kernel/intc/irq.h"
 
+/* Baudrate Bitmask for the least significant bits */
+#define UART_BAUDRATE_MASK_LSB 0x00FF
+
+/* Returns the mem_address_t* of a specific UART register */
+#define UART_MEM_ADD(uart_ptr, reg) (uart_ptr + reg/sizeof(mem_address_t*))
+
 /* UART software reset */
-#define UART_SOFTRESET(uart_mem_addr_ptr) (*(uart_mem_addr_ptr + \
-  UART_SYSC_REG/sizeof(mem_address_t*)) |= (1<<1))
+#define UART_SOFTRESET(uart_mem_addr_ptr) (*UART_MEM_ADD(uart_mem_addr_ptr, \
+  UART_SYSC_REG) |= (1<<1))
 
 /* UART reset done */
-#define UART_RESETDONE(uart_mem_addr_ptr) (int)(*(uart_mem_addr_ptr + \
-  UART_SYSS_REG/sizeof(mem_address_t*)) & (1<<0))
+#define UART_RESETDONE(uart_mem_addr_ptr) (int)(*UART_MEM_ADD(uart_mem_addr_ptr, \
+  UART_SYSS_REG) & (1<<0))
 
-#define UART_BAUDRATE_MASK_LSB 0x00FF
+
 
 /*
  * Private Functions
@@ -100,13 +106,12 @@ static void uart_software_reset(mem_address_t* uart_base_addr) {
  * Disables the UART instance
  */
 static void uart_disable(mem_address_t* uart_base_addr) {
-  *(uart_base_addr + UART_MDR1_REG / sizeof(mem_address_t*))
-      = UART_MDR1_MODE_SELECT_DISABLE;
+  *UART_MEM_ADD(uart_base_addr, UART_MDR1_REG) = UART_MDR1_MODE_SELECT_DISABLE;
 }
 
 static void uart_switch_lcr_mode(mem_address_t* uart_base_addr,
                                  unsigned int lcr_mode) {
-  *(uart_base_addr + UART_LCR_REG / sizeof(mem_address_t*)) = lcr_mode;
+  *UART_MEM_ADD(uart_base_addr, UART_LCR_REG) = lcr_mode;
 }
 
 void uart_switch_to_config_mode_a(mem_address_t* uart_base_addr) {
@@ -125,74 +130,54 @@ void uart_switch_to_register_operational_mode(mem_address_t* uart_base_addr) {
 void uart_set_baudrate(mem_address_t* uart_base_addr, int baudrate) {
 
   /* set least significant bits */
-  *(uart_base_addr + UART_DLL_REG / sizeof(mem_address_t*)) = (baudrate
-      & UART_BAUDRATE_MASK_LSB);
+  *UART_MEM_ADD(uart_base_addr, UART_DLL_REG) = (baudrate & UART_BAUDRATE_MASK_LSB);
 
   /* set most significatn bits*/
-  *(uart_base_addr + UART_DLH_REG / sizeof(mem_address_t*)) = (baudrate >> 8);
+  *UART_MEM_ADD(uart_base_addr, UART_DLH_REG) = (baudrate >> 8);
 }
 
 void uart_set_mode(mem_address_t* uart_base_addr, int uart_mode) {
-  *(uart_base_addr + UART_MDR1_REG / sizeof(mem_address_t*)) = uart_mode;
+  *UART_MEM_ADD(uart_base_addr, UART_MDR1_REG) = uart_mode;
 }
 
+/*
+ * Use defines specified below as valid parameter values.
+ * @param: len
+ *    UART_PROTOCOL_DATA_LEN_5,
+ *    UART_PROTOCOL_DATA_LEN_6,
+ *    UART_PROTOCOL_DATA_LEN_7,
+ *    UART_PROTOCOL_DATA_LEN_8
+ */
 static void uart_set_protocol_data_len(mem_address_t* uart_base_addr,
                                        unsigned short len) {
-
-  switch (len) {
-    case UART_PROTOCOL_DATA_LENGTH_5:
-      CLEAR_BIT((uart_base_addr + UART_LCR_REG/sizeof(mem_address_t*)), UART_LCR_CHAR_LEN_0)
-      ;
-      CLEAR_BIT((uart_base_addr + UART_LCR_REG/sizeof(mem_address_t*)), UART_LCR_CHAR_LEN_1)
-      ;
-      break;
-    case UART_PROTOCOL_DATA_LENGTH_6:
-      SET_BIT((uart_base_addr + UART_LCR_REG/sizeof(mem_address_t*)), UART_LCR_CHAR_LEN_0)
-      ;
-      CLEAR_BIT((uart_base_addr + UART_LCR_REG/sizeof(mem_address_t*)), UART_LCR_CHAR_LEN_1)
-      ;
-      break;
-    case UART_PROTOCOL_DATA_LENGTH_7:
-      CLEAR_BIT((uart_base_addr + UART_LCR_REG/sizeof(mem_address_t*)), UART_LCR_CHAR_LEN_0)
-      ;
-      SET_BIT((uart_base_addr + UART_LCR_REG/sizeof(mem_address_t*)), UART_LCR_CHAR_LEN_1)
-      ;
-      break;
-    case UART_PROTOCOL_DATA_LENGTH_8:
-    default:
-      SET_BIT((uart_base_addr + UART_LCR_REG/sizeof(mem_address_t*)), UART_LCR_CHAR_LEN_0)
-      ;
-      SET_BIT((uart_base_addr + UART_LCR_REG/sizeof(mem_address_t*)), UART_LCR_CHAR_LEN_1)
-      ;
-      break;
-  }
+  /* clear the len bits in LCR register */
+  *UART_MEM_ADD(uart_base_addr, UART_LCR_REG) &= ~(len);
+  /* set new len bits in LCR register */
+  *UART_MEM_ADD(uart_base_addr, UART_LCR_REG) |= len;
 }
 
 static void uart_set_protocol_stop_bit(mem_address_t* uart_base_addr,
                                        unsigned short nb_stop) {
   switch (nb_stop) {
     case UART_PROTOCOL_NB_STOP_1:
-      CLEAR_BIT((uart_base_addr + UART_LCR_REG/sizeof(mem_address_t*)), UART_LCR_NB_STOP)
-      ;
+      CLEAR_BIT(UART_MEM_ADD(uart_base_addr, UART_LCR_REG), UART_LCR_NB_STOP);
       break;
     case UART_PROTOCOL_NB_STOP_2:
     default:
-      SET_BIT((uart_base_addr + UART_LCR_REG/sizeof(mem_address_t*)), UART_LCR_NB_STOP)
-      ;
+      SET_BIT(UART_MEM_ADD(uart_base_addr, UART_LCR_REG), UART_LCR_NB_STOP);
       break;
   }
 }
 
 static void uart_set_protocol_parity(mem_address_t* uart_base_addr,
                                      unsigned int parity) {
-  // TODO(ramsondon@gmail.com) Implement more parity types
+  // XXX(ramsondon@gmail.com): Implement more parity types
   // check partiy_type_1 and parity_type_2 arguments
 
   switch (parity) {
     case UART_PROTOCOL_PARITY_NONE:
     default:
-      CLEAR_BIT((uart_base_addr + UART_LCR_REG/sizeof(mem_address_t*)), UART_LCR_PARITY_EN)
-      ;
+      CLEAR_BIT(UART_MEM_ADD(uart_base_addr, UART_LCR_REG), UART_LCR_PARITY_EN);
       break;
   }
 }
@@ -201,8 +186,8 @@ void uart_set_protocol_format(mem_address_t* uart_base_addr,
                               uart_protocol_format_t protocol) {
 
   /* clear LCR DIV and BREAK field */
-  CLEAR_BIT((uart_base_addr + UART_LCR_REG/sizeof(mem_address_t*)), UART_LCR_DIV_EN);
-  CLEAR_BIT((uart_base_addr + UART_LCR_REG/sizeof(mem_address_t*)), UART_LCR_BREAK_EN);
+  CLEAR_BIT(UART_MEM_ADD(uart_base_addr, UART_LCR_REG), UART_LCR_DIV_EN);
+  CLEAR_BIT(UART_MEM_ADD(uart_base_addr, UART_LCR_REG), UART_LCR_BREAK_EN);
 
   /* set baudrate */
   //  uart_set_baudrate(uart_base_addr, protocol.baudrate);
@@ -215,74 +200,15 @@ void uart_set_protocol_format(mem_address_t* uart_base_addr,
 }
 
 void uart_set_flow_control(mem_address_t* uart_base_addr, uint8_t flow_control) {
-  *(uart_base_addr + UART_EFR_REG / sizeof(mem_address_t*)) = flow_control;
+  *UART_MEM_ADD(uart_base_addr, UART_EFR_REG) = flow_control;
 }
 
 void uart_enable_enhanced_func(mem_address_t* uart_base_addr) {
-  SET_BIT((uart_base_addr + UART_EFR_REG/sizeof(mem_address_t*)),
-      UART_EFR_ENHANCED_EN);
+  SET_BIT(UART_MEM_ADD(uart_base_addr, UART_EFR_REG), UART_EFR_ENHANCED_EN);
 }
 
 void uart_enable_tcr(mem_address_t* uart_base_addr) {
-  SET_BIT((uart_base_addr + UART_MCR_REG/sizeof(mem_address_t*)),
-      UART_MCR_TCR_TLR);
-}
-
-/*
- * Returns 1 if the UART FIFO is full, else 0.
- */
-int uart_fifo_is_full(mem_address_t* uart_base_addr) {
-  return (int) (*(uart_base_addr + UART_SSR_REG / sizeof(mem_address_t*)) & (1
-      << UART_SSR_TX_FIFO_FULL));
-}
-
-/*
- *
- *
- * DMA is disabled
- */
-void uart_init_fifo(mem_address_t* uart_base_addr) {
-
-  // TODO:(ramsondon@gmail.com) save LCR state
-  uart_switch_to_config_mode_b(uart_base_addr);
-
-  // TODO:(ramsondon@gmail.com) save EFR ENHANCED
-  uart_enable_enhanced_func(uart_base_addr);
-
-  uart_switch_to_config_mode_a(uart_base_addr);
-
-  // TODO:(ramsondon@gmail.com save MCR TCR_TLR
-  uart_enable_tcr(uart_base_addr);
-
-  // transmission+receive = 8chars
-  CLEAR_BIT((uart_base_addr + UART_FCR_REG/sizeof(mem_address_t*)), UART_FCR_RX_FIFO_TRIG_1);
-  CLEAR_BIT((uart_base_addr + UART_FCR_REG/sizeof(mem_address_t*)), UART_FCR_RX_FIFO_TRIG_2);
-  CLEAR_BIT((uart_base_addr + UART_FCR_REG/sizeof(mem_address_t*)), UART_FCR_TX_FIFO_TRIG_1);
-  CLEAR_BIT((uart_base_addr + UART_FCR_REG/sizeof(mem_address_t*)), UART_FCR_TX_FIFO_TRIG_2);
-
-  // enable fifo 60 bytes
-  // FIXME: seems not working although DLH and DLL are 0x0 both (clock is not runnig)
-  SET_BIT((uart_base_addr + UART_FCR_REG/sizeof(mem_address_t*)),UART_FCR_FIFO_EN);
-
-  // XXX: do nothing wit DMA mode? (omap353x ref man p.2733)
-
-  uart_switch_to_config_mode_b(uart_base_addr);
-
-  // TODO:(ramsondon@gmail.com) set FIFO TRIGGER DMA to RX/TX 4 spaces
-  *(uart_base_addr + UART_TLR_REG / sizeof(mem_address_t*)) = 0x0000044;
-
-  SET_BIT((uart_base_addr + UART_SCR_REG/sizeof(mem_address_t*)), UART_SCR_RX_TRIG_GRANU1);
-  SET_BIT((uart_base_addr + UART_SCR_REG/sizeof(mem_address_t*)), UART_SCR_TX_TRIG_GRANU1);
-  CLEAR_BIT((uart_base_addr + UART_SCR_REG/sizeof(mem_address_t*)), UART_SCR_DMA_MODE_CTL);
-
-  // TODO: disable DMA mode
-
-  // TODO:(ramsondon@gmail.com) restore EFR enhanced flag
-
-  // TODO: uart_switch_to_config_mode_a(uart_base_addr);
-  // TODO: restore MCR TCR_TLR register flag
-  // TODO: restore LCR value
-
+  SET_BIT(UART_MEM_ADD(uart_base_addr, UART_MCR_REG), UART_MCR_TCR_TLR);
 }
 
 /*
@@ -291,12 +217,11 @@ void uart_init_fifo(mem_address_t* uart_base_addr) {
 void uart_clear_interrupts(mem_address_t* uart_base_addr) {
 
   /* clear IER and goto SLEEP MODE */
-  *(uart_base_addr + UART_IER_REG / sizeof(mem_address_t*)) = 0x0;
+  *UART_MEM_ADD(uart_base_addr, UART_IER_REG) = 0x0;
 }
 
 void uart_enable_loopback(mem_address_t* uart_base_addr) {
-  *(uart_base_addr + UART_MCR_REG / sizeof(mem_address_t*))
-      |= UART_MCR_LOOPBACK_EN;
+  *UART_MEM_ADD(uart_base_addr, UART_MCR_REG) |= UART_MCR_LOOPBACK_EN;
 }
 
 /*
@@ -329,8 +254,8 @@ void uart_init(mem_address_t* uart_base_addr, int uart_mode,
  * If the Queue has at least one character the result will be 1.
  */
 int uart_is_empty_read_queue(mem_address_t* uart_base_addr) {
-  int status = (int) READ_BIT((uart_base_addr +
-          UART_LSR_REG/sizeof(mem_address_t*)), UART_LSR_RX_FIFO_E);
+  int status = (int) READ_BIT(UART_MEM_ADD(uart_base_addr, UART_LSR_REG),
+                              UART_LSR_RX_FIFO_E);
   return (status == 0);
 }
 
@@ -339,17 +264,17 @@ int uart_is_empty_read_queue(mem_address_t* uart_base_addr) {
  * If the Queue has at least one character the result will be 1.
  */
 int uart_is_empty_write_queue(mem_address_t* uart_base_addr) {
- int status = READ_BIT((uart_base_addr + UART_LSR_REG/sizeof(mem_address_t*)),
+ int status = READ_BIT(UART_MEM_ADD(uart_base_addr, UART_LSR_REG),
                        UART_LSR_TX_FIFO_E);
   return (status > 0);
 }
 
 /* writes one character to the UART device */
 void uart_write(mem_address_t* uart_base_addr, char* buffer) {
-  *(uart_base_addr + UART_THR_REG/sizeof(mem_address_t*)) = *buffer;
+  *UART_MEM_ADD(uart_base_addr, UART_THR_REG) = *buffer;
 }
 
 /* reads one character from the UART device */
 void uart_read(mem_address_t* uart_base_addr, char* buffer) {
-  *buffer = *(uart_base_addr + UART_RHR_REG/sizeof(mem_address_t*));
+  *buffer = *UART_MEM_ADD(uart_base_addr, UART_RHR_REG);
 }
