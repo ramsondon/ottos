@@ -36,6 +36,8 @@
 #include "dev/devices.h"
 #include "../hal/uart.h"
 
+#include "../fs/fs.h"
+
 #include "../../drivers/mmchs/mmchs.h"
 
 void timer_test() {
@@ -89,21 +91,13 @@ void serial_test() {
 }
 
 void mmchs_test() {
-  uint64_t* buffer;
-  buffer = malloc(sizeof(uint64_t) * 512);
+  // TODO
+}
 
+void fs_test() {
   mmchs_init();
-
-  mmchs_io_device->read(mmchs_io_device,
-                       0x00000000,
-                       sizeof(buffer) * 512,
-                       buffer);
-
-  buffer[511] = '\0';
-
-  printf("start\n");
-  printf("%s\n", buffer);
-  printf("end\n");
+  fs_init();
+  fl_listdirectory("/");
 }
 
 
@@ -112,7 +106,7 @@ int main(int argc, char **argv) {
   //process_test();
   //timer_test();
   //serial_test();
-  mmchs_test();
+  fs_test();
 
   for(;;);
 

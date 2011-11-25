@@ -44,7 +44,7 @@ static BLOCK_IO_MEDIA mmchs_media = { SIGNATURE_32('s', 'd', 'i', 'o'), // media
                                       0 // last block
     };
 
-static BOOLEAN mmchs_media_change = FALSE;
+static BOOLEAN mmchs_media_change = TRUE;
 
 static int mmchs_error(MMCHS_STATUS status) {
   return (status != 0);
