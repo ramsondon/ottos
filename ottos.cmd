@@ -15,8 +15,11 @@ MEMORY
 
 SECTIONS
 {
+   .intudef    > 0x4020FFC8
    .intswi     > 0x4020FFCC
-   .intirq     > 0x4020FFDC
+   .intpabt	   > 0x4020FFEC
+   .intdabt    > 0x4020FFF0
+   .intirq     > 0x4020FFDC   
 
    .const      > ext_ddr
    .bss        > ext_ddr
@@ -27,7 +30,7 @@ SECTIONS
    .cinit      > ext_ddr
    .cio        > ext_ddr
    
-   .text       > ext_ddr
+   .text       > int_ram
    .sysmem     > ext_ddr
    .switch     > ext_ddr
 }
