@@ -26,6 +26,13 @@
 
 #include <ottos/types.h>
 
+EXTERN int serial_test_calculator();
+EXTERN int serial_test_write_1();
+EXTERN int serial_test_write_2();
+EXTERN int serial_test_write_3();
+EXTERN int serial_test_write_4();
+EXTERN int serial_test_write_5();
+
 EXTERN int serial_test_test();
 EXTERN int serial_test_test_yield(void);
 EXTERN int serial_test_create(void);

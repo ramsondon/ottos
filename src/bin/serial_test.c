@@ -78,3 +78,106 @@ int serial_test_test_yield() {
   }
   return 0;
 }
+
+
+
+int serial_test_write_1() {
+  int i;
+  driver_t drv = driver_get(SERIAL_0);
+  drv.create(SERIAL_0);
+  drv.open(SERIAL_0);
+  for(i = 0;; i++) {
+   if(i > 300000) {
+     drv.write(SERIAL_0, 8, "PID: 1\n\r");
+     i = 0;
+   }
+  }
+  drv.close(SERIAL_0);
+  return 0;
+}
+
+int serial_test_write_2() {
+  int i;
+  driver_t drv = driver_get(SERIAL_0);
+  drv.create(SERIAL_0);
+  drv.open(SERIAL_0);
+  for(i = 0;; i++) {
+   if(i > 300000) {
+     drv.write(SERIAL_0, 8, "PID: 2\n\r");
+     i = 0;
+   }
+  }
+  drv.close(SERIAL_0);
+  return 0;
+}
+
+int serial_test_write_3() {
+  int i;
+  driver_t drv = driver_get(SERIAL_0);
+  drv.create(SERIAL_0);
+  drv.open(SERIAL_0);
+  for(i = 0;; i++) {
+   if(i > 300000) {
+     drv.write(SERIAL_0, 8, "PID: 3\n\r");
+     i = 0;
+   }
+  }
+  drv.close(SERIAL_0);
+  return 0;
+}
+int serial_test_write_4() {
+  int i;
+  driver_t drv = driver_get(SERIAL_0);
+  drv.create(SERIAL_0);
+  drv.open(SERIAL_0);
+  for(i = 0;; i++) {
+   if(i > 300000) {
+     drv.write(SERIAL_0, 8, "PID: 4\n\r");
+     i = 0;
+   }
+  }
+  drv.close(SERIAL_0);
+  return 0;
+}
+
+int serial_test_write_5() {
+  int i;
+  driver_t drv = driver_get(SERIAL_0);
+  drv.create(SERIAL_0);
+  drv.open(SERIAL_0);
+  for(i = 0;; i++) {
+   if(i > 300000) {
+     drv.write(SERIAL_0, 8, "PID: 5\n\r");
+     i = 0;
+   }
+  }
+  drv.close(SERIAL_0);
+  return 0;
+}
+
+int serial_test_calculator() {
+  driver_t drv = driver_get(SERIAL_0);
+  char buffer[1];
+  int a = 0;
+  int b = 0;
+  int res = 0;
+  drv.create(SERIAL_0);
+  while (1) {
+    drv.write(SERIAL_0, 32, "\n\rOttos Serial Test Calculator\n\r");
+
+    drv.write(SERIAL_0, 13, "\n\rEnter Op1:");
+    drv.read(SERIAL_0, 1, buffer);
+    a = buffer[0];
+    drv.write(SERIAL_0, 1, buffer);
+
+    drv.write(SERIAL_0, 13, "\n\rEnter Op2:");
+    drv.read(SERIAL_0, 1, buffer);
+    b = buffer[0];
+    drv.write(SERIAL_0, 1, buffer);
+    res = a + b;
+    buffer[0] = res;
+    drv.write(SERIAL_0, 23, "\n\rResult of Op1 + Op2: ");
+    drv.write(SERIAL_0, 1, buffer);
+  }
+  return 0;
+}
