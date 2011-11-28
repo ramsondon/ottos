@@ -31,7 +31,8 @@
 
 extern int toggle_led1(void);
 extern int toggle_led2(void);
-
+extern int toggle_led1_yield(void);
+extern int toggle_led2_yield(void);
 
 typedef enum LED_DEVICE
 {

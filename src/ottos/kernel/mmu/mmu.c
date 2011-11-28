@@ -26,61 +26,143 @@
 
 asm("\t .bss _taskMasterTableAddress, 4\n" \
     "\t .global _taskMasterTableAddress\n" \
-    "taskMasterTableAddress .field taskMasterTableAddress, 32");
+    "taskMasterTableAddress .field _taskMasterTableAddress, 32");
 
 extern mem_address_t *taskMasterTableAddress;
 extern mem_address_t kernelMasterTable;
 
-mem_address_t *taskMasterTableAddresses[MAX_TASKS] = {(mem_address_t)0x0};
+extern mem_address_t intRamStart;
+extern mem_address_t extDDRStart;
 
+mem_address_t *taskMasterTableAddresses[MAX_TASKS] = {0x0};
 
+mem_address_t *firstFreeInIntRam;
+mem_address_t *firstFreeInExtDDR;
+
+mem_address_t *tableAddress = NULL;
+
+//bool occupiedAddresses[MAX_PAGES_IN_MEMORY] = {false};
 
 
 void mmu_initMemoryForTask(int taskId) {
-    mem_address_t *taskMasterTableAddress = taskMasterTableAddresses[taskId];
+
+    taskMasterTableAddress = taskMasterTableAddresses[taskId];
     if (taskMasterTableAddress == (mem_address_t)0x0) {
-        if (taskId == 0) {
-            unsigned int i;
-            mem_address_t *tableAddress = &kernelMasterTable;
+        if (taskId == 0)
 
-            // Set Domain Access control register to 0101 0101 0101 0101 0101 0101 0101 0111
-            asm("\t MOV r1, #0x5557\n");
-            asm("\t MOVT r1, #0x5555\n");
-            asm("\t MCR p15, #0, r1, c3, c0, #0\n");
+        {
+          unsigned int i = NULL;
+          firstFreeInIntRam = &intRamStart;
+          firstFreeInExtDDR = &extDDRStart;
 
-            // Set the Master Table Pointer to the internal ram
-            asm("\t LDR r1, taskMasterTableAddress\n");
-            asm("\t LDR r1, [r1]\n");
-            asm("\t MCR p15, #0, r1, c2, c0, #0\n");
+          taskMasterTableAddress = &kernelMasterTable;
 
-            taskMasterTableAddress = tableAddress;
 
-            // Initialize Master Table
-            for (i = 0x00000000; i < 0xFFF00000; i += 0x00100000) {
-                *tableAddress = i | 0xC12;
-                tableAddress++;
-            }
-            *tableAddress = 0xFFF00C12;
 
-            // Enable MMU
-            asm("\t MRC p15, #0, r1, c1, c0, #0\n");
-            asm("\t ORR r1, r1, #0x1\n");
-            asm("\t MCR p15, #0, r1, c1, c0, #0\n");
-        } else {
-            // TODO init task memory
+
+              // Set Domain Access control register to 0101 0101 0101 0101 0101 0101 0101 0111
+              asm("\t MOV r1, #0x5557\n");
+              asm("\t MOVT r1, #0x5555\n");
+              asm("\t MCR p15, #0, r1, c3, c0, #0\n");
+
+
+
+               // Set the Master Table Pointer to the internal ram
+              asm("\t LDR r1, taskMasterTableAddress\n");
+              asm("\t LDR r1, [r1]\n");
+              asm("\t MCR p15, #0, r1, c2, c0, #0\n");
+
+              tableAddress = taskMasterTableAddress;
+
+              // Initialize Master Table
+              for (i = 0x00000000; i < 0xFFF00000; i += 0x00100000)
+                  {
+                    *tableAddress = i | 0xC12;
+                    tableAddress++;
+                  }
+              *tableAddress = 0xFFF00C12;
+
+              // Enable MMU
+              asm("\t MRC p15, #0, r1, c1, c0, #0\n");
+              asm("\t ORR r1, r1, #0x1\n");
+              asm("\t MCR p15, #0, r1, c1, c0, #0\n");
+
         }
-    } else {
-        // TODO switch master table
+
+        else
+
+
+        {
+          unsigned int i = NULL;
+          firstFreeInIntRam = &intRamStart;
+          firstFreeInExtDDR = &extDDRStart;
+        // TO DOabfrage platz in internal ram sonst ddr ram
+
+
+          taskMasterTableAddress = &intRamStart;
+
+          // Set Domain Access control register to 0101 0101 0101 0101 0101 0101 0101 0111
+                        asm("\t MOV r1, #0x5557\n");
+                        asm("\t MOVT r1, #0x5555\n");
+                        asm("\t MCR p15, #0, r1, c3, c0, #0\n");
+
+
+                         // Set the Master Table Pointer to the internal ram
+                        asm("\t LDR r1, taskMasterTableAddress\n");
+                        asm("\t LDR r1, [r1]\n");
+                        asm("\t MCR p15, #0, r1, c2, c0, #0\n");
+
+          tableAddress = taskMasterTableAddress;
+
+          // Initialize Master Table
+         for (i = 0; i<4096;i++)
+         {
+           *tableAddress = (mem_address_t)(&firstFreeInExtDDR);
+           firstFreeInExtDDR++;
+           i++;
+
+         }
+
+
+          /*
+                       for (i = 0x00000000; i < 0xFFFFF300; i += 0x00000100)
+                           {
+                             *tableAddress = i | 0x31;
+                             tableAddress++;
+                           }
+                       *tableAddress = 0xFFFFF331;
+*/
+                       // Enable MMU
+                       asm("\t MRC p15, #0, r1, c1, c0, #0\n");
+                       asm("\t ORR r1, r1, #0x1\n");
+                       asm("\t MCR p15, #0, r1, c1, c0, #0\n");
+
+
+
+            // TODO init process memory
+        }
     }
+    else
+       {
+           asm("\t LDR r1, taskMasterTableAddress\n");
+           asm("\t LDR r1, [r1]\n");
+           asm("\t MCR p15, #0, r1, c2, c0, #0\n");
+       }
+
     taskMasterTableAddresses[taskId] = taskMasterTableAddress;
 }
 
 
 
 
+void mmu_loadPage(int pageNumber) {
+    //TODO
+}
+
+
 
 void mmu_init(){
-  unsigned int i;
+  unsigned int i = NULL;
   mem_address_t tableAddress = (mem_address_t)0x40200000;
      // Set Domain Access control register to 0101 0101 0101 0101 0101 0101 0101 0101
      asm("\t MOV r1, #0x5557\n");

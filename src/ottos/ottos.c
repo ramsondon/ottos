@@ -29,31 +29,40 @@
 #include "kernel/pm/process.h"
 #include "kernel/timer/timer.h"
 #include "dev/devices.h"
+
 #include "kernel/mmu/mmu.h"
 
-void toggle_led_1() {
-  //printf("Timer 3 fired interrupt... \n");
-  *(volatile unsigned long *)GPIO5_DATAOUT ^= SET_BIT(22);
-}
-
-void toggle_led_2() {
-  //printf("Timer 4 fired interrupt... \n");
-  *(volatile unsigned long *)GPIO5_DATAOUT ^= SET_BIT(21);
-}
-
-
-
-
+/*
 void timer_test() {
+  irq_started = FALSE;
+
+
+  process_table_init();
+
+  process_create(1, (int)toggle_led1);
+  process_create(1, (int)toggle_led2);
+
+  devices_init();
+
+*/
+
+
+/*
+void timer_test() {
+
   irq_init();
 
   timer_init();
-  timer_add_handler(toggle_led_1, 5000);
-  timer_add_handler(toggle_led_2, 10000);
+  //timer_add_handler(toggle_led_1, 5000);
+  //timer_add_handler(toggle_led_2, 10000);
+
+  irq_register_context_switch();
 
   irq_enable();
+  kernel_to_user_mode();
 }
-
+*/
+/*
 void devices_test() {
   devices_init();
 }
@@ -63,20 +72,31 @@ void process_test() {
 
   process_table_init();
 
-  process_create(1, (int)toggle_led1);
-  process_create(1, (int)toggle_led2);
+  process_create(1, (int)toggle_led1_yield);
+  process_create(1, (int)toggle_led2_yield);
+
+  devices_init();
 
   // switch to user mode
   kernel_to_user_mode();
   sys_yield();
 
 }
-
+*/
 
 int main(int argc, char **argv) {
 
+  mmu_initMemoryForTask(0);
+  mmu_initMemoryForTask(1);
 
-  timer_test();
+  // mmu_init();
+
+
+  //timer_test();
+
+  //process_test();
+  //timer_test();
+
 
   for(;;);
 
