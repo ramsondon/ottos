@@ -11,14 +11,21 @@ MEMORY
 {
    int_ram:  ORIGIN = 0x40200000  LENGTH = 0x0000FFFF
    ext_ddr:  ORIGIN = 0x82000000  LENGTH = 0x10000000
+
+
 }
 
 
 SECTIONS
 {
+
 ///////////////////////////// int_ram //////////////////////////////
-   .intswi     > 0x4020FFCC
-   .intirq     > 0x4020FFDC
+
+   .intudef    > 0x4020FFC8
+  // .intswi     > 0x4020FFCC
+   .intpabt	   > 0x4020FFEC
+ //  .intdabt    > 0x4020FFF0
+   .intirq     > 0x4020FFDC   
 
    .bss        > int_ram {
        _kernelMasterTable = . ;
@@ -32,6 +39,7 @@ SECTIONS
    .cinit      > int_ram
    .cio        > int_ram
    
+
    .sysmem     > int_ram
    .switch     > int_ram
    .pinit      > int_ram {
@@ -53,6 +61,7 @@ SECTIONS
        . = . + (4 * 1024);
        _extDDRStart = .;
    }
+
 }
 
 

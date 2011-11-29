@@ -23,18 +23,28 @@
 
 #include <ottos/kernel.h>
 #include <ottos/io.h>
+#include <ottos/drivers/driver.h>
+#include <ottos/dev/device.h>
 
 void kernel_panic(const char* str) {
-  kernel_print("**** KERNEL PANIC ****\n");
+  kernel_print("**** KERNEL PANIC ****\n\r");
   kernel_print(str);
-  kernel_print("**** KERNEL PANIC ****\n");
+  kernel_print("**** KERNEL PANIC ****\n\r");
 
   kernel_halt();
 }
 
 void kernel_print(const char* str) {
-  // TODO(fdomig@gmail.com) Has to be refactored to use an own printf()
-  printf(str);
+//  // TODO(fdomig@gmail.com) Has to be refactored to use an own printf()
+  driver_t serial_driver = driver_get(SERIAL_0);
+  const char * p = str;
+  int len = 0;
+  serial_driver.create(SERIAL_0);
+
+  // TODO(fdomig@gmail.com): replace through strlen implementation
+  while(*p) p++;
+  len = p - str;
+  serial_driver.write(SERIAL_0, len, (char*)str);
 }
 
 void kernel_halt() {

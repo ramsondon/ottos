@@ -93,4 +93,9 @@
 #define GPT10_IRQ     46
 #define GPT11_IRQ     47
 
+#define UART1_IRQ     72
+#define UART2_IRQ     73
+#define UART3_IRQ     74
+
+
 #endif /* OMAP353X_INTC_H_ */

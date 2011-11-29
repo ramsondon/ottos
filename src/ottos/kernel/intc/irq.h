@@ -43,6 +43,15 @@ EXTERN void irq_handle();
 #pragma INTERRUPT(irq_handle_swi, SWI)
 EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3);
 
+#pragma INTERRUPT(irq_handle_udef, UDEF)
+EXTERN void irq_handle_udef();
+
+#pragma INTERRUPT(irq_handle_dabt, DABT)
+EXTERN void irq_handle_dabt();
+
+#pragma INTERRUPT(irq_handle_pabt, PABT)
+EXTERN void irq_handle_pabt();
+
 EXTERN void irq_add_handler(int irq_id, void (*fn)(void));
 
 #endif /* INTERRUPTHANDLER_H_ */

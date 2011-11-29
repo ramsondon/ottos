@@ -22,13 +22,17 @@
  */
 
 #include <ottos/system.h>
+#include <ottos/kernel.h>
+
 
 #include "../../bin/led_test.h"
-#include <ottos/kernel.h>
+#include "../../bin/serial_test.h"
+
 #include "kernel/intc/irq.h"
 #include "kernel/pm/process.h"
 #include "kernel/timer/timer.h"
 #include "dev/devices.h"
+#include "../hal/uart.h"
 
 #include "kernel/mmu/mmu.h"
 
@@ -82,6 +86,7 @@ void process_test() {
   sys_yield();
 
 }
+<<<<<<< HEAD
 */
 
 int main(int argc, char **argv) {
@@ -94,10 +99,59 @@ int main(int argc, char **argv) {
 
   //timer_test();
 
+/*
+void serial_test() {
+
+    irq_started = FALSE;
+
+   process_table_init();
+
+//    process_create(1, (int)serial_test_test_yield);
+//    process_create(1, (int)toggle_led1_yield);
+//    process_create(1, (int)toggle_led2_yield);
+
+   process_create(1, (int) led1_on);
+   process_create(1, (int) led1_off);
+   process_create(1, (int) toggle_led1);
+   process_create(1, (int) serial_test_write_1);
+   process_create(1, (int) serial_test_write_2);
+   process_create(1, (int) serial_test_write_3);
+   process_create(1, (int) serial_test_write_4);
+   process_create(1, (int) serial_test_write_5);
+//   process_create(1, (int) serial_test_calculator);
+
+    devices_init();
+
+    irq_init();
+
+    timer_init();
+
+    irq_register_context_switch();
+
+    irq_enable();
+    kernel_to_user_mode();
+//    sys_yield();
+
+//    serial_test_test();
+}
+
+void serial_test_calc() {
+  devices_init();
+  serial_test_calculator();
+}
+
+int main(int argc, char **argv) {
+
+//  process_test();
+//  timer_test();
+  serial_test();
+//  serial_test_calc();
+
+
   //process_test();
   //timer_test();
 
-
+*/
   for(;;);
 
 	return 0;

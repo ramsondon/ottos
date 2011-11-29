@@ -24,6 +24,8 @@
 #ifndef DEVICE_H_
 #define DEVICE_H_
 
+#define DEVICE_DRIVER_REGISTER(device_t, driver_t) (devices_create(device_t, driver_t))
+
 
 typedef int device_t;
 
@@ -48,6 +50,7 @@ typedef int device_t;
 #define GPTIMER_11      10
 #define LED_0           11
 #define LED_1           12
+#define SERIAL_0        13
 
 
 

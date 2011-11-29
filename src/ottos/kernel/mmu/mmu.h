@@ -12,6 +12,7 @@
 
 #define MAX_TASKS 10
 #define MAX_PAGES_IN_MEMORY 8192 // 32MB mapped to 4KB pages
+#define MAX_PAGES_L2 4095
 
 void mmu_init();
 void mmu_initMemoryForTask(int taskId);
