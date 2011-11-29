@@ -140,8 +140,8 @@ int main(int argc, char **argv) {
 //  process_test();
 //  timer_test();
 //  serial_test();
-//  serial_test_calc();
-  process_exit_test();
+  serial_test_calc();
+//  process_exit_test();
 
   for(;;);
 

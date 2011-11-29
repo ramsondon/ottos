@@ -21,6 +21,7 @@
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <ottos/drivers/driver.h>
 #include <ottos/memory.h>
@@ -167,15 +168,15 @@ int serial_test_calculator() {
 
     drv.write(SERIAL_0, 13, "\n\rEnter Op1:");
     drv.read(SERIAL_0, 1, buffer);
-    a = buffer[0];
+    a = atoi(buffer);
     drv.write(SERIAL_0, 1, buffer);
 
     drv.write(SERIAL_0, 13, "\n\rEnter Op2:");
     drv.read(SERIAL_0, 1, buffer);
-    b = buffer[0];
+    b = atoi(buffer);
     drv.write(SERIAL_0, 1, buffer);
     res = a + b;
-    buffer[0] = res;
+    sprintf(buffer, "%d", res);
     drv.write(SERIAL_0, 23, "\n\rResult of Op1 + Op2: ");
     drv.write(SERIAL_0, 1, buffer);
   }
