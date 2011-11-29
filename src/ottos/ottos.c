@@ -27,6 +27,7 @@
 
 #include "../../bin/led_test.h"
 #include "../../bin/serial_test.h"
+#include "../../bin/console.h"
 
 #include "kernel/intc/irq.h"
 #include "kernel/pm/process.h"
@@ -135,13 +136,19 @@ void process_exit_test() {
   kernel_to_user_mode();
 }
 
+void console_test() {
+  devices_init();
+  console_start();
+}
+
 int main(int argc, char **argv) {
 
 //  process_test();
 //  timer_test();
 //  serial_test();
-  serial_test_calc();
+//  serial_test_calc();
 //  process_exit_test();
+  console_test();
 
   for(;;);
 
