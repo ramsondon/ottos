@@ -35,7 +35,7 @@
 #include "../hal/uart.h"
 
 void timer_test() {
-  irq_started = FALSE;
+
 
   process_table_init();
 
@@ -61,7 +61,7 @@ void devices_test() {
 }
 
 void process_test() {
-  irq_started = FALSE;
+
 
   process_table_init();
 
@@ -78,7 +78,7 @@ void process_test() {
 
 void serial_test() {
 
-    irq_started = FALSE;
+
 
    process_table_init();
 
@@ -120,8 +120,8 @@ void serial_test_calc() {
 int main(int argc, char **argv) {
 
 //  process_test();
-//  timer_test();
-  serial_test();
+  timer_test();
+//  serial_test();
 //  serial_test_calc();
 
   for(;;);

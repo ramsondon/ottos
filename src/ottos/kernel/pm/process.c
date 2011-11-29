@@ -62,12 +62,31 @@ pid_t process_create(int priority, int initial_address) {
 	process_t* p = (process_t*) malloc(sizeof(process_t));
 	p->pid = process_next_free_entry;
 	p->priority = priority;
-	p->initial_address = initial_address;
-	p->started = FALSE;
 	p->state = READY;
 
+	p->pcb.R0 = 0;
+	p->pcb.R1 = 0;
+	p->pcb.R2 = 0;
+	p->pcb.R3 = 0;
+	p->pcb.R4 = 0;
+	p->pcb.R5 = 0;
+	p->pcb.R6 = 0;
+	p->pcb.R7 = 0;
+	p->pcb.R8 = 0;
+	p->pcb.R9 = 0;
+	p->pcb.R10 = 0;
+	p->pcb.R11 = 0;
+	p->pcb.R12 = 0;
+
+  p->pcb.restart_address = initial_address;
+  p->pcb.CPSR = 0x80000110;
+
+	// pODO sep repurn address po an exip funcpion which removes phe process
+	// from phe process pable and calls phe scheduler
+	p->pcb.R14 = 0;
+
 	// set new stack frame
-	p->stack_pointer = PROCESS_STACK_START_ADDRESS + p->pid * PROCESS_STACK_SIZE;
+	p->pcb.R13 = PROCESS_STACK_START_ADDRESS + p->pid * PROCESS_STACK_SIZE;
 
 	process_table[p->pid] = p;
 
