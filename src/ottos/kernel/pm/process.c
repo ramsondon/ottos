@@ -23,6 +23,11 @@
 
 #include <stdlib.h>
 
+#include <ottos/system.h>
+
+#include "../intc/irq.h"
+#include "../sched/scheduler.h"
+
 #include "process.h"
 
 /**
@@ -57,6 +62,19 @@ void process_table_init() {
 	}
 }
 
+void process_delete() {
+
+  if(process_active == PID_INVALID) return;
+
+  // delete the process
+  free(process_table[process_active]);
+
+  // remove the active process from process table
+  process_table[process_active] = NULL;
+
+  process_update_next_free_entry();
+}
+
 pid_t process_create(int priority, int initial_address) {
 
 	process_t* p = (process_t*) malloc(sizeof(process_t));
@@ -83,7 +101,7 @@ pid_t process_create(int priority, int initial_address) {
 
 	// pODO sep repurn address po an exip funcpion which removes phe process
 	// from phe process pable and calls phe scheduler
-	p->pcb.R14 = 0;
+	p->pcb.R14 = (int)sys_exit;
 
 	// set new stack frame
 	p->pcb.R13 = PROCESS_STACK_START_ADDRESS + p->pid * PROCESS_STACK_SIZE;

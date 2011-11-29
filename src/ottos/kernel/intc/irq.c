@@ -28,25 +28,26 @@
 
 #include <arch/arm/omap353x_intc.h>
 
+#include "../timer/timer.h"
 #include "../pm/process.h"
 #include "../sched/scheduler.h"
-#include "irq.h"
-#include "../timer/timer.h"
 
-asm(" .bss _pcb1, 4 ");
-asm(" .bss _pcb2, 4 ");
+#include "irq.h"
+
+asm(" .bss _pcb_old, 4 ");
+asm(" .bss _pcb_new, 4 ");
 asm(" .bss _stack_pointer_saved_context, 4 ");
 
-asm(" .global _pcb1 ");
-asm(" .global _pcb2 ");
+asm(" .global _pcb_old ");
+asm(" .global _pcb_new ");
 asm(" .global _stack_pointer_saved_context ");
 
-asm("pcb1 .field _pcb1, 32 ");
-asm("pcb2 .field _pcb2, 32 ");
+asm("pcb_old .field _pcb_old, 32 ");
+asm("pcb_new .field _pcb_new, 32 ");
 asm("stack_pointer_saved_context .field _stack_pointer_saved_context, 32 ");
 
-extern int pcb1;
-extern int pcb2;
+extern int pcb_old;
+extern int pcb_new;
 extern int stack_pointer_saved_context;
 
 static void (*int_handler_[IRQ_MAX_COUNT])();
@@ -55,7 +56,7 @@ void context_switch();
 
 void irq_register_context_switch() {
   // register context switch
-  timer_add_handler(context_switch, 100);
+  timer_add_handler(context_switch, 10);
 }
 
 void irq_init() {
@@ -111,23 +112,27 @@ void context_switch() {
   asm(" LDR     R13, stack_pointer_saved_context");
   asm(" LDR     R13, [R13], #0");
 
-  pcb1 = PID_INVALID;
+  pcb_old = PID_INVALID;
   if (process_active != PID_INVALID) {
+    process_table[process_active]->state = READY;
+
     // Get the TCB's of the processes to switch the context
-    pcb1 = (int) &process_table[process_active]->pcb.CPSR;
+    pcb_old = (int) &process_table[process_active]->pcb.CPSR;
   }
   scheduler_next();
-  pcb2 = (int) &process_table[process_active]->pcb.CPSR;
+  process_table[process_active]->state = RUNNING;
+
+  pcb_new = (int) &process_table[process_active]->pcb.CPSR;
 
   // Load addresses of the TCB's of the Tasks to switch into R0 and R1
-  if (pcb1 != PID_INVALID) {
-    asm(" LDR     R0, pcb1 ;" );
+  if (pcb_old != PID_INVALID) {
+    asm(" LDR     R0, pcb_old ;" );
     asm(" LDR     R0, [R0], #0 ;" );
   }
-  asm(" LDR     R1, pcb2 ;" );
+  asm(" LDR     R1, pcb_new ;" );
   asm(" LDR     R1, [R1], #0 ;" );
 
-  if (pcb1 != PID_INVALID) {
+  if (pcb_old != PID_INVALID) {
     // First store the old precess's User mode state to the PCB pointed to by R0."
     asm(" MRS     R12, SPSR             ; Get CPSR of interrupted process" );
     asm(" STR     R12, [R0], #8         ; Store CPSR to PCB, point R0 at PCB location for R0 value" );
@@ -136,12 +141,7 @@ void context_switch() {
     asm(" LDMFD   R13!, {R2, R3, R12, R14} ; Reload remaining stacked values" );
     asm(" STR     R14, [R0, #-12]       ; Store R14_irq, the interrupted process's restart address" );
     asm(" STMIA   R0, {R2-R14}^         ; Store user R2-R14 ");
-  } else {
-    // restore old stack pointer of the interrupt handler
-    // 6 registers are on the stack, therefore we have to add
-    // 6 * 4 bytes to restore the stack pointer
-    asm(" ADD     R13, R13, #24");
-  }
+  } // TODO (thomas.bargetz@gmail.com) else: decrase stack pointer?
 
   // Then load the new process's User mode state and return to it.");
   asm(" LDMIA   R1!, {R12, R14}       ; Put interrupted process's CPSR" );
@@ -149,9 +149,12 @@ void context_switch() {
   asm(" LDMIA   R1, {R0-R14}^         ; Load user R0-R14" );
   asm(" NOP                           ; Note: cannot use banked register immediately after User mode LDM" );
 
-  //  // !! The next line is a added to the code in the ARM-book, because
-  //  // normally this would be called at the end of the function, but we don't reach that
-  //  asm(" ADD     R13, R13, #4 ");
+  // restore old stack pointer of the interrupt handler
+  // 6 registers are on the stack, therefore we have to add
+  // 6 * 4 bytes to restore the stack pointer
+  asm(" LDR     R13, stack_pointer_saved_context");
+  asm(" LDR     R13, [R13], #0");
+  asm(" ADD     R13, R13, #24");
 
   asm(" MOVS    PC, R14               ; Return to address in R14_irq, with SPSR_irq -> CPSR transfer" );
 }
@@ -160,7 +163,7 @@ void context_switch() {
 EXTERN void irq_handle() {
 
   // This will be called before entering the function
-  // SUB R13, R13, #4
+  // SUB R14, R14, #4
 
   asm(" SUB     R14, R14, #4            ; Put return address of the interrupted task into R14 ");
   asm(" STMFD   R13!, {R0-R3, R12, R14} ; Save Process-Registers ");
@@ -182,8 +185,19 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
   // handle interrupts
   switch (r0) {
     case SYS_YIELD:
-      context_switch();
+      //context_switch();
       break;
+    case SYS_EXIT:
+      // TODO (thomas.bargetz@gmail.com) decrease stack pointer?
+
+      // delete the active process
+      process_delete();
+
+      // set the process_active to invalid
+      // to tell the context switch, that no
+      // old pcb has to be saved
+      process_active = PID_INVALID;
+      context_switch();
     default:
       // ignore
       break;

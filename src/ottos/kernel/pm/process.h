@@ -78,4 +78,7 @@ void process_table_init();
 // creates a new process and returns the pid of it
 pid_t process_create(int priority, int initial_address);
 
+// deletes the active process
+void process_delete();
+
 #endif /* PROCESS_C_H_ */

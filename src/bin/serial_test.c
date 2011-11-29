@@ -181,3 +181,31 @@ int serial_test_calculator() {
   }
   return 0;
 }
+
+int serial_test_write_exit_1() {
+  int i;
+  driver_t drv = driver_get(SERIAL_0);
+  drv.create(SERIAL_0);
+  drv.open(SERIAL_0);
+//  for(i = 0; i < 1000000; i++) {
+//   if(i > 300000) {
+     drv.write(SERIAL_0, 8, "exit_1\n\r");
+//   }
+//  }
+  drv.close(SERIAL_0);
+  return 0;
+}
+
+int serial_test_write_exit_2() {
+  int i;
+  driver_t drv = driver_get(SERIAL_0);
+  drv.create(SERIAL_0);
+  drv.open(SERIAL_0);
+//  for(i = 0; i < 310000; i++) {
+//   if(i > 300000) {
+     drv.write(SERIAL_0, 8, "exit_2\n\r");
+//   }
+//  }
+  drv.close(SERIAL_0);
+  return 0;
+}

@@ -31,6 +31,7 @@
  * Scheduler system calls
  */
 EXTERN void sys_yield();
+EXTERN void sys_exit();
 
 /**
  * I/O system calls

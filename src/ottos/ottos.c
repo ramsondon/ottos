@@ -60,21 +60,21 @@ void devices_test() {
   devices_init();
 }
 
-void process_test() {
-
-
-  process_table_init();
-
-  process_create(1, (int)toggle_led1_yield);
-  process_create(1, (int)toggle_led2_yield);
-
-  devices_init();
-
-  // switch to user mode
-  kernel_to_user_mode();
-  sys_yield();
-
-}
+//void process_test() {
+//
+//
+//  process_table_init();
+//
+//  process_create(1, (int)toggle_led1_yield);
+//  process_create(1, (int)toggle_led2_yield);
+//
+//  devices_init();
+//
+//  // switch to user mode
+//  kernel_to_user_mode();
+//  sys_yield();
+//
+//}
 
 void serial_test() {
 
@@ -87,9 +87,10 @@ void serial_test() {
 //    process_create(1, (int)toggle_led2_yield);
 
 
-   process_create(1, (int) led1_on);
-   process_create(1, (int) led1_off);
+   //process_create(1, (int) led1_on);
+   //process_create(1, (int) led1_off);
    process_create(1, (int) toggle_led1);
+   process_create(1, (int) toggle_led2);
    process_create(1, (int) serial_test_write_1);
    process_create(1, (int) serial_test_write_2);
    process_create(1, (int) serial_test_write_3);
@@ -117,12 +118,30 @@ void serial_test_calc() {
   serial_test_calculator();
 }
 
+void process_exit_test() {
+
+  process_table_init();
+  process_create(1, (int) serial_test_write_exit_1);
+  process_create(1, (int) serial_test_write_exit_2);
+  process_create(1, (int) toggle_led1);
+
+  devices_init();
+
+  irq_init();
+  timer_init();
+  irq_register_context_switch();
+  irq_enable();
+
+  kernel_to_user_mode();
+}
+
 int main(int argc, char **argv) {
 
 //  process_test();
-  timer_test();
+//  timer_test();
 //  serial_test();
 //  serial_test_calc();
+  process_exit_test();
 
   for(;;);
 
