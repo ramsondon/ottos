@@ -118,7 +118,9 @@ void context_switch() {
 
   pcb_old = PID_INVALID;
   if (process_active != PID_INVALID) {
-    process_table[process_active]->state = READY;
+    if(process_table[process_active]->state == RUNNING) {
+      process_table[process_active]->state = READY;
+    }
 
     // Get the TCB's of the processes to switch the context
     pcb_old = (int) &process_table[process_active]->pcb.CPSR;

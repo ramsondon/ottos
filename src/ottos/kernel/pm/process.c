@@ -24,6 +24,7 @@
 #include <stdlib.h>
 
 #include <ottos/system.h>
+#include <ottos/const.h>
 
 #include "../intc/irq.h"
 #include "../sched/scheduler.h"
@@ -46,25 +47,36 @@ int process_next_free_entry = 0;
 int process_active = -1;
 
 void process_update_next_free_entry() {
-	int i = 0;
-	for(i = 0; i < PROCESS_MAX_COUNT; i++) {
-		if(process_table[i] == NULL) {
-			process_next_free_entry = i;
-			return;
-		}
-	}
+  int i = 0;
+  for (i = 0; i < PROCESS_MAX_COUNT; i++) {
+    if (process_table[i] == NULL) {
+      process_next_free_entry = i;
+      return;
+    }
+  }
 }
 
 void process_table_init() {
-	int i = 0;
-	for(i = 0; i < PROCESS_MAX_COUNT; i++) {
-		process_table[i] = NULL;
-	}
+  int i = 0;
+  for (i = 0; i < PROCESS_MAX_COUNT; i++) {
+    process_table[i] = NULL;
+  }
 }
 
 void process_delete() {
 
-  if(process_active == PID_INVALID) return;
+  if (process_active == PID_INVALID) return;
+
+  if (process_table[process_active]->parent != NULL) {
+
+    // remove child from parent
+    process_table[process_active]->parent->child = NULL;
+
+    // unblock parent
+    if (process_table[process_active]->parent->state == BLOCKED) {
+      process_table[process_active]->parent->state = READY;
+    }
+  }
 
   // delete the process
   free(process_table[process_active]);
@@ -75,41 +87,55 @@ void process_delete() {
   process_update_next_free_entry();
 }
 
-pid_t process_create(int priority, int initial_address) {
+pid_t process_create(int priority, int initial_address, int wait_for_exit) {
 
-	process_t* p = (process_t*) malloc(sizeof(process_t));
-	p->pid = process_next_free_entry;
-	p->priority = priority;
-	p->state = READY;
+  process_t* p = (process_t*) malloc(sizeof(process_t));
+  p->pid = process_next_free_entry;
+  p->priority = priority;
+  p->state = READY;
 
-	p->pcb.R0 = 0;
-	p->pcb.R1 = 0;
-	p->pcb.R2 = 0;
-	p->pcb.R3 = 0;
-	p->pcb.R4 = 0;
-	p->pcb.R5 = 0;
-	p->pcb.R6 = 0;
-	p->pcb.R7 = 0;
-	p->pcb.R8 = 0;
-	p->pcb.R9 = 0;
-	p->pcb.R10 = 0;
-	p->pcb.R11 = 0;
-	p->pcb.R12 = 0;
+  if (process_active != PID_INVALID) {
+
+    process_table[process_active]->child = p;
+    p->parent = process_table[process_active];
+
+    if (wait_for_exit != FALSE) {
+      // the current process will be blocked until the
+      // child exited
+
+      // TODO is blocked the correct state?
+      process_table[process_active]->state = BLOCKED;
+    }
+  }
+
+  p->pcb.R0 = 0;
+  p->pcb.R1 = 0;
+  p->pcb.R2 = 0;
+  p->pcb.R3 = 0;
+  p->pcb.R4 = 0;
+  p->pcb.R5 = 0;
+  p->pcb.R6 = 0;
+  p->pcb.R7 = 0;
+  p->pcb.R8 = 0;
+  p->pcb.R9 = 0;
+  p->pcb.R10 = 0;
+  p->pcb.R11 = 0;
+  p->pcb.R12 = 0;
 
   p->pcb.restart_address = initial_address;
   p->pcb.CPSR = 0x80000110;
 
-	// pODO sep repurn address po an exip funcpion which removes phe process
-	// from phe process pable and calls phe scheduler
-	p->pcb.R14 = (int)sys_exit;
+  // pODO sep repurn address po an exip funcpion which removes phe process
+  // from phe process pable and calls phe scheduler
+  p->pcb.R14 = (int) sys_exit;
 
-	// set new stack frame
-	p->pcb.R13 = PROCESS_STACK_START_ADDRESS + p->pid * PROCESS_STACK_SIZE;
+  // set new stack frame
+  p->pcb.R13 = PROCESS_STACK_START_ADDRESS + p->pid * PROCESS_STACK_SIZE;
 
-	process_table[p->pid] = p;
+  process_table[p->pid] = p;
 
-	// find the next free entry in the process table
-	process_update_next_free_entry();
+  // find the next free entry in the process table
+  process_update_next_free_entry();
 
-	return p->pid;
+  return p->pid;
 }

@@ -27,6 +27,10 @@
 
 extern int toggle_led1(void);
 extern int toggle_led2(void);
+
+extern void toggle_led1_limited(void);
+extern void toggle_led2_limited(void);
+
 extern int toggle_led1_yield(void);
 extern int toggle_led2_yield(void);
 extern void led1_off();

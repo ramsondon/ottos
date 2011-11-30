@@ -55,12 +55,19 @@ typedef struct {
     int R14;
 } pcb_t;
 
-typedef struct {
+struct process {
     pid_t pid;
     int priority;
     enum ProcessState state;
     pcb_t pcb;
-} process_t;
+
+    // TODO is child the right name?
+    struct process* child;
+    // TODO is parent the right name?
+    struct process* parent;
+};
+
+typedef struct process process_t;
 
 // the process table contains all processes of the
 // operating system
@@ -76,7 +83,7 @@ EXTERN int process_active;
 void process_table_init();
 
 // creates a new process and returns the pid of it
-pid_t process_create(int priority, int initial_address);
+pid_t process_create(int priority, int initial_address, int wait_for_exit);
 
 // deletes the active process
 void process_delete();

@@ -23,6 +23,7 @@
 
 #include <ottos/system.h>
 #include <ottos/kernel.h>
+#include <ottos/const.h>
 
 
 #include "../../bin/led_test.h"
@@ -40,8 +41,8 @@ void timer_test() {
 
   process_table_init();
 
-  process_create(1, (int)toggle_led1);
-  process_create(1, (int)toggle_led2);
+  process_create(1, (int)toggle_led1, FALSE);
+  process_create(1, (int)toggle_led2, FALSE);
 
   devices_init();
 
@@ -90,14 +91,14 @@ void serial_test() {
 
    //process_create(1, (int) led1_on);
    //process_create(1, (int) led1_off);
-   process_create(1, (int) toggle_led1);
-   process_create(1, (int) toggle_led2);
+   process_create(1, (int) toggle_led1, FALSE);
+   process_create(1, (int) toggle_led2, FALSE);
    //process_create(1, (int) serial_test_write_1);
    //process_create(1, (int) serial_test_write_2);
    //process_create(1, (int) serial_test_write_3);
    //process_create(1, (int) serial_test_write_4);
    //process_create(1, (int) serial_test_write_5);
-   process_create(1, (int) serial_test_calculator);
+   process_create(1, (int) serial_test_calculator, FALSE);
 
     devices_init();
     serial_test_create();
@@ -118,8 +119,8 @@ void serial_test() {
 void serial_test_calc() {
 
   process_table_init();
-  process_create(1, (int) toggle_led1);
-  process_create(1, (int) serial_test_calculator);
+  process_create(1, (int) toggle_led1, FALSE);
+  process_create(1, (int) serial_test_calculator, FALSE);
 
   devices_init();
 
@@ -136,9 +137,9 @@ void serial_test_calc() {
 void process_exit_test() {
 
   process_table_init();
-  process_create(1, (int) serial_test_write_exit_1);
-  process_create(1, (int) serial_test_write_exit_2);
-  process_create(1, (int) toggle_led1);
+  process_create(1, (int) serial_test_write_exit_1, FALSE);
+  process_create(1, (int) serial_test_write_exit_2, FALSE);
+  process_create(1, (int) toggle_led1, FALSE);
 
   devices_init();
 
@@ -150,11 +151,15 @@ void process_exit_test() {
   kernel_to_user_mode();
 }
 
+void dummy_process() {
+  for(;;);
+}
+
 void console_test() {
 
   process_table_init();
-  process_create(1, (int) toggle_led1);
-  process_create(1, (int) console_start);
+  process_create(1, (int) dummy_process, FALSE);
+  process_create(1, (int) console_start, FALSE);
 
   devices_init();
 
