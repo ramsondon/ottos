@@ -36,13 +36,30 @@ enum ProcessState {
 };
 
 typedef struct {
+    int CPSR;
+    int restart_address;
+    int R0;
+    int R1;
+    int R2;
+    int R3;
+    int R4;
+    int R5;
+    int R6;
+    int R7;
+    int R8;
+    int R9;
+    int R10;
+    int R11;
+    int R12;
+    int R13;
+    int R14;
+} pcb_t;
+
+typedef struct {
     pid_t pid;
     int priority;
     enum ProcessState state;
-    // the initial address of the process (entry point, function pointer)
-    int initial_address;
-    int stack_pointer;
-    int started;
+    pcb_t pcb;
 } process_t;
 
 // the process table contains all processes of the
@@ -60,5 +77,8 @@ void process_table_init();
 
 // creates a new process and returns the pid of it
 pid_t process_create(int priority, int initial_address);
+
+// deletes the active process
+void process_delete();
 
 #endif /* PROCESS_C_H_ */

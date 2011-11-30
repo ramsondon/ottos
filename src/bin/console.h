@@ -1,4 +1,4 @@
-/* syscalls.h
+/* console.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,31 +17,13 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 27 Oct 2011
+ *  Created on: 29 Nov 2011
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#ifndef SYSCALLS_H_
-#define SYSCALLS_H_
+#ifndef CONSOLE_H_
+#define CONSOLE_H_
 
-/*
- * Process system calls
- */
-#define SYS_YIELD   1
-#define SYS_EXIT    8
+EXTERN int console_start();
 
-/**
- * I/O system calls
- */
-#define SYS_OPEN    2
-#define SYS_CLOSE   3
-#define SYS_READ    4
-#define SYS_WRITE   5
-
-/*
- * IPC system calls
- */
-#define SYS_SEND    6
-#define SYS_RECEIVE 7
-
-#endif /* SYSCALLS_H_ */
+#endif /* CONSOLE_H_ */
