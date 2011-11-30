@@ -34,19 +34,41 @@ void kernel_panic(const char* str) {
   kernel_halt();
 }
 
+void kernel_error(ERROR_CODE code, const char* message) {
+  char code_str[8];
+  itoa(code, code_str, 10);
+
+  kernel_print("ERROR [");
+  kernel_print(code_str);
+  kernel_print("]: ");
+  kernel_print(message);
+  kernel_print("\n");
+}
+
+void kernel_debug(ERROR_CODE code, const char* message) {
+
+}
+
 void kernel_print(const char* str) {
 //  // TODO(fdomig@gmail.com) Has to be refactored to use an own printf()
   driver_t serial_driver = driver_get(SERIAL_0);
-  const char * p = str;
-  int len = 0;
   serial_driver.create(SERIAL_0);
-
-  // TODO(fdomig@gmail.com): replace through strlen implementation
-  while(*p) p++;
-  len = p - str;
-  serial_driver.write(SERIAL_0, len, (char*)str);
+  serial_driver.write(SERIAL_0, strlen(str), (char*)str);
 }
 
 void kernel_halt() {
   for(;;);
+}
+
+void kernel_sleep(int ms) {
+  int i;
+  while (ms--) {
+    // this is approximately 1ms on Beagleboard C4 without caching
+    // @see http://code.google.com/p/puppybits/source/browse/lib/ksleep.c
+    for (i=0; i<1000; i++) {
+      asm("\t mov r0, r0 ;\n" \
+      "\t mov r0, r0 ;\n" \
+      "\t mov r0, r0");
+    }
+  }
 }

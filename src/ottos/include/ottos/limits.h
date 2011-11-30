@@ -33,6 +33,4 @@
 
 #define REGISTER_SIZE 16
 
-#define DEVICE_MAX_COUNT 30
-
 #endif /* LIMITS_H_ */

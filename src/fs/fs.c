@@ -1,4 +1,4 @@
-/* types.h
+/* fs.c
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,33 +17,36 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 21.10.2011
+ *  Created on: 25.11.2011
  *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#ifndef OTTOS_TYPES_H_
-#define OTTOS_TYPES_H_
+#include "fs.h"
+#include "vfat/fat_filelib.h"
+#include "../drivers/mmchs/mmchs.h"
 
-#include <ottos/const.h>
-#include <stdint.h>
+int fs_read(uint32 sector, uint8 *buffer, uint32 sector_count) {
 
-#ifndef _SIZE_T
-#define _SIZE_T
-typedef uint32_t size_t;
-#endif
+  mmchs_io_device->read(mmchs_io_device,
+                         sector * FS_SECTOR_SIZE,
+                         sector_count * FS_SECTOR_SIZE,
+                         buffer);
 
-typedef int BOOLEAN;
+  return 0;
+}
 
-typedef int pid_t;
-typedef volatile unsigned int mem_address_t;
-typedef int (*function_t)();
+int fs_write(uint32 sector, uint8 *buffer, uint32 sector_count) {
 
-typedef unsigned long address_t;
-typedef address_t file_t;
+  mmchs_io_device->write(mmchs_io_device,
+                           sector * FS_SECTOR_SIZE,
+                           sector_count * FS_SECTOR_SIZE,
+                           buffer);
 
-typedef struct message_t {
-    int pid_t;
-} message_t;
+  return 0;
+}
 
+void fs_init() {
+  fl_init();
+  fl_attach_media(fs_read, fs_write);
+}
 
-#endif /* OTTOS_TYPES_H_ */

@@ -1,12 +1,12 @@
 /* ottos.cc
- * 
+ *
  * Copyright (c) 2011 The ottos project.
  *
  * This work is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
  * any later version.
- * 
+ *
  * This work is distributed in the hope that it will be useful, but without
  * any warranty; without even the implied warranty of merchantability or
  * fitness for a particular purpose. See the GNU Lesser General Public License
@@ -24,7 +24,6 @@
 #include <ottos/system.h>
 #include <ottos/kernel.h>
 
-
 #include "../../bin/led_test.h"
 #include "../../bin/serial_test.h"
 #include "../../bin/console.h"
@@ -34,6 +33,11 @@
 #include "kernel/timer/timer.h"
 #include "dev/devices.h"
 #include "../hal/uart.h"
+
+#include "../fs/fs.h"
+#include "../fs/vfat/fat_filelib.h"
+
+#include "../../drivers/mmchs/mmchs.h"
 
 void timer_test() {
 
@@ -168,6 +172,12 @@ void console_test() {
   kernel_to_user_mode();
 }
 
+void fs_test() {
+  mmchs_init();
+  fs_init();
+  fl_listdirectory("/");
+}
+
 int main(int argc, char **argv) {
 
 //  process_test();
@@ -179,5 +189,5 @@ int main(int argc, char **argv) {
 
   for(;;);
 
-	return 0;
+  return 0;
 }
