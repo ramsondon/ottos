@@ -1,4 +1,4 @@
-/* types.h
+/* fs.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,33 +17,27 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 21.10.2011
+ *  Created on: 25.11.2011
  *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#ifndef OTTOS_TYPES_H_
-#define OTTOS_TYPES_H_
+#ifndef FS_H_
+#define FS_H_
 
 #include <ottos/const.h>
-#include <stdint.h>
+#include <ottos/types.h>
 
-#ifndef _SIZE_T
-#define _SIZE_T
-typedef uint32_t size_t;
-#endif
+#define FS_SECTOR_SIZE 512
+#define FATFS_NO_DEF_TYPES
 
-typedef int BOOLEAN;
+typedef uint32_t uint32;
+typedef uint16_t uint16;
+typedef uint8_t  uint8;
 
-typedef int pid_t;
-typedef volatile unsigned int mem_address_t;
-typedef int (*function_t)();
+EXTERN void fs_init();
 
-typedef unsigned long address_t;
-typedef address_t file_t;
+EXTERN int fs_read(uint32 sector, uint8 *buffer, uint32 sector_count);
 
-typedef struct message_t {
-    int pid_t;
-} message_t;
+EXTERN int fs_write(uint32 sector, uint8 *buffer, uint32 sector_count);
 
-
-#endif /* OTTOS_TYPES_H_ */
+#endif /* FS_H_ */

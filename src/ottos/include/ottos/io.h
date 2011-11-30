@@ -24,47 +24,22 @@
 #ifndef OTTOS_IO_H_
 #define OTTOS_IO_H_
 
+#include <stdio.h>
+#include <string.h>
+
 #include <ottos/types.h>
 #include <ottos/const.h>
-
-// include stdio as long as we do not have our own
-#include <stdio.h>
 
 #define STDIN    0
 #define STDOUT   1
 #define STDERR   2
 
-/**
- * Open a file.
- *
- * @param filename The filename to open.
- * @param mode The mode how to open the file.
- *             "r"  read only mode
- *             "w"  write only mode, truncate file to zero,
- *                  creates file if not existing
- *             "w+" read and write mode
- *             TODO(fdomig@gmail.com) add more modes
- * @return file The file pointer.
- */
-//EXTERN file_t* fopen(char* filename, char* mode);
+EXTERN char tolower(char c);
 
-/**
- * Close a file
- *
- * @param fp The file pointer.
- * @return The status code.
- */
-//EXTERN int fclose(file_t* fp);
+EXTERN char toupper(char c);
 
-/**
- * Writes a buffer to a given file.
- *
- * @param fp The file to write to.
- * @param size The size of one entry in the buffer.
- * @param count The number of entries in the buffer.
- * @param buffer The buffer to write to the file.
- * @return The status code.
- */
-//EXTERN int fwrite(file_t* fp, size_t size, size_t count, char* buffer);
+EXTERN char* itoa(int n, char* s, int b);
+
+EXTERN char* strrev(char* str);
 
 #endif /* OTTOS_IO_H_ */

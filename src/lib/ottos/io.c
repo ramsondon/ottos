@@ -21,22 +21,44 @@
  *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
+#include <stdlib.h>
+#include <string.h>
+
 #include <ottos/io.h>
 #include <ottos/types.h>
 #include <ottos/system.h>
 
-/*
-file_t* fopen(char* filename, char* mode) {
-  int flags = 0;
-  file_t* fp = (file_t *) sys_open(filename, flags);
-  return fp;
+char tolower(char c) {
+  return (c >= (char) 65 && c <= (char) 90) ? c + 32 : c;
 }
 
-int fclose(file_t* fp) {
-  return 0;
+char toupper(char c) {
+  return (c >= (char) 97 && c <= (char) 122) ? c - 32 : c;
 }
 
-int fwrite(file_t* fp, size_t size, size_t count, char* buffer) {
-  return 0;
+char* strrev(char* str) {
+  char *p1, *p2;
+  if (!str || !*str) return str;
+  for (p1 = str, p2 = str + strlen(str) - 1; p2 > p1; ++p1, --p2) {
+    *p1 ^= *p2;
+    *p2 ^= *p1;
+    *p1 ^= *p2;
+  }
+  return str;
 }
-*/
+
+char* itoa(int n, char* s, int b) {
+  static char digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+  int i=0, sign;
+  if ((sign = n) < 0) {
+    n = -n;
+  }
+  do {
+    s[i++] = digits[n % b];
+  } while ((n /= b) > 0);
+  if (sign < 0) {
+    s[i++] = '-';
+  }
+  s[i] = '\0';
+  return strrev(s);
+}
