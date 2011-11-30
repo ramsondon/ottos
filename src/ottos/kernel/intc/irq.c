@@ -56,7 +56,7 @@ void context_switch();
 
 void irq_register_context_switch() {
   // register context switch
-  timer_add_handler(context_switch, 10);
+  timer_add_handler(context_switch, 100);
 }
 
 void irq_init() {
@@ -141,20 +141,15 @@ void context_switch() {
     asm(" LDMFD   R13!, {R2, R3, R12, R14} ; Reload remaining stacked values" );
     asm(" STR     R14, [R0, #-12]       ; Store R14_irq, the interrupted process's restart address" );
     asm(" STMIA   R0, {R2-R14}^         ; Store user R2-R14 ");
-  } // TODO (thomas.bargetz@gmail.com) else: decrase stack pointer?
+  } else {
+    //asm(" ADD     R13, R13, #24"); // TODO (thomas.bargetz@gmail.com) restore stack pointer?
+  }
 
   // Then load the new process's User mode state and return to it.");
   asm(" LDMIA   R1!, {R12, R14}       ; Put interrupted process's CPSR" );
   asm(" MSR     SPSR_fsxc, R12        ; and restart address in SPSR_irq and R14_irq" );
   asm(" LDMIA   R1, {R0-R14}^         ; Load user R0-R14" );
   asm(" NOP                           ; Note: cannot use banked register immediately after User mode LDM" );
-
-  // restore old stack pointer of the interrupt handler
-  // 6 registers are on the stack, therefore we have to add
-  // 6 * 4 bytes to restore the stack pointer
-  asm(" LDR     R13, stack_pointer_saved_context");
-  asm(" LDR     R13, [R13], #0");
-  asm(" ADD     R13, R13, #24");
 
   asm(" MOVS    PC, R14               ; Return to address in R14_irq, with SPSR_irq -> CPSR transfer" );
 }
