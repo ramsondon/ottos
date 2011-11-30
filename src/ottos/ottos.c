@@ -92,14 +92,15 @@ void serial_test() {
    //process_create(1, (int) led1_off);
    process_create(1, (int) toggle_led1);
    process_create(1, (int) toggle_led2);
-   process_create(1, (int) serial_test_write_1);
-   process_create(1, (int) serial_test_write_2);
-   process_create(1, (int) serial_test_write_3);
-   process_create(1, (int) serial_test_write_4);
-   process_create(1, (int) serial_test_write_5);
-//   process_create(1, (int) serial_test_calculator);
+   //process_create(1, (int) serial_test_write_1);
+   //process_create(1, (int) serial_test_write_2);
+   //process_create(1, (int) serial_test_write_3);
+   //process_create(1, (int) serial_test_write_4);
+   //process_create(1, (int) serial_test_write_5);
+   process_create(1, (int) serial_test_calculator);
 
     devices_init();
+    serial_test_create();
 
     irq_init();
 
@@ -115,8 +116,21 @@ void serial_test() {
 }
 
 void serial_test_calc() {
+
+  process_table_init();
+  process_create(1, (int) toggle_led1);
+  process_create(1, (int) serial_test_calculator);
+
   devices_init();
-  serial_test_calculator();
+
+  irq_init();
+
+  timer_init();
+
+  irq_register_context_switch();
+
+  irq_enable();
+  kernel_to_user_mode();
 }
 
 void process_exit_test() {
@@ -137,8 +151,21 @@ void process_exit_test() {
 }
 
 void console_test() {
+
+  process_table_init();
+  process_create(1, (int) toggle_led1);
+  process_create(1, (int) console_start);
+
   devices_init();
-  console_start();
+
+  irq_init();
+
+  timer_init();
+
+  irq_register_context_switch();
+
+  irq_enable();
+  kernel_to_user_mode();
 }
 
 int main(int argc, char **argv) {
