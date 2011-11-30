@@ -22,10 +22,11 @@ SECTIONS
 ///////////////////////////// int_ram //////////////////////////////
 
    .intudef    > 0x4020FFC8
-  // .intswi     > 0x4020FFCC
+   .intswi     > 0x4020FFCC
+   .intirq     > 0x4020FFDC
    .intpabt	   > 0x4020FFEC
- //  .intdabt    > 0x4020FFF0
-   .intirq     > 0x4020FFDC   
+   .intdabt    > 0x4020FFF0
+   
 
    .bss        > int_ram {
        _kernelMasterTable = . ;
@@ -38,9 +39,8 @@ SECTIONS
    .data       > int_ram
    .cinit      > int_ram
    .cio        > int_ram
-   
 
-   .sysmem     > int_ram
+
    .switch     > int_ram
    .pinit      > int_ram {
    		*(.pinit)
@@ -51,6 +51,7 @@ SECTIONS
 ///////////////////////////// ext_ddr //////////////////////////////
    .const      > ext_ddr
    .text	   > ext_ddr
+   .sysmem     > ext_ddr
    .stackArea  > ext_ddr {
        . = . + (4 * 1024);
        kernelStack = .;

@@ -45,5 +45,9 @@ typedef struct message_t {
     int pid_t;
 } message_t;
 
+#define FALSE 0
+#define TRUE 1
+
+
 
 #endif /* OTTOS_TYPES_H_ */

@@ -58,6 +58,8 @@ mem_address_t *tableAddress = NULL;
 mem_address_t *tableAddress2 = NULL;
 
 //bool occupiedAddresses[MAX_PAGES_IN_MEMORY] = {false};
+bool occupiedAddresses_intram[MAX_PAGES_IN_MEMORY] = {FALSE};
+bool occupiedAddresses_ext_ddr[MAX_PAGES_IN_MEMORY] = {FALSE};
 
 
 void mmu_initMemoryForTask(int taskId) {
@@ -187,22 +189,12 @@ void mmu_initMemoryForTask(int taskId) {
                        *tableAddress2 = 0xFF000031;
   */
 
-
-
-
-
-
-
                        // Set the Master Table Pointer to the internal ram
                          asm("\t LDR r1, taskMasterTableAddress\n");
                          //asm("\t LDR r2, firstFreeInIntRam\n");
                          //asm("\t LDR r3, firstFreeInExtDDR\n");
                          asm("\t LDR r1, [r1]\n");
                          asm("\t MCR p15, #0, r1, c2, c0, #0\n");
-
-
-
-
 
         }
     }
