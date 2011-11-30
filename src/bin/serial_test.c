@@ -27,6 +27,7 @@
 #include <ottos/memory.h>
 
 #include "../drivers/serial/serial.h"
+#include "../ottos/kernel/pm/process.h"
 
 #include <ottos/system.h>
 
@@ -88,10 +89,10 @@ int serial_test_write_1() {
   drv.create(SERIAL_0);
   drv.open(SERIAL_0);
   for(i = 0;; i++) {
-   if(i > 300000) {
+   //if(i > 100000) {
      drv.write(SERIAL_0, 8, "PID: 1\n\r");
      i = 0;
-   }
+   //}
   }
   drv.close(SERIAL_0);
   return 0;
@@ -103,10 +104,10 @@ int serial_test_write_2() {
   drv.create(SERIAL_0);
   drv.open(SERIAL_0);
   for(i = 0;; i++) {
-   if(i > 300000) {
+   //if(i > 100000) {
      drv.write(SERIAL_0, 8, "PID: 2\n\r");
      i = 0;
-   }
+   //}
   }
   drv.close(SERIAL_0);
   return 0;
@@ -118,10 +119,10 @@ int serial_test_write_3() {
   drv.create(SERIAL_0);
   drv.open(SERIAL_0);
   for(i = 0;; i++) {
-   if(i > 300000) {
+   //if(i > 100000) {
      drv.write(SERIAL_0, 8, "PID: 3\n\r");
      i = 0;
-   }
+   //}
   }
   drv.close(SERIAL_0);
   return 0;
@@ -132,10 +133,10 @@ int serial_test_write_4() {
   drv.create(SERIAL_0);
   drv.open(SERIAL_0);
   for(i = 0;; i++) {
-   if(i > 300000) {
+   //if(i > 100000) {
      drv.write(SERIAL_0, 8, "PID: 4\n\r");
      i = 0;
-   }
+   //}
   }
   drv.close(SERIAL_0);
   return 0;
@@ -147,10 +148,10 @@ int serial_test_write_5() {
   drv.create(SERIAL_0);
   drv.open(SERIAL_0);
   for(i = 0;; i++) {
-   if(i > 300000) {
+   //if(i > 100000) {
      drv.write(SERIAL_0, 8, "PID: 5\n\r");
      i = 0;
-   }
+   //}
   }
   drv.close(SERIAL_0);
   return 0;
