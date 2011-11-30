@@ -33,6 +33,9 @@ EXTERN int serial_test_write_3();
 EXTERN int serial_test_write_4();
 EXTERN int serial_test_write_5();
 
+EXTERN int serial_test_write_exit_1();
+EXTERN int serial_test_write_exit_2();
+
 EXTERN int serial_test_test();
 EXTERN int serial_test_test_yield(void);
 EXTERN int serial_test_create(void);

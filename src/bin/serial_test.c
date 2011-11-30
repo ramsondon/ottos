@@ -21,6 +21,7 @@
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <ottos/drivers/driver.h>
 #include <ottos/memory.h>
@@ -167,17 +168,45 @@ int serial_test_calculator() {
 
     drv.write(SERIAL_0, 13, "\n\rEnter Op1:");
     drv.read(SERIAL_0, 1, buffer);
-    a = buffer[0];
+    a = atoi(buffer);
     drv.write(SERIAL_0, 1, buffer);
 
     drv.write(SERIAL_0, 13, "\n\rEnter Op2:");
     drv.read(SERIAL_0, 1, buffer);
-    b = buffer[0];
+    b = atoi(buffer);
     drv.write(SERIAL_0, 1, buffer);
     res = a + b;
-    buffer[0] = res;
+    sprintf(buffer, "%d", res);
     drv.write(SERIAL_0, 23, "\n\rResult of Op1 + Op2: ");
     drv.write(SERIAL_0, 1, buffer);
   }
+  return 0;
+}
+
+int serial_test_write_exit_1() {
+  int i;
+  driver_t drv = driver_get(SERIAL_0);
+  drv.create(SERIAL_0);
+  drv.open(SERIAL_0);
+//  for(i = 0; i < 1000000; i++) {
+//   if(i > 300000) {
+     drv.write(SERIAL_0, 8, "exit_1\n\r");
+//   }
+//  }
+  drv.close(SERIAL_0);
+  return 0;
+}
+
+int serial_test_write_exit_2() {
+  int i;
+  driver_t drv = driver_get(SERIAL_0);
+  drv.create(SERIAL_0);
+  drv.open(SERIAL_0);
+//  for(i = 0; i < 310000; i++) {
+//   if(i > 300000) {
+     drv.write(SERIAL_0, 8, "exit_2\n\r");
+//   }
+//  }
+  drv.close(SERIAL_0);
   return 0;
 }

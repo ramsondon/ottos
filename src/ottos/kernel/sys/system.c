@@ -53,6 +53,10 @@ void sys_yield() {
   swi(SYS_YIELD);
 }
 
+void sys_exit() {
+  swi(SYS_EXIT);
+}
+
 address_t sys_open(char* filename, int flags) {
 
   address_t  address = (address_t) (void*)0;
