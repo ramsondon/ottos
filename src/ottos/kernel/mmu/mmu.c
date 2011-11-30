@@ -79,8 +79,8 @@ void mmu_initMemoryForTask(int taskId) {
 
 
               // Set Domain Access control register to 0101 0101 0101 0101 0101 0101 0101 0111
-              asm("\t MOV r1, #0x5557\n");
-              asm("\t MOVT r1, #0x5555\n");
+              asm("\t MOV r1, #0xFFFF\n");
+              asm("\t MOVT r1, #0xFFFF\n");
               asm("\t MCR p15, #0, r1, c3, c0, #0\n");
 
 
