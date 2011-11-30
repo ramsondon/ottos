@@ -51,11 +51,14 @@ int serial_read(device_t dev, int count, char* buffer) {
   mem_address_t* uart = (mem_address_t*)UART3;
   int i = 0;
 
-  for (; i < count; i++, buffer++) {
+  for (; i < count; i++) {
     // block while waiting for data
     while (uart_is_empty_read_queue(uart))
       ;
-    uart_read(uart, buffer);
+    uart_read(uart, &buffer[i]);
+
+    // stop reading when receiving a return
+    if(buffer[i] == '\r') break;
   }
   return i;
 }
