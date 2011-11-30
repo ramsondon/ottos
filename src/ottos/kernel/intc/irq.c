@@ -37,18 +37,22 @@
 asm(" .bss _pcb_old, 4 ");
 asm(" .bss _pcb_new, 4 ");
 asm(" .bss _stack_pointer_saved_context, 4 ");
+asm(" .bss _stack_pointer_original, 4 ");
 
 asm(" .global _pcb_old ");
 asm(" .global _pcb_new ");
 asm(" .global _stack_pointer_saved_context ");
+asm(" .global _stack_pointer_original ");
 
 asm("pcb_old .field _pcb_old, 32 ");
 asm("pcb_new .field _pcb_new, 32 ");
 asm("stack_pointer_saved_context .field _stack_pointer_saved_context, 32 ");
+asm("stack_pointer_original .field _stack_pointer_original, 32 ");
 
 extern int pcb_old;
 extern int pcb_new;
 extern int stack_pointer_saved_context;
+extern int stack_pointer_original;
 
 static void (*int_handler_[IRQ_MAX_COUNT])();
 
@@ -142,7 +146,8 @@ void context_switch() {
     asm(" STR     R14, [R0, #-12]       ; Store R14_irq, the interrupted process's restart address" );
     asm(" STMIA   R0, {R2-R14}^         ; Store user R2-R14 ");
   } else {
-    //asm(" ADD     R13, R13, #24"); // TODO (thomas.bargetz@gmail.com) restore stack pointer?
+    asm(" LDR     R13, stack_pointer_original");
+    asm(" LDR     R13, [R13], #0");
   }
 
   // Then load the new process's User mode state and return to it.");
@@ -159,6 +164,9 @@ EXTERN void irq_handle() {
 
   // This will be called before entering the function
   // SUB R14, R14, #4
+
+  asm(" LDR     R4, stack_pointer_original");
+  asm(" STR     R13, [R4], #0");
 
   asm(" SUB     R14, R14, #4            ; Put return address of the interrupted task into R14 ");
   asm(" STMFD   R13!, {R0-R3, R12, R14} ; Save Process-Registers ");
@@ -183,7 +191,7 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
       //context_switch();
       break;
     case SYS_EXIT:
-      // TODO (thomas.bargetz@gmail.com) decrease stack pointer?
+      // TODO (thomas.bargetz@gmail.com) restore the original stack pointer of the interrupt handler?
 
       // delete the active process
       process_delete();
