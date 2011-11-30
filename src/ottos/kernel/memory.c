@@ -1,4 +1,4 @@
-/* types.h
+/* memory.c
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,33 +17,20 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 21.10.2011
+ *  Created on: 25.11.2011
  *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#ifndef OTTOS_TYPES_H_
-#define OTTOS_TYPES_H_
+#include <ottos/memory.h>
+#include <ottos/types.h>
 
-#include <ottos/const.h>
-#include <stdint.h>
+void* memory_init_32(void* buffer, size_t length, uint32_t value) {
+  do {
+    ((uint32_t*) buffer)[--length] = value;
+  } while (length != 0);
+  return buffer;
+}
 
-#ifndef _SIZE_T
-#define _SIZE_T
-typedef uint32_t size_t;
-#endif
-
-typedef int BOOLEAN;
-
-typedef int pid_t;
-typedef volatile unsigned int mem_address_t;
-typedef int (*function_t)();
-
-typedef unsigned long address_t;
-typedef address_t file_t;
-
-typedef struct message_t {
-    int pid_t;
-} message_t;
-
-
-#endif /* OTTOS_TYPES_H_ */
+void* memory_init_zero(void* buffer, size_t length) {
+  return memory_init_32(buffer, length, 0);
+}

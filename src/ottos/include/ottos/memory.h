@@ -24,12 +24,32 @@
 #ifndef MEMORY_H_
 #define MEMORY_H_
 
+#include <ottos/types.h>
+#include <bits.h>
 
 #define ARRAY_INIT(array, size, value) \
   { int i=0; \
   for(;i<size;i++) { \
     array[i]=value; } \
   }
+
+#define MMIO_WRITE32(addr, data) \
+  (*((mem_address_t *) addr) = data)
+
+#define MMIO_OR32(addr, or_data) \
+  (*((mem_address_t *) addr) |= or_data)
+
+#define MMIO_AND32(addr, and_data) \
+  (*((mem_address_t *) addr) &= and_data)
+
+#define MMIO_AND_THEN_OR32(addr, and_data, or_data) \
+  MMIO_AND32(addr, and_data); \
+  MMIO_OR32(addr, or_data)
+
+#define MMIO_READ32(addr) *((mem_address_t *) addr)
+
+EXTERN void* memory_init_32(void* buffer, size_t length, uint32_t value);
+EXTERN void* memory_init_zero(void* buffer, size_t length);
 
 
 #endif /* MEMORY_H_ */

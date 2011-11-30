@@ -1,4 +1,4 @@
-/* types.h
+/* error.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,33 +17,13 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 21.10.2011
+ *  Created on: 24.11.2011
  *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#ifndef OTTOS_TYPES_H_
-#define OTTOS_TYPES_H_
+#ifndef ERROR_H_
+#define ERROR_H_
 
-#include <ottos/const.h>
-#include <stdint.h>
+#define ERROR_CODE unsigned int
 
-#ifndef _SIZE_T
-#define _SIZE_T
-typedef uint32_t size_t;
-#endif
-
-typedef int BOOLEAN;
-
-typedef int pid_t;
-typedef volatile unsigned int mem_address_t;
-typedef int (*function_t)();
-
-typedef unsigned long address_t;
-typedef address_t file_t;
-
-typedef struct message_t {
-    int pid_t;
-} message_t;
-
-
-#endif /* OTTOS_TYPES_H_ */
+#endif /* ERROR_H_ */
