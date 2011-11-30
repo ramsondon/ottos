@@ -38,6 +38,7 @@
 #include "../hal/uart.h"
 
 #include "../fs/fs.h"
+#include "../fs/vfat/fat_filelib.h"
 
 #include "../../drivers/mmchs/mmchs.h"
 
@@ -137,9 +138,9 @@ int main(int argc, char **argv) {
 
   // process_test();
   // timer_test();
-  serial_test();
+  // serial_test();
   // serial_test_calc();
-  // fs_test();
+  fs_test();
 
   for (;;)
     ;

@@ -70,7 +70,7 @@ int fatfs_total_path_levels(char *path)
 	while (*path)
 	{
 		// Fast forward through actual subdir text to next slash
-		for (*path; *path;)
+		for (;*path;)
 		{
 			// If slash detected escape from for loop
 			if (*path == expectedchar) { path++; break; }

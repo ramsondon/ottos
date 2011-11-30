@@ -23,7 +23,6 @@
 
 #include <ottos/kernel.h>
 #include <ottos/io.h>
-#include <ottos/string.h>
 #include <ottos/drivers/driver.h>
 #include <ottos/dev/device.h>
 

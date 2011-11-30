@@ -29,6 +29,9 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
+
+#include <ottos/io.h>
+
 #include <stdlib.h>
 #include <string.h>
 #include "fat_misc.h"
@@ -104,7 +107,7 @@ char* fatfs_lfn_cache_get(struct lfn_cache *lfn)
 	else
 		lfn->String[0][0] = '\0';
 
-	return &lfn->String[0][0];
+	return (char*) &lfn->String[0][0];
 }
 #endif
 //-----------------------------------------------------------------------------

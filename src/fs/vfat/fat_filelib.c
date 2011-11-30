@@ -31,6 +31,9 @@
 //-----------------------------------------------------------------------------
 #include <stdlib.h>
 #include <string.h>
+
+#include <ottos/io.h>
+
 #include "fat_defs.h"
 #include "fat_access.h"
 #include "fat_table.h"

@@ -23,6 +23,9 @@
 
 #include "mmchs.h"
 
+#include <stdlib.h>
+#include <ottos/io.h>
+
 #include <ottos/memory.h>
 #include <ottos/kernel.h>
 #include <ottos/types.h>
@@ -99,7 +102,9 @@ static MMCHS_STATUS mmchs_send_cmd(uint32_t cmd, uint32_t cmd_int_en,
     } while (mmc_status == 0);
 
     // read status of command response
+    // XXX: here we get an error
     if ((mmc_status & ERRI) != 0) {
+
       // perform soft reset for mmci_cmd line
       MMIO_OR32(MMCHS_SYSCTL, SRC);
       while ((MMIO_READ32(MMCHS_SYSCTL) & SRC))
@@ -749,11 +754,12 @@ MMCHS_STATUS mmchs_detect_card() {
     ;
 
   //Soft reset for all.
-  MMIO_WRITE32(MMCHS_SYSCTL, SRA);
+  /*MMIO_WRITE32(MMCHS_SYSCTL, SRA);
   kernel_sleep(1);
 
   while ((MMIO_READ32(MMCHS_SYSCTL) & SRA) != 0x0)
     ;
+  */
 
   //Voltage capabilities initialization. Activate VS18 and VS30.
   MMIO_OR32(MMCHS_CAPA, (VS30 | VS18));
@@ -952,7 +958,9 @@ EXTERNAL_DEVICE* mmchs_io_device;
 
 MMCHS_STATUS mmchs_init() {
 
-  memory_init_zero(&mmchs_card_info, sizeof(mmchs_card_info));
+  //memory_init_zero(&mmchs_card_info, sizeof(mmchs_card_info));
+  memset(&mmchs_card_info, 0, sizeof(mmchs_card_info));
+  mmchs_io_device = malloc(sizeof(EXTERNAL_DEVICE));
 
   mmchs_io_device->read = mmchs_device_read;
   mmchs_io_device->write = mmchs_device_write;
