@@ -178,6 +178,8 @@ void console_test() {
 }
 
 void fs_test() {
+  devices_init();
+
   mmchs_init();
   fs_init();
   fl_listdirectory("/");
@@ -190,7 +192,8 @@ int main(int argc, char **argv) {
 //  serial_test();
 //  serial_test_calc();
 //  process_exit_test();
-  console_test();
+//  console_test();
+  fs_test();
 
   for(;;);
 
