@@ -40,6 +40,15 @@ struct lfn_cache
 //-----------------------------------------------------------------------------
 // Prototypes
 //-----------------------------------------------------------------------------
+
+/**
+ * OTTOS defined
+ */
+void fatfs_debug(int code, const char* message);
+
+/**
+ * LIB defined
+ */
 void	fatfs_lfn_cache_init(struct lfn_cache *lfn, int wipeTable);
 void	fatfs_lfn_cache_entry(struct lfn_cache *lfn, uint8 *entryBuffer);
 char*	fatfs_lfn_cache_get(struct lfn_cache *lfn);
