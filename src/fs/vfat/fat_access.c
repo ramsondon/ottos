@@ -60,26 +60,29 @@ int fatfs_init(struct fatfs *fs) {
   fatfs_fat_init(fs);
 
   // Make sure we have a read function (write function is optional)
-  if (!fs->disk_io.read_media)
+  if (!fs->disk_io.read_media) {
     fatfs_debug(FAT_INIT_MEDIA_ACCESS_ERROR,
                 "FAT init media access error. No 'read' function available.\n");
-  return FAT_INIT_MEDIA_ACCESS_ERROR;
+    return FAT_INIT_MEDIA_ACCESS_ERROR;
+  }
 
   // MBR: Sector 0 on the disk
   // NOTE: Some removeable media does not have this.
 
   // Load MBR (LBA 0) into the 512 byte buffer
-  if (!fs->disk_io.read_media(0, fs->currentsector.sector, 1))
+  if (!fs->disk_io.read_media(0, fs->currentsector.sector, 1)) {
     fatfs_debug(FAT_INIT_MEDIA_ACCESS_ERROR,
                 "FAT could not load MBR (LBA 0).\n");
-  return FAT_INIT_MEDIA_ACCESS_ERROR;
+    return FAT_INIT_MEDIA_ACCESS_ERROR;
+  }
 
   // Make Sure 0x55 and 0xAA are at end of sector
   // (this should be the case regardless of the MBR or boot sector)
   if (fs->currentsector.sector[SIGNATURE_POSITION] != 0x55
-      || fs->currentsector.sector[SIGNATURE_POSITION + 1] != 0xAA)
+      || fs->currentsector.sector[SIGNATURE_POSITION + 1] != 0xAA) {
     fatfs_debug(FAT_INIT_INVALID_SIGNATURE, "FAT invalid FAT signature.\n");
-  return FAT_INIT_INVALID_SIGNATURE;
+    return FAT_INIT_INVALID_SIGNATURE;
+  }
 
   // Now check again using the access function to prove endian conversion function
   if (GET_16BIT_WORD(fs->currentsector.sector, SIGNATURE_POSITION)
@@ -115,10 +118,10 @@ int fatfs_init(struct fatfs *fs) {
 
   if (valid_partition) {
     // Read LBA Begin for the file system
-    fs->lba_begin
-        = GET_32BIT_WORD(fs->currentsector.sector, PARTITION1_LBA_BEGIN_LOCATION);
-    partition_size
-        = GET_32BIT_WORD(fs->currentsector.sector, PARTITION1_SIZE_LOCATION);
+    fs->lba_begin = GET_32BIT_WORD(fs->currentsector.sector,
+        PARTITION1_LBA_BEGIN_LOCATION);
+    partition_size = GET_32BIT_WORD(fs->currentsector.sector,
+        PARTITION1_SIZE_LOCATION);
   }
   // Else possibly MBR less disk
   else fs->lba_begin = 0;
@@ -135,7 +138,7 @@ int fatfs_init(struct fatfs *fs) {
     char buffer[1024];
     sprintf(buffer, "FAT wrong sector size %d, should be %d\n",
             GET_16BIT_WORD(fs->currentsector.sector, 0x0B), FAT_SECTOR_SIZE);
-
+    fatfs_show_details(fs);
     fatfs_debug(FAT_INIT_INVALID_SECTOR_SIZE, buffer);
     return FAT_INIT_INVALID_SECTOR_SIZE;
   }
@@ -144,19 +147,21 @@ int fatfs_init(struct fatfs *fs) {
   fs->sectors_per_cluster = fs->currentsector.sector[BPB_SECPERCLUS];
   reserved_sectors = GET_16BIT_WORD(fs->currentsector.sector, BPB_RSVDSECCNT);
   num_of_fats = fs->currentsector.sector[BPB_NUMFATS];
-  fs->root_entry_count
-      = GET_16BIT_WORD(fs->currentsector.sector, BPB_ROOTENTCNT);
+  fs->root_entry_count = GET_16BIT_WORD(fs->currentsector.sector,
+      BPB_ROOTENTCNT);
 
-  if (GET_16BIT_WORD(fs->currentsector.sector, BPB_FATSZ16) != 0) fs->fat_sectors
-      = GET_16BIT_WORD(fs->currentsector.sector, BPB_FATSZ16);
-  else fs->fat_sectors
-      = GET_32BIT_WORD(fs->currentsector.sector, BPB_FAT32_FATSZ32);
+  if (GET_16BIT_WORD(fs->currentsector.sector, BPB_FATSZ16) != 0) {
+    fs->fat_sectors = GET_16BIT_WORD(fs->currentsector.sector, BPB_FATSZ16);
+  } else {
+    fs->fat_sectors = GET_32BIT_WORD(fs->currentsector.sector,
+        BPB_FAT32_FATSZ32);
+  }
 
   // For FAT32 (which this may be)
-  fs->rootdir_first_cluster
-      = GET_32BIT_WORD(fs->currentsector.sector, BPB_FAT32_ROOTCLUS);
-  fs->fs_info_sector
-      = GET_16BIT_WORD(fs->currentsector.sector, BPB_FAT32_FSINFO);
+  fs->rootdir_first_cluster = GET_32BIT_WORD(fs->currentsector.sector,
+      BPB_FAT32_ROOTCLUS);
+  fs->fs_info_sector = GET_16BIT_WORD(fs->currentsector.sector,
+      BPB_FAT32_FSINFO);
 
   // For FAT16 (which this may be), rootdir_first_cluster is actuall rootdir_first_sector
   fs->rootdir_first_sector = reserved_sectors + (num_of_fats * fs->fat_sectors);
@@ -169,9 +174,11 @@ int fatfs_init(struct fatfs *fs) {
   // The address of the first data cluster on this volume
   fs->cluster_begin_lba = fs->fat_begin_lba + (num_of_fats * fs->fat_sectors);
 
-  if (GET_16BIT_WORD(fs->currentsector.sector, 0x1FE) != 0xAA55) // This signature should be AA55
+  // This signature should be AA55
+  if (GET_16BIT_WORD(fs->currentsector.sector, 0x1FE) != 0xAA55) {
     fatfs_debug(FAT_INIT_INVALID_SIGNATURE, "FAT invalid signature");
     return FAT_INIT_INVALID_SIGNATURE;
+  }
 
   // Calculate the root dir sectors
   root_dir_sectors = ((GET_16BIT_WORD(fs->currentsector.sector, BPB_ROOTENTCNT)
@@ -182,22 +189,24 @@ int fatfs_init(struct fatfs *fs) {
       = GET_16BIT_WORD(fs->currentsector.sector, BPB_FATSZ16);
   else FATSz = GET_32BIT_WORD(fs->currentsector.sector, BPB_FAT32_FATSZ32);
 
-  if (GET_16BIT_WORD(fs->currentsector.sector, BPB_TOTSEC16) != 0) total_sectors
-      = GET_16BIT_WORD(fs->currentsector.sector, BPB_TOTSEC16);
-  else total_sectors = GET_32BIT_WORD(fs->currentsector.sector, BPB_TOTSEC32);
+  if (GET_16BIT_WORD(fs->currentsector.sector, BPB_TOTSEC16) != 0) {
+    total_sectors = GET_16BIT_WORD(fs->currentsector.sector, BPB_TOTSEC16);
+  } else {
+    total_sectors = GET_32BIT_WORD(fs->currentsector.sector, BPB_TOTSEC32);
+  }
 
-  data_sectors = total_sectors
-      - (GET_16BIT_WORD(fs->currentsector.sector, BPB_RSVDSECCNT)
-          + (fs->currentsector.sector[BPB_NUMFATS] * FATSz) + root_dir_sectors);
+  data_sectors = total_sectors - (GET_16BIT_WORD(fs->currentsector.sector,
+      BPB_RSVDSECCNT) + (fs->currentsector.sector[BPB_NUMFATS] * FATSz)
+      + root_dir_sectors);
 
   // Find out which version of FAT this is...
   if (fs->sectors_per_cluster != 0) {
     count_of_clusters = data_sectors / fs->sectors_per_cluster;
 
-    if (count_of_clusters < 4085)
-    // Volume is FAT12
-    return FAT_INIT_WRONG_FILESYS_TYPE;
-    else if (count_of_clusters < 65525) {
+    if (count_of_clusters < 4085) {
+      // Volume is FAT12
+      return FAT_INIT_WRONG_FILESYS_TYPE;
+    } else if (count_of_clusters < 65525) {
       // Clear this FAT32 specific param
       fs->rootdir_first_cluster = 0;
 
@@ -212,7 +221,8 @@ int fatfs_init(struct fatfs *fs) {
       return FAT_INIT_OK;
     }
   } else {
-    fatfs_debug(FAT_INIT_WRONG_FILESYS_TYPE, "FAT init failed, wrong FILESYS_TYPE.\n");
+    fatfs_debug(FAT_INIT_WRONG_FILESYS_TYPE,
+                "FAT init failed, wrong FILESYS_TYPE.\n");
     return FAT_INIT_WRONG_FILESYS_TYPE;
   }
 }

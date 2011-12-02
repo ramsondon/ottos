@@ -162,6 +162,8 @@ void dummy_process() {
 void console_test() {
 
   process_table_init();
+  process_create(1, (int) toggle_led1, FALSE);
+  process_create(1, (int) toggle_led2, FALSE);
   process_create(1, (int) dummy_process, FALSE);
   process_create(1, (int) console_start, FALSE);
 
