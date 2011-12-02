@@ -144,7 +144,7 @@ void context_switch() {
     asm(" STR     R12, [R0], #8         ; Store CPSR to PCB, point R0 at PCB location for R0 value" );
     asm(" LDMFD   R13!, {R2, R3}        ; Reload R0/R1 of interrupted process from stack" );
     asm(" STMIA   R0!, {R2, R3}         ; Store R0/R1 values to PCB, point R0 at PCB location for R2 value" );
-    asm(" LDMFD   R13!, {R2, R3, R12, R14} ; Reload remaining stacked values" );
+    asm(" LDMFD   R13!, {R2-R12, R14} ; Reload remaining stacked values" );
     asm(" STR     R14, [R0, #-12]       ; Store R14_irq, the interrupted process's restart address" );
     asm(" STMIA   R0, {R2-R14}^         ; Store user R2-R14 ");
   } else {
@@ -167,21 +167,30 @@ EXTERN void irq_handle() {
   // This will be called before entering the function
   // SUB R14, R14, #4
 
+  /*asm(" PUSH    {R4}");
   asm(" LDR     R4, stack_pointer_original");
+  asm(" ADD     R13, R13, #4");
   asm(" STR     R13, [R4], #0");
+  asm(" SUB     R13, R13, #4");
+  asm(" PUSH    {R4}");*/
+
+  /*asm(" LDR     R4, stack_pointer_original");
+  asm(" STR     R13, [R4], #0");*/
 
   asm(" SUB     R14, R14, #4            ; Put return address of the interrupted task into R14 ");
-  asm(" STMFD   R13!, {R0-R3, R12, R14} ; Save Process-Registers ");
+  asm(" STMFD   R13!, {R0-R12, R14} ; Save Process-Registers ");
 
   asm(" LDR     R0, stack_pointer_saved_context");
   asm(" STR     R13, [R0], #0");
+
+  stack_pointer_original = stack_pointer_saved_context - (13 * 4);
 
   *((mem_address_t*) (MPU_INTC + INTCPS_CONTROL)) |= 0x1;
 
   /* forward the interrupt to the handler routine */
   irq_handle_irq(*((mem_address_t*) (MPU_INTC + INTCPS_SIR_IRQ)));
 
-  asm(" LDMFD   R13!, {R0-R3, R12, PC}^");
+  asm(" LDMFD   R13!, {R0-R12, PC}^");
 }
 
 //#pragma TASK(irq_handle_swi)
