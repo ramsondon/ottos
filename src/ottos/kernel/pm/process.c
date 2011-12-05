@@ -139,5 +139,11 @@ pid_t process_create(int priority, int initial_address, int wait_for_exit) {
   // find the next free entry in the process table
   process_update_next_free_entry();
 
+  if(wait_for_exit != FALSE) {
+    // block current process
+    // switch to next process
+    sys_yield();
+  }
+
   return p->pid;
 }

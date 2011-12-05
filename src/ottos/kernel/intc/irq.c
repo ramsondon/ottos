@@ -199,7 +199,7 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
   // handle interrupts
   switch (r0) {
     case SYS_YIELD:
-      //context_switch();
+      context_switch();
       break;
     case SYS_EXIT:
       // TODO (thomas.bargetz@gmail.com) restore the original stack pointer of the interrupt handler?
