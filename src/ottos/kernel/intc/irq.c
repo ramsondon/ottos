@@ -167,23 +167,13 @@ EXTERN void irq_handle() {
   // This will be called before entering the function
   // SUB R14, R14, #4
 
-  /*asm(" PUSH    {R4}");
-  asm(" LDR     R4, stack_pointer_original");
-  asm(" ADD     R13, R13, #4");
-  asm(" STR     R13, [R4], #0");
-  asm(" SUB     R13, R13, #4");
-  asm(" PUSH    {R4}");*/
-
-  /*asm(" LDR     R4, stack_pointer_original");
-  asm(" STR     R13, [R4], #0");*/
-
   asm(" SUB     R14, R14, #4            ; Put return address of the interrupted task into R14 ");
   asm(" STMFD   R13!, {R0-R12, R14} ; Save Process-Registers ");
 
   asm(" LDR     R0, stack_pointer_saved_context");
   asm(" STR     R13, [R0], #0");
 
-  stack_pointer_original = stack_pointer_saved_context - (13 * 4);
+  stack_pointer_original = stack_pointer_saved_context + (14 * 4);
 
   *((mem_address_t*) (MPU_INTC + INTCPS_CONTROL)) |= 0x1;
 
