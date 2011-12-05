@@ -34,6 +34,9 @@
 
 #include "irq.h"
 
+#define SAVED_REGISTERS_SPACE (14 * 4)
+#define SWI_PARAMETERS_SPACE (4 * 4)
+
 asm(" .bss _pcb_old, 4 ");
 asm(" .bss _pcb_new, 4 ");
 asm(" .bss _stack_pointer_saved_context, 4 ");
@@ -168,12 +171,12 @@ EXTERN void irq_handle() {
   // SUB R14, R14, #4
 
   asm(" SUB     R14, R14, #4            ; Put return address of the interrupted task into R14 ");
-  asm(" STMFD   R13!, {R0-R12, R14} ; Save Process-Registers ");
+  asm(" STMFD   R13!, {R0-R12, R14}     ; Save Process-Registers ");
 
   asm(" LDR     R0, stack_pointer_saved_context");
   asm(" STR     R13, [R0], #0");
 
-  stack_pointer_original = stack_pointer_saved_context + (14 * 4);
+  stack_pointer_original = stack_pointer_saved_context + SAVED_REGISTERS_SPACE;
 
   *((mem_address_t*) (MPU_INTC + INTCPS_CONTROL)) |= 0x1;
 
@@ -183,8 +186,15 @@ EXTERN void irq_handle() {
   asm(" LDMFD   R13!, {R0-R12, PC}^");
 }
 
-//#pragma TASK(irq_handle_swi)
+#pragma TASK(irq_handle_swi)
 EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
+
+  asm(" STMFD   R13!, {R0-R12, R14} ; Save Process-Registers ");
+
+  asm(" LDR     R0, stack_pointer_saved_context");
+  asm(" STR     R13, [R0], #0");
+
+  stack_pointer_original = stack_pointer_saved_context + SAVED_REGISTERS_SPACE + SWI_PARAMETERS_SPACE;
 
   // handle interrupts
   switch (r0) {
@@ -206,4 +216,6 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
       // ignore
       break;
   }
+
+  asm(" LDMFD   R13!, {R0-R12, PC}^");
 }

@@ -93,6 +93,8 @@ pid_t process_create(int priority, int initial_address, int wait_for_exit) {
   p->pid = process_next_free_entry;
   p->priority = priority;
   p->state = READY;
+  p->child = NULL;
+  p->parent = NULL;
 
   if (process_active != PID_INVALID) {
 
