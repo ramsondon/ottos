@@ -103,13 +103,14 @@ void irq_handle_udef() {
 
 void irq_handle_dabt() {
   _disable_interrupts();
+  handleDataAbort();
   kernel_panic("data abort\n\r");
 }
 
 void irq_handle_pabt() {
   _disable_interrupts();
-  handlePrefetchAbort();
-  kernel_panic("prefetch abort\n\r");
+    handlePrefetchAbort();
+    kernel_panic("prefetch abort\n\r");
 }
 
 void context_switch() {

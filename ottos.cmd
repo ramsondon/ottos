@@ -38,9 +38,6 @@ SECTIONS
    .cio        > int_ram
    
    .switch     > int_ram
-   .text2      > int_ram {
-       abortHandler.obj
-   }
    .pinit      > int_ram {
        *(.pinit)
    		_intRamStart = .;

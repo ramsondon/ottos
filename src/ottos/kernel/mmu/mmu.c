@@ -23,6 +23,7 @@
 */
 #include "string.h"
 #include "mmu.h"
+#include "../intc/irq.h"
 
 
 asm("\t .bss _taskMasterTableAddress, 4\n" \
@@ -297,7 +298,8 @@ void initMemoryForTask(int taskId) {
             *tableAddress = 0xFFF00C12;
 
             enableMMU();
-            //lockFirstTLBEntry();
+            lockFirstTLBEntry();
+
         } else {
             taskMasterTableAddress = createMasterTable();
 
