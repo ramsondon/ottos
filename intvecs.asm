@@ -12,17 +12,9 @@
 	.global C_INTIRQ	; Interrupt Request
 
 	; interrupt sections
-	.sect ".intudef"
-	B C_INTUDEF ; Undefined Exception
-
-	.sect ".intswi"
+	.sect ".intvecs"
+	;B C_INTUDEF ; Undefined Exception
 	B C_INTSWI ; Software interrupt
-
-	.sect ".intpabt"
 	B C_INTPABT ; Prefetch abort
-
-	.sect ".intdabt"
 	B C_INTDABT ; Data abort
-
-	.sect ".intirq"
 	B C_INTIRQ ; Interrupt Request

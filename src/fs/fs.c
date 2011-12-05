@@ -1,4 +1,4 @@
-/* io.h
+/* fs.c
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,29 +17,36 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 04.11.2011
+ *  Created on: 25.11.2011
  *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#ifndef OTTOS_IO_H_
-#define OTTOS_IO_H_
+#include "fs.h"
+#include "vfat/fat_filelib.h"
+#include "../drivers/mmchs/mmchs.h"
 
-#include <stdio.h>
-#include <string.h>
+int fs_read(uint32 sector, uint8 *buffer, uint32 sector_count) {
 
-#include <ottos/types.h>
-#include <ottos/const.h>
+  mmchs_io_device->read(mmchs_io_device,
+                         sector * FS_SECTOR_SIZE,
+                         sector_count * FS_SECTOR_SIZE,
+                         buffer);
 
-#define STDIN    0
-#define STDOUT   1
-#define STDERR   2
+  return 0;
+}
 
-EXTERN char tolower(char c);
+int fs_write(uint32 sector, uint8 *buffer, uint32 sector_count) {
 
-EXTERN char toupper(char c);
+  mmchs_io_device->write(mmchs_io_device,
+                           sector * FS_SECTOR_SIZE,
+                           sector_count * FS_SECTOR_SIZE,
+                           buffer);
 
-EXTERN char* itoa(int n, char* s, int b);
+  return 0;
+}
 
-EXTERN char* strrev(char* str);
+void fs_init() {
+  fl_init();
+  fl_attach_media(fs_read, fs_write);
+}
 
-#endif /* OTTOS_IO_H_ */

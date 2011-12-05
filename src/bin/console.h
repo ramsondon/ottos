@@ -1,4 +1,4 @@
-/* io.h
+/* console.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,29 +17,13 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 04.11.2011
- *      Author: Franziskus Domig <fdomig@gmail.com>
+ *  Created on: 29 Nov 2011
+ *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#ifndef OTTOS_IO_H_
-#define OTTOS_IO_H_
+#ifndef CONSOLE_H_
+#define CONSOLE_H_
 
-#include <stdio.h>
-#include <string.h>
+EXTERN int console_start();
 
-#include <ottos/types.h>
-#include <ottos/const.h>
-
-#define STDIN    0
-#define STDOUT   1
-#define STDERR   2
-
-EXTERN char tolower(char c);
-
-EXTERN char toupper(char c);
-
-EXTERN char* itoa(int n, char* s, int b);
-
-EXTERN char* strrev(char* str);
-
-#endif /* OTTOS_IO_H_ */
+#endif /* CONSOLE_H_ */

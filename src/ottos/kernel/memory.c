@@ -1,4 +1,4 @@
-/* io.h
+/* memory.c
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,29 +17,20 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 04.11.2011
+ *  Created on: 25.11.2011
  *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#ifndef OTTOS_IO_H_
-#define OTTOS_IO_H_
-
-#include <stdio.h>
-#include <string.h>
-
+#include <ottos/memory.h>
 #include <ottos/types.h>
-#include <ottos/const.h>
 
-#define STDIN    0
-#define STDOUT   1
-#define STDERR   2
+void* memory_init_32(void* buffer, size_t length, uint32_t value) {
+  do {
+    ((uint32_t*) buffer)[--length] = value;
+  } while (length != 0);
+  return buffer;
+}
 
-EXTERN char tolower(char c);
-
-EXTERN char toupper(char c);
-
-EXTERN char* itoa(int n, char* s, int b);
-
-EXTERN char* strrev(char* str);
-
-#endif /* OTTOS_IO_H_ */
+void* memory_init_zero(void* buffer, size_t length) {
+  return memory_init_32(buffer, length, 0);
+}

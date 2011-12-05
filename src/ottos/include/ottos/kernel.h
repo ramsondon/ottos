@@ -24,6 +24,9 @@
 #ifndef KERNEL_H_
 #define KERNEL_H_
 
+#include <ottos/const.h>
+#include <ottos/error.h>
+
 /**
  * Must be executed without doing a function call. That is why this function
  * has to be inlined by the compiler.
@@ -35,17 +38,32 @@ inline void kernel_to_user_mode() {
 /**
  * Print a kernel panic message and halt the system.
  */
-extern void kernel_panic(const char* str);
+EXTERN void kernel_panic(const char* str);
 
 /**
  * Print a kernel message to STDOUT.
  */
-extern void kernel_print(const char* str);
+EXTERN void kernel_print(const char* str);
+
+/**
+ * Print a kernel ERROR message to STDOUT.
+ */
+EXTERN void kernel_error(ERROR_CODE code, const char* message);
+
+/**
+ * Print a kernel debug message to STDOUT.
+ */
+EXTERN void kernel_debug(ERROR_CODE code, const char* message);
 
 /**
  * Halt the system. This should only be called within a kernel_panic call
  * or at shutdown.
  */
-extern void kernel_halt();
+EXTERN void kernel_halt();
+
+/**
+ * Sleep for a given time in milliseconds.
+ */
+EXTERN void kernel_sleep(int ms);
 
 #endif /* KERNEL_H_ */

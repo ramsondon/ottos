@@ -1,4 +1,4 @@
-/* io.h
+/* fs.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,29 +17,27 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 04.11.2011
+ *  Created on: 25.11.2011
  *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#ifndef OTTOS_IO_H_
-#define OTTOS_IO_H_
+#ifndef FS_H_
+#define FS_H_
 
-#include <stdio.h>
-#include <string.h>
-
-#include <ottos/types.h>
 #include <ottos/const.h>
+#include <ottos/types.h>
 
-#define STDIN    0
-#define STDOUT   1
-#define STDERR   2
+#define FS_SECTOR_SIZE 512
+#define FATFS_NO_DEF_TYPES
 
-EXTERN char tolower(char c);
+typedef uint32_t uint32;
+typedef uint16_t uint16;
+typedef uint8_t  uint8;
 
-EXTERN char toupper(char c);
+EXTERN void fs_init();
 
-EXTERN char* itoa(int n, char* s, int b);
+EXTERN int fs_read(uint32 sector, uint8 *buffer, uint32 sector_count);
 
-EXTERN char* strrev(char* str);
+EXTERN int fs_write(uint32 sector, uint8 *buffer, uint32 sector_count);
 
-#endif /* OTTOS_IO_H_ */
+#endif /* FS_H_ */

@@ -27,14 +27,16 @@
 #include <ottos/const.h>
 #include <stdint.h>
 
-
 #ifndef _SIZE_T
 #define _SIZE_T
 typedef uint32_t size_t;
 #endif
 
+typedef int BOOLEAN;
+
 typedef int pid_t;
 typedef volatile unsigned int mem_address_t;
+typedef volatile unsigned int* address;
 
 typedef int (*function_t)();
 
@@ -45,8 +47,6 @@ typedef struct message_t {
     int pid_t;
 } message_t;
 
-#define FALSE 0
-#define TRUE 1
 
 
 
