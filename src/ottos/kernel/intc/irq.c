@@ -202,8 +202,6 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
       context_switch();
       break;
     case SYS_EXIT:
-      // TODO (thomas.bargetz@gmail.com) restore the original stack pointer of the interrupt handler?
-
       // delete the active process
       process_delete();
 
@@ -212,6 +210,23 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
       // old pcb has to be saved
       process_active = PID_INVALID;
       context_switch();
+    case SYS_CREATE_PROCESS:
+      // r1 = priority
+      // r2 = initial_address
+      // r3 = wait_for_exit
+      process_create(r1, r2);
+      if(r3 != FALSE) {
+        // the current process will be blocked until the
+        // child exited
+
+        // TODO is blocked the correct state?
+        process_table[process_active]->state = BLOCKED;
+
+        // block current process
+        // switch to next process
+        context_switch();
+      }
+      break;
     default:
       // ignore
       break;
