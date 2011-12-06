@@ -29,47 +29,29 @@
 enum MemoryType{INT_RAM, EXT_DDR};
 
 
-        void MMU_init();
+void MMU_init();
 
-        void enableMMU();
-
-        void initDomainAccess();
-
-        void setMasterTablePointerTo(address tableAddress);
-
-
-        address createMasterTable();
-
-        address createOrGetL2Table(address masterTableAddress, int masterTableEntryNumber);
-
-        void createMappedPage(address masterTableAddress, address virtualAddress);
-
-        void mapOneToOne(address masterTableAddress, address startAddress, unsigned int length);
-
-        void clearTLB();
-
-        void lockFirstTLBEntry();
-
-        address addressOfPage(enum MemoryType mem, int pageNumberInMemory);
-
-        void reservePages(enum MemoryType mem, int firstPageNumber, int nrOfPages);
-
-        void releasePages(enum MemoryType mem, int firstPageNumber, int nrOfPages);
-
-        address findFreeMemory(int nrOfPages, BOOLEAN align, BOOLEAN reserve);
+static void enableMMU();
+static void initDomainAccess();
+static void setMasterTablePointerTo(address tableAddress);
+static address createMasterTable();
+static address createOrGetL2Table(address masterTableAddress, int masterTableEntryNumber);
+static void createMappedPage(address masterTableAddress, address virtualAddress);
+static void mapOneToOne(address masterTableAddress, address startAddress, unsigned int length);
+static void clearTLB();
+static void lockFirstTLBEntry();
+static address addressOfPage(enum MemoryType mem, int pageNumberInMemory);
+static void reservePages(enum MemoryType mem, int firstPageNumber, int nrOfPages);
+static void releasePages(enum MemoryType mem, int firstPageNumber, int nrOfPages);
+static address findFreeMemory(int nrOfPages, BOOLEAN align, BOOLEAN reserve);
 
 
-        void initMemoryForTask(int taskId);
-
-        void loadPage(int pageNumber);
-
-        void prepagePagesFor(int serviceId);
-
-        address parameterAddressFor(int serviceId);
-
-        void handlePrefetchAbort();
-
-        void handleDataAbort();
+void initMemoryForTask(int taskId);
+void loadPage(int pageNumber);
+void prepagePagesFor(int serviceId);
+address parameterAddressFor(int serviceId);
+void handlePrefetchAbort();
+void handleDataAbort();
 
 
 

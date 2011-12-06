@@ -37,7 +37,10 @@ SECTIONS
    .stack      > int_ram
    .cio        > int_ram
    
-   .switch     > int_ram
+   .switch     > int_ram 
+   .text2      > int_ram {
+      irq.obj
+   }
    .pinit      > int_ram {
        *(.pinit)
    		_intRamStart = .;
