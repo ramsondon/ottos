@@ -32,7 +32,7 @@ int fs_read(uint32 sector, uint8 *buffer, uint32 sector_count) {
                          sector_count * FS_SECTOR_SIZE,
                          buffer);
 
-  return 0;
+  return 1;
 }
 
 int fs_write(uint32 sector, uint8 *buffer, uint32 sector_count) {
@@ -42,7 +42,7 @@ int fs_write(uint32 sector, uint8 *buffer, uint32 sector_count) {
                            sector_count * FS_SECTOR_SIZE,
                            buffer);
 
-  return 0;
+  return 1;
 }
 
 void fs_init() {
