@@ -42,7 +42,6 @@ int main(int argc, char **argv) {
   MMU_init();
   initMemoryForTask(0);
   initMemoryForTask(1);
-  asm("\t MOV PC,#0x1000");
 
 
   for(;;);

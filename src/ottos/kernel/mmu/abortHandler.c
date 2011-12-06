@@ -26,6 +26,7 @@
 void handlePageFault() {
 
 }
+/*
 #pragma INTERRUPT (PABT) ;
 extern void c_intPABT() {
    handlePrefetchAbort();
@@ -35,3 +36,4 @@ extern void c_intPABT() {
 extern void c_intDABT() {
    handleDataAbort();
 }
+*/

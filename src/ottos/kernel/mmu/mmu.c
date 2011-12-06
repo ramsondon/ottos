@@ -106,6 +106,8 @@ static void initDomainAccess() {
 static void clearTLB() {
     asm("\t MOV r0, #0x0\n");
     asm("\t MCR p15, #0, r0, c8, c7, #0\n");
+
+
 }
 
 static void lockFirstTLBEntry() {
@@ -118,6 +120,7 @@ static void lockFirstTLBEntry() {
     asm("\t MCR  p15, #0, r0, c10, c0, #1\n"); //Write I-TLB Lockdown Register
     asm("\t MCR  p15, #0, r1, c10, c1, #1\n"); //Prefetch I-TLB
     asm("\t MCR  p15, #0, r2, c10, c0, #1\n"); //Write I-TLB Lockdown Register
+
 }
 
 static void setMasterTablePointerTo(address tableAddress) {
@@ -131,6 +134,7 @@ static void setMasterTablePointerTo(address tableAddress) {
     asm("\t MCR p15, #0, r1, c2, c0, #0\n");
 
     clearTLB();
+
 }
 
 static address createMasterTable() {
@@ -298,7 +302,7 @@ void initMemoryForTask(int taskId) {
             *tableAddress = 0xFFF00C12;
 
             enableMMU();
-            lockFirstTLBEntry();
+            //lockFirstTLBEntry();
 
         } else {
             taskMasterTableAddress = createMasterTable();
