@@ -21,8 +21,8 @@
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef HAL_OMAP353X_H_
-#define HAL_OMAP353X_H_
+#ifndef HAL_OMAP353X_PLATFORM_H_
+#define HAL_OMAP353X_PLATFORM_H_
 
 /*
  * This file includes all OMAP 353X relevant header files
@@ -33,4 +33,4 @@
 #include "led.h"
 
 
-#endif /* HAL_OMAP353X_H_ */
+#endif /* HAL_OMAP353X_PLATFORM_H_ */
