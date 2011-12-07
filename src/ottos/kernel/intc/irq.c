@@ -25,8 +25,7 @@
 #include <ottos/const.h>
 #include <ottos/memory.h>
 #include <ottos/kernel.h>
-
-#include <arch/arm/omap353x_intc.h>
+#include <ottos/platform.h>
 
 #include "../timer/timer.h"
 #include "../pm/process.h"

@@ -21,11 +21,11 @@
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#include <arch/arm/omap353x_uart.h>
 #include <ottos/types.h>
 
+#include "../../hal/platform.h"
+#include "../../drivers/uart/uart.h"
 #include "serial.h"
-#include "../../hal/uart.h"
 
 static int init_uart_rs232_ = FALSE;
 
