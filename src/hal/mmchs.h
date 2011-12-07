@@ -29,7 +29,8 @@
 
 #define EN_MMC1           BIT24
 
-
+#define CONTROL_PADCONF_MMC1_CLK 0x48002144
+#define INPUT_ENABLE             BIT8
 
 //MMC/SD/SDIO1 register definitions.
 #define MMCHS1BASE        0x4809C000

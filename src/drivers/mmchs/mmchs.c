@@ -843,18 +843,21 @@ MMCHS_STATUS mmchs_detect_card() {
   MMIO_WRITE32(MMCHS_HCTL, (SDVS_3_0_V));
   MMIO_OR32(MMCHS_HCTL, (DTW_1_BIT | SDBP_OFF));
 
-  //Enable internal clock
-  MMIO_OR32(MMCHS_SYSCTL, ICE);
-
-  //Set the clock frequency to 80KHz.
-  mmchs_update_clk_freq(CLKD_80KHZ);
-
   //Enable SD bus power.
   MMIO_OR32(MMCHS_HCTL, (SDBP_ON));
 
   //Poll till SD bus power bit is set.
   while ((MMIO_READ32(MMCHS_HCTL) & SDBP_MASK) != SDBP_ON)
     ;
+
+  //Enable internal clock
+  MMIO_OR32(MMCHS_SYSCTL, ICE);
+
+  // MMCHS controller INIT procedure
+  MMIO_OR3(CONTROL_PADCONF_MMC1_CLK, INPUT_ENABLE);
+
+  //Set the clock frequency to 80KHz.
+  mmchs_update_clk_freq(CLKD_80KHZ);
 
   //Card idenfication
   status = mmchs_perform_card_identification();
