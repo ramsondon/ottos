@@ -24,6 +24,13 @@
 #ifndef HAL_MMCHS_H_
 #define HAL_MMCHS_H_
 
+#define CM_FCLKEN1_CORE   0x48004A00
+#define CM_ICLKEN1_CORE   (CM_FCLKEN1_CORE + 0x10)
+
+#define EN_MMC1           BIT24
+
+
+
 //MMC/SD/SDIO1 register definitions.
 #define MMCHS1BASE        0x4809C000
 #define MMC_REFERENCE_CLK (96000000)
@@ -173,7 +180,7 @@
 #define CMD1              (INDX(1) | RSP_TYPE_48BITS)
 #define CMD1_INT_EN       (CC_EN | CEB_EN | CTO_EN)
 
-#define CMD2              (INDX(2) | CCCE_ENABLE | RSP_TYPE_136BITS)
+#define CMD2              (INDX(2) | ~CCCE_ENABLE | RSP_TYPE_136BITS)
 #define CMD2_INT_EN       (CERR_EN | CIE_EN | CCRC_EN | CC_EN | CEB_EN | CTO_EN)
 
 #define CMD3              (INDX(3) | CICE_ENABLE | CCCE_ENABLE | RSP_TYPE_48BITS)

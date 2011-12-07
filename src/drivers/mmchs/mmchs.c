@@ -43,7 +43,7 @@ static BLOCK_IO_MEDIA mmchs_media = { SIGNATURE_32('s', 'd', 'i', 'o'), // media
                                       FALSE, // read only
                                       FALSE, // write caching
                                       512, // block size
-                                      4, // io allign
+                                      4, // io align
                                       0 // last block
     };
 
@@ -807,15 +807,14 @@ MMCHS_STATUS mmchs_detect_card() {
   }
 
   //Initialize MMC host controller clocks.
-  status = mmchs_init();
+/*  status = mmchs_init();
   if (mmchs_has_error(status)) {
-    /*DEBUG(
-     (EFI_D_ERROR, "Initialize MMC host controller fails. status: %x\n", status));*/
+    mmchs_debug(status, "Initialize MMC host controller fails.");
     return status;
   }
-
+*/
   //Software reset of the MMCHS host controller.
-  MMIO_WRITE32(MMCHS_SYSCONFIG, SOFTRESET);
+  MMIO_OR32(MMCHS_SYSCONFIG, SOFTRESET);
   kernel_sleep(1);
 
   while ((MMIO_READ32(MMCHS_SYSSTATUS) & RESETDONE_MASK) != RESETDONE)
@@ -835,11 +834,14 @@ MMCHS_STATUS mmchs_detect_card() {
   //Wakeup configuration
   MMIO_OR32(MMCHS_SYSCONFIG, ENAWAKEUP);
   MMIO_OR32(MMCHS_HCTL, IWE);
+  // CIRQ_ENABLE bit in MMC1.MMCHS[8] is not set because we don't support SDIO
 
   //MMCHS Controller default initialization
   MMIO_OR32(MMCHS_CON, (OD | DW8_1_4_BIT | CEATA_OFF));
 
-  MMIO_WRITE32(MMCHS_HCTL, (SDVS_3_0_V | DTW_1_BIT | SDBP_OFF));
+  //MMIO_WRITE32(MMCHS_HCTL, (SDVS_3_0_V | DTW_1_BIT | SDBP_OFF));
+  MMIO_WRITE32(MMCHS_HCTL, (SDVS_3_0_V));
+  MMIO_OR32(MMCHS_HCTL, (DTW_1_BIT | SDBP_OFF));
 
   //Enable internal clock
   MMIO_OR32(MMCHS_SYSCTL, ICE);
@@ -893,9 +895,7 @@ MMCHS_STATUS mmchs_read_write(BLOCK_IO_PROTOCOL *this, uint32_t lba,
   uint32_t bytes_to_be_tranfered_this_pass = 0;
   uint32_t bytes_remaining_to_be_transfered;
 
-  BOOLEAN update;
-
-  update = FALSE;
+  BOOLEAN update = FALSE;
 
   if (mmchs_media_change) {
     update = TRUE;
@@ -1008,7 +1008,7 @@ BLOCK_STATUS mmchs_write_blocks(BLOCK_IO_PROTOCOL *this, uint32_t media_id,
 }
 
 BLOCK_IO_PROTOCOL mmchs_block_io = { &mmchs_media, mmchs_read_blocks,
-                                     mmchs_write_blocks, };
+                                     mmchs_write_blocks };
 
 DEV_STATUS mmchs_device_read(EXTERNAL_DEVICE *this, uint32_t reg,
                              uint32_t length, void* buffer) {
@@ -1031,6 +1031,10 @@ MMCHS_STATUS mmchs_init() {
 
   mmchs_io_device->read = mmchs_device_read;
   mmchs_io_device->write = mmchs_device_write;
+
+  // enable interface and functional clock for the MMC controller
+  MMIO_OR32(CM_FCLKEN1_CORE, EN_MMC1);
+  MMIO_OR32(CM_ICLKEN1_CORE, EN_MMC1);
 
   return MMCHS_STATUS_SUCCESS;
 }
