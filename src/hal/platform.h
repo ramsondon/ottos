@@ -31,12 +31,15 @@
  * This is the main include file for the OttOS hardware abstraction layer.
  * All modules which require one part of the OttOS HAL must only include this
  * header file
+ *
+ *
+ * To get this piece to work we have to configure the compiler settings.
+ * Add the following definition to the command line pattern of your compiler:
+ * -DOMAP353X
  */
 
-/*
- * TODO(ramsondon@gmail.com): check with ifdef OMAP353X, then include
- */
+#ifdef OMAP353X
 #include "omap353x/platform.h"
-
+#endif
 
 #endif /* HAL_H_ */
