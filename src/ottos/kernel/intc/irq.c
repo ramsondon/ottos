@@ -32,7 +32,7 @@
 #include "../timer/timer.h"
 #include "../pm/process.h"
 #include "../sched/scheduler.h"
-#include "../mmu/mmu.h"
+//#include "../mmu/mmu.h"
 
 #include "irq.h"
 
@@ -103,13 +103,13 @@ void irq_handle_udef() {
 
 void irq_handle_dabt() {
   _disable_interrupts();
-  handleDataAbort();
+//  handleDataAbort();
   kernel_panic("data abort\n\r");
 }
 
 void irq_handle_pabt() {
   _disable_interrupts();
-    handlePrefetchAbort();
+//    handlePrefetchAbort();
     kernel_panic("prefetch abort\n\r");
 }
 

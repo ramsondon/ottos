@@ -34,15 +34,15 @@
 #include "dev/devices.h"
 #include "../hal/uart.h"
 
-#include "kernel/mmu/mmu.h"
+//#include "kernel/mmu/mmu.h"
 
 
 
-int main(int argc, char **argv) {
-  MMU_init();
-  initMemoryForTask(0);
-  initMemoryForTask(1);
-
+int main () {
+//  MMU_init();
+//  initMemoryForTask(0);
+//  initMemoryForTask(1);
+//  *(address)0x1004 = 5;
 
   for(;;);
 
