@@ -37,9 +37,8 @@
  * Add the following definition to the command line pattern of your compiler:
  * -DOMAP353X
  */
-
 #ifdef OMAP353X
 #include "omap353x/platform.h"
 #endif
 
-#endif /* HAL_H_ */
+#endif /* HAL_PLATFORM_H_ */
