@@ -31,10 +31,16 @@
 //-----------------------------------------------------------------------------
 
 #include <ottos/io.h>
+#include <ottos/kernel.h>
+
 
 #include <stdlib.h>
 #include <string.h>
 #include "fat_misc.h"
+
+void fatfs_debug(int code, const char* message) {
+  kernel_debug((unsigned int) code, message);
+}
 
 //-----------------------------------------------------------------------------
 // fatfs_lfn_cache_init: Clear long file name cache

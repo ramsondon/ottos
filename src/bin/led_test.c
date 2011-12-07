@@ -39,11 +39,11 @@ int toggle_led1_yield() {
   driver_t drv = driver_get(LED_0);
 
   drv.open(LED_0);
-  for(i = 0;; i++) {
-    if(i > 100000) {
+  for (i = 0;; i++) {
+    if (i > 100000) {
 
       drv.read(LED_0, 1, &state);
-      buffer = ((int)state == 0)? 1 : 0;
+      buffer = ((int) state == 0) ? 1 : 0;
       drv.write(LED_0, 1, &buffer);
       i = 0;
       sys_yield();
@@ -61,10 +61,10 @@ int toggle_led2_yield() {
   driver_t drv = driver_get(LED_1);
 
   drv.open(LED_1);
-  for(i = 0;; i++) {
-    if(i > 100000) {
+  for (i = 0;; i++) {
+    if (i > 100000) {
       drv.read(LED_1, 1, &state);
-      buffer = ((int)state == 0)? 1 : 0;
+      buffer = ((int) state == 0) ? 1 : 0;
       drv.write(LED_1, 1, &buffer);
       i = 0;
       sys_yield();
@@ -82,16 +82,16 @@ int toggle_led1() {
   driver_t drv = driver_get(LED_0);
 
   drv.open(LED_0);
-	for(i = 0;; i++) {
-		if(i > 100000) {
+  for (i = 0;; i++) {
+    if (i > 100000) {
 
-		  drv.read(LED_0, 1, &state);
-			buffer = ((int)state == 0)? 1 : 0;
-			drv.write(LED_0, 1, &buffer);
-		  i = 0;
-		}
-	}
-	drv.close(LED_0);
+      drv.read(LED_0, 1, &state);
+      buffer = ((int) state == 0) ? 1 : 0;
+      drv.write(LED_0, 1, &buffer);
+      i = 0;
+    }
+  }
+  drv.close(LED_0);
   return 0;
 }
 
@@ -103,15 +103,15 @@ int toggle_led2() {
   driver_t drv = driver_get(LED_1);
 
   drv.open(LED_1);
-	for(i = 0;; i++) {
-		if(i > 100000) {
-		  drv.read(LED_1, 1, &state);
-      buffer = ((int)state == 0)? 1 : 0;
+  for (i = 0;; i++) {
+    if (i > 100000) {
+      drv.read(LED_1, 1, &state);
+      buffer = ((int) state == 0) ? 1 : 0;
       drv.write(LED_1, 1, &buffer);
       i = 0;
-		}
-	}
-	drv.close(LED_1);
+    }
+  }
+  drv.close(LED_1);
   return 0;
 }
 
@@ -120,8 +120,8 @@ void led1_on() {
   char buffer;
   driver_t drv = driver_get(LED_1);
   drv.open(LED_1);
-  for(i = 0;; i++) {
-    if(i > 100000) {
+  for (i = 0;; i++) {
+    if (i > 100000) {
       buffer = 1;
       drv.write(LED_1, 1, &buffer);
       i = 0;
@@ -135,11 +135,45 @@ void led1_off() {
   char buffer;
   driver_t drv = driver_get(LED_1);
   drv.open(LED_1);
-  for(i = 0;; i++) {
-    if(i > 100000) {
+  for (i = 0;; i++) {
+    if (i > 100000) {
       buffer = 0;
       drv.write(LED_1, 1, &buffer);
       i = 0;
+    }
+  }
+  drv.close(LED_1);
+}
+
+void toggle_led1_limited() {
+  int i;
+  char buffer;
+  char state;
+  driver_t drv = driver_get(LED_0);
+
+  drv.open(LED_0);
+  for (i = 0; i < 1000000; i++) {
+    if (i % 100000 == 0) {
+      drv.read(LED_0, 1, &state);
+      buffer = ((int) state == 0) ? 1 : 0;
+      drv.write(LED_0, 1, &buffer);
+    }
+  }
+  drv.close(LED_0);
+}
+
+void toggle_led2_limited() {
+  int i;
+  char buffer;
+  char state;
+  driver_t drv = driver_get(LED_1);
+
+  drv.open(LED_1);
+  for (i = 0; i < 1000000; i++) {
+    if (i % 100000 == 0) {
+      drv.read(LED_1, 1, &state);
+      buffer = ((int) state == 0) ? 1 : 0;
+      drv.write(LED_1, 1, &buffer);
     }
   }
   drv.close(LED_1);
