@@ -55,12 +55,19 @@ typedef struct {
     int R14;
 } pcb_t;
 
-typedef struct {
+struct process {
     pid_t pid;
     int priority;
     enum ProcessState state;
     pcb_t pcb;
-} process_t;
+
+    // TODO is child the right name?
+    struct process* child;
+    // TODO is parent the right name?
+    struct process* parent;
+};
+
+typedef struct process process_t;
 
 // the process table contains all processes of the
 // operating system

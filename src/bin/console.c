@@ -27,10 +27,15 @@
 
 //#include <ottos/drivers/driver.h>
 //#include <ottos/memory.h>
+#include <ottos/const.h>
 
 #include "../drivers/serial/serial.h"
 
-//#include <ottos/system.h>
+#include "../ottos/kernel/pm/process.h"
+
+#include "led_test.h"
+
+#include <ottos/system.h>
 
 
 
@@ -55,10 +60,24 @@ int console_start() {
     buffer_length = drv.read(SERIAL_0, 255, buffer);
     buffer[buffer_length] = '\0';
 
-    if(strcmp("exit\r", buffer) == 0) {
+    if(strcmp("exit", buffer) == 0) {
       display_text = "\r\nBye Bye (wave)\r\n";
       drv.write(SERIAL_0, strlen(display_text), display_text);
       break;
+    } else if(strcmp("toggle1", buffer) == 0) {
+
+      sys_create_process(1, (int)toggle_led1_limited, TRUE);
+      //process_create(1, (int)toggle_led1_limited, TRUE);
+
+      display_text = "\r\nToggled LED 1\r\n";
+      drv.write(SERIAL_0, strlen(display_text), display_text);
+    } else if(strcmp("toggle2", buffer) == 0) {
+
+      sys_create_process(1, (int)toggle_led2_limited, FALSE);
+      //process_create(1, (int)toggle_led2_limited, TRUE);
+
+      display_text = "\r\nToggled LED 2\r\n";
+      drv.write(SERIAL_0, strlen(display_text), display_text);
     }
   }
   return 0;
