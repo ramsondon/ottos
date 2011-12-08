@@ -41,7 +41,7 @@ extern int reg_val;
   var = (int) reg_val;
 
 #pragma SWI_ALIAS(swi, 1)
-EXTERN void swi(int syscall_nr);
+EXTERN void swi(unsigned syscall_nr, unsigned param1, unsigned param2, unsigned param3);
 
 #define REG_0 "r0"
 #define REG_1 "r1"
@@ -50,11 +50,15 @@ EXTERN void swi(int syscall_nr);
 EXTERN
 
 void sys_yield() {
-  swi(SYS_YIELD);
+  swi(SYS_YIELD, 0, 0, 0);
 }
 
 void sys_exit() {
-  swi(SYS_EXIT);
+  swi(SYS_EXIT, 0, 0, 0);
+}
+
+void sys_create_process(int priority, int initial_address, int wait_for_exit) {
+  swi(SYS_CREATE_PROCESS, priority, initial_address, wait_for_exit);
 }
 
 address_t sys_open(char* filename, int flags) {
@@ -71,7 +75,7 @@ address_t sys_open(char* filename, int flags) {
   PUT_TO_REGISTER(REG_2, flags);
 
   // set system call
-  swi(SYS_OPEN);
+  swi(SYS_OPEN, 0, 0, 0);
 
   // read return
 

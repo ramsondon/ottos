@@ -29,6 +29,7 @@
  */
 #define SYS_YIELD   1
 #define SYS_EXIT    8
+#define SYS_CREATE_PROCESS 9
 
 /**
  * I/O system calls
