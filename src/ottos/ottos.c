@@ -45,8 +45,8 @@ void timer_test() {
 
   process_table_init();
 
-  process_create(1, (int)toggle_led1, FALSE);
-  process_create(1, (int)toggle_led2, FALSE);
+  process_create(1, (int)toggle_led1);
+  process_create(1, (int)toggle_led2);
 
   devices_init();
 
@@ -95,14 +95,14 @@ void serial_test() {
 
    //process_create(1, (int) led1_on);
    //process_create(1, (int) led1_off);
-   process_create(1, (int) toggle_led1, FALSE);
-   process_create(1, (int) toggle_led2, FALSE);
+   process_create(1, (int) toggle_led1);
+   process_create(1, (int) toggle_led2);
    //process_create(1, (int) serial_test_write_1);
    //process_create(1, (int) serial_test_write_2);
    //process_create(1, (int) serial_test_write_3);
    //process_create(1, (int) serial_test_write_4);
    //process_create(1, (int) serial_test_write_5);
-   process_create(1, (int) serial_test_calculator, FALSE);
+   process_create(1, (int) serial_test_calculator);
 
     devices_init();
     serial_test_create();
@@ -123,8 +123,8 @@ void serial_test() {
 void serial_test_calc() {
 
   process_table_init();
-  process_create(1, (int) toggle_led1, FALSE);
-  process_create(1, (int) serial_test_calculator, FALSE);
+  process_create(1, (int) toggle_led1);
+  process_create(1, (int) serial_test_calculator);
 
   devices_init();
 
@@ -141,9 +141,9 @@ void serial_test_calc() {
 void process_exit_test() {
 
   process_table_init();
-  process_create(1, (int) serial_test_write_exit_1, FALSE);
-  process_create(1, (int) serial_test_write_exit_2, FALSE);
-  process_create(1, (int) toggle_led1, FALSE);
+  process_create(1, (int) serial_test_write_exit_1);
+  process_create(1, (int) serial_test_write_exit_2);
+  process_create(1, (int) toggle_led1);
 
   devices_init();
 
@@ -162,10 +162,10 @@ void dummy_process() {
 void console_test() {
 
   process_table_init();
-  process_create(1, (int) toggle_led1, FALSE);
-  process_create(1, (int) toggle_led2, FALSE);
-  process_create(1, (int) dummy_process, FALSE);
-  process_create(1, (int) console_start, FALSE);
+  //process_create(1, (int) toggle_led1);
+  //process_create(1, (int) toggle_led2);
+  process_create(1, (int) dummy_process);
+  process_create(1, (int) console_start);
 
   devices_init();
 
@@ -180,11 +180,27 @@ void console_test() {
 }
 
 void fs_test() {
-  devices_init();
+  file_t* file;
+  char buffer[64];
+  char text[64] = "YOU ARE GAY\n";
 
+  devices_init();
   mmchs_init();
   fs_init();
   fl_listdirectory("/");
+
+//  file = (file_t*) fl_fopen("/GAYLORD.TXT", "w");
+//  fl_fwrite(text, 64, 64, file);
+//  fl_fclose(file);
+
+  fl_listdirectory("/test/");
+
+  file = (file_t*) fl_fopen("/GAYLORD.TXT", "r");
+  fl_fread(buffer, 64, 64, file);
+  kernel_print(buffer);
+  fl_fclose(file);
+
+
 }
 
 int main(int argc, char **argv) {

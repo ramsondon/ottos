@@ -60,8 +60,8 @@ static struct fat_list	_free_file_list;
 // Macro for checking if file lib is initialised
 #define CHECK_FL_INIT()		{ if (_filelib_init==0) fl_init(); }
 
-#define FL_LOCK(a)			do { if ((a)->fl_lock) (a)->fl_lock(); } while (0)
-#define FL_UNLOCK(a)		do { if ((a)->fl_unlock) (a)->fl_unlock(); } while (0)
+#define FL_LOCK(a)			//do { if ((a)->fl_lock) (a)->fl_lock(); } while (0)
+#define FL_UNLOCK(a)		//do { if ((a)->fl_unlock) (a)->fl_unlock(); } while (0)
 
 //-----------------------------------------------------------------------------
 // Local Functions

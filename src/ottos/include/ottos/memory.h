@@ -49,7 +49,10 @@
 #define MMIO_READ32(addr) *((mem_address_t *) addr)
 
 EXTERN void* memory_init_32(void* buffer, size_t length, uint32_t value);
+
 EXTERN void* memory_init_zero(void* buffer, size_t length);
+
+EXTERN void memory_print(uint8_t* memory, size_t size);
 
 
 #endif /* MEMORY_H_ */
