@@ -51,10 +51,10 @@ SECTIONS
 ///////////////////////////// ext_ddr //////////////////////////////
 ORDER
 
-   .text	   > ext_ddr
-   .bss        > ext_ddr
+	.text	   > ext_ddr
+	.bss        > ext_ddr
 	.sysmem     > ext_ddr
-   .stackArea  > ext_ddr {
+	.stackArea  > ext_ddr {
        . = . + (1* 1024);
        kernelStack = .;
 	   . = . + (1 * 1024);

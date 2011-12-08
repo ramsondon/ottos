@@ -20,6 +20,7 @@
 #define MAX_PAGES_IN_EXT_DDR 65536
 
 #define ROM_INTERRUPT_ENTRIES 0x14000
+#define ROM_INTERRUPT_LENGTH 0x1C
 #define INT_RAM_START 0x40200000
 #define EXT_DDR_START 0x82000000
 
@@ -31,19 +32,18 @@ enum MemoryType{INT_RAM, EXT_DDR};
 
 void MMU_init();
 
-void enableMMU();
-void initDomainAccess();
-void setMasterTablePointerTo(address tableAddress);
-address createMasterTable();
-address createOrGetL2Table(address masterTableAddress, int masterTableEntryNumber);
-void createMappedPage(address masterTableAddress, address virtualAddress);
-void mapOneToOne(address masterTableAddress, address startAddress, unsigned int length);
-void clearTLB();
-void lockFirstTLBEntry();
-address addressOfPage(enum MemoryType mem, int pageNumberInMemory);
-void reservePages(enum MemoryType mem, int firstPageNumber, int nrOfPages);
- void releasePages(enum MemoryType mem, int firstPageNumber, int nrOfPages);
- address findFreeMemory(int nrOfPages, BOOLEAN align, BOOLEAN reserve);
+static void enableMMU();
+static void initDomainAccess();
+static void setMasterTablePointerTo(address tableAddress);
+static address createMasterTable();
+static address createOrGetL2Table(address masterTableAddress, int masterTableEntryNumber);
+static void createMappedPage(address masterTableAddress, address virtualAddress);
+static void mapOneToOne(address masterTableAddress, address startAddress, unsigned int length);
+static void clearTLB();
+static address addressOfPage(enum MemoryType mem, int pageNumberInMemory);
+static void reservePages(enum MemoryType mem, int firstPageNumber, int nrOfPages);
+static  void releasePages(enum MemoryType mem, int firstPageNumber, int nrOfPages);
+static  address findFreeMemory(int nrOfPages, BOOLEAN align, BOOLEAN reserve);
 
 
 void initMemoryForTask(int taskId);

@@ -195,13 +195,13 @@ int main(int argc, char **argv) {
 //  serial_test();
 //  serial_test_calc();
 //  process_exit_test();
-//  console_test();
+ console_test();
 // fs_test();
 
     MMU_init();
     initMemoryForTask(0);
     initMemoryForTask(1);
-    asm("\t MOV PC ,#0x1000");
+    *(address)0x1004 = 5;
 
   for(;;);
 

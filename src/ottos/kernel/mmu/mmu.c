@@ -27,14 +27,14 @@
 
 
 asm("\t .bss _taskMasterTableAddress, 4\n" \
-    "\t .bss _globalVariable, 4\n" \
+    "\t .bss _tempVariableForAsmAndC, 4\n" \
     "\t .global _taskMasterTableAddress\n" \
-    "\t .global _globalVariable\n" \
+    "\t .global _tempVariableForAsmAndC\n" \
     "taskMasterTableAddress .field _taskMasterTableAddress, 32\n" \
-    "globalVariable .field _globalVariable, 32\n");
+    "tempVariableForAsmAndC .field _tempVariableForAsmAndC, 32\n");
 
 extern address taskMasterTableAddress;
-extern unsigned int globalVariable;
+extern unsigned int tempVariableForAsmAndC;
 extern volatile unsigned int kernelMasterTable;
 extern volatile unsigned int intRamStart;
 extern volatile unsigned int extDDRStart;
@@ -50,18 +50,7 @@ BOOLEAN m_occupiedPagesIntRam[MAX_PAGES_IN_INT_RAM];
 BOOLEAN m_occupiedPagesExtDDR[MAX_PAGES_IN_EXT_DDR];
 
 
-/*
-mem_address_t *taskMasterTableAddresses[MAX_TASKS] = {0x0};
 
- mem_address_t *firstFreeInIntRam;
- mem_address_t *firstFreeInExtDDR;
-
-mem_address_t *tableAddress = NULL;
-mem_address_t masterTableAddress =NULL;
-
-BOOLEAN occupiedPagesIntRam[MAX_PAGES_IN_MEMORY] = {FALSE};
-BOOLEAN occupiedPagesExtDDR[MAX_PAGES_IN_MEMORY] = {FALSE};
-*/
 
 void MMU_init(){
     int max = 0;
@@ -89,41 +78,28 @@ void MMU_init(){
 }
 
 
-
-void enableMMU() {
+static void enableMMU() {
     asm("\t MRC p15, #0, r0, c1, c0, #0\n");
     asm("\t ORR r0, r0, #0x1\n");
     asm("\t MCR p15, #0, r0, c1, c0, #0\n");
 }
 
-void initDomainAccess() {
+static void initDomainAccess() {
     // Set Domain Access control register to 0101 0101 0101 0101 0101 0101 0101 0111
     asm("\t MOV  r0, #0x5557\n");
     asm("\t MOVT r0, #0x5555\n");
     asm("\t MCR  p15, #0, r0, c3, c0, #0\n");
 }
 
-void clearTLB() {
+static void clearTLB() {
     asm("\t MOV r0, #0x0\n");
     asm("\t MCR p15, #0, r0, c8, c7, #0\n");
 
 
 }
 
-void lockFirstTLBEntry() {
-    globalVariable = EXT_DDR_START;
-    asm("\t LDR  r1, globalVariable\n");
-    asm("\t LDR r1, [r1]\n");
-    asm("\t MOV  r0, #0x1\n"); //base=victim=0 (protect bit=1 [lock])
-    asm("\t MOV  r2, #0x0000\n");//base=victim=1 (protect bit=0 [unlock])
-    asm("\t MOVT r2, #0x0840\n");
-    asm("\t MCR  p15, #0, r0, c10, c0, #1\n"); //Write I-TLB Lockdown Register
-    asm("\t MCR  p15, #0, r1, c10, c1, #1\n"); //Prefetch I-TLB
-    asm("\t MCR  p15, #0, r2, c10, c0, #1\n"); //Write I-TLB Lockdown Register
 
-}
-
-void setMasterTablePointerTo(address tableAddress) {
+static void setMasterTablePointerTo(address tableAddress) {
      unsigned int tempAddress = NULL;
     taskMasterTableAddress = tableAddress;
     tempAddress = (unsigned int)taskMasterTableAddress & 0xFFFFC000;
@@ -137,12 +113,12 @@ void setMasterTablePointerTo(address tableAddress) {
 
 }
 
-address createMasterTable() {
+static address createMasterTable() {
     address masterTableAddress = findFreeMemory(4, TRUE, TRUE);
     memset((void*)masterTableAddress, 0x0000, 4096 * 4);
     return masterTableAddress;
 }
-address createOrGetL2Table(address masterTableAddress, int masterTableEntryNumber) {
+static address createOrGetL2Table(address masterTableAddress, int masterTableEntryNumber) {
     address result = 0x0;
     unsigned int tableEntry = NULL;
     if (masterTableEntryNumber < 4096) {
@@ -159,7 +135,7 @@ address createOrGetL2Table(address masterTableAddress, int masterTableEntryNumbe
     }
     return result;
 }
-void createMappedPage(address masterTableAddress, address virtualAddress) {
+static void createMappedPage(address masterTableAddress, address virtualAddress) {
   unsigned int l2TableEntryNumber= NULL;
   unsigned int tableEntry = NULL;
     unsigned int masterTableEntryNumber = (unsigned int)virtualAddress >> 20;
@@ -173,7 +149,7 @@ void createMappedPage(address masterTableAddress, address virtualAddress) {
     *(l2TableAddress + l2TableEntryNumber) = tableEntry;
 }
 
-void mapOneToOne(address masterTableAddress, address startAddress, unsigned int length) {
+static void mapOneToOne(address masterTableAddress, address startAddress, unsigned int length) {
   int i = NULL;
   int j = NULL ;
     int nrOfMasterTableEntries = (length / 1048576) + 1;
@@ -200,7 +176,7 @@ void mapOneToOne(address masterTableAddress, address startAddress, unsigned int 
     }
 }
 
-address addressOfPage(enum MemoryType mem, int pageNumberInMemory) {
+static address addressOfPage(enum MemoryType mem, int pageNumberInMemory) {
     address result = 0x0;
     if (mem == INT_RAM) {
         result = (address)(INT_RAM_START + (pageNumberInMemory * 4096));
@@ -209,7 +185,7 @@ address addressOfPage(enum MemoryType mem, int pageNumberInMemory) {
     }
     return result;
 }
-void reservePages(enum MemoryType mem, int firstPageNumber, int nrOfPages) {
+static void reservePages(enum MemoryType mem, int firstPageNumber, int nrOfPages) {
      int i = 0;
     for (i = firstPageNumber; i < (firstPageNumber + nrOfPages); i++) {
         if (mem == INT_RAM) {
@@ -219,7 +195,7 @@ void reservePages(enum MemoryType mem, int firstPageNumber, int nrOfPages) {
         }
     }
 }
-void releasePages(enum MemoryType mem, int firstPageNumber, int nrOfPages) {
+static void releasePages(enum MemoryType mem, int firstPageNumber, int nrOfPages) {
   int i = 0;
     for (i = firstPageNumber; i < (firstPageNumber + nrOfPages); ++i) {
         if (mem == INT_RAM) {
@@ -231,7 +207,7 @@ void releasePages(enum MemoryType mem, int firstPageNumber, int nrOfPages) {
     }
 }
 
-address findFreeMemory(int nrOfPages, BOOLEAN align, BOOLEAN reserve) {
+static address findFreeMemory(int nrOfPages, BOOLEAN align, BOOLEAN reserve) {
     address result = 0x0;
     int freePages;
     int i =0;
@@ -307,7 +283,7 @@ void initMemoryForTask(int taskId) {
         } else {
             taskMasterTableAddress = createMasterTable();
 
-            mapOneToOne(taskMasterTableAddress, (address)ROM_INTERRUPT_ENTRIES, 0x1C);
+            mapOneToOne(taskMasterTableAddress, (address)ROM_INTERRUPT_ENTRIES, ROM_INTERRUPT_LENGTH);
             mapOneToOne(taskMasterTableAddress, (address)INT_RAM_START, (unsigned int)m_firstFreeInIntRam - INT_RAM_START);
             mapOneToOne(taskMasterTableAddress, &intvecsStart, 0x3B);
             mapOneToOne(taskMasterTableAddress, (address)EXT_DDR_START, (unsigned int)m_firstFreeInExtDDR - EXT_DDR_START);
@@ -320,6 +296,10 @@ void initMemoryForTask(int taskId) {
     }
     m_currentTask = taskId;
 }
+
+
+
+
 void loadPage(int pageNumber) {
     //TODO
 }
@@ -335,14 +315,14 @@ address parameterAddressFor(int serviceId)  {
 
 void handlePrefetchAbort() {
     asm("\t MRC p15, #0, r0, c6, c0, #2\n"); // Read instruction fault address register
-    asm("\t LDR r1, globalVariable\n");
+    asm("\t LDR r1, tempVariableForAsmAndC\n");
     asm("\t STR r0, [r1]\n");
 
     // TODO check for execute permissions
-    if ((globalVariable % 0x4 == 0x0) && (globalVariable >= PROCESS_MEMORY_START) && (globalVariable < PROCESS_MEMORY_END)) {
+    if ((tempVariableForAsmAndC % 0x4 == 0x0) && (tempVariableForAsmAndC >= PROCESS_MEMORY_START) && (tempVariableForAsmAndC < PROCESS_MEMORY_END)) {
         int currentTask = m_currentTask;
         initMemoryForTask(0);
-        createMappedPage(m_taskMasterTableAddresses[currentTask], (address)globalVariable);
+        createMappedPage(m_taskMasterTableAddresses[currentTask], (address)tempVariableForAsmAndC);
         // TODO load needed instructions into new page
         initMemoryForTask(currentTask);
     } else {
@@ -352,13 +332,13 @@ void handlePrefetchAbort() {
 
 void handleDataAbort() {
     asm("\t MRC p15, #0, r0, c6, c0, #0\n"); // Read data fault address register
-    asm("\t LDR r1, globalVariable\n");
+    asm("\t LDR r1, tempVariableForAsmAndC\n");
     asm("\t STR r0, [r1]\n");
     // TODO check for read / write permissions
-    if ((globalVariable % 0x4 == 0x0) && (globalVariable >= PROCESS_MEMORY_START) && (globalVariable < PROCESS_MEMORY_END)) {
+    if ((tempVariableForAsmAndC % 0x4 == 0x0) && (tempVariableForAsmAndC >= PROCESS_MEMORY_START) && (tempVariableForAsmAndC < PROCESS_MEMORY_END)) {
         int currentTask = m_currentTask;
         initMemoryForTask(0);
-        createMappedPage(m_taskMasterTableAddresses[currentTask], (address)globalVariable);
+        createMappedPage(m_taskMasterTableAddresses[currentTask], (address)tempVariableForAsmAndC);
         initMemoryForTask(currentTask);
     } else {
         // TODO invalid access
