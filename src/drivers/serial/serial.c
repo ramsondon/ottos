@@ -56,9 +56,6 @@ int serial_read(device_t dev, int count, char* buffer) {
     while (uart_is_empty_read_queue(uart))
       ;
     uart_read(uart, &buffer[i]);
-
-    // stop reading when receiving a return
-    if(buffer[i] == '\r') break;
   }
   return i;
 }
