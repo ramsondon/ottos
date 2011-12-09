@@ -164,8 +164,9 @@ void console_test() {
   process_table_init();
   //process_create(1, (int) toggle_led1);
   //process_create(1, (int) toggle_led2);
-  process_create(1, (int) dummy_process);
-  process_create(1, (int) console_start);
+
+  //process_create(1, (int) dummy_process);
+  // process_create(1, (int) console_start);
 
   devices_init();
 

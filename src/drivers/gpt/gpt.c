@@ -21,10 +21,12 @@
  *      Author: Florian Gopp (go.goflo@gmail.com)
  */
 
-#include "gpt.h"
+
 #include <bits.h>
 #include <ottos/types.h>
-#include <arch/arm/omap353x_timer.h>
+
+#include "../../hal/platform.h"
+#include "gpt.h"
 
 static int gpt_baseaddresses[GPTIMER_COUNT] = { GPTIMER1_BASE, GPTIMER2_BASE, GPTIMER3_BASE,
                                                     GPTIMER4_BASE, GPTIMER5_BASE, GPTIMER6_BASE,

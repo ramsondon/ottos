@@ -29,15 +29,16 @@
  FLOW CONTROL: none (Critical)
  */
 
-#include <arch/arm/omap353x_uart.h>
-#include <arch/arm/omap353x_intc.h>
+
 #include <ottos/types.h>
 #include <bits.h>
 
 #include <stdio.h>
 
-#include "uart.h"
 #include "../kernel/intc/irq.h"
+#include "../../hal/platform.h"
+
+#include "uart.h"
 
 /* Baudrate Bitmask for the least significant bits */
 #define UART_BAUDRATE_MASK_LSB 0x00FF

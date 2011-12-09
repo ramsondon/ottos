@@ -21,13 +21,23 @@
  *      Author: Florian Gopp (go.goflo@gmail.com)
  */
 
-#include "timer.h"
-#include "../../hal/gpt.h"
-#include "../dev/devices.h"
-#include "../intc/irq.h"
 #include <ottos/types.h>
-#include <arch/arm/omap353x_timer.h>
-#include <arch/arm/omap353x_intc.h>
+#include <ottos/dev/device.h>
+#include <ottos/platform.h>
+
+/*********************************
+ * TODO:(ramsondon@gmail.com) HACK FOR DRIVER REFACTORING
+ *********************************/
+#include "../../drivers/gpt/gpt.h"
+/*********************************
+ * END HACK
+ *********************************/
+
+
+#include "../intc/irq.h"
+#include "timer.h"
+
+
 
 static system_timer_t timers_[MAX_TIMER_COUNT];
 static int timer_count_ = 0;

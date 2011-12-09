@@ -1,4 +1,4 @@
-/* led.h
+/* platform.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,30 +17,28 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Nov 10, 2011
+ *  Created on: Dec 2, 2011
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef DRIVERS_LED_LED_H_
-#define DRIVERS_LED_LED_H_
+#ifndef HAL_PLATFORM_H_
+#define HAL_PLATFORM_H_
 
-#include <ottos/drivers/driver.h>
-#include <ottos/dev/device.h>
+/* *****************************************************************************
+ * XXX: TO NOTIFY BY THE PROGRAMMER
+ * *****************************************************************************
+ *
+ * This is the main include file for the OttOS hardware abstraction layer.
+ * All modules which require one part of the OttOS HAL must only include this
+ * header file
+ *
+ *
+ * To get this piece to work we have to configure the compiler settings.
+ * Add the following definition to the command line pattern of your compiler:
+ * -DOMAP353X
+ */
+#ifdef OMAP353X
+#include "omap353x/platform.h"
+#endif
 
-int led_open(device_t dev);
-int led_close(device_t dev);
-int led_read(device_t dev, int count, char* buffer);
-int led_write(device_t dev, int count, char* buffer);
-int led_ioctl(device_t dev, ioctl_t msg);
-int led_create(device_t dev);
-
-static driver_t omap_led_driver = {
-  led_open,
-  led_close,
-  led_read,
-  led_write,
-  led_ioctl,
-  led_create
-};
-
-#endif /* LED_H_ */
+#endif /* HAL_PLATFORM_H_ */
