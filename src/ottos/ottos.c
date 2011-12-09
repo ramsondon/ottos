@@ -162,10 +162,11 @@ void dummy_process() {
 void console_test() {
 
   process_table_init();
-  process_create(1, (int) toggle_led1);
-  process_create(1, (int) toggle_led2);
-  process_create(1, (int) dummy_process);
-  process_create(1, (int) console_start);
+  //process_create(1, (int) toggle_led1);
+  //process_create(1, (int) toggle_led2);
+
+  //process_create(1, (int) dummy_process);
+  // process_create(1, (int) console_start);
 
   devices_init();
 
@@ -180,11 +181,28 @@ void console_test() {
 }
 
 void fs_test() {
-  devices_init();
+  file_t* file;
+  char buffer[512];
+  //char text[] = { 't', 'e', 's', 't', '\n', '\r' };
+  char text[] = "new file\n\r\0";
 
+  devices_init();
   mmchs_init();
   fs_init();
   fl_listdirectory("/");
+
+  file = (file_t*) fl_fopen("/test/thenewest.txt", "a");
+  fl_fwrite(text, sizeof(text), sizeof(text), file);
+  fl_fclose(file);
+
+  fl_listdirectory("/test/");
+
+  file = (file_t*) fl_fopen("/test/thenewest.txt", "r");
+  fl_fread(buffer, 512, sizeof(text), file);
+  kernel_print(buffer);
+  fl_fclose(file);
+
+
 }
 
 int main(int argc, char **argv) {
