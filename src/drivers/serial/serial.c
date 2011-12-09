@@ -21,11 +21,11 @@
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#include <arch/arm/omap353x_uart.h>
 #include <ottos/types.h>
 
+#include "../../hal/platform.h"
+#include "../../drivers/uart/uart.h"
 #include "serial.h"
-#include "../../hal/uart.h"
 
 static int init_uart_rs232_ = FALSE;
 
@@ -56,9 +56,6 @@ int serial_read(device_t dev, int count, char* buffer) {
     while (uart_is_empty_read_queue(uart))
       ;
     uart_read(uart, &buffer[i]);
-
-    // stop reading when receiving a return
-    if(buffer[i] == '\r') break;
   }
   return i;
 }

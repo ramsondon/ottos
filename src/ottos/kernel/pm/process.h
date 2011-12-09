@@ -83,7 +83,7 @@ EXTERN int process_active;
 void process_table_init();
 
 // creates a new process and returns the pid of it
-pid_t process_create(int priority, int initial_address, int wait_for_exit);
+pid_t process_create(int priority, int initial_address);
 
 // deletes the active process
 void process_delete();

@@ -1,4 +1,4 @@
-/* system.h
+/* omap353x.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,35 +17,20 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 27 Oct 2011
- *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
+ *  Created on: Dec 2, 2011
+ *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef SYSTEM_H_
-#define SYSTEM_H_
-
-#include <ottos/const.h>
-#include <ottos/types.h>
-
-/**
- * Scheduler system calls
- */
-EXTERN void sys_yield();
-EXTERN void sys_exit();
-EXTERN void sys_create_process(int priority, int initial_address, int wait_for_exit);
-
-/**
- * I/O system calls
- */
-EXTERN address_t sys_open(char* filename, int flags);
-EXTERN size_t sys_read();
-EXTERN size_t sys_write();
-EXTERN int sys_close();
+#ifndef HAL_OMAP353X_PLATFORM_H_
+#define HAL_OMAP353X_PLATFORM_H_
 
 /*
- * IPC system calls
+ * This file includes all OMAP 353X relevant header files
  */
-EXTERN void sys_send(pid_t pid, message_t* msg);
-EXTERN struct message_t* sys_receive();
+#include "intc.h"
+#include "timer.h"
+#include "uart.h"
+#include "led.h"
 
-#endif /* SYSTEM_H_ */
+
+#endif /* HAL_OMAP353X_PLATFORM_H_ */

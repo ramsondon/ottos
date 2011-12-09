@@ -21,8 +21,8 @@
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef LED_H_
-#define LED_H_
+#ifndef DRIVERS_LED_LED_H_
+#define DRIVERS_LED_LED_H_
 
 #include <ottos/drivers/driver.h>
 #include <ottos/dev/device.h>

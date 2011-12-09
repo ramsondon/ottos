@@ -1,4 +1,4 @@
-/* system.h
+/* platform.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,35 +17,14 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 27 Oct 2011
- *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
+ *  Created on: Dec 7, 2011
+ *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef SYSTEM_H_
-#define SYSTEM_H_
+#ifndef PLATFORM_H_
+#define PLATFORM_H_
 
-#include <ottos/const.h>
-#include <ottos/types.h>
 
-/**
- * Scheduler system calls
- */
-EXTERN void sys_yield();
-EXTERN void sys_exit();
-EXTERN void sys_create_process(int priority, int initial_address, int wait_for_exit);
+#include "../../hal/platform.h"
 
-/**
- * I/O system calls
- */
-EXTERN address_t sys_open(char* filename, int flags);
-EXTERN size_t sys_read();
-EXTERN size_t sys_write();
-EXTERN int sys_close();
-
-/*
- * IPC system calls
- */
-EXTERN void sys_send(pid_t pid, message_t* msg);
-EXTERN struct message_t* sys_receive();
-
-#endif /* SYSTEM_H_ */
+#endif /* PLATFORM_H_ */

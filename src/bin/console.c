@@ -35,7 +35,7 @@
 
 #include "led_test.h"
 
-//#include <ottos/system.h>
+#include <ottos/system.h>
 
 
 
@@ -66,13 +66,15 @@ int console_start() {
       break;
     } else if(strcmp("toggle1", buffer) == 0) {
 
-      process_create(1, (int)toggle_led1_limited, TRUE);
+      sys_create_process(1, (int)toggle_led1_limited, TRUE);
+      //process_create(1, (int)toggle_led1_limited, TRUE);
 
       display_text = "\r\nToggled LED 1\r\n";
       drv.write(SERIAL_0, strlen(display_text), display_text);
     } else if(strcmp("toggle2", buffer) == 0) {
 
-      process_create(1, (int)toggle_led2_limited, TRUE);
+      sys_create_process(1, (int)toggle_led2_limited, FALSE);
+      //process_create(1, (int)toggle_led2_limited, TRUE);
 
       display_text = "\r\nToggled LED 2\r\n";
       drv.write(SERIAL_0, strlen(display_text), display_text);

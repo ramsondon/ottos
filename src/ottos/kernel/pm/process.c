@@ -87,25 +87,19 @@ void process_delete() {
   process_update_next_free_entry();
 }
 
-pid_t process_create(int priority, int initial_address, int wait_for_exit) {
+pid_t process_create(int priority, int initial_address) {
 
   process_t* p = (process_t*) malloc(sizeof(process_t));
   p->pid = process_next_free_entry;
   p->priority = priority;
   p->state = READY;
+  p->child = NULL;
+  p->parent = NULL;
 
   if (process_active != PID_INVALID) {
 
     process_table[process_active]->child = p;
     p->parent = process_table[process_active];
-
-    if (wait_for_exit != FALSE) {
-      // the current process will be blocked until the
-      // child exited
-
-      // TODO is blocked the correct state?
-      process_table[process_active]->state = BLOCKED;
-    }
   }
 
   p->pcb.R0 = 0;

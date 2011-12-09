@@ -1,4 +1,4 @@
-/* system.h
+/* platform.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,35 +17,28 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 27 Oct 2011
- *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
+ *  Created on: Dec 2, 2011
+ *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef SYSTEM_H_
-#define SYSTEM_H_
+#ifndef HAL_PLATFORM_H_
+#define HAL_PLATFORM_H_
 
-#include <ottos/const.h>
-#include <ottos/types.h>
-
-/**
- * Scheduler system calls
+/* *****************************************************************************
+ * XXX: TO NOTIFY BY THE PROGRAMMER
+ * *****************************************************************************
+ *
+ * This is the main include file for the OttOS hardware abstraction layer.
+ * All modules which require one part of the OttOS HAL must only include this
+ * header file
+ *
+ *
+ * To get this piece to work we have to configure the compiler settings.
+ * Add the following definition to the command line pattern of your compiler:
+ * -DOMAP353X
  */
-EXTERN void sys_yield();
-EXTERN void sys_exit();
-EXTERN void sys_create_process(int priority, int initial_address, int wait_for_exit);
+#ifdef OMAP353X
+#include "omap353x/platform.h"
+#endif
 
-/**
- * I/O system calls
- */
-EXTERN address_t sys_open(char* filename, int flags);
-EXTERN size_t sys_read();
-EXTERN size_t sys_write();
-EXTERN int sys_close();
-
-/*
- * IPC system calls
- */
-EXTERN void sys_send(pid_t pid, message_t* msg);
-EXTERN struct message_t* sys_receive();
-
-#endif /* SYSTEM_H_ */
+#endif /* HAL_PLATFORM_H_ */

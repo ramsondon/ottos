@@ -1,12 +1,12 @@
-/* system.h
- * 
+/* gpt.h
+ *
  * Copyright (c) 2011 The ottos project.
  *
  * This work is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
  * any later version.
- * 
+ *
  * This work is distributed in the hope that it will be useful, but without
  * any warranty; without even the implied warranty of merchantability or
  * fitness for a particular purpose. See the GNU Lesser General Public License
@@ -17,35 +17,27 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 27 Oct 2011
- *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
+ *  Created on: 11.11.2011
+ *      Author: Florian Gopp (go.goflo@gmail.com)
  */
 
-#ifndef SYSTEM_H_
-#define SYSTEM_H_
+#ifndef DRIVERS_GPT_GPT_H_
+#define DRIVERS_GPT_GPT_H_
 
-#include <ottos/const.h>
 #include <ottos/types.h>
+#include <ottos/dev/device.h>
 
-/**
- * Scheduler system calls
- */
-EXTERN void sys_yield();
-EXTERN void sys_exit();
-EXTERN void sys_create_process(int priority, int initial_address, int wait_for_exit);
+enum TimerInterruptMode {
+  MATCH_INTERRUPT     = 0,
+  OVERFLOW_INTERRUPT  = 1,
+  CAPTURE_INTERRUPT   = 2
+};
 
-/**
- * I/O system calls
- */
-EXTERN address_t sys_open(char* filename, int flags);
-EXTERN size_t sys_read();
-EXTERN size_t sys_write();
-EXTERN int sys_close();
+EXTERN void gpt_init(device_t gpt_timer, enum TimerInterruptMode interrupt_mode, int ticks, int load_ticks);
+EXTERN void gpt_start(device_t gpt_timer, enum TimerInterruptMode interrupt_mode);
+EXTERN void gpt_stop(device_t gpt_timer);
+EXTERN void gpt_clear(device_t gpt_timer);
+EXTERN void gpt_reset(device_t gpt_timer);
 
-/*
- * IPC system calls
- */
-EXTERN void sys_send(pid_t pid, message_t* msg);
-EXTERN struct message_t* sys_receive();
 
-#endif /* SYSTEM_H_ */
+#endif /* DRIVERS_GPT_GPT_H_ */

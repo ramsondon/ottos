@@ -25,14 +25,16 @@
 #include <ottos/const.h>
 #include <ottos/memory.h>
 #include <ottos/kernel.h>
-
-#include <arch/arm/omap353x_intc.h>
+#include <ottos/platform.h>
 
 #include "../timer/timer.h"
 #include "../pm/process.h"
 #include "../sched/scheduler.h"
 
 #include "irq.h"
+
+#define SAVED_REGISTERS_SPACE (14 * 4)
+#define SWI_PARAMETERS_SPACE (4 * 4)
 
 asm(" .bss _pcb_old, 4 ");
 asm(" .bss _pcb_new, 4 ");
@@ -167,23 +169,13 @@ EXTERN void irq_handle() {
   // This will be called before entering the function
   // SUB R14, R14, #4
 
-  /*asm(" PUSH    {R4}");
-  asm(" LDR     R4, stack_pointer_original");
-  asm(" ADD     R13, R13, #4");
-  asm(" STR     R13, [R4], #0");
-  asm(" SUB     R13, R13, #4");
-  asm(" PUSH    {R4}");*/
-
-  /*asm(" LDR     R4, stack_pointer_original");
-  asm(" STR     R13, [R4], #0");*/
-
   asm(" SUB     R14, R14, #4            ; Put return address of the interrupted task into R14 ");
-  asm(" STMFD   R13!, {R0-R12, R14} ; Save Process-Registers ");
+  asm(" STMFD   R13!, {R0-R12, R14}     ; Save Process-Registers ");
 
   asm(" LDR     R0, stack_pointer_saved_context");
   asm(" STR     R13, [R0], #0");
 
-  stack_pointer_original = stack_pointer_saved_context - (13 * 4);
+  stack_pointer_original = stack_pointer_saved_context + SAVED_REGISTERS_SPACE;
 
   *((mem_address_t*) (MPU_INTC + INTCPS_CONTROL)) |= 0x1;
 
@@ -193,17 +185,22 @@ EXTERN void irq_handle() {
   asm(" LDMFD   R13!, {R0-R12, PC}^");
 }
 
-//#pragma TASK(irq_handle_swi)
+#pragma TASK(irq_handle_swi)
 EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
+
+  asm(" STMFD   R13!, {R0-R12, R14} ; Save Process-Registers ");
+
+  asm(" LDR     R0, stack_pointer_saved_context");
+  asm(" STR     R13, [R0], #0");
+
+  stack_pointer_original = stack_pointer_saved_context + SAVED_REGISTERS_SPACE + SWI_PARAMETERS_SPACE;
 
   // handle interrupts
   switch (r0) {
     case SYS_YIELD:
-      //context_switch();
+      context_switch();
       break;
     case SYS_EXIT:
-      // TODO (thomas.bargetz@gmail.com) restore the original stack pointer of the interrupt handler?
-
       // delete the active process
       process_delete();
 
@@ -212,8 +209,27 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
       // old pcb has to be saved
       process_active = PID_INVALID;
       context_switch();
+    case SYS_CREATE_PROCESS:
+      // r1 = priority
+      // r2 = initial_address
+      // r3 = wait_for_exit
+      process_create(r1, r2);
+      if(r3 != FALSE) {
+        // the current process will be blocked until the
+        // child exited
+
+        // TODO is blocked the correct state?
+        process_table[process_active]->state = BLOCKED;
+
+        // block current process
+        // switch to next process
+        context_switch();
+      }
+      break;
     default:
       // ignore
       break;
   }
+
+  asm(" LDMFD   R13!, {R0-R12, PC}^");
 }
