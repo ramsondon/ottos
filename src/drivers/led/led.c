@@ -24,8 +24,9 @@
 #include <ottos/dev/device.h>
 #include <ottos/types.h>
 
-#include "led.h"
+#include "../../hal/platform.h"
 #include "../../hal/leds.h"
+#include "led.h"
 
 
 static int led_device_bit(device_t dev);

@@ -21,11 +21,10 @@
  *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#ifndef LEDS_H_
-#define LEDS_H_
+#ifndef HAL_LEDS_H_
+#define HAL_LEDS_H_
 
-#define GPIO5_OE      0x49054034  /* GPIO5 output enable address */
-#define GPIO5_DATAOUT 0x4905603C  /* GPIO5 data out register address*/
+
 
 #define LED_ON        1
 #define LED_OFF       0
@@ -37,4 +36,4 @@ typedef enum LED_DEVICE
 } LED_DEVICE;
 
 
-#endif /* LEDS_H_ */
+#endif /* HAL_LEDS_H_ */

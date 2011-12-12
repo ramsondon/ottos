@@ -21,8 +21,8 @@
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef SERIAL_H_
-#define SERIAL_H_
+#ifndef DRIVERS_SERIAL_SERIAL_H_
+#define DRIVERS_SERIAL_SERIAL_H_
 
 #include <ottos/drivers/driver.h>
 #include <ottos/dev/device.h>
@@ -43,4 +43,4 @@ static driver_t omap_serial_driver = {
   serial_create
 };
 
-#endif /* SERIAL_H_ */
+#endif /* DRIVERS_SERIAL_SERIAL_H_ */

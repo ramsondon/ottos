@@ -32,7 +32,7 @@
 typedef uint32_t size_t;
 #endif
 
-typedef int BOOLEAN;
+typedef char BOOLEAN;
 
 typedef int pid_t;
 typedef volatile unsigned int mem_address_t;

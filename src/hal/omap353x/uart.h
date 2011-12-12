@@ -21,8 +21,8 @@
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef OMAP353X_UART_H_
-#define OMAP353X_UART_H_
+#ifndef HAL_OMAP353X_UART_H_
+#define HAL_OMAP353X_UART_H_
 
 /*
  * UART module base addresses
@@ -180,4 +180,4 @@
 
 
 
-#endif /* OMAP353X_UART_H_ */
+#endif /* HAL_OMAP353X_UART_H_ */

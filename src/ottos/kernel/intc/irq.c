@@ -27,7 +27,8 @@
 #include <ottos/kernel.h>
 
 
-#include <arch/arm/omap353x_intc.h>
+#include <ottos/platform.h>
+
 
 #include "../timer/timer.h"
 #include "../pm/process.h"
@@ -132,6 +133,10 @@ void context_switch() {
       process_table[process_active]->state = READY;
     }
 
+    //Get Mastertable for active Process
+    initMemoryForTask(process_table[process_active]);
+
+
     // Get the TCB's of the processes to switch the context
     pcb_old = (int) &process_table[process_active]->pcb.CPSR;
   }
@@ -183,6 +188,8 @@ EXTERN void irq_handle() {
   asm(" LDR     R0, stack_pointer_saved_context");
   asm(" STR     R13, [R0], #0");
 
+  switchToKernelMMU();
+
   stack_pointer_original = stack_pointer_saved_context + SAVED_REGISTERS_SPACE;
 
   *((mem_address_t*) (MPU_INTC + INTCPS_CONTROL)) |= 0x1;
@@ -203,10 +210,13 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 
   stack_pointer_original = stack_pointer_saved_context + SAVED_REGISTERS_SPACE + SWI_PARAMETERS_SPACE;
 
+  switchToKernelMMU();
+
   // handle interrupts
   switch (r0) {
     case SYS_YIELD:
       context_switch();
+      initMemoryForTask(process_table[process_active]);
       break;
     case SYS_EXIT:
       // delete the active process
@@ -217,6 +227,7 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
       // old pcb has to be saved
       process_active = PID_INVALID;
       context_switch();
+      initMemoryForTask(process_table[process_active]);
     case SYS_CREATE_PROCESS:
       // r1 = priority
       // r2 = initial_address
@@ -232,6 +243,7 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
         // block current process
         // switch to next process
         context_switch();
+
       }
       break;
     default:

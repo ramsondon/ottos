@@ -37,7 +37,7 @@ SECTIONS
    
 	.stack      > int_ram
 	.cio        > int_ram
-    .const      > int_ram
+
 	.switch     > int_ram 
 	.text2      > int_ram {
 		irq.obj
@@ -49,21 +49,22 @@ SECTIONS
 
 
 ///////////////////////////// ext_ddr //////////////////////////////
-ORDER
 
+	ORDER
 	.text	   > ext_ddr
 	.bss        > ext_ddr
+	.const      > ext_ddr
 	.sysmem     > ext_ddr
 	.stackArea  > ext_ddr {
-       . = . + (1* 1024);
+       . = . + (4* 1024);
        kernelStack = .;
-	   . = . + (1 * 1024);
+	   . = . + (4 * 1024);
 	   irqStack = .;
-	   . = . + (1* 1024);
+	   . = . + (4* 1024);
 	   systemStack = .;
-	   . = . + (1 * 1024);
+	   . = . + (4 * 1024);
 	   abortStack = .;
-	   . = . + (1 * 1024);
+	   . = . + (4 * 1024);
 	   _extDDRStart = .;
    }
 }

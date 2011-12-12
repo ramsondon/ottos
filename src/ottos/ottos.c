@@ -67,21 +67,21 @@ void devices_test() {
   devices_init();
 }
 
-//void process_test() {
-//
-//
-//  process_table_init();
-//
-//  process_create(1, (int)toggle_led1_yield);
-//  process_create(1, (int)toggle_led2_yield);
-//
-//  devices_init();
-//
-//  // switch to user mode
-//  kernel_to_user_mode();
-//  sys_yield();
-//
-//}
+void process_test() {
+
+
+  process_table_init();
+
+  process_create(1, (int)toggle_led1_yield);
+  process_create(2, (int)toggle_led2_yield);
+
+  devices_init();
+
+  // switch to user mode
+  kernel_to_user_mode();
+  sys_yield();
+
+}
 
 void serial_test() {
 
@@ -189,19 +189,17 @@ void fs_test() {
 }
 
 int main(int argc, char **argv) {
-
-// process_test();
+  MMU_init();
+//  process_test();
 //  timer_test();
 //  serial_test();
 //  serial_test_calc();
 //  process_exit_test();
- console_test();
+ //console_test();
 // fs_test();
 
-    MMU_init();
-    initMemoryForTask(0);
-    initMemoryForTask(1);
-    *(address)0x1004 = 5;
+
+
 
   for(;;);
 

@@ -12,7 +12,7 @@
 
 #include <ottos/types.h>
 #include <ottos/const.h>
-
+#include <../kernel/pm/process.h>
 
 
 #define MAX_MMU_TABLES 256
@@ -30,26 +30,33 @@
 enum MemoryType{INT_RAM, EXT_DDR};
 
 
+
 void MMU_init();
+void initKernelMMU();
 
 static void enableMMU();
 static void initDomainAccess();
-static void setMasterTablePointerTo(address tableAddress);
-static address createMasterTable();
-static address createOrGetL2Table(address masterTableAddress, int masterTableEntryNumber);
-static void createMappedPage(address masterTableAddress, address virtualAddress);
-static void mapOneToOne(address masterTableAddress, address startAddress, unsigned int length);
 static void clearTLB();
+static void setMasterTablePointerTo(address tableAddress) ;
+
+static address createMasterTable() ;
+static address createOrGetL2Table(address masterTableAddress, int masterTableEntryNumber) ;
+static address createMappedPage(address masterTableAddress, address virtualAddress);
+static void mapDirectly(address masterTableAddress, address virtualAddress, address physicalAddress);
+
+static void mapOneToOne(address masterTableAddress, address startAddress, unsigned int length);
+BOOLEAN isTaskPage(address pageAddress);
+
+static int pageForAddress(enum MemoryType *type, unsigned int memAddress);
 static address addressOfPage(enum MemoryType mem, int pageNumberInMemory);
+
 static void reservePages(enum MemoryType mem, int firstPageNumber, int nrOfPages);
 static  void releasePages(enum MemoryType mem, int firstPageNumber, int nrOfPages);
 static  address findFreeMemory(int nrOfPages, BOOLEAN align, BOOLEAN reserve);
 
-
-void initMemoryForTask(int taskId);
-void loadPage(int pageNumber);
-void prepagePagesFor(int serviceId);
-address parameterAddressFor(int serviceId);
+void switchToKernelMMU();
+void deleteTaskMemory(process_t* task);
+void initMemoryForTask(process_t* task);
 extern void handlePrefetchAbort();
 extern void handleDataAbort();
 
