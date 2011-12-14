@@ -181,7 +181,7 @@
 #define CMD1              (INDX(1) | RSP_TYPE_48BITS)
 #define CMD1_INT_EN       (CC_EN | CEB_EN | CTO_EN)
 
-#define CMD2              (INDX(2) | ~CCCE_ENABLE | RSP_TYPE_136BITS)
+#define CMD2              (INDX(2) | CCCE_ENABLE | RSP_TYPE_136BITS)
 #define CMD2_INT_EN       (CERR_EN | CIE_EN | CCRC_EN | CC_EN | CEB_EN | CTO_EN)
 
 #define CMD3              (INDX(3) | CICE_ENABLE | CCCE_ENABLE | RSP_TYPE_48BITS)
