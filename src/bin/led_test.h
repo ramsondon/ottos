@@ -24,21 +24,17 @@
 #ifndef LED_1_TEST_H_
 #define LED_1_TEST_H_
 
-#define GPIO5_OE 0x49054034       /* GPIO5 output enable address */
-#define GPIO5_DATAOUT 0x4905603C  /* GPIO5 data out register address*/
-
-#define SET_BIT(bit) (1<<bit)     /* Sets the specified bit to 1 */
 
 extern int toggle_led1(void);
 extern int toggle_led2(void);
 
+extern void toggle_led1_limited(void);
+extern void toggle_led2_limited(void);
 
-typedef enum LED_DEVICE
-{
-// Led USR0
-  LED_DEVICE_USR0 = 22,
-// Led USR1
-  LED_DEVICE_USR1 = 21
-} LED_DEVICE;
+extern int toggle_led1_yield(void);
+extern int toggle_led2_yield(void);
+extern void led1_off();
+extern void led1_on();
+
 
 #endif /* LED_1_TEST_H_ */

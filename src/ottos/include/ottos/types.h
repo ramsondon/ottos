@@ -25,10 +25,17 @@
 #define OTTOS_TYPES_H_
 
 #include <ottos/const.h>
-#include <stdlib.h>
+#include <stdint.h>
+
+#ifndef _SIZE_T
+#define _SIZE_T
+typedef uint32_t size_t;
+#endif
+
+typedef int BOOLEAN;
 
 typedef int pid_t;
-typedef volatile unsigned int* mem_address_t;
+typedef volatile unsigned int mem_address_t;
 typedef int (*function_t)();
 
 typedef unsigned long address_t;
