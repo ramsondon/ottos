@@ -27,6 +27,7 @@
 /*
  * This file includes all OMAP 353X relevant header files
  */
+#include "i2c.h"
 #include "intc.h"
 #include "timer.h"
 #include "uart.h"
