@@ -40,7 +40,7 @@ int toggle_led1() {
 
   drv.open(LED_0);
 	for(i = 0;; i++) {
-		if(i > 100000) {
+		if(i > 1000000) {
 
 		  drv.read(LED_0, 1, &state);
 			buffer = ((int)state == 0)? 1 : 0;
@@ -74,11 +74,3 @@ int toggle_led2() {
   return 0;
 }
 
-int test_file_operations() {
-  file_t* fp = fopen("/dev/led01", "w");
-  char buffer = 1;
-  fwrite(fp, sizeof(char), 1, &buffer);
-  fclose(fp);
-
-  return 0;
-}

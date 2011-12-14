@@ -25,6 +25,7 @@
 #include <ottos/types.h>
 #include <ottos/system.h>
 
+/*
 file_t* fopen(char* filename, char* mode) {
   int flags = 0;
   file_t* fp = (file_t *) sys_open(filename, flags);
@@ -38,3 +39,4 @@ int fclose(file_t* fp) {
 int fwrite(file_t* fp, size_t size, size_t count, char* buffer) {
   return 0;
 }
+*/

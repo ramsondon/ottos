@@ -24,13 +24,28 @@
 #include <ottos/system.h>
 
 #include "../../bin/led_test.h"
-#include "kernel/kernel.h"
+#include <ottos/kernel.h>
 #include "kernel/intc/irq.h"
 #include "kernel/pm/process.h"
+#include "kernel/timer/timer.h"
 #include "dev/devices.h"
+#include "../drivers/mmchs/mmchs.h"
+#include "i2c.h"
+
+
+void toggle_led_1() {
+  //printf("Timer 3 fired interrupt... \n");
+  *(volatile unsigned long *)GPIO5_DATAOUT ^= SET_BIT(22);
+}
+
+void toggle_led_2() {
+  //printf("Timer 4 fired interrupt... \n");
+  *(volatile unsigned long *)GPIO5_DATAOUT ^= SET_BIT(21);
+}
+
 
 int main(int argc, char **argv) {
-
+  /*
   // initialize device manager
   devices_init();
 
@@ -41,10 +56,27 @@ int main(int argc, char **argv) {
 	process_create(1, (int)toggle_led1);
 	process_create(1, (int)toggle_led2);
 
+	//kernel_panic("Could not start OttOS");
+
+
 	// switch to user mode
 	kernel_to_user_mode();
 	sys_yield();
+	*/
 
+	////////////
+	/*
+  timer_init();
+  timer_add_handler(toggle_led_1, 5000);
+  timer_add_handler(toggle_led_2, 10000);
+  _enable_interrupts();
+
+  while (TRUE) {}
+	*/
+	//parserTst();
+
+	bus_i2c_init();
+	pulse_leds();
 
 	return 0;
 }

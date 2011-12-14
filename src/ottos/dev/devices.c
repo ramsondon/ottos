@@ -46,7 +46,6 @@ void devices_init() {
   int i;
   for (i = 0; i < DEVICE_MAX_COUNT; i++) {
     device_container[i].dev = DEVICE_INVALID;
-    device_container[i].driver = driver_null();
   }
 
   /* initialize all devices */

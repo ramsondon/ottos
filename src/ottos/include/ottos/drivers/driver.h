@@ -46,11 +46,6 @@ typedef struct driver_t {
 } driver_t;
 
 /*
- * Returns a valid driver with empty function stubs
- */
-EXTERN driver_t driver_null();
-
-/*
  * Returns the driver for device dev
  */
 EXTERN driver_t driver_get(device_t dev);
