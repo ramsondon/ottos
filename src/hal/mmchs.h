@@ -24,6 +24,14 @@
 #ifndef HAL_MMCHS_H_
 #define HAL_MMCHS_H_
 
+#define CM_FCLKEN1_CORE   0x48004A00
+#define CM_ICLKEN1_CORE   (CM_FCLKEN1_CORE + 0x10)
+
+#define EN_MMC1           BIT24
+
+#define CONTROL_PADCONF_MMC1_CLK 0x48002144
+#define INPUT_ENABLE             BIT8
+
 //MMC/SD/SDIO1 register definitions.
 #define MMCHS1BASE        0x4809C000
 #define MMC_REFERENCE_CLK (96000000)
