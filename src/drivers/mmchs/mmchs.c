@@ -892,8 +892,11 @@ MMCHS_STATUS mmchs_read_write(BLOCK_IO_PROTOCOL *this, uint32_t lba,
   uint32_t block_count;
   uint32_t bytes_to_be_tranfered_this_pass = 0;
   uint32_t bytes_remaining_to_be_transfered;
-
+  char debug[64];
   BOOLEAN update;
+
+  sprintf(debug, "Read Block: %d\n\r", lba);
+  mmchs_debug(MMCHS_DEBUG_INFO, debug);
 
   update = FALSE;
 

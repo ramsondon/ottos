@@ -28,7 +28,7 @@
 int fs_read(uint32 sector, uint8 *buffer, uint32 sector_count) {
 
   mmchs_io_device->read(mmchs_io_device,
-                         sector * FS_SECTOR_SIZE,
+                         sector,
                          sector_count * FS_SECTOR_SIZE,
                          buffer);
 
@@ -38,7 +38,7 @@ int fs_read(uint32 sector, uint8 *buffer, uint32 sector_count) {
 int fs_write(uint32 sector, uint8 *buffer, uint32 sector_count) {
 
   mmchs_io_device->write(mmchs_io_device,
-                           sector * FS_SECTOR_SIZE,
+                           sector,
                            sector_count * FS_SECTOR_SIZE,
                            buffer);
 

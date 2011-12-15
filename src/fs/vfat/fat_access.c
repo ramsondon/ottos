@@ -38,6 +38,8 @@
 #include "fat_string.h"
 #include "fat_misc.h"
 
+#include <ottos/memory.h>
+
 //-----------------------------------------------------------------------------
 // fatfs_init: Load FAT Parameters
 //-----------------------------------------------------------------------------
@@ -75,6 +77,9 @@ int fatfs_init(struct fatfs *fs) {
                 "FAT could not load MBR (LBA 0).\n");
     return FAT_INIT_MEDIA_ACCESS_ERROR;
   }
+
+  // XXX: DEBUG
+  memory_print(fs->currentsector.sector, 512);
 
   // Make Sure 0x55 and 0xAA are at end of sector
   // (this should be the case regardless of the MBR or boot sector)
@@ -132,6 +137,10 @@ int fatfs_init(struct fatfs *fs) {
     fatfs_debug(FAT_INIT_MEDIA_ACCESS_ERROR, "FAT could not read media.\n");
     return FAT_INIT_MEDIA_ACCESS_ERROR;
   }
+
+  // XXX: DEBUG
+  memory_print(fs->currentsector.sector, 512);
+
 
   // Make sure there are 512 bytes per cluster
   if (GET_16BIT_WORD(fs->currentsector.sector, 0x0B) != FAT_SECTOR_SIZE) {
@@ -199,6 +208,8 @@ int fatfs_init(struct fatfs *fs) {
       BPB_RSVDSECCNT) + (fs->currentsector.sector[BPB_NUMFATS] * FATSz)
       + root_dir_sectors);
 
+
+
   // Find out which version of FAT this is...
   if (fs->sectors_per_cluster != 0) {
     count_of_clusters = data_sectors / fs->sectors_per_cluster;
@@ -213,11 +224,13 @@ int fatfs_init(struct fatfs *fs) {
       // Volume is FAT16
       fs->fat_type = FAT_TYPE_16;
       fatfs_debug(FAT_INIT_OK, "FAT init success (FAT16).\n");
+      //fatfs_show_details(fs);
       return FAT_INIT_OK;
     } else {
       // Volume is FAT32
       fs->fat_type = FAT_TYPE_32;
       fatfs_debug(FAT_INIT_OK, "FAT init success (FAT32).\n");
+      //fatfs_show_details(fs);
       return FAT_INIT_OK;
     }
   } else {
