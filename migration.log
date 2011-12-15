@@ -1,0 +1,21 @@
+
+!CONFIGURATION: 'com.ti.ccstudio.buildDefinitions.TMS470.Debug.1370425657' [Thu Nov 10 17:00:25 CET 2011]
+
+	!TOOL: 'com.ti.ccstudio.buildDefinitions.TMS470_4.8.exe.compilerDebug.1401291211'
+
+		!WARNING: Unresolved option: com.ti.ccstudio.buildDefinitions.TMS470_4.6.compilerID.INCLUDE_PATH
+
+		!WARNING: Unresolved option: com.ti.ccstudio.buildDefinitions.TMS470_4.6.compilerID.DIAG_WARNING
+
+		!WARNING: Unresolved option: com.ti.ccstudio.buildDefinitions.TMS470_4.6.compilerID.ABI
+
+	!TOOL: 'com.ti.ccstudio.buildDefinitions.TMS470_4.8.exe.linkerDebug.262145407'
+
+		!WARNING: Unresolved option: com.ti.ccstudio.buildDefinitions.TMS470_4.6.linkerID.OUTPUT_FILE
+
+		!WARNING: Unresolved option: com.ti.ccstudio.buildDefinitions.TMS470_4.6.linkerID.MAP_FILE
+
+		!WARNING: Unresolved option: com.ti.ccstudio.buildDefinitions.TMS470_4.6.linkerID.LIBRARY
+
+		!WARNING: Unresolved option: com.ti.ccstudio.buildDefinitions.TMS470_4.6.linkerID.SEARCH_PATH
+
