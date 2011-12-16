@@ -1,0 +1,156 @@
+/* i2c.c
+ * 
+ * Copyright (c) 2011 The ottos project.
+ *
+ * This work is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ * 
+ * This work is distributed in the hope that it will be useful, but without
+ * any warranty; without even the implied warranty of merchantability or
+ * fitness for a particular purpose. See the GNU Lesser General Public License
+ * for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ *
+ *
+ *  Created on: 16 Dec 2011
+ *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
+ */
+
+#include <ottos/types.h>
+#include <ottos/kernel.h>
+
+#include "../../hal/omap353x/i2c.h"
+
+#include "i2c.h"
+
+#define TIMEOUT 10000
+
+// Read/write I/O registers
+#define reg32r(b, r) (*(volatile uint32_t *)((b)+(r)))
+#define reg32w(b, r, v) (*((volatile uint32_t *)((b)+(r))) = (v))
+#define reg32s(b, r, m, v) reg32w(b, r, (reg32r(b, r) & ~(m)) | ((v) & (m)))
+#define reg16r(b, r) (*(volatile uint16_t *)((b)+(r)))
+#define reg16w(b, r, v) (*((volatile uint16_t *)((b)+(r))) = (v))
+#define reg16s(b, r, m, v) reg16w(b, r, (reg16r(b, r) & ~(m)) | ((v) & (m)))
+
+/* CORE_CM registers S 4.14.1.5 */
+#define CM_CORE_BASE 0x48004A00
+
+#define CM_FCLKEN1_CORE 0x00000000
+#define CM_ICLKEN1_CORE 0x00000010
+// These bits apply to all of the (CM|PM)*1_CORE registers as EN_, ST_, and AUTO_* bits
+#define CM_CORE_EN_I2C1 (1<<15)
+
+
+static void waitidle(uint32_t base) {
+  int timeout;
+
+  // wait for bus-busy off
+  timeout = TIMEOUT * 10;
+  while (reg16r(base, I2C_STAT) & I2C_STAT_BB)
+    if (!timeout--) {
+      kernel_print("i2c_write: wait-idle timeout\n");
+      return;
+    }
+}
+
+// i2c state machine
+// used for read or write or parts thereof
+// con indicates what to do
+//
+// See OMAP TRM S 18.5.1.3: Figure 18-29 `I2C Master Transmitter Mode, Polling Method'
+static void doit(uint32_t base, uint16_t con, uint8_t sa, uint8_t *buffer,
+                 int count) {
+  int timeout;
+  uint16_t st;
+  int i = 0;
+
+  //dprintf("doit: con = %016b\n", con);
+
+  redoreg: reg16w(base, I2C_SA, sa);
+  reg16w(base, I2C_CNT, count);
+  reg16w(base, I2C_CON, con);
+
+  timeout = TIMEOUT * 10;
+
+  while (i < count) {
+    st = reg16r(base, I2C_STAT);
+    //dprintf("doit: stat = %04x\n", st);
+
+    if (st & I2C_STAT_NACK) {
+      reg16w(base, I2C_STAT, I2C_STAT_NACK);
+      goto redoreg;
+    } else if (st & I2C_STAT_AL) {
+      reg16w(base, I2C_STAT, I2C_STAT_AL);
+      goto redoreg;
+    } else if (st & I2C_STAT_ARDY) {
+      reg16w(base, I2C_STAT, I2C_STAT_ARDY);
+      continue;
+    } else if (st & I2C_STAT_RDR) {
+      // not sure if i need this ...
+      reg16w(base, I2C_STAT, I2C_STAT_XDR);
+    } else if (st & I2C_STAT_XRDY) {
+      //dprintf("doit: sending byte\n");
+      reg16w(base, I2C_DATA, buffer[i++]);
+      reg16w(base, I2C_STAT, I2C_STAT_XRDY);
+    } else if (st & I2C_STAT_RRDY) {
+      //dprintf("doit: received byte\n");
+      buffer[i++] = reg16r(base, I2C_DATA);
+      reg16w(base, I2C_STAT, I2C_STAT_RRDY);
+    } else if (timeout-- == 0) {
+      kernel_print("i2c_read: receive timeout\n");
+      return;
+    }
+  }
+
+  // wait for transfer complete?
+  timeout = TIMEOUT;
+  while ((reg16r(base, I2C_STAT) & I2C_STAT_ARDY) == 0)
+    if (!timeout--) {
+      kernel_print("i2c_write: wait-complete timeout\n");
+      return;
+    }
+  reg16w(base, I2C_STAT, I2C_STAT_ARDY);
+}
+
+void bus_i2c_read(uint32_t base, uint8_t sa, uint8_t addr, uint8_t *buffer,
+                  int count) {
+  waitidle(base);
+  // send address with no stop
+  doit(base, 0x8601, sa, &addr, 1);
+  // send rest with stop
+  doit(base, 0x8403, sa, buffer, count);
+}
+
+// address encoded in buffer
+void bus_i2c_write(uint32_t base, uint8_t sa, uint8_t *buffer, int count) {
+  waitidle(base);
+  doit(base, 0x8603, sa, buffer, count);
+}
+
+void bus_i2c_write8(uint32_t base, uint8_t sa, uint8_t addr, uint8_t v) {
+  uint8_t buffer[2];// = { addr, v };
+  buffer[0] = addr;
+  buffer[1] = v;
+
+  bus_i2c_write(base, sa, buffer, 2);
+}
+
+void bus_i2c_init(void) {
+  uint32_t base = I2C1_BASE;
+
+  // enable i2c1 (ROM has alredy done it, but may as well make sure)
+  reg32s(CM_CORE_BASE, CM_FCLKEN1_CORE, CM_CORE_EN_I2C1, CM_CORE_EN_I2C1);
+  reg32s(CM_CORE_BASE, CM_ICLKEN1_CORE, CM_CORE_EN_I2C1, CM_CORE_EN_I2C1);
+
+  // Sets I2C speed to 100Khz F/S mode
+  reg16w(base, I2C_PSC, 0x17);
+  reg16w(base, I2C_SCLL, 0x0d);
+  reg16w(base, I2C_SCLH, 0x0f);
+}
+
