@@ -25,8 +25,8 @@
  */
 
 
-#ifndef OMAP353X_TIMER_H_
-#define OMAP353X_TIMER_H_
+#ifndef HAL_OMAP353X_TIMER_H_
+#define HAL_OMAP353X_TIMER_H_
 
 #define GPTIMER_COUNT 11
 
@@ -92,4 +92,4 @@
 #define CM_CLKSEL_GPT9  7
 
 
-#endif /* TIMER_H_ */
+#endif /* HAL_OMAP353X_TIMER_H_ */

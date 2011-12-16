@@ -21,8 +21,8 @@
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef OMAP353X_INTC_H_
-#define OMAP353X_INTC_H_
+#ifndef HAL_OMAP353X_INTC_H_
+#define HAL_OMAP353X_INTC_H_
 
 /* macros for n and m multiplicative register of interrupt controller */
 #define INTCPS_N_REG 0x20
@@ -93,4 +93,9 @@
 #define GPT10_IRQ     46
 #define GPT11_IRQ     47
 
-#endif /* OMAP353X_INTC_H_ */
+#define UART1_IRQ     72
+#define UART2_IRQ     73
+#define UART3_IRQ     74
+
+
+#endif /* HAL_OMAP353X_INTC_H_ */

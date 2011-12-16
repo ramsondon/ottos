@@ -1,4 +1,4 @@
-/* IPCHandler.h
+/* omap353x.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,13 +17,21 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Nov 6, 2011
+ *  Created on: Dec 2, 2011
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef IPC_H_
-#define IPC_H_
+#ifndef HAL_OMAP353X_PLATFORM_H_
+#define HAL_OMAP353X_PLATFORM_H_
 
-#include <ottos/types.h>
+/*
+ * This file includes all OMAP 353X relevant header files
+ */
+#include "i2c.h"
+#include "intc.h"
+#include "timer.h"
+#include "uart.h"
+#include "led.h"
 
-#endif /* IPC_H_ */
+
+#endif /* HAL_OMAP353X_PLATFORM_H_ */

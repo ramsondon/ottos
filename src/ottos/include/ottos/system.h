@@ -31,6 +31,8 @@
  * Scheduler system calls
  */
 EXTERN void sys_yield();
+EXTERN void sys_exit();
+EXTERN void sys_create_process(int priority, int initial_address, int wait_for_exit);
 
 /**
  * I/O system calls

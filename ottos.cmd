@@ -10,32 +10,28 @@
 MEMORY
 {
    int_ram:  ORIGIN = 0x40200000  LENGTH = 0x0000FFFF
-   ext_ddr:  ORIGIN = 0x82000000  LENGTH = 0x00010000
+   ext_ddr:  ORIGIN = 0x82000000  LENGTH = 0x02000000 // 256 MBit
 }
 
 SECTIONS
 {
+   .intudef    > 0x4020FFC8
    .intswi     > 0x4020FFCC
-   .intirq     > 0x4020FFDC
+   .intpabt	   > 0x4020FFEC
+   .intdabt    > 0x4020FFF0
+   .intirq     > 0x4020FFDC   
 
    .const      > ext_ddr
-   .text       > ext_ddr
-  
-   	
-   .bss        > int_ram
-    {
-   	_kernelMasterTable = . ;
-   	. = . + (16*1024);
-   	*(.bss)
-   	}
-   .far        > int_ram
+   .bss        > ext_ddr
+   .far        > ext_ddr
    
-   .stack      > int_ram
-   .data       > int_ram
-   .cinit      > int_ram
-   .cio        > int_ram
+   .stack      > ext_ddr
+   .data       > ext_ddr
+   .cinit      > ext_ddr
+   .cio        > ext_ddr
    
-   
-   .sysmem     > int_ram
-   .switch     > int_ram
+   .text       > int_ram
+   .sysmem     > ext_ddr
+   .switch     > ext_ddr
 }
+

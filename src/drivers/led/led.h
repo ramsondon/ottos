@@ -21,8 +21,8 @@
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef LED_H_
-#define LED_H_
+#ifndef DRIVERS_LED_LED_H_
+#define DRIVERS_LED_LED_H_
 
 #include <ottos/drivers/driver.h>
 #include <ottos/dev/device.h>
@@ -33,5 +33,14 @@ int led_read(device_t dev, int count, char* buffer);
 int led_write(device_t dev, int count, char* buffer);
 int led_ioctl(device_t dev, ioctl_t msg);
 int led_create(device_t dev);
+
+static driver_t omap_led_driver = {
+  led_open,
+  led_close,
+  led_read,
+  led_write,
+  led_ioctl,
+  led_create
+};
 
 #endif /* LED_H_ */
