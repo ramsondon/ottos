@@ -24,6 +24,8 @@
 #include <ottos/types.h>
 #include <ottos/kernel.h>
 
+#include <ottos/memory.h>
+
 #include "../../hal/omap353x/i2c.h"
 
 #include "i2c.h"
@@ -31,6 +33,7 @@
 #define TIMEOUT 10000
 
 // Read/write I/O registers
+
 #define reg32r(b, r) (*(volatile uint32_t *)((b)+(r)))
 #define reg32w(b, r, v) (*((volatile uint32_t *)((b)+(r))) = (v))
 #define reg32s(b, r, m, v) reg32w(b, r, (reg32r(b, r) & ~(m)) | ((v) & (m)))
@@ -52,9 +55,9 @@ static void waitidle(uint32_t base) {
 
   // wait for bus-busy off
   timeout = TIMEOUT * 10;
-  while (reg16r(base, I2C_STAT) & I2C_STAT_BB)
+  while (/*MMIO_READ16(base + I2C_STAT)*/ reg16r(base, I2C_STAT) & I2C_STAT_BB)
     if (!timeout--) {
-      kernel_print("i2c_write: wait-idle timeout\n");
+      kernel_print("i2c_write: wait-idle timeout\r\n");
       return;
     }
 }
@@ -72,50 +75,50 @@ static void doit(uint32_t base, uint16_t con, uint8_t sa, uint8_t *buffer,
 
   //dprintf("doit: con = %016b\n", con);
 
-  redoreg: reg16w(base, I2C_SA, sa);
-  reg16w(base, I2C_CNT, count);
-  reg16w(base, I2C_CON, con);
+  redoreg: MMIO_WRITE16(base + I2C_SA, sa);
+  MMIO_WRITE16(base + I2C_CNT, count);
+  MMIO_WRITE16(base + I2C_CON, con);
 
   timeout = TIMEOUT * 10;
 
   while (i < count) {
-    st = reg16r(base, I2C_STAT);
+    st =  MMIO_READ16(base + I2C_STAT);
     //dprintf("doit: stat = %04x\n", st);
 
     if (st & I2C_STAT_NACK) {
-      reg16w(base, I2C_STAT, I2C_STAT_NACK);
+      MMIO_WRITE16(base + I2C_STAT, I2C_STAT_NACK);
       goto redoreg;
     } else if (st & I2C_STAT_AL) {
-      reg16w(base, I2C_STAT, I2C_STAT_AL);
+      MMIO_WRITE16(base + I2C_STAT, I2C_STAT_AL);
       goto redoreg;
     } else if (st & I2C_STAT_ARDY) {
-      reg16w(base, I2C_STAT, I2C_STAT_ARDY);
+      MMIO_WRITE16(base + I2C_STAT, I2C_STAT_ARDY);
       continue;
     } else if (st & I2C_STAT_RDR) {
       // not sure if i need this ...
-      reg16w(base, I2C_STAT, I2C_STAT_XDR);
+      MMIO_WRITE16(base + I2C_STAT, I2C_STAT_XDR);
     } else if (st & I2C_STAT_XRDY) {
       //dprintf("doit: sending byte\n");
-      reg16w(base, I2C_DATA, buffer[i++]);
-      reg16w(base, I2C_STAT, I2C_STAT_XRDY);
+      MMIO_WRITE16(base + I2C_STAT, buffer[i++]);
+      MMIO_WRITE16(base + I2C_STAT, I2C_STAT_XRDY);
     } else if (st & I2C_STAT_RRDY) {
       //dprintf("doit: received byte\n");
-      buffer[i++] = reg16r(base, I2C_DATA);
-      reg16w(base, I2C_STAT, I2C_STAT_RRDY);
+      buffer[i++] = MMIO_READ16(base + I2C_DATA);
+      MMIO_WRITE16(base + I2C_STAT, I2C_STAT_RRDY);
     } else if (timeout-- == 0) {
-      kernel_print("i2c_read: receive timeout\n");
+      kernel_print("i2c_read: receive timeout\r\n");
       return;
     }
   }
 
   // wait for transfer complete?
   timeout = TIMEOUT;
-  while ((reg16r(base, I2C_STAT) & I2C_STAT_ARDY) == 0)
+  while ((MMIO_READ16(base + I2C_DATA) & I2C_STAT_ARDY ) == 0)
     if (!timeout--) {
-      kernel_print("i2c_write: wait-complete timeout\n");
+      kernel_print("i2c_write: wait-complete timeout\r\n");
       return;
     }
-  reg16w(base, I2C_STAT, I2C_STAT_ARDY);
+  MMIO_WRITE16(base + I2C_STAT, I2C_STAT_ARDY);
 }
 
 void bus_i2c_read(uint32_t base, uint8_t sa, uint8_t addr, uint8_t *buffer,
@@ -142,8 +145,20 @@ void bus_i2c_write8(uint32_t base, uint8_t sa, uint8_t addr, uint8_t v) {
 }
 
 void bus_i2c_init(void) {
-  uint32_t base = I2C1_BASE;
+  //uint32_t base = I2C1_BASE;
+  uint32_t address = CM_CORE_BASE + CM_FCLKEN1_CORE;
 
+
+  // enable i2c1 (ROM has alredy done it, but may as well make sure)
+  MMIO_AND_THEN_OR32(address, ~CM_CORE_EN_I2C1, CM_CORE_EN_I2C1);
+  MMIO_AND_THEN_OR32(address, ~CM_ICLKEN1_CORE, CM_CORE_EN_I2C1);
+
+  // Sets I2C speed to 100Khz F/S mode
+  MMIO_WRITE16(I2C1_BASE + I2C_PSC, 0x17);
+  MMIO_WRITE16(I2C1_BASE + I2C_SCLL, 0x0d);
+  MMIO_WRITE16(I2C1_BASE + I2C_SCLH, 0x0f);
+
+/*
   // enable i2c1 (ROM has alredy done it, but may as well make sure)
   reg32s(CM_CORE_BASE, CM_FCLKEN1_CORE, CM_CORE_EN_I2C1, CM_CORE_EN_I2C1);
   reg32s(CM_CORE_BASE, CM_ICLKEN1_CORE, CM_CORE_EN_I2C1, CM_CORE_EN_I2C1);
@@ -152,5 +167,6 @@ void bus_i2c_init(void) {
   reg16w(base, I2C_PSC, 0x17);
   reg16w(base, I2C_SCLL, 0x0d);
   reg16w(base, I2C_SCLH, 0x0f);
+*/
 }
 
