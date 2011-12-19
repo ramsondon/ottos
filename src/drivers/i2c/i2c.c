@@ -23,7 +23,6 @@
 
 #include <ottos/types.h>
 #include <ottos/kernel.h>
-
 #include <ottos/memory.h>
 
 #include "../../hal/omap353x/i2c.h"
