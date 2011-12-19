@@ -26,9 +26,9 @@
 
 /* I2C base addresses */
 
-#define I2C1 0x48070000
-#define I2C2 0x48072000
-#define I2C3 0x48060000
+#define I2C1_BASE 0x48070000
+#define I2C2_BASE 0x48072000
+#define I2C3_BASE 0x48060000
 
 
 /* I2C register offsets */
@@ -55,6 +55,22 @@
 #define I2C_OA3     0x4C
 #define I2C_ACTOA   0x50
 #define I2C_SBLOCK  0x54
+
+// I2C_STAT bits
+#define I2C_STAT_XDR (1<<14)
+#define I2C_STAT_RDR (1<<13)
+#define I2C_STAT_BB (1<<12)
+#define I2C_STAT_XRDY (1<<4)
+#define I2C_STAT_RRDY (1<<3)
+#define I2C_STAT_ARDY (1<<2)
+#define I2C_STAT_NACK (1<<1)
+#define I2C_STAT_AL (1<<0)
+// I2C_CON bits
+#define I2C_CON_MST (1<<10)
+#define I2C_CON_TRX (1<<9)
+#define I2C_CON_STP 2
+#define I2C_CON_STT 1
+
 
 
 #endif /* HAL_OMAP353X_I2C_H_ */

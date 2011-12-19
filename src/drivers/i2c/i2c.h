@@ -1,4 +1,4 @@
-/* types.h
+/* i2c.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,33 +17,22 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 21.10.2011
- *      Author: Franziskus Domig <fdomig@gmail.com>
+ *  Created on: 16 Dec 2011
+ *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#ifndef OTTOS_TYPES_H_
-#define OTTOS_TYPES_H_
+#ifndef I2C_H_
+#define I2C_H_
 
-#include <ottos/const.h>
-#include <stdint.h>
+#include <ottos/types.h>
 
-#ifndef _SIZE_T
-#define _SIZE_T
-typedef uint32_t size_t;
-#endif
-
-typedef char BOOLEAN;
-
-typedef int pid_t;
-typedef volatile unsigned int mem_address_t;
-typedef int (*function_t)();
-
-typedef unsigned long address_t;
-typedef address_t file_t;
-
-typedef struct message_t {
-    int pid_t;
-} message_t;
+/* i2c bus */
+void bus_i2c_init(void);
+void bus_i2c_read(uint32_t base, uint8_t sa, uint8_t addr, uint8_t *buffer, int count);
+// address stored as first byte(s) of buffer
+void bus_i2c_write(uint32_t base, uint8_t sa, uint8_t *buffer, int count);
+// write 8 bites
+void bus_i2c_write8(uint32_t base, uint8_t sa, uint8_t addr, uint8_t v);
 
 
-#endif /* OTTOS_TYPES_H_ */
+#endif /* I2C_H_ */
