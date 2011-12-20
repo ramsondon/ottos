@@ -36,7 +36,7 @@
         void clearTLB();
 
 
-        BOOLEAN isTaskPage(address pageAddress);
+        BOOLEAN isProcessPage(address pageAddress);
         int pageForAddress(enum MemoryType* type, unsigned int memAddress);
         address addressOfPage(enum MemoryType mem, int pageNumberInMemory);
         void reservePages(enum MemoryType mem, int firstPageNumber, int nrOfPages);
@@ -44,13 +44,10 @@
 
 
         void switchToKernelMMU();
-        void initMemoryForTask(process_t* task);
-        void deleteTaskMemory(process_t* task);
+        void initMemoryForProcess(process_t* process);
+        void deleteProcessMemory(process_t* process);
 
-        void loadPage(int pageNumber);
 
-        void prepagePagesFor(int serviceId);
-        address parameterAddressFor(int serviceId);
 
         BOOLEAN handlePrefetchAbort();
         BOOLEAN handleDataAbort();

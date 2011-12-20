@@ -79,7 +79,7 @@ void process_delete() {
     }
   }
    //delete Mastertable Entries for process
-  deleteTaskMemory(process_table[process_active]);
+  deleteProcessMemory(process_table[process_active]);
   // delete the process
   free(process_table[process_active]);
 
@@ -92,7 +92,6 @@ void process_delete() {
 pid_t process_create(int priority, int initial_address) {
 
   process_t* p = (process_t*) malloc(sizeof(process_t));
-  p->masterTableAddress= (address)0x0;
   p->codeLocation = (address) 0x0;
   p->pid = process_next_free_entry;
   p->priority = priority;

@@ -104,9 +104,9 @@ void serial_test() {
    //process_create(1, (int) serial_test_write_3);
    //process_create(1, (int) serial_test_write_4);
    //process_create(1, (int) serial_test_write_5);
-   process_create(1, (int) serial_test_calculator);
+   //process_create(1, (int) serial_test_calculator);
 
-    devices_init();
+    //devices_init();
     serial_test_create();
 
     irq_init();
@@ -191,7 +191,7 @@ void fs_test() {
 
 int main(int argc, char **argv) {
   MMU_init();
-//  process_test();
+ process_test();
 //  timer_test();
 //  serial_test();
 //  serial_test_calc();

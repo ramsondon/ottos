@@ -27,14 +27,14 @@
 #include "../kernel/ram_manager/ram_manager.h"
 
 
-asm("\t .bss _taskMasterTableAddress, 4\n" \
+asm("\t .bss _processMasterTableAddress, 4\n" \
     "\t .bss _tempVariableForAsmAndC, 4\n" \
-    "\t .global _taskMasterTableAddress\n" \
+    "\t .global _processMasterTableAddress\n" \
     "\t .global _tempVariableForAsmAndC\n" \
-    "taskMasterTableAddress .field _taskMasterTableAddress, 32\n" \
+    "processMasterTableAddress .field _processMasterTableAddress, 32\n" \
     "tempVariableForAsmAndC .field _tempVariableForAsmAndC, 32\n");
 
-extern address taskMasterTableAddress;
+extern address processMasterTableAddress;
 extern unsigned int tempVariableForAsmAndC;
 extern volatile unsigned int kernelMasterTable;
 extern volatile unsigned int intRamStart;
@@ -48,17 +48,17 @@ BOOLEAN m_occupiedPagesIntRam[MAX_PAGES_IN_INT_RAM];
 BOOLEAN m_occupiedPagesExtDDR[MAX_PAGES_IN_EXT_DDR];
 
 
-process_t m_kernelTask;
-process_t* m_tasks[MAX_TASKS];
-process_t* m_currentTask;
+process_t m_kernelProcess;
+process_t* m_process[MAX_TASKS];
+process_t* m_currentProcess;
 
 void MMU_init() {
    int i = NULL;
-    m_currentTask = NULL;
+    m_currentProcess = NULL;
     m_firstFreeInIntRam = &intRamStart;
     m_firstFreeInExtDDR = &extDDRStart;
     for (i = 0; i < MAX_TASKS; i++) {
-        m_tasks[i] = NULL;
+        m_process[i] = NULL;
     }
 
     //Initialize MMU
@@ -85,7 +85,7 @@ void initKernelMMU() {
     initDomainAccess();
 
     tableAddress = &kernelMasterTable;
-    m_kernelTask.masterTableAddress = tableAddress;
+    m_kernelProcess.masterTableAddress = tableAddress;
 
     setMasterTablePointerTo(tableAddress);
     // Initialize Master Table
@@ -101,6 +101,7 @@ void initKernelMMU() {
 
 
 void enableMMU() {
+  // Set internal MMU from OMAP 3530 on
     asm("\t MRC p15, #0, r0, c1, c0, #0\n");
     asm("\t ORR r0, r0, #0x1\n");
     asm("\t MCR p15, #0, r0, c1, c0, #0\n");
@@ -122,11 +123,11 @@ void clearTLB() {
 
 void setMasterTablePointerTo(address tableAddress) {
   unsigned int tempAddress = NULL;
-    taskMasterTableAddress = tableAddress;
-    tempAddress = (unsigned int)taskMasterTableAddress & 0xFFFFC000;
-    taskMasterTableAddress = (address)tempAddress;
+    processMasterTableAddress = tableAddress;
+    tempAddress = (unsigned int)processMasterTableAddress & 0xFFFFC000;
+    processMasterTableAddress = (address)tempAddress;
 
-    asm("\t LDR r1, taskMasterTableAddress\n");
+    asm("\t LDR r1, processMasterTableAddress\n");
     asm("\t LDR r1, [r1]\n");
     asm("\t MCR p15, #0, r1, c2, c0, #0\n");
 
@@ -204,7 +205,7 @@ void mapOneToOne(address masterTableAddress, address startAddress, unsigned int 
     }
 }
 
-BOOLEAN isTaskPage(address pageAddress) {
+BOOLEAN isProcessPage(address pageAddress) {
     address intVecsPageStart = (address)((((unsigned int)&intvecsStart) >> 12) << 12);
     return !(((pageAddress >= (address)INT_RAM_START) && (pageAddress < m_firstFreeInIntRam))
         || ((pageAddress >= (address)EXT_DDR_START) && (pageAddress < m_firstFreeInExtDDR))
@@ -213,46 +214,46 @@ BOOLEAN isTaskPage(address pageAddress) {
 }
 
 void switchToKernelMMU() {
-    setMasterTablePointerTo(m_kernelTask.masterTableAddress);
+    setMasterTablePointerTo(m_kernelProcess.masterTableAddress);
 }
 
-void initMemoryForTask(process_t* task) {
+void initMemoryForProcess(process_t* process) {
   unsigned int startAddress  = NULL;
   address newPage = NULL;
-    process_t* savedTaskPointer = m_tasks[task->pid];
+    process_t* savedTaskPointer = m_process[process->pid];
 
     if (savedTaskPointer == NULL) {
-        task->masterTableAddress = createMasterTable();
+        process->masterTableAddress = createMasterTable();
 
-        mapOneToOne(task->masterTableAddress, (address)ROM_INTERRUPT_ENTRIES, ROM_INTERRUPT_LENGTH);
-        mapOneToOne(task->masterTableAddress, (address)INT_RAM_START, (unsigned int)m_firstFreeInIntRam - INT_RAM_START);
-        mapOneToOne(task->masterTableAddress, &intvecsStart, 0x3B);
-        mapOneToOne(task->masterTableAddress, (address)EXT_DDR_START, (unsigned int)m_firstFreeInExtDDR - EXT_DDR_START);
+        mapOneToOne(process->masterTableAddress, (address)ROM_INTERRUPT_ENTRIES, ROM_INTERRUPT_LENGTH);
+        mapOneToOne(process->masterTableAddress, (address)INT_RAM_START, (unsigned int)m_firstFreeInIntRam - INT_RAM_START);
+        mapOneToOne(process->masterTableAddress, &intvecsStart, 0x3B);
+        mapOneToOne(process->masterTableAddress, (address)EXT_DDR_START, (unsigned int)m_firstFreeInExtDDR - EXT_DDR_START);
 
         //task->messageQueueAddress = createMappedPage(task->masterTableAddress, (address)MESSAGE_QUEUE_VIRTUAL_ADDRESS);
 
         // Fake loader
-        startAddress = task->pcb.restart_address;
-        newPage = createMappedPage(task->masterTableAddress, (address)startAddress);
+        startAddress = process->pcb.restart_address;
+        newPage = createMappedPage(process->masterTableAddress, (address)startAddress);
 
-        task->codeLocation = task->codeLocation + ((startAddress - TASK_MEMORY_START) / 4);
+        process->codeLocation = process->codeLocation + ((startAddress - TASK_MEMORY_START) / 4);
         // load needed instructions into new page
-       memcpy((void*)newPage, (void*)(task->codeLocation), 4096);
+       memcpy((void*)newPage, (void*)(process->codeLocation), 4096);
 
-        setMasterTablePointerTo(task->masterTableAddress);
+        setMasterTablePointerTo(process->masterTableAddress);
 
-        m_tasks[task->pid] = task;
+        m_process[process->pid] = process;
     } else {
         setMasterTablePointerTo(savedTaskPointer->masterTableAddress);
     }
-    m_currentTask = task;
+    m_currentProcess = process;
 }
 
-void deleteTaskMemory(process_t* task) {
+void deleteProcessMemory(process_t* process) {
   unsigned int masterTableEntry = NULL;
   unsigned int l2TableEntry = NULL;
   int pageNumber = NULL;
-    address masterTableAddress = task->masterTableAddress;
+    address masterTableAddress = process->masterTableAddress;
     if (masterTableAddress != 0x0) {
         enum MemoryType type;
 
@@ -261,7 +262,7 @@ void deleteTaskMemory(process_t* task) {
             if (l2TableAddress != 0x0) {
                 for (l2TableEntry = 0; l2TableEntry < 256; l2TableEntry++) {
                     address pageAddress = (address)(((*(l2TableAddress + l2TableEntry)) >> 12) << 12);
-                    if ((pageAddress != 0x0) && (isTaskPage(pageAddress))) {
+                    if ((pageAddress != 0x0) && (isProcessPage(pageAddress))) {
 
                         pageNumber = pageForAddress(&type, (unsigned int)pageAddress);
                         releasePages(type, pageNumber, 1);
@@ -276,21 +277,9 @@ void deleteTaskMemory(process_t* task) {
         pageNumber = pageForAddress(&type, (unsigned int)masterTableAddress);
         releasePages(type, pageNumber, 4);
     }
-    m_tasks[task->pid] = NULL;
+    m_process[process->pid] = NULL;
 }
 
-void loadPage(int pageNumber) {
-    //TODO
-}
-
-void prepagePagesFor(int serviceId)  {
-  //TODO: to be implemented
-}
-
-address parameterAddressFor(int serviceId)  {
-  //TODO: to be implemented
-  return (address)0x820F0000;
-}
 
 BOOLEAN handlePrefetchAbort() {
 
@@ -302,7 +291,7 @@ BOOLEAN handlePrefetchAbort() {
 BOOLEAN handleDataAbort() {
   BOOLEAN doContextSwitch = FALSE;
   unsigned int accessedAddress = NULL;
-    asm("\t MRC p15, #0, r0, c6, c0, #0\n"); // Read data foult address register
+    asm("\t MRC p15, #0, r0, c6, c0, #0\n"); // Read data fault address register
     asm("\t LDR r1, tempVariableForAsmAndC\n");
     asm("\t STR r0, [r1]\n");
     // TODO check for read / write permissions
@@ -311,10 +300,10 @@ BOOLEAN handleDataAbort() {
     accessedAddress = tempVariableForAsmAndC;
 
     if ((accessedAddress % 0x4 == 0x0) && (accessedAddress >= TASK_MEMORY_START) && (accessedAddress < TASK_MEMORY_END)) {
-        process_t* currentTask = m_currentTask;
+        process_t* currentProcess = m_currentProcess;
         switchToKernelMMU();
-        createMappedPage(currentTask->masterTableAddress, (address)accessedAddress);
-        initMemoryForTask(currentTask);
+        createMappedPage(currentProcess->masterTableAddress, (address)accessedAddress);
+        initMemoryForProcess(currentProcess);
         doContextSwitch = FALSE;
     } else {
 
