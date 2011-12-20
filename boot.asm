@@ -266,7 +266,7 @@ _c_int00: .asmfunc
     ;*   - Perform C auto initialization
     ;*   - Call global constructors
     ;*------------------------------------------------------
-    ;BL      __TI_auto_init
+    BL      __TI_auto_init
 
     ;*------------------------------------------------------
 	;* CALL APPLICATION

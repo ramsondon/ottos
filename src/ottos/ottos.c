@@ -191,7 +191,9 @@ void fs_test() {
 
 int main(int argc, char **argv) {
   MMU_init();
- process_test();
+
+  asm("\t MOV PC,#0x1000");
+//process_test();
 //  timer_test();
 //  serial_test();
 //  serial_test_calc();

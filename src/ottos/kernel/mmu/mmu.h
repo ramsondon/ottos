@@ -18,7 +18,7 @@
 
 #define TASK_MEMORY_START 0x20000
 #define TASK_MEMORY_END 0x1000000
-#define MAX_TASKS 256
+#define MAX_PROCESS 256
 
 
         void initKernelMMU();

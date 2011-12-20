@@ -49,7 +49,7 @@ BOOLEAN m_occupiedPagesExtDDR[MAX_PAGES_IN_EXT_DDR];
 
 
 process_t m_kernelProcess;
-process_t* m_process[MAX_TASKS];
+process_t* m_process[MAX_PROCESS];
 process_t* m_currentProcess;
 
 void MMU_init() {
@@ -57,7 +57,7 @@ void MMU_init() {
     m_currentProcess = NULL;
     m_firstFreeInIntRam = &intRamStart;
     m_firstFreeInExtDDR = &extDDRStart;
-    for (i = 0; i < MAX_TASKS; i++) {
+    for (i = 0; i < MAX_PROCESS; i++) {
         m_process[i] = NULL;
     }
 
