@@ -28,6 +28,8 @@
 #include "../../bin/led_test.h"
 #include "../../bin/serial_test.h"
 #include "../../bin/console.h"
+#include "../../bin/i2c_test.h"
+#include "../drivers/i2c/i2c.h"
 
 #include "kernel/intc/irq.h"
 #include "kernel/pm/process.h"
@@ -230,6 +232,14 @@ void fs_test() {
 
 }
 
+void i2c_test() {
+  devices_init();
+
+  bus_i2c_init();
+  pulse_leds();
+}
+
+
 int main(int argc, char **argv) {
 
 //  process_test();
@@ -238,7 +248,8 @@ int main(int argc, char **argv) {
 //  serial_test_calc();
 //  process_exit_test();
 //  console_test();
-  fs_test();
+//  fs_test();
+    i2c_test();
 
   for(;;);
 
