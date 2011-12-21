@@ -26,9 +26,7 @@
 #include <ottos/memory.h>
 #include <ottos/kernel.h>
 
-
 #include <ottos/platform.h>
-
 
 #include "../timer/timer.h"
 #include "../pm/process.h"
@@ -45,18 +43,15 @@ asm(" .bss _pcb_new, 4 ");
 asm(" .bss _stack_pointer_saved_context, 4 ");
 asm(" .bss _stack_pointer_original, 4 ");
 
-
 asm(" .global _pcb_old ");
 asm(" .global _pcb_new ");
 asm(" .global _stack_pointer_saved_context ");
 asm(" .global _stack_pointer_original ");
 
-
 asm("pcb_old .field _pcb_old, 32 ");
 asm("pcb_new .field _pcb_new, 32 ");
 asm("stack_pointer_saved_context .field _stack_pointer_saved_context, 32 ");
 asm("stack_pointer_original .field _stack_pointer_original, 32 ");
-
 
 extern int pcb_old;
 extern int pcb_new;
@@ -111,13 +106,13 @@ void irq_handle_udef() {
 void irq_handle_dabt() {
   _disable_interrupts();
   mmu_handle_data_abort();
-  kernel_panic("data abort\n\r");
+  //kernel_panic("data abort\n\r");
 }
 
 void irq_handle_pabt() {
-    _disable_interrupts();
-    mmu_handle_prefetch_abort();
-   kernel_panic("prefetch abort\n\r");
+  _disable_interrupts();
+  mmu_handle_prefetch_abort();
+  //kernel_panic("prefetch abort\n\r");
 }
 
 void context_switch() {
@@ -129,20 +124,22 @@ void context_switch() {
 
   pcb_old = PID_INVALID;
   if (process_active != PID_INVALID) {
-    if(process_table[process_active]->state == RUNNING) {
+    if (process_table[process_active]->state == RUNNING) {
       process_table[process_active]->state = READY;
     }
 
-    //Get Mastertable for active Process
-    // TODO (thomas.bargetz@gmail.com) do not init master table here, init it when
-    // creating a new process and set the master table pointer there
-    mmu_init_memory_for_process(process_table[process_active]);
 
 
     // Get the TCB's of the processes to switch the context
     pcb_old = (int) &process_table[process_active]->pcb.CPSR;
   }
   scheduler_next();
+
+  //Get Mastertable for active Process
+    // TODO (thomas.bargetz@gmail.com) do not init master table here, init it when
+    // creating a new process and set the master table pointer there
+    mmu_init_memory_for_process(process_table[process_active]);
+
   process_table[process_active]->state = RUNNING;
 
   pcb_new = (int) &process_table[process_active]->pcb.CPSR;
@@ -210,7 +207,8 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
   asm(" LDR     R0, stack_pointer_saved_context");
   asm(" STR     R13, [R0], #0");
 
-  stack_pointer_original = stack_pointer_saved_context + SAVED_REGISTERS_SPACE + SWI_PARAMETERS_SPACE;
+  stack_pointer_original = stack_pointer_saved_context + SAVED_REGISTERS_SPACE
+      + SWI_PARAMETERS_SPACE;
 
   mmu_switch_to_kernel();
 
@@ -233,7 +231,7 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
       // r2 = initial_address
       // r3 = wait_for_exit
       process_create(r1, r2);
-      if(r3 != FALSE) {
+      if (r3 != FALSE) {
         // the current process will be blocked until the
         // child exited
 

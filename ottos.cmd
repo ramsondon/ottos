@@ -43,19 +43,21 @@ SECTIONS
 		irq.obj
 	}
 	.pinit      > int_ram {
-		*(.pinit)
 			_int_RAM_start = .;
+				
    	}
 
 
 ///////////////////////////// ext_ddr //////////////////////////////
 
 	ORDER
-	.text	   > ext_ddr
+	 .text	    > ext_ddr
+
 	.bss        > ext_ddr
 	.const      > ext_ddr
 	.sysmem     > ext_ddr
 	.stackArea  > ext_ddr {
+	. = ALIGN(0x4);
        . = . + (4* 1024);
        kernelStack = .;
 	   . = . + (4 * 1024);
@@ -64,7 +66,6 @@ SECTIONS
 	   systemStack = .;
 	   . = . + (4 * 1024);
 	   abortStack = .;
-	   . = . + (4 * 1024);
 	   _ext_DDR_start = .;
    }
 }

@@ -30,7 +30,7 @@
 asm(" .bss _process_table_master_address, 4");
 asm(" .bss _accessed_address, 4");
 
-asm(" .global _processMasterTableAddress");
+asm(" .global _process_table_master_address");
 asm(" .global _accessed_address");
 
 asm("process_table_master_address .field _process_table_master_address, 32");
@@ -71,7 +71,6 @@ address first_free_in_ext_DDR;
 #define MMU_MASTER_TABLE_SIZE MMU_PAGE_SIZE * 4
 #define MMU_L2_ENTRY_COUNT 256
 #define MMU_L2_ENTRY_SIZE 4 // 4 byte
-
 address mmu_create_master_table();
 void mmu_map_one_to_one(address master_table_address, address start_address,
                         unsigned int length);
@@ -88,6 +87,7 @@ void mmu_init() {
   unsigned int i;
   unsigned int nrOfKernelPages;
   address table_address;
+  process_table_master_address = 0;
 
   //m_currentProcess = NULL;
   first_free_in_int_RAM = &int_RAM_start;
@@ -149,10 +149,10 @@ void mmu_init() {
 }
 
 void mmu_set_master_table_pointer_to(address table_address) {
-  //unsigned int temp_address;
+ // unsigned int temp_address;
 
   //process_table_master_address = table_address;
-  // align the given table_address (set the last 12 bits to zero)
+  //// align the given table_address (set the last 12 bits to zero)
   //temp_address = (unsigned int) process_table_master_address & MMU_ALIGN_ADDRESS;
   //process_table_master_address = (address) temp_address;
 
@@ -165,7 +165,7 @@ void mmu_set_master_table_pointer_to(address table_address) {
   asm(" MCR   P15, #0, R1, C2, C0, #0");
 
   // clear the TLB
-  asm(" MOV   R0, #0x0");
+  asm(" MOV   R0, #0");
   asm(" MCR   P15, #0, R0, C8, C7, #0");
 }
 
@@ -247,8 +247,8 @@ void mmu_map_one_to_one(address master_table_address, address start_address,
   for (i = 0; i < nr_of_master_table_entries; i++) {
     // determine the page table entry (index)
     unsigned int master_table_entry_number = (unsigned int) start_address >> 20;
-    address l2_table_adress =
-        create_or_get_l2_table(master_table_address, master_table_entry_number);
+    address l2_table_adress = create_or_get_l2_table(master_table_address,
+                                                     master_table_entry_number);
 
     if (l2_table_adress > (address) 0x0) {
       for (j = first_entry_number; (j < MMU_L2_ENTRY_COUNT) && (j
@@ -311,10 +311,10 @@ void map_directly(address master_table_address, address virtual_address,
 
   unsigned int master_table_entry_number = (unsigned int) virtual_address >> 20;
   address l2_table_address = create_or_get_l2_table(master_table_address,
-                                                  master_table_entry_number);
+                                                    master_table_entry_number);
 
-  address page_address =
-      (address) (((unsigned int) physical_address >> 12) << 12);
+  address page_address = (address) (((unsigned int) physical_address >> 12)
+      << 12);
 
   // TODO (thomas.bargetz@gmail.com) 0xFFF00?
   unsigned int l2_table_entry_number = ((unsigned int) virtual_address >> 12)
@@ -328,7 +328,7 @@ void map_directly(address master_table_address, address virtual_address,
 }
 
 void mmu_delete_process_memory(process_t* process) {
-  unsigned int master_table_entry ;
+  unsigned int master_table_entry;
   unsigned int l2_table_entry;
   int page_number;
   address master_table_address = process->master_table_address;
@@ -343,12 +343,14 @@ void mmu_delete_process_memory(process_t* process) {
       if (l2_table_address != 0) {
         // delete l2 table entries
         for (l2_table_entry = 0; l2_table_entry < MMU_L2_ENTRY_COUNT; l2_table_entry++) {
-          address page_address = (address) (((*(l2_table_address + l2_table_entry))
-              >> 12) << 12);
+          address page_address = (address) (((*(l2_table_address
+              + l2_table_entry)) >> 12) << 12);
 
           // if the page has been initialised and it's a process page, then release the page
           if ((page_address != 0) && (is_process_page(page_address))) {
-            page_number = ram_manager_page_for_address(&type, (unsigned int) page_address);
+            page_number
+                = ram_manager_page_for_address(&type,
+                                               (unsigned int) page_address);
             ram_manager_release_pages(type, page_number, 1);
           }
 
@@ -357,7 +359,9 @@ void mmu_delete_process_memory(process_t* process) {
         }
 
         // delete l2 table?
-        page_number = ram_manager_page_for_address(&type, (unsigned int) l2_table_address);
+        page_number
+            = ram_manager_page_for_address(&type,
+                                           (unsigned int) l2_table_address);
         ram_manager_release_pages(type, page_number, 1);
 
         // delete master table entry
@@ -366,7 +370,9 @@ void mmu_delete_process_memory(process_t* process) {
     }
 
     // delete master table?
-    page_number = ram_manager_page_for_address(&type, (unsigned int) master_table_address);
+    page_number
+        = ram_manager_page_for_address(&type,
+                                       (unsigned int) master_table_address);
     ram_manager_release_pages(type, page_number, 4);
   }
 }
@@ -377,11 +383,13 @@ BOOLEAN is_process_page(address page_address) {
 
   // TODO (thomas.bargetz@gmail.com) wtf?
   // is the address innerhalb vom kernel
-  return !(  ((page_address >= (address) INT_RAM_START) && (page_address < first_free_in_int_RAM))
-          || ((page_address >= (address) EXT_DDR_START) && (page_address < first_free_in_ext_DDR))
-          || ((page_address >= (address) ROM_INTERRUPT_ENTRIES) && (page_address < (address) (ROM_INTERRUPT_ENTRIES + ROM_INTERRUPT_LENGTH)))
-          || ((page_address >= intVecsPageStart) && (page_address < (address) (INT_RAM_START + INT_RAM_SIZE)))
-          );
+  return !(((page_address >= (address) INT_RAM_START) && (page_address
+      < first_free_in_int_RAM)) || ((page_address >= (address) EXT_DDR_START)
+      && (page_address < first_free_in_ext_DDR)) || ((page_address
+      >= (address) ROM_INTERRUPT_ENTRIES) && (page_address
+      < (address) (ROM_INTERRUPT_ENTRIES + ROM_INTERRUPT_LENGTH)))
+      || ((page_address >= intVecsPageStart) && (page_address
+          < (address) (INT_RAM_START + INT_RAM_SIZE))));
 }
 
 void mmu_switch_to_kernel() {

@@ -20,102 +20,46 @@
 
 #include "../../drivers/mmchs/mmchs.h"
 
+#include "kernel/mmu/mmu.h"
+
 void timer_test() {
 
-
   process_table_init();
-
-}
-/*
-
-   mmu_init();
-
-//=======
-void toggle_led_1() {
-  //printf("Timer 3 fired interrupt... \n");
-  *(volatile unsigned long *)GPIO5_DATAOUT ^= SET_BIT(22);
-=======
-  process_create(1, (int)toggle_led1);
-  process_create(1, (int)toggle_led2);
-
-  devices_init();
-
-  irq_init();
-
-  timer_init();
-  //timer_add_handler(toggle_led_1, 5000);
-  //timer_add_handler(toggle_led_2, 10000);
-
-  irq_register_context_switch();
-
-  irq_enable();
-  kernel_to_user_mode();
->>>>>>> 838c3b6c7aadb9e889d28a145e4b8936a32c7dde
 }
 
 void devices_test() {
   devices_init();
 }
 
-*/
-
-
-
-  // initialize device manager
-
-
-//void process_test() {
-//
-//
-//  process_table_init();
-//
-//  process_create(1, (int)toggle_led1_yield);
-//  process_create(1, (int)toggle_led2_yield);
-//
-//  devices_init();
-//
-//  // switch to user mode
-//  kernel_to_user_mode();
-//  sys_yield();
-//
-//}
-
 void serial_test() {
 
+  process_table_init();
 
+  //process_create(1, (int) led1_on);
+  //process_create(1, (int) led1_off);
+  process_create(1, (int) toggle_led1);
+  process_create(1, (int) toggle_led2);
+  //process_create(1, (int) serial_test_write_1);
+  //process_create(1, (int) serial_test_write_2);
+  //process_create(1, (int) serial_test_write_3);
+  //process_create(1, (int) serial_test_write_4);
+  //process_create(1, (int) serial_test_write_5);
+  process_create(1, (int) serial_test_calculator);
 
-   process_table_init();
+  devices_init();
+  serial_test_create();
 
-//    process_create(1, (int)serial_test_test_yield);
-//    process_create(1, (int)toggle_led1_yield);
-//    process_create(1, (int)toggle_led2_yield);
+  irq_init();
 
+  timer_init();
 
-   //process_create(1, (int) led1_on);
-   //process_create(1, (int) led1_off);
-   process_create(1, (int) toggle_led1);
-   process_create(1, (int) toggle_led2);
-   //process_create(1, (int) serial_test_write_1);
-   //process_create(1, (int) serial_test_write_2);
-   //process_create(1, (int) serial_test_write_3);
-   //process_create(1, (int) serial_test_write_4);
-   //process_create(1, (int) serial_test_write_5);
-   process_create(1, (int) serial_test_calculator);
+  irq_register_context_switch();
 
-    devices_init();
-    serial_test_create();
+  irq_enable();
+  kernel_to_user_mode();
+  //    sys_yield();
 
-    irq_init();
-
-    timer_init();
-
-    irq_register_context_switch();
-
-    irq_enable();
-    kernel_to_user_mode();
-//    sys_yield();
-
-//    serial_test_test();
+  //    serial_test_test();
 }
 
 void serial_test_calc() {
@@ -143,7 +87,6 @@ void process_exit_test() {
   process_create(1, (int) serial_test_write_exit_2);
   process_create(1, (int) toggle_led1);
 
-
   devices_init();
 
   irq_init();
@@ -152,10 +95,6 @@ void process_exit_test() {
   irq_enable();
 
   kernel_to_user_mode();
-}
-
-void dummy_process() {
-  for(;;);
 }
 
 void console_test() {
@@ -173,10 +112,9 @@ void console_test() {
 
   timer_init();
 
- // timer_add_handler(toggle_led_1, 5000);
- // timer_add_handler(toggle_led_2, 10000);
+  // timer_add_handler(toggle_led_1, 5000);
+  // timer_add_handler(toggle_led_2, 10000);
   _enable_interrupts();
-
 
   irq_register_context_switch();
 
@@ -206,7 +144,6 @@ void fs_test() {
   kernel_print(buffer);
   fl_fclose(file);
 
-
 }
 
 void i2c_test() {
@@ -216,19 +153,37 @@ void i2c_test() {
   pulse_leds();
 }
 
+void mmu_test() {
+  devices_init();
+
+  mmu_init();
+
+  process_table_init();
+  process_create(1, (int) toggle_led1);
+  process_create(1, (int) toggle_led2);
+
+  irq_init();
+  timer_init();
+  irq_register_context_switch();
+  irq_enable();
+
+  kernel_to_user_mode();
+}
 
 int main(int argc, char **argv) {
 
-//  process_test();
-//  timer_test();
-//  serial_test();
-//  serial_test_calc();
-//  process_exit_test();
-//  console_test();
-//  fs_test();
-    i2c_test();
+  //  process_test();
+  //  timer_test();
+  //  serial_test();
+  //  serial_test_calc();
+  //  process_exit_test();
+  //  console_test();
+  //  fs_test();
+  //i2c_test();
+  mmu_test();
 
-  for(;;);
+  for (;;)
+    ;
 
   return 0;
 }
