@@ -28,6 +28,7 @@
 
 #include "../intc/irq.h"
 #include "../sched/scheduler.h"
+#include "../mmu/mmu.h"
 
 #include "process.h"
 
@@ -77,7 +78,8 @@ void process_delete() {
       process_table[process_active]->parent->state = READY;
     }
   }
-
+   //delete Mastertable Entries for process
+  deleteProcessMemory(process_table[process_active]);
   // delete the process
   free(process_table[process_active]);
 
@@ -90,6 +92,7 @@ void process_delete() {
 pid_t process_create(int priority, int initial_address) {
 
   process_t* p = (process_t*) malloc(sizeof(process_t));
+  p->codeLocation = (address) 0x0;
   p->pid = process_next_free_entry;
   p->priority = priority;
   p->state = READY;
