@@ -210,7 +210,7 @@ void fs_test() {
 void i2c_test() {
   devices_init();
 
-  bus_i2c_init();
+  i2c_init();
   pulse_leds();
 }
 
