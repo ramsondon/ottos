@@ -58,7 +58,7 @@ static void waitidle(uint32_t base) {
 // con indicates what to do
 //
 // See OMAP TRM S 18.5.1.3: Figure 18-29 `I2C Master Transmitter Mode, Polling Method'
-static void doit(uint32_t base, uint16_t con, uint8_t sa, uint8_t *buffer,
+static void executeStateMachine(uint32_t base, uint16_t con, uint8_t sa, uint8_t *buffer,
                  int count) {
   int timeout;
   uint16_t st;
@@ -118,30 +118,30 @@ static void doit(uint32_t base, uint16_t con, uint8_t sa, uint8_t *buffer,
   MMIO_WRITE16(base + I2C_STAT, I2C_STAT_ARDY);
 }
 
-void bus_i2c_read(uint32_t base, uint8_t sa, uint8_t addr, uint8_t *buffer,
+void i2c_read(uint32_t base, uint8_t sa, uint8_t addr, uint8_t *buffer,
                   int count) {
   waitidle(base);
   // send address with no stop
-  doit(base, 0x8601, sa, &addr, 1);
+  executeStateMachine(base, 0x8601, sa, &addr, 1);
   // send rest with stop
-  doit(base, 0x8403, sa, buffer, count);
+  executeStateMachine(base, 0x8403, sa, buffer, count);
 }
 
 // address encoded in buffer
-void bus_i2c_write(uint32_t base, uint8_t sa, uint8_t *buffer, int count) {
+void i2c_write(uint32_t base, uint8_t sa, uint8_t *buffer, int count) {
   waitidle(base);
-  doit(base, 0x8603, sa, buffer, count);
+  executeStateMachine(base, 0x8603, sa, buffer, count);
 }
 
-void bus_i2c_write8(uint32_t base, uint8_t sa, uint8_t addr, uint8_t v) {
+void i2c_write8(uint32_t base, uint8_t sa, uint8_t addr, uint8_t v) {
   uint8_t buffer[2];// = { addr, v };
   buffer[0] = addr;
   buffer[1] = v;
 
-  bus_i2c_write(base, sa, buffer, 2);
+  i2c_write(base, sa, buffer, 2);
 }
 
-void bus_i2c_init(void) {
+void i2c_init(void) {
   uint32_t address = CM_CORE_BASE + CM_FCLKEN1_CORE;
 
   // enable i2c1 (ROM has alredy done it, but may as well make sure)
