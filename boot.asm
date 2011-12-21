@@ -170,10 +170,36 @@ L1:     B	L1
 __stack:.usect	".stack", 0, 4
 
 	.global	_c_int00
+	.global irqStack
+    .global kernelStack
+    .global abortStack
+    .global systemStack
+
 ;***************************************************************
 ;* FUNCTION DEF: _c_int00
 ;***************************************************************
 _c_int00: .asmfunc
+
+      ; SET IRQ-Stack
+    CPS   0x12
+    LDR   sp, c_r13_irq
+
+    ; SET SWI-Stack / Kernel-Stack
+    CPS   0x13
+    LDR   sp, c_r13_kernel
+
+	; SET ABT-Stack
+     CPS 0x17
+     LDR   sp, c_r13_irq
+
+     ; SET System-Stack
+    CPS   0x1F
+    LDR   sp, c_r13_system
+
+    ; Disable Interrupts
+    MRS   R12, CPSR
+    BIC   R12, R12, #192
+    MSR   CPSR_cf, R12
 
 	.if __TI_NEON_SUPPORT__ | __TI_VFP_SUPPORT__
         ;*------------------------------------------------------
@@ -267,7 +293,11 @@ L1:     B	L1
 c_stack			.long    __stack
 c_STACK_SIZE  	.long    __STACK_SIZE
 c_mf_sp	        .long    MAIN_FUNC_SP
-c_r13_irq		.long    0x8200C100
+;c_r13_irq		.long    0x8200C100
+c_r13_irq       .long    irqStack
+c_r13_kernel    .long    kernelStack
+c_r13_abt       .long    abortStack
+c_r13_system    .long    systemStack
 
 	.if __TI_EABI_ASSEMBLER
         .data
@@ -297,4 +327,4 @@ _stkchk_called:
 	.global	EXIT_RTN
     .global __TI_auto_init
 
-	.end
+.end
