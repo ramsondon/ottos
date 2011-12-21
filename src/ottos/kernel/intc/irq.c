@@ -134,6 +134,8 @@ void context_switch() {
     }
 
     //Get Mastertable for active Process
+    // TODO (thomas.bargetz@gmail.com) do not init master table here, init it when
+    // creating a new process and set the master table pointer there
     mmu_init_memory_for_process(process_table[process_active]);
 
 
