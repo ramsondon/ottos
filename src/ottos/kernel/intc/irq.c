@@ -216,7 +216,6 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
   switch (r0) {
     case SYS_YIELD:
       context_switch();
-      mmu_init_memory_for_process(process_table[process_active]);
       break;
     case SYS_EXIT:
       // delete the active process
@@ -227,7 +226,6 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
       // old pcb has to be saved
       process_active = PID_INVALID;
       context_switch();
-      mmu_init_memory_for_process(process_table[process_active]);
     case SYS_CREATE_PROCESS:
       // r1 = priority
       // r2 = initial_address

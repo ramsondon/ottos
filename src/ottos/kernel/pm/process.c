@@ -92,7 +92,7 @@ void process_delete() {
 pid_t process_create(int priority, int initial_address) {
 
   process_t* p = (process_t*) malloc(sizeof(process_t));
-  p->codeLocation = (address) 0x0;
+  p->code_location = (address) 0x0;
   p->pid = process_next_free_entry;
   p->priority = priority;
   p->state = READY;

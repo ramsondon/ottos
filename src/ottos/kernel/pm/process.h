@@ -56,8 +56,8 @@ typedef struct {
 } pcb_t;
 
 struct process {
-    address masterTableAddress;
-    address codeLocation;
+    address master_table_address;
+    address code_location;
     pid_t pid;
     int priority;
     enum ProcessState state;

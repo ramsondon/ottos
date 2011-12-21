@@ -174,21 +174,21 @@ void mmu_init_memory_for_process(process_t* process) {
   address newPage;
   //process_t* savedTaskPointer = m_process[process->pid];
 
-  if (process->masterTableAddress != NULL) {
-    mmu_set_master_table_pointer_to(process->masterTableAddress);
+  if (process->master_table_address != NULL) {
+    mmu_set_master_table_pointer_to(process->master_table_address);
     return;
   }
   //if (savedTaskPointer == NULL) {
 
-  process->masterTableAddress = mmu_create_master_table();
+  process->master_table_address = mmu_create_master_table();
 
-  mmu_map_one_to_one(process->masterTableAddress,
+  mmu_map_one_to_one(process->master_table_address,
                      (address) ROM_INTERRUPT_ENTRIES, ROM_INTERRUPT_LENGTH);
-  mmu_map_one_to_one(process->masterTableAddress, (address) INT_RAM_START,
+  mmu_map_one_to_one(process->master_table_address, (address) INT_RAM_START,
                      (unsigned int) first_free_in_int_RAM - INT_RAM_START);
-  mmu_map_one_to_one(process->masterTableAddress, &intvecs_start,
+  mmu_map_one_to_one(process->master_table_address, &intvecs_start,
                      MMU_INTVECTS_SIZE);
-  mmu_map_one_to_one(process->masterTableAddress, (address) EXT_DDR_START,
+  mmu_map_one_to_one(process->master_table_address, (address) EXT_DDR_START,
                      (unsigned int) first_free_in_ext_DDR - EXT_DDR_START);
 
   //task->messageQueueAddress = createMappedPage(task->masterTableAddress, (address)MESSAGE_QUEUE_VIRTUAL_ADDRESS);
@@ -196,16 +196,16 @@ void mmu_init_memory_for_process(process_t* process) {
   // TODO (thomas.bargetz@gmail.com) loading processes shouldn't be here
   // fake loader
   start_address = process->pcb.restart_address;
-  newPage = create_mapped_page(process->masterTableAddress,
+  newPage = create_mapped_page(process->master_table_address,
                                (address) start_address);
 
   // TODO (thomas.bargetz@gmail.com) 4 is another magic number
-  process->codeLocation = process->codeLocation + ((start_address
+  process->code_location = process->code_location + ((start_address
       - PROCESS_MEMORY_START) / 4);
   // load necessary instructions into new page
-  memcpy((void*) newPage, (void*) (process->codeLocation), MMU_PAGE_SIZE);
+  memcpy((void*) newPage, (void*) (process->code_location), MMU_PAGE_SIZE);
 
-  mmu_set_master_table_pointer_to(process->masterTableAddress);
+  mmu_set_master_table_pointer_to(process->master_table_address);
 
   //m_process[process->pid] = process;
   /*
@@ -331,7 +331,7 @@ void mmu_delete_process_memory(process_t* process) {
   unsigned int master_table_entry ;
   unsigned int l2_table_entry;
   int page_number;
-  address master_table_address = process->masterTableAddress;
+  address master_table_address = process->master_table_address;
 
   if (master_table_address != 0) {
     enum memory_type type;
@@ -413,7 +413,7 @@ BOOLEAN mmu_handle_data_abort() {
       >= PROCESS_MEMORY_START) && (accessed_address < PROCESS_MEMORY_END)) {
 
     mmu_switch_to_kernel();
-    create_mapped_page(process_table[process_active]->masterTableAddress,
+    create_mapped_page(process_table[process_active]->master_table_address,
                        (address) accessed_address);
     mmu_init_memory_for_process(process_table[process_active]);
     doContextSwitch = FALSE;
