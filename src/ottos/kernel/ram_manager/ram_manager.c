@@ -20,152 +20,164 @@
  *  Created on: 16.12.2011
  *      Author: Thomas Wiedemann <thomas.wiedemann@students.fhv.at>
  */
+#include <cstring>
+#include <bits.h>
+
+#include "../mmu/mmu.h"
+
 #include "ram_manager.h"
-#include "bits.h"
 
-BOOLEAN occupiedPagesIntRam[MAX_PAGES_IN_INT_RAM / 8];
-BOOLEAN occupiedPagesExtDDR[MAX_PAGES_IN_EXT_DDR / 8];
+#define ENTRY_SIZE 8 // 8 bit
 
-RAMManager() {
-  int i = NULL;
+BOOLEAN occupied_pages_int_RAM[MAX_PAGES_IN_INT_RAM / 8];
+BOOLEAN occupied_pages_ext_DDR[MAX_PAGES_IN_EXT_DDR / 8];
+
+void ram_manager_init() {
+  int i;
+
   // Initialize fields
-  int entrySize = sizeof(BOOLEAN) * 8; // Size in bit
+  int entry_size = sizeof(BOOLEAN) * ENTRY_SIZE; // Size in bit
   int max = 0;
+
   if (MAX_PAGES_IN_EXT_DDR > MAX_PAGES_IN_INT_RAM) {
-    max = MAX_PAGES_IN_EXT_DDR / entrySize;
+    max = MAX_PAGES_IN_EXT_DDR / entry_size;
   } else {
-    max = MAX_PAGES_IN_INT_RAM / entrySize;
+    max = MAX_PAGES_IN_INT_RAM / entry_size;
   }
 
   for (i = 0; i < max; i++) {
-    if (i < (MAX_PAGES_IN_EXT_DDR / entrySize)) {
-      occupiedPagesExtDDR[i] = 0x0;
+    if (i < (MAX_PAGES_IN_EXT_DDR / entry_size)) {
+      occupied_pages_ext_DDR[i] = 0;
     }
-    if (i < (MAX_PAGES_IN_INT_RAM / entrySize)) {
-      occupiedPagesIntRam[i] = 0x0;
+    if (i < (MAX_PAGES_IN_INT_RAM / entry_size)) {
+      occupied_pages_int_RAM[i] = 0;
     }
   }
 }
 
-void reservePage(enum MemoryType mem, int pageNumber) {
-  int entryNumber = (pageNumber / (sizeof(address) * 8));
-  int bitNumber = (pageNumber % (sizeof(address) * 8));
+void ram_manager_reserve_page(enum memory_type mem, int page_number) {
+  int entryNumber = (page_number / (sizeof(address) * ENTRY_SIZE));
+  int bitNumber = (page_number % (sizeof(address) * ENTRY_SIZE));
 
-  if ((mem == INT_RAM) && (pageNumber < MAX_PAGES_IN_INT_RAM)) {
-    SET_BIT((((address)occupiedPagesIntRam) + entryNumber), bitNumber);
-  } else if ((mem == EXT_DDR) && (pageNumber < MAX_PAGES_IN_EXT_DDR)) {
-    SET_BIT((((address)occupiedPagesExtDDR) + entryNumber), bitNumber);
+  if ((mem == INT_RAM) && (page_number < MAX_PAGES_IN_INT_RAM)) {
+    SET_BIT((((address)occupied_pages_int_RAM) + entryNumber), bitNumber);
+  } else if ((mem == EXT_DDR) && (page_number < MAX_PAGES_IN_EXT_DDR)) {
+    SET_BIT((((address)occupied_pages_ext_DDR) + entryNumber), bitNumber);
   }
 }
 
-BOOLEAN isOccupied(enum MemoryType mem, int pageNumber) {
-  int entryNumber = (pageNumber / (sizeof(address) * 8));
-  int bitNumber = (pageNumber % (sizeof(address) * 8));
-
+BOOLEAN ram_manager_is_occupied(enum memory_type mem, int page_number) {
+  int entry_number = (page_number / (sizeof(address) * ENTRY_SIZE));
+  int bit_number = (page_number % (sizeof(address) * ENTRY_SIZE));
   BOOLEAN result = FALSE;
-  if ((mem == INT_RAM) && (pageNumber < MAX_PAGES_IN_INT_RAM)) {
+
+  if ((mem == INT_RAM) && (page_number < MAX_PAGES_IN_INT_RAM)) {
     result
-        = READ_BIT((((address)occupiedPagesIntRam) + entryNumber), bitNumber);
-  } else if ((mem == EXT_DDR) && (pageNumber < MAX_PAGES_IN_EXT_DDR)) {
+        = READ_BIT((((address)occupied_pages_int_RAM) + entry_number), bit_number);
+  } else if ((mem == EXT_DDR) && (page_number < MAX_PAGES_IN_EXT_DDR)) {
     result
-        = READ_BIT((((address)occupiedPagesExtDDR) + entryNumber), bitNumber);
+        = READ_BIT((((address)occupied_pages_ext_DDR) + entry_number), bit_number);
   }
 
   return result;
 }
 
-void releasePage(enum MemoryType mem, int pageNumber) {
-  int entryNumber = (pageNumber / (sizeof(address) * 8));
-  int bitNumber = (pageNumber % (sizeof(address) * 8));
+void ram_manager_release_page(enum memory_type mem, int pageNumber) {
+  int entry_number = (pageNumber / (sizeof(address) * ENTRY_SIZE));
+  int bit_number = (pageNumber % (sizeof(address) * ENTRY_SIZE));
 
-  if ((mem == INT_RAM) && (entryNumber < MAX_PAGES_IN_INT_RAM)) {
-    CLEAR_BIT((address)(((address)occupiedPagesIntRam) + entryNumber), bitNumber);
-  } else if ((mem == EXT_DDR) && (entryNumber < MAX_PAGES_IN_EXT_DDR)) {
-    CLEAR_BIT((address)(((address)occupiedPagesExtDDR) + entryNumber), bitNumber);
+  if ((mem == INT_RAM) && (entry_number < MAX_PAGES_IN_INT_RAM)) {
+    CLEAR_BIT((address)(((address)occupied_pages_int_RAM) + entry_number), bit_number);
+  } else if ((mem == EXT_DDR) && (entry_number < MAX_PAGES_IN_EXT_DDR)) {
+    CLEAR_BIT((address)(((address)occupied_pages_ext_DDR) + entry_number), bit_number);
   }
 }
 
-int page_for_address(enum MemoryType* type, unsigned int memAddress) {
+int ram_manager_page_for_address(enum memory_type* type, unsigned int mem_address) {
   int result = -1;
-  if ((memAddress >= INT_RAM_START) && (memAddress < INT_RAM_START
+
+  if ((mem_address >= INT_RAM_START) && (mem_address < INT_RAM_START
       + INT_RAM_SIZE)) {
-    result = (memAddress - INT_RAM_START) / 4096;
+    result = (mem_address - INT_RAM_START) / MMU_PAGE_SIZE;
     *type = INT_RAM;
-  } else if ((memAddress >= EXT_DDR_START) && (memAddress < EXT_DDR_START
+  } else if ((mem_address >= EXT_DDR_START) && (mem_address < EXT_DDR_START
       + EXT_DDR_SIZE)) {
-    result = (memAddress - EXT_DDR_START) / 4096;
+    result = (mem_address - EXT_DDR_START) / MMU_PAGE_SIZE;
     *type = EXT_DDR;
   }
+
   return result;
 }
 
-address addressOfPage(enum MemoryType mem, int pageNumberInMemory) {
-  address result = 0x0;
+address ram_manager_address_of_page(enum memory_type mem, int page_number_in_memory) {
   switch (mem) {
     case INT_RAM:
-      result = (address) (INT_RAM_START + (pageNumberInMemory * 4096));
-      break;
+      return (address) (INT_RAM_START + (page_number_in_memory * MMU_PAGE_SIZE));
     case EXT_DDR:
-      result = (address) (EXT_DDR_START + (pageNumberInMemory * 4096));
-      break;
+      return (address) (EXT_DDR_START + (page_number_in_memory * MMU_PAGE_SIZE));
   }
-  return result;
+  return NULL;
 }
 // // TODO (thomas.bargetz@gmail.com) firstPageNumber necessary?
-void reservePages(enum MemoryType mem, int firstPageNumber, int nrOfPages) {
-  int i = NULL;
-  for (i = firstPageNumber; i < (firstPageNumber + nrOfPages); i++) {
-    reservePage(mem, i);
+void ram_manager_reserve_pages(enum memory_type mem, int first_page_number, int nr_of_pages) {
+  int i;
+
+  for (i = first_page_number; i < (first_page_number + nr_of_pages); i++) {
+    ram_manager_reserve_page(mem, i);
   }
 }
-void ram_manager_release_pages(enum MemoryType mem, int firstPageNumber, int nrOfPages) {
-  int i = NULL;
-  for (i = firstPageNumber; i < (firstPageNumber + nrOfPages); ++i) {
-    releasePage(mem, i);
-    memset((void*) addressOfPage(mem, i), 0x0, 4096);
+void ram_manager_release_pages(enum memory_type mem, int first_page_number, int nr_of_pages) {
+  int i;
+
+  for (i = first_page_number; i < (first_page_number + nr_of_pages); ++i) {
+    ram_manager_release_page(mem, i);
+    memset((void*) ram_manager_address_of_page(mem, i), 0, MMU_PAGE_SIZE);
   }
 }
 
-address findFreeMemoryin(enum MemoryType mem, int nrOfPages, BOOLEAN align,
+address ram_manager_find_free_memory_in(enum memory_type mem, int nr_of_pages, BOOLEAN align,
                          BOOLEAN reserve) {
   int i = NULL;
-  address result = 0x0;
+  address result = 0;
   int freePages = 0;
-  for (i = 0; (i < maxPagesIn(mem)) && (result == 0x0); i++) {
-    if ((!isOccupied(mem, i)) && ((!align) || ((freePages > 0) || ((i
-        % nrOfPages) == 0)))) {
+
+  for (i = 0; (i < ram_manager_max_pages_in(mem)) && (result == 0); i++) {
+    if ((!ram_manager_is_occupied(mem, i)) && ((!align) || ((freePages > 0) || ((i
+        % nr_of_pages) == 0)))) {
       freePages++;
-      if (freePages == nrOfPages) {
-        result = addressOfPage(mem, (i - nrOfPages) + 1);
+      if (freePages == nr_of_pages) {
+        result = ram_manager_address_of_page(mem, (i - nr_of_pages) + 1);
         if (reserve) {
-          reservePages(mem, (i - nrOfPages) + 1, nrOfPages);
+          ram_manager_reserve_pages(mem, (i - nr_of_pages) + 1, nr_of_pages);
         }
       }
     } else {
       freePages = 0;
     }
   }
+
   return result;
 }
 
-address ram_manager_find_free_memory(int nrOfPages, BOOLEAN align, BOOLEAN reserve) {
-  address result = findFreeMemoryin(INT_RAM, nrOfPages, align, reserve);
-  if (result == 0x0) {
-    result = findFreeMemoryin(EXT_DDR, nrOfPages, align, reserve);
+address ram_manager_find_free_memory(int nr_of_pages, BOOLEAN align, BOOLEAN reserve) {
+  address result = ram_manager_find_free_memory_in(INT_RAM, nr_of_pages, align, reserve);
+
+  if (result == 0) {
+    result = ram_manager_find_free_memory_in(EXT_DDR, nr_of_pages, align, reserve);
   }
+
   return result;
 }
 
-int maxPagesIn(enum MemoryType mem) {
-  int result = 0;
+int ram_manager_max_pages_in(enum memory_type mem) {
+
   switch (mem) {
     case INT_RAM:
-      result = MAX_PAGES_IN_INT_RAM;
-      break;
+      return MAX_PAGES_IN_INT_RAM;
     case EXT_DDR:
-      result = MAX_PAGES_IN_EXT_DDR;
-      break;
+      return MAX_PAGES_IN_EXT_DDR;
   }
-  return result;
+
+  return -1;
 }
 

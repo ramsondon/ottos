@@ -18,6 +18,8 @@
 #define PROCESS_MEMORY_START 0x20000
 #define PROCESS_MEMORY_END 0x1000000
 
+#define MMU_PAGE_SIZE 0x1000 // 4 kB page
+
 void mmu_init();
 void mmu_switch_to_kernel();
 void mmu_init_memory_for_process(process_t* process);

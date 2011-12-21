@@ -39,25 +39,28 @@
 #define ROM_INTERRUPT_ENTRIES 0x14000
 #define ROM_INTERRUPT_LENGTH 0x1C
 
-
-
-enum MemoryType {
-    INT_RAM, EXT_DDR
+enum memory_type {
+  INT_RAM, EXT_DDR
 };
 
+void ram_manager_reserve_page(enum memory_type mem, int pageNumber);
+void ram_manager_release_page(enum memory_type mem, int pageNumber);
 
-        void reservePage(enum MemoryType mem, int pageNumber);
-        void releasePage(enum MemoryType mem, int pageNumber);
-        BOOLEAN  isOccupied(enum MemoryType mem, int pageNumber);
+address ram_manager_find_free_memory_in(enum memory_type mem, int nrOfPages,
+                                        BOOLEAN align, BOOLEAN reserve);
+address ram_manager_find_free_memory(int nrOfPages, BOOLEAN align,
+                                     BOOLEAN reserve);
 
-        address findFreeMemoryin(enum MemoryType mem, int nrOfPages, BOOLEAN align, BOOLEAN  reserve);
-        address ram_manager_find_free_memory(int nrOfPages, BOOLEAN  align, BOOLEAN  reserve);
-        int page_for_address(enum MemoryType* type, unsigned int memAddress);
-        address addressOfPage(enum MemoryType mem, int pageNumberInMemory);
+int ram_manager_page_for_address(enum memory_type* type,
+                                 unsigned int memAddress);
+address ram_manager_address_of_page(enum memory_type mem,
+                                    int pageNumberInMemory);
 
-        void reservePages(enum MemoryType mem, int firstPageNumber, int nrOfPages);
-        void ram_manager_release_pages(enum MemoryType mem, int firstPageNumber, int nrOfPages);
+void ram_manager_reserve_pages(enum memory_type mem, int firstPageNumber,
+                               int nrOfPages);
+void ram_manager_release_pages(enum memory_type mem, int firstPageNumber,
+                               int nrOfPages);
 
-        int maxPagesIn(enum MemoryType mem);
+int ram_manager_max_pages_in(enum memory_type mem);
 
 #endif /* RAM_MANAGER_H_ */

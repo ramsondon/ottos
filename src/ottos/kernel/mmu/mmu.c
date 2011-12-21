@@ -46,8 +46,6 @@ extern volatile unsigned int intvecs_start;
 // TODO (thomas.bargetz@gmail.com) make static if necessary
 address first_free_in_int_RAM;
 address first_free_in_ext_DDR;
-BOOLEAN occupied_pages_int_RAM[MAX_PAGES_IN_INT_RAM];
-BOOLEAN occupied_pages_ext_DDR[MAX_PAGES_IN_EXT_DDR];
 
 // wtf shit
 /*process_t m_kernelProcess;
@@ -55,7 +53,6 @@ BOOLEAN occupied_pages_ext_DDR[MAX_PAGES_IN_EXT_DDR];
  process_t* m_currentProcess;*/
 
 // TODO (thomas.bargetz@gmail.com) refactor (move)
-#define MMU_PAGE_SIZE 0x1000 // 4 kB page
 #define MMU_FIRST_PAGE_NUMBER_FOR_INTVECS 15 // the first page number for the intvecs
 #define MMU_MAX_PROCESS_SPACE 0xFFF00000 // 4 GB space for each process
 #define MMU_SECTION_ENTRY_SIZE 0x00100000 // 1 MB for each section entry
@@ -112,8 +109,8 @@ void mmu_init() {
     nrOfKernelPages++;
   }
   // reserve the space for the determined number of kernel pages
-  reservePages(INT_RAM, 0, nrOfKernelPages);
-  reservePages(INT_RAM, MMU_FIRST_PAGE_NUMBER_FOR_INTVECS, 1);
+  ram_manager_reserve_pages(INT_RAM, 0, nrOfKernelPages);
+  ram_manager_reserve_pages(INT_RAM, MMU_FIRST_PAGE_NUMBER_FOR_INTVECS, 1);
 
   // determine the number of kernel pages in the external ram
   nrOfKernelPages = (((unsigned int) first_free_in_ext_DDR - EXT_DDR_START)
@@ -124,7 +121,7 @@ void mmu_init() {
     nrOfKernelPages++;
   }
   // reserve the space for the determined number of kernel pages
-  reservePages(EXT_DDR, 0, nrOfKernelPages);
+  ram_manager_reserve_pages(EXT_DDR, 0, nrOfKernelPages);
 
   // *** initialise the domain access ***
   // Set Domain Access control register to 0101 0101 0101 0101 0101 0101 0101 0111 .. lol?
@@ -234,32 +231,34 @@ void mmu_map_one_to_one(address master_table_address, address start_address,
 
   int nr_of_master_table_entries = (length / MMU_SECTION_ENTRY_SIZE) + 1;
 
-  // TODO (thomas.bargetz@gmail.com) no idea what this line of code is doing (12?)
+  // TODO allgemeine beschreibung am anfang der datei für address aufbau!
+  // eine address ist 32 bit lang (4 byte)
+  // 12 bit für MASTER PAGE TABLE ENTRY INDEX, 8 bit für L2 PAGE TABLE ENTRY INDEX, rest ist offset
   int first_entry_number = ((unsigned int) start_address >> 12)
       - (((unsigned int) start_address >> 12) & 0xFFF00);
 
   int last_entry_number = first_entry_number + (length / MMU_PAGE_SIZE);
 
   // TODO (thomas.bargetz@gmail.com) 20?
+  // first_l2_entry ist der erste Eintrag in der jeweiligen l2 Table. Wird benötigt, um später den Eintrag für das 1 zu 1 mapping zu berechnen
   // deletes the last 20 bits
   unsigned int first_l2_entry = ((unsigned int) start_address >> 20) << 20;
 
   for (i = 0; i < nr_of_master_table_entries; i++) {
     // determine the page table entry (index)
     unsigned int master_table_entry_number = (unsigned int) start_address >> 20;
-    address free_for_l2_table =
+    address l2_table_adress =
         create_or_get_l2_table(master_table_address, master_table_entry_number);
 
-    // TODO (thomas.bargetz@gmail.com) why > 0?
-    if (free_for_l2_table > (address) 0x0) {
+    if (l2_table_adress > (address) 0x0) {
       for (j = first_entry_number; (j < MMU_L2_ENTRY_COUNT) && (j
           <= last_entry_number); ++j) {
         unsigned int table_entry = first_l2_entry + ((i * MMU_L2_ENTRY_COUNT)
             + j) * MMU_PAGE_SIZE;
 
-        // TODO (thomas.bargetz@gmail.com) 0x2?
+        // create small page entry
         table_entry |= 0x2;
-        *(free_for_l2_table + j) = table_entry;
+        *(l2_table_adress + j) = table_entry;
         first_entry_number = j;
       }
     } else {
@@ -268,7 +267,7 @@ void mmu_map_one_to_one(address master_table_address, address start_address,
   }
 }
 
-// TODO (thomas.bargetz@gmail.com) returns a l2 table or a l2 entry?!
+// returns the l2 table address
 address create_or_get_l2_table(address master_table_address,
                                int master_table_entry_number) {
   address result;
@@ -280,14 +279,14 @@ address create_or_get_l2_table(address master_table_address,
       // initialise l2 table
       result = ram_manager_find_free_memory(1, TRUE, TRUE);
 
-      // TODO (thomas.bargetz@gmail.com) 0x00000011?
+      // create a cross page table
       table_entry = (unsigned int) result | 0x00000011;
       *(master_table_address + master_table_entry_number) = table_entry;
 
       memset((void*) result, 0, MMU_L2_ENTRY_COUNT * MMU_L2_ENTRY_SIZE); // 256 entries * 4 bytes per entry = 1024 bytes
     } else {
       // get the l2 table
-      // TODO (thomas.bargetz@gmail.com) 10?
+      // delete the access flags
       result = (address) ((*(master_table_address + master_table_entry_number)
           >> 10) << 10);
     }
@@ -335,8 +334,7 @@ void mmu_delete_process_memory(process_t* process) {
   address master_table_address = process->masterTableAddress;
 
   if (master_table_address != 0) {
-    // TODO (thomas.bargetz@gmail.com) INT_RAM or EXT_DDR?
-    enum MemoryType type;
+    enum memory_type type;
 
     for (master_table_entry = 0; master_table_entry < MMU_PAGE_SIZE; master_table_entry++) {
       address l2_table_address = (address) (((*(master_table_address
@@ -350,7 +348,7 @@ void mmu_delete_process_memory(process_t* process) {
 
           // if the page has been initialised and it's a process page, then release the page
           if ((page_address != 0) && (is_process_page(page_address))) {
-            page_number = page_for_address(&type, (unsigned int) page_address);
+            page_number = ram_manager_page_for_address(&type, (unsigned int) page_address);
             ram_manager_release_pages(type, page_number, 1);
           }
 
@@ -358,8 +356,8 @@ void mmu_delete_process_memory(process_t* process) {
           *(l2_table_address + l2_table_entry) = 0;
         }
 
-        // TODO (thomas.bargetz@gmail.com) delete l2 table?
-        page_number = page_for_address(&type, (unsigned int) l2_table_address);
+        // delete l2 table?
+        page_number = ram_manager_page_for_address(&type, (unsigned int) l2_table_address);
         ram_manager_release_pages(type, page_number, 1);
 
         // delete master table entry
@@ -367,8 +365,8 @@ void mmu_delete_process_memory(process_t* process) {
       }
     }
 
-    // TODO (thomas.bargetz@gmail.com) delete master table?
-    page_number = page_for_address(&type, (unsigned int) master_table_address);
+    // delete master table?
+    page_number = ram_manager_page_for_address(&type, (unsigned int) master_table_address);
     ram_manager_release_pages(type, page_number, 4);
   }
 }
@@ -378,6 +376,7 @@ BOOLEAN is_process_page(address page_address) {
       << 12);
 
   // TODO (thomas.bargetz@gmail.com) wtf?
+  // is the address innerhalb vom kernel
   return !(  ((page_address >= (address) INT_RAM_START) && (page_address < first_free_in_int_RAM))
           || ((page_address >= (address) EXT_DDR_START) && (page_address < first_free_in_ext_DDR))
           || ((page_address >= (address) ROM_INTERRUPT_ENTRIES) && (page_address < (address) (ROM_INTERRUPT_ENTRIES + ROM_INTERRUPT_LENGTH)))
