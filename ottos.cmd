@@ -22,12 +22,12 @@ SECTIONS
 {
 ///////////////////////////// int_ram //////////////////////////////
    .intvecs    > int_vecs {
-   		_intvecsStart = .;
+   		_intvecs_start = .;
    		*(.intvecs)
    	}
 
-   .kernelMasterTable > kernel_master_table {
-       _kernelMasterTable = . ;
+   ._kernel_master_table > kernel_master_table {
+       _kernel_master_table = . ;
        . = . + (16 * 1024);
    }
    ORDER
@@ -44,7 +44,7 @@ SECTIONS
 	}
 	.pinit      > int_ram {
 		*(.pinit)
-			_intRamStart = .;
+			_int_RAM_start = .;
    	}
 
 
@@ -65,6 +65,6 @@ SECTIONS
 	   . = . + (4 * 1024);
 	   abortStack = .;
 	   . = . + (4 * 1024);
-	   _extDDRStart = .;
+	   _ext_DDR_start = .;
    }
 }
