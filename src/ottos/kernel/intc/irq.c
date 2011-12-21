@@ -25,11 +25,15 @@
 #include <ottos/const.h>
 #include <ottos/memory.h>
 #include <ottos/kernel.h>
+
+
 #include <ottos/platform.h>
+
 
 #include "../timer/timer.h"
 #include "../pm/process.h"
 #include "../sched/scheduler.h"
+#include "../mmu/mmu.h"
 
 #include "irq.h"
 
@@ -41,15 +45,18 @@ asm(" .bss _pcb_new, 4 ");
 asm(" .bss _stack_pointer_saved_context, 4 ");
 asm(" .bss _stack_pointer_original, 4 ");
 
+
 asm(" .global _pcb_old ");
 asm(" .global _pcb_new ");
 asm(" .global _stack_pointer_saved_context ");
 asm(" .global _stack_pointer_original ");
 
+
 asm("pcb_old .field _pcb_old, 32 ");
 asm("pcb_new .field _pcb_new, 32 ");
 asm("stack_pointer_saved_context .field _stack_pointer_saved_context, 32 ");
 asm("stack_pointer_original .field _stack_pointer_original, 32 ");
+
 
 extern int pcb_old;
 extern int pcb_new;
@@ -103,12 +110,14 @@ void irq_handle_udef() {
 
 void irq_handle_dabt() {
   _disable_interrupts();
+  handleDataAbort();
   kernel_panic("data abort\n\r");
 }
 
 void irq_handle_pabt() {
-  _disable_interrupts();
-  kernel_panic("prefetch abort\n\r");
+    _disable_interrupts();
+    handlePrefetchAbort();
+   kernel_panic("prefetch abort\n\r");
 }
 
 void context_switch() {
@@ -123,6 +132,10 @@ void context_switch() {
     if(process_table[process_active]->state == RUNNING) {
       process_table[process_active]->state = READY;
     }
+
+    //Get Mastertable for active Process
+    initMemoryForProcess(process_table[process_active]);
+
 
     // Get the TCB's of the processes to switch the context
     pcb_old = (int) &process_table[process_active]->pcb.CPSR;
@@ -175,6 +188,8 @@ EXTERN void irq_handle() {
   asm(" LDR     R0, stack_pointer_saved_context");
   asm(" STR     R13, [R0], #0");
 
+  switchToKernelMMU();
+
   stack_pointer_original = stack_pointer_saved_context + SAVED_REGISTERS_SPACE;
 
   *((mem_address_t*) (MPU_INTC + INTCPS_CONTROL)) |= 0x1;
@@ -195,10 +210,13 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 
   stack_pointer_original = stack_pointer_saved_context + SAVED_REGISTERS_SPACE + SWI_PARAMETERS_SPACE;
 
+  switchToKernelMMU();
+
   // handle interrupts
   switch (r0) {
     case SYS_YIELD:
       context_switch();
+      initMemoryForProcess(process_table[process_active]);
       break;
     case SYS_EXIT:
       // delete the active process
@@ -209,6 +227,7 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
       // old pcb has to be saved
       process_active = PID_INVALID;
       context_switch();
+      initMemoryForProcess(process_table[process_active]);
     case SYS_CREATE_PROCESS:
       // r1 = priority
       // r2 = initial_address
@@ -224,6 +243,7 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
         // block current process
         // switch to next process
         context_switch();
+
       }
       break;
     default:

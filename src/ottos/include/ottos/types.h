@@ -36,6 +36,8 @@ typedef char BOOLEAN;
 
 typedef int pid_t;
 typedef volatile unsigned int mem_address_t;
+typedef volatile unsigned int* address;
+
 typedef int (*function_t)();
 
 typedef unsigned long address_t;
@@ -44,6 +46,8 @@ typedef address_t file_t;
 typedef struct message_t {
     int pid_t;
 } message_t;
+
+
 
 
 #endif /* OTTOS_TYPES_H_ */
