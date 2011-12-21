@@ -210,10 +210,10 @@ int main(int argc, char **argv) {
 //  process_test();
 //  timer_test();
 //  serial_test();
-//  serial_test_calc();
+  serial_test_calc();
 //  process_exit_test();
 //  console_test();
-  fs_test();
+//  fs_test();
 
   for(;;);
 

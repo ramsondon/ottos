@@ -1,4 +1,4 @@
-/* omap353x.h
+/* dispc.c
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,23 +17,9 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Dec 2, 2011
+ *  Created on: Dec 15, 2011
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef HAL_OMAP353X_PLATFORM_H_
-#define HAL_OMAP353X_PLATFORM_H_
+#include "../../hal/platform.h"
 
-/*
- * This file includes all OMAP 353X relevant header files
- */
-#include "dss.h"
-#include "dispc.h"
-#include "i2c.h"
-#include "intc.h"
-#include "timer.h"
-#include "uart.h"
-#include "led.h"
-
-
-#endif /* HAL_OMAP353X_PLATFORM_H_ */

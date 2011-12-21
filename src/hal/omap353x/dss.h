@@ -1,4 +1,4 @@
-/* omap353x.h
+/* dss.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,23 +17,28 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Dec 2, 2011
+ *  Created on: Dec 16, 2011
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef HAL_OMAP353X_PLATFORM_H_
-#define HAL_OMAP353X_PLATFORM_H_
+#ifndef HAL_OMAP353X_DSS_H_
+#define HAL_OMAP353X_DSS_H_
 
-/*
- * This file includes all OMAP 353X relevant header files
- */
-#include "dss.h"
-#include "dispc.h"
-#include "i2c.h"
-#include "intc.h"
-#include "timer.h"
-#include "uart.h"
-#include "led.h"
+/* Display subsystem base address */
+
+#define DSS 0x48050000
 
 
-#endif /* HAL_OMAP353X_PLATFORM_H_ */
+/* Display subsystem register offsets */
+
+#define DSS_REVISIONNUMBER  0x000
+#define DSS_SYSCONFIG       0x010
+#define DSS_SYSSTATUS       0x014
+#define DSS_IRQSTATUS       0x018
+#define DSS_CONTROL         0x040
+#define DSS_SDI_CONTROL     0x044
+#define DSS_PLL_CONTROL     0x048
+#define DSS_SDI_STATUS      0x05C
+
+
+#endif /* HAL_OMAP353X_DSS_H_ */
