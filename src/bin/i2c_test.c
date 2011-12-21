@@ -66,7 +66,7 @@ void pulse_leds(void) {
 
         kernel_print("reading LED/PWM registers\n");
 
-        bus_i2c_read(base, SCDA_LED, SCD_LEDEN, buffer, 5);
+        i2c_read(base, SCDA_LED, SCD_LEDEN, buffer, 5);
         for (i=0;i<5;i++) {
           sprintf(&buffer[i], "%02x");
         }
@@ -74,7 +74,7 @@ void pulse_leds(void) {
         kernel_print("\n");
 
         // make sure it's on
-        bus_i2c_write8(base, SCDA_LED, SCD_LEDEN, SCD_LEDBON | SCD_LEDBPWM);
+        i2c_write8(base, SCDA_LED, SCD_LEDEN, SCD_LEDBON | SCD_LEDBPWM);
 
 
         while (1) {
@@ -89,7 +89,7 @@ void pulse_leds(void) {
                 if (a > 2 * pi)
                         a -= 2* pi;
 
-                bus_i2c_write8(base, SCDA_LED, SCD_PWMBOFF, v);
+                i2c_write8(base, SCDA_LED, SCD_PWMBOFF, v);
                 kernel_sleep(100);
         }
 }
