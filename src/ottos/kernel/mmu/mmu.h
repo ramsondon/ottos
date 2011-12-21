@@ -12,45 +12,18 @@
 
 #include <ottos/types.h>
 #include <ottos/const.h>
-#include <../kernel/pm/process.h>
-#include <../kernel/ram_manager/ram_manager.h>
+#include "../pm/process.h"
 
 
-#define TASK_MEMORY_START 0x20000
-#define TASK_MEMORY_END 0x1000000
-#define MAX_PROCESS 256
+#define PROCESS_MEMORY_START 0x20000
+#define PROCESS_MEMORY_END 0x1000000
 
-
-        void initKernelMMU();
-        void MMU_init();
-        void enableMMU();
-        void initDomainAccess();
-        void setMasterTablePointerTo(address tableAddress);
-
-        address createMasterTable();
-        address createOrGetL2Table(address masterTableAddress, int masterTableEntryNumber);
-        address createMappedPage(address masterTableAddress, address virtualAddress);
-        void mapDirectly(address masterTableAddress, address virtualAddress, address physicalAddress);
-        void mapOneToOne(address masterTableAddress, address startAddress, unsigned int length);
-
-        void clearTLB();
-
-
-        BOOLEAN isProcessPage(address pageAddress);
-        int pageForAddress(enum MemoryType* type, unsigned int memAddress);
-        address addressOfPage(enum MemoryType mem, int pageNumberInMemory);
-        void reservePages(enum MemoryType mem, int firstPageNumber, int nrOfPages);
-        void releasePages(enum MemoryType mem, int firstPageNumber, int nrOfPages);
-
-
-        void switchToKernelMMU();
-        void initMemoryForProcess(process_t* process);
-        void deleteProcessMemory(process_t* process);
-
-
-
-        BOOLEAN handlePrefetchAbort();
-        BOOLEAN handleDataAbort();
+void mmu_init();
+void mmu_switch_to_kernel();
+void mmu_init_memory_for_process(process_t* process);
+void mmu_delete_process_memory(process_t* process);
+BOOLEAN mmu_handle_prefetch_abort();
+BOOLEAN mmu_handle_data_abort();
 
 
 

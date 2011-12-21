@@ -51,12 +51,12 @@ enum MemoryType {
         BOOLEAN  isOccupied(enum MemoryType mem, int pageNumber);
 
         address findFreeMemoryin(enum MemoryType mem, int nrOfPages, BOOLEAN align, BOOLEAN  reserve);
-        address findFreeMemory(int nrOfPages, BOOLEAN  align, BOOLEAN  reserve);
-        int pageForAddress(enum MemoryType* type, unsigned int memAddress);
+        address ram_manager_find_free_memory(int nrOfPages, BOOLEAN  align, BOOLEAN  reserve);
+        int page_for_address(enum MemoryType* type, unsigned int memAddress);
         address addressOfPage(enum MemoryType mem, int pageNumberInMemory);
 
         void reservePages(enum MemoryType mem, int firstPageNumber, int nrOfPages);
-        void releasePages(enum MemoryType mem, int firstPageNumber, int nrOfPages);
+        void ram_manager_release_pages(enum MemoryType mem, int firstPageNumber, int nrOfPages);
 
         int maxPagesIn(enum MemoryType mem);
 

@@ -110,13 +110,13 @@ void irq_handle_udef() {
 
 void irq_handle_dabt() {
   _disable_interrupts();
-  handleDataAbort();
+  mmu_handle_data_abort();
   kernel_panic("data abort\n\r");
 }
 
 void irq_handle_pabt() {
     _disable_interrupts();
-    handlePrefetchAbort();
+    mmu_handle_prefetch_abort();
    kernel_panic("prefetch abort\n\r");
 }
 
@@ -134,7 +134,7 @@ void context_switch() {
     }
 
     //Get Mastertable for active Process
-    initMemoryForProcess(process_table[process_active]);
+    mmu_init_memory_for_process(process_table[process_active]);
 
 
     // Get the TCB's of the processes to switch the context
@@ -188,7 +188,7 @@ EXTERN void irq_handle() {
   asm(" LDR     R0, stack_pointer_saved_context");
   asm(" STR     R13, [R0], #0");
 
-  switchToKernelMMU();
+  mmu_switch_to_kernel();
 
   stack_pointer_original = stack_pointer_saved_context + SAVED_REGISTERS_SPACE;
 
@@ -210,13 +210,13 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 
   stack_pointer_original = stack_pointer_saved_context + SAVED_REGISTERS_SPACE + SWI_PARAMETERS_SPACE;
 
-  switchToKernelMMU();
+  mmu_switch_to_kernel();
 
   // handle interrupts
   switch (r0) {
     case SYS_YIELD:
       context_switch();
-      initMemoryForProcess(process_table[process_active]);
+      mmu_init_memory_for_process(process_table[process_active]);
       break;
     case SYS_EXIT:
       // delete the active process
@@ -227,7 +227,7 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
       // old pcb has to be saved
       process_active = PID_INVALID;
       context_switch();
-      initMemoryForProcess(process_table[process_active]);
+      mmu_init_memory_for_process(process_table[process_active]);
     case SYS_CREATE_PROCESS:
       // r1 = priority
       // r2 = initial_address

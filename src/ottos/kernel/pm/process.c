@@ -79,7 +79,7 @@ void process_delete() {
     }
   }
    //delete Mastertable Entries for process
-  deleteProcessMemory(process_table[process_active]);
+  mmu_delete_process_memory(process_table[process_active]);
   // delete the process
   free(process_table[process_active]);
 
