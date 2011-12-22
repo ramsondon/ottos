@@ -25,6 +25,7 @@
 #define SEMAPHOR_H_
 
 #include <ottos/const.h>
+#include <ottos/time.h>
 
 /*
  * Ottos Semaphor
@@ -32,13 +33,13 @@
  *
  */
 typedef struct semaphor_t {
-
+    int count;
 } semaphor_t;
 
 EXTERN void semaphor_init(semaphor_t* sem, int foo, int baz/* TODO: identify params */);
 EXTERN int semaphor_wait(semaphor_t* sem);
 EXTERN int semaphor_trywait(semaphor_t* sem);
-EXTERN int semaphor_timedwait(semaphor_t* sem, const struct time_t *abs_timeout);
+EXTERN int semaphor_timedwait(semaphor_t* sem, const struct timespec_t *abs_timeout);
 EXTERN int semaphor_getvalue();
 EXTERN int semaphor_post();
 
