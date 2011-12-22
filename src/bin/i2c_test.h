@@ -1,4 +1,4 @@
-/* types.h
+/* i2c_test.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,40 +17,14 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 21.10.2011
- *      Author: Franziskus Domig <fdomig@gmail.com>
+ *  Created on: 16 Dec 2011
+ *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#ifndef OTTOS_TYPES_H_
-#define OTTOS_TYPES_H_
+#ifndef I2C_TEST_H_
+#define I2C_TEST_H_
 
-#include <ottos/const.h>
-#include <stdint.h>
+static float sine(float x);
+void pulse_leds(void);
 
-#ifndef _SIZE_T
-#define _SIZE_T
-typedef uint32_t size_t;
-#endif
-
-typedef char BOOLEAN;
-
-typedef int pid_t;
-typedef volatile unsigned int mem_address_t;
-typedef int (*function_t)();
-
-typedef unsigned long address_t;
-typedef address_t file_t;
-
-typedef struct message_t {
-    int pid_t;
-} message_t;
-
-typedef struct {
-  int days;
-  int hours;
-  int minutes;
-  int seconds;
-  int miliseconds;
-} time_t;
-
-#endif /* OTTOS_TYPES_H_ */
+#endif /* I2C_TEST_H_ */

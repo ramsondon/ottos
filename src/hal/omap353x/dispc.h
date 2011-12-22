@@ -1,4 +1,4 @@
-/* types.h
+/* dispc.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,40 +17,19 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 21.10.2011
- *      Author: Franziskus Domig <fdomig@gmail.com>
+ *  Created on: Dec 15, 2011
+ *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef OTTOS_TYPES_H_
-#define OTTOS_TYPES_H_
+#ifndef HAL_OMAP353X_DISPC_H_
+#define HAL_OMAP353X_DISPC_H_
 
-#include <ottos/const.h>
-#include <stdint.h>
+/* Display controller base address */
 
-#ifndef _SIZE_T
-#define _SIZE_T
-typedef uint32_t size_t;
-#endif
+#define DISPC 0x48050400
 
-typedef char BOOLEAN;
+/* Display controller register offsets */
 
-typedef int pid_t;
-typedef volatile unsigned int mem_address_t;
-typedef int (*function_t)();
 
-typedef unsigned long address_t;
-typedef address_t file_t;
 
-typedef struct message_t {
-    int pid_t;
-} message_t;
-
-typedef struct {
-  int days;
-  int hours;
-  int minutes;
-  int seconds;
-  int miliseconds;
-} time_t;
-
-#endif /* OTTOS_TYPES_H_ */
+#endif /* HAL_OMAP353X_DISPC_H_ */

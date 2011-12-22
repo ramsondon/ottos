@@ -29,7 +29,12 @@
 #include "../../bin/led_test.h"
 #include "../../bin/serial_test.h"
 #include "../../bin/console.h"
+<<<<<<< HEAD
 #include "../../bin/uptime_test.h"
+=======
+#include "../../bin/i2c_test.h"
+#include "../drivers/i2c/i2c.h"
+>>>>>>> b1f4ea038bdb4e00e0a86f1aca1316fa97c0bda5
 
 #include "kernel/intc/irq.h"
 #include "kernel/pm/process.h"
@@ -218,19 +223,27 @@ void system_time_test() {
   kernel_to_user_mode();
 }
 
+void i2c_test() {
+  devices_init();
+
+  i2c_init();
+  pulse_leds();
+}
+
+
 int main(int argc, char **argv) {
 
-  //  process_test();
-  //  timer_test();
-  //  serial_test();
-  // serial_test_calc();
-  //  process_exit_test();
-  //  console_test();
-  //  fs_test();
-  system_time_test();
+//  process_test();
+//  timer_test();
+//  serial_test();
+//  serial_test_calc();
+//  process_exit_test();
+//  console_test();
+//  fs_test();
+//  i2c_test();
+    uptime_test();
 
-  for (;;)
-    ;
+  for(;;);
 
   return 0;
 }
