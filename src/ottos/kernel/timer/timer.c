@@ -21,6 +21,8 @@
  *      Author: Florian Gopp (go.goflo@gmail.com)
  */
 
+#include <ottos/timer.h>
+#include <ottos/io.h>
 #include <ottos/types.h>
 #include <ottos/dev/device.h>
 #include <ottos/platform.h>
@@ -35,9 +37,8 @@
 
 
 #include "../intc/irq.h"
-#include "timer.h"
 
-
+static uint64_t jiffies = 0;
 
 static system_timer_t timers_[MAX_TIMER_COUNT];
 static int timer_count_ = 0;
@@ -46,7 +47,7 @@ static int timer_count_ = 0;
 static void timer_interrupt_handler() {
   int i = 0;
   gpt_clear(GPTIMER_2);
-
+  jiffies++;
   for (i = 0; i < timer_count_; i++) {
     timers_[i].curr_ticks -= DEFAULT_TICKS;
     if ((timers_[i].init_ticks >= 0) && (timers_[i].curr_ticks <= 0)) {
@@ -104,3 +105,29 @@ void timer_remove_handler(void(*handle)(void)) {
   }
 }
 
+uint64_t timer_system_uptime() {
+  // FIXME: something is wrong with the timer irq
+  return (jiffies * DEFAULT_TICKS / 2);
+}
+
+#define ONE_SEC    1000
+#define ONE_MINUTE (ONE_SEC * 60)
+#define ONE_HOUR   (ONE_MINUTE * 60)
+#define ONE_DAY    (ONE_HOUR * 24)
+
+time_t timer_parse_time(uint64_t ms) {
+  time_t time = { 0, 0, 0, 0, 0 };
+
+  time.days = (int) (ms / ONE_DAY);
+  time.hours = (int) (ms / ONE_HOUR - time.days * 24);
+  time.minutes = (int) (ms / ONE_MINUTE - (time.hours + time.days * 24) * 60);
+  time.seconds = (int) (ms / ONE_SEC - (time.minutes + (time.hours + time.days * 24) * 60) * 60);
+  time.miliseconds = (int) (ms % 1000);
+
+  return time;
+}
+
+void timer_sprint_time(time_t time, char* buffer) {
+  sprintf(buffer, "%dd %dh %dm %ds", time.days, time.hours,
+          time.minutes, time.seconds);
+}
