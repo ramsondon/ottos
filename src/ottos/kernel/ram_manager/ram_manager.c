@@ -66,6 +66,10 @@ void ram_manager_reserve_page(enum memory_type mem, int page_number) {
   }
 }
 
+BOOLEAN readBit(address number, int bitOffset) {
+    return (*(number) & (1 << bitOffset)) >> bitOffset;
+}
+
 BOOLEAN ram_manager_is_occupied(enum memory_type mem, int page_number) {
   int entry_number = (page_number / (sizeof(address) * ENTRY_SIZE));
   int bit_number = (page_number % (sizeof(address) * ENTRY_SIZE));
@@ -73,10 +77,10 @@ BOOLEAN ram_manager_is_occupied(enum memory_type mem, int page_number) {
 
   if ((mem == INT_RAM) && (page_number < MAX_PAGES_IN_INT_RAM)) {
     result
-        = READ_BIT((((address)occupied_pages_int_RAM) + entry_number), bit_number);
+        = /*READ_BIT*/readBit((((address)occupied_pages_int_RAM) + entry_number), bit_number);
   } else if ((mem == EXT_DDR) && (page_number < MAX_PAGES_IN_EXT_DDR)) {
     result
-        = READ_BIT((((address)occupied_pages_ext_DDR) + entry_number), bit_number);
+        = /*READ_BIT*/readBit((((address)occupied_pages_ext_DDR) + entry_number), bit_number);
   }
 
   return result;

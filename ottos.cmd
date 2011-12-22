@@ -5,7 +5,7 @@
 //
 
 -stack           0x00002000
--heap            0x00002000
+-heap            0x00001000
 
 MEMORY
 {
@@ -13,7 +13,7 @@ MEMORY
    int_ram:  ORIGIN = 0x40204000  LENGTH = 0x0000BFC4
    int_vecs: ORIGIN = 0x4020FFC4  LENGTH = 0x0000003B
    
-   ext_ddr:  ORIGIN = 0x82000000  LENGTH = 0x02000000 // 256 MBit
+   ext_ddr:  ORIGIN = 0x82000000  LENGTH = 0x02000000 // 256 MBit = 32 MB
    										  
 }
 
@@ -28,7 +28,7 @@ SECTIONS
 
    ._kernel_master_table > kernel_master_table {
        _kernel_master_table = . ;
-       . = . + (16 * 1024);
+       . = . + (0x4000); 	//Größe der mastertable 16 Kbyte
    }
    ORDER
 	.cinit      > int_ram
@@ -40,7 +40,7 @@ SECTIONS
 
 	.switch     > int_ram 
 	.text2      > int_ram {
-		irq.obj
+		irq.obj                      //IRQ Object für Data Abort der MMU muss im intRam sein
 	}
 	.pinit      > int_ram {
 			_int_RAM_start = .;
@@ -57,14 +57,14 @@ SECTIONS
 	.const      > ext_ddr
 	.sysmem     > ext_ddr
 	.stackArea  > ext_ddr {
-	. = ALIGN(0x4);
-       . = . + (4* 1024);
+	. = ALIGN(0x4);                    
+       . = . + (0x1000);  // Größe des Kernel Stacks 4 Kbyte
        kernelStack = .;
-	   . = . + (4 * 1024);
+	   . = . + (0x1000);// Größe IRQ Stack  4 Kbyte
 	   irqStack = .;
-	   . = . + (4* 1024);
+	   . = . + (0x1000);// Größe System Stack 4 Kbyte
 	   systemStack = .;
-	   . = . + (4 * 1024);
+	   . = . + (0x1000);// Größedes Abort Stack 4 Kbyte
 	   abortStack = .;
 	   _ext_DDR_start = .;
    }

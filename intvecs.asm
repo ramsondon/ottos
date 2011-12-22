@@ -14,11 +14,11 @@
 
 
 	.sect ".intvecs"
-	     B _c_int00    ; Reset Interrupt
-	     B C_INTUDEF ; Undefined Exception
-	     B C_INTSWI    ; Software Interrupt
-	     B C_INTPABT   ; Prefetch Abort Interrupt
-	     B C_INTDABT   ; Data Abort Interrupt
-	     .word 0       ; Unused
-	     B C_INTIRQ,   ; IRQ Interrupt
-	     .word 0       ; FIQ Interrupt
+	     B _c_int00    ;Reset Interrupt
+	     B C_INTUDEF   ;Undefined Exception
+	     B C_INTSWI    ;Software Interrupt
+	     B C_INTPABT   ;Prefetch Abort Interrupt
+	     B C_INTDABT   ;Data Abort Interrupt
+	     .word 0       ;Unused
+	     B C_INTIRQ,   ;IRQ Interrupt
+	     .word 0       ;FIQ Interrupt

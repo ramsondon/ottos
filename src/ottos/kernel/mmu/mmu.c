@@ -72,22 +72,22 @@ address first_free_in_ext_DDR;
 #define MMU_L2_ENTRY_COUNT 256
 #define MMU_L2_ENTRY_SIZE 4 // 4 byte
 address mmu_create_master_table();
-void mmu_map_one_to_one(address master_table_address, address start_address,
-                        unsigned int length);
+void mmu_map_one_to_one(address master_table_address, address start_address, unsigned int length, BOOLEAN user_access, BOOLEAN kernel_access);
 address mmu_create_or_get_l2_table(address master_table_address,
                                int master_table_entry_number);
 address mmu_create_mapped_page(address master_table_address,
-                           address virtual_address);
-void map_directly(address master_table_address, address virtual_address,
-                  address physical_address);
+                           address virtual_address ,BOOLEAN user_access, BOOLEAN kernel_access);
+void mmu_map_directly(address master_table_address, address virtual_address, address physical_address, BOOLEAN kernel_access, BOOLEAN user_access);
 BOOLEAN mmu_is_process_page(address page_address);
 void mmu_set_master_table_pointer_to(address table_address);
-
 void mmu_init() {
   unsigned int i;
   unsigned int nrOfKernelPages;
   address table_address;
   process_table_master_address = 0;
+
+  // intialise ram manager
+  ram_manager_init();
 
   //m_currentProcess = NULL;
   first_free_in_int_RAM = &int_RAM_start;
@@ -183,13 +183,13 @@ void mmu_init_memory_for_process(process_t* process) {
   process->master_table_address = mmu_create_master_table();
 
   mmu_map_one_to_one(process->master_table_address,
-                     (address) ROM_INTERRUPT_ENTRIES, ROM_INTERRUPT_LENGTH);
+                     (address) ROM_INTERRUPT_ENTRIES, ROM_INTERRUPT_LENGTH,TRUE,TRUE);
   mmu_map_one_to_one(process->master_table_address, (address) INT_RAM_START,
-                     (unsigned int) first_free_in_int_RAM - INT_RAM_START);
+                     (unsigned int) first_free_in_int_RAM - INT_RAM_START,TRUE,TRUE);
   mmu_map_one_to_one(process->master_table_address, &intvecs_start,
-                     MMU_INTVECTS_SIZE);
+                     MMU_INTVECTS_SIZE,TRUE,TRUE);
   mmu_map_one_to_one(process->master_table_address, (address) EXT_DDR_START,
-                     (unsigned int) first_free_in_ext_DDR - EXT_DDR_START);
+                     (unsigned int) first_free_in_ext_DDR - EXT_DDR_START,TRUE,TRUE);
 
   //task->messageQueueAddress = createMappedPage(task->masterTableAddress, (address)MESSAGE_QUEUE_VIRTUAL_ADDRESS);
 
@@ -197,7 +197,7 @@ void mmu_init_memory_for_process(process_t* process) {
   // fake loader
   start_address = process->pcb.restart_address;
   newPage = mmu_create_mapped_page(process->master_table_address,
-                               (address) start_address);
+                               (address) start_address,TRUE,TRUE);
 
   // TODO (thomas.bargetz@gmail.com) 4 is another magic number
   process->code_location = process->code_location + ((start_address
@@ -224,46 +224,12 @@ address mmu_create_master_table() {
   return masterTableAddress;
 }
 
-void mmu_map_one_to_one(address master_table_address, address start_address,
-                        unsigned int length) {
-  int i;
-  int j;
-
-  int nr_of_master_table_entries = (length / MMU_SECTION_ENTRY_SIZE) + 1;
-
-  // TODO allgemeine beschreibung am anfang der datei für address aufbau!
-  // eine address ist 32 bit lang (4 byte)
-  // 12 bit für MASTER PAGE TABLE ENTRY INDEX, 8 bit für L2 PAGE TABLE ENTRY INDEX, rest ist offset
-  int first_entry_number = ((unsigned int) start_address >> 12)
-      - (((unsigned int) start_address >> 12) & 0xFFF00);
-
-  int last_entry_number = first_entry_number + (length / MMU_PAGE_SIZE);
-
-  // TODO (thomas.bargetz@gmail.com) 20?
-  // first_l2_entry ist der erste Eintrag in der jeweiligen l2 Table. Wird benötigt, um später den Eintrag für das 1 zu 1 mapping zu berechnen
-  // deletes the last 20 bits
-  unsigned int first_l2_entry = ((unsigned int) start_address >> 20) << 20;
-
-  for (i = 0; i < nr_of_master_table_entries; i++) {
-    // determine the page table entry (index)
-    unsigned int master_table_entry_number = (unsigned int) start_address >> 20;
-    address l2_table_adress = mmu_create_or_get_l2_table(master_table_address,
-                                                     master_table_entry_number);
-
-    if (l2_table_adress > (address) 0x0) {
-      for (j = first_entry_number; (j < MMU_L2_ENTRY_COUNT) && (j
-          <= last_entry_number); ++j) {
-        unsigned int table_entry = first_l2_entry + ((i * MMU_L2_ENTRY_COUNT)
-            + j) * MMU_PAGE_SIZE;
-
-        // create small page entry
-        table_entry |= 0x2;
-        *(l2_table_adress + j) = table_entry;
-        first_entry_number = j;
-      }
-    } else {
-      // TODO Handle full memory
-    }
+void mmu_map_one_to_one(address master_table_address, address start_address, unsigned int length, BOOLEAN user_access, BOOLEAN kernel_access) {
+ int i;
+  // Each entry maps 4096 bytes = 0x1000
+  for (i = 0; i < length; i += 0x1000) {
+      // Map the next page. because startAddress is of type address, it adds 4 * i automatically => take i / 4
+      mmu_map_directly(master_table_address, start_address + (i / 4), start_address + (i / 4), user_access, kernel_access);
   }
 }
 
@@ -296,35 +262,38 @@ address mmu_create_or_get_l2_table(address master_table_address,
 }
 
 address mmu_create_mapped_page(address master_table_address,
-                           address virtual_address) {
+                           address virtual_address ,BOOLEAN user_access, BOOLEAN kernel_access) {
   address new_page;
 
   new_page = ram_manager_find_free_memory(1, TRUE, TRUE);
   memset((void*) new_page, 0, MMU_PAGE_SIZE);
-  map_directly(master_table_address, virtual_address, new_page);
+  mmu_map_directly(master_table_address, virtual_address, new_page, user_access, kernel_access);
 
   return new_page;
 }
 
-void map_directly(address master_table_address, address virtual_address,
-                  address physical_address) {
+void mmu_map_directly(address master_table_address, address virtual_address, address physical_address, BOOLEAN kernel_access, BOOLEAN user_access){
+  unsigned int masterTableEntryNumber = (unsigned int)virtual_address >> 20;
+  address l2_table_address = mmu_create_or_get_l2_table( master_table_address, masterTableEntryNumber);
+  if (l2_table_address != 0x0) {
+      address page_address = (address)(((unsigned int)physical_address >> 12) << 12);
 
-  unsigned int master_table_entry_number = (unsigned int) virtual_address >> 20;
-  address l2_table_address = mmu_create_or_get_l2_table(master_table_address,
-                                                    master_table_entry_number);
+      unsigned int l2_table_entry_number = ((unsigned int)virtual_address >> 12) - (((unsigned int)virtual_address >> 12) & 0xFFF00);
 
-  address page_address = (address) (((unsigned int) physical_address >> 12)
-      << 12);
+      unsigned int table_entry = (unsigned int)page_address | 0x00000002;
+      table_entry |= (user_access << 4);
+      table_entry |= (user_access << 6);
+      table_entry |= (user_access << 8);
+      table_entry |= (user_access << 10);
+      table_entry |= (kernel_access << 5);
+      table_entry |= (kernel_access << 7);
+      table_entry |= (kernel_access << 9);
+      table_entry |= (kernel_access << 11);
 
-  // TODO (thomas.bargetz@gmail.com) 0xFFF00?
-  unsigned int l2_table_entry_number = ((unsigned int) virtual_address >> 12)
-      - (((unsigned int) virtual_address >> 12) & 0xFFF00);
-
-  // TODO (thomas.bargetz@gmail.com) 0x2?
-  unsigned int table_entry = (unsigned int) page_address | 0x2;
-
-  // set l2 table entry
-  *(l2_table_address + l2_table_entry_number) = table_entry;
+      *(l2_table_address + l2_table_entry_number) = table_entry;
+  } else {
+      // TODO Handle full memory
+  }
 }
 
 void mmu_delete_process_memory(process_t* process) {
@@ -397,12 +366,16 @@ void mmu_switch_to_kernel() {
 }
 
 // TODO (thomas.bargetz@gmail.com) not part of the MMU!
+
+
 BOOLEAN mmu_handle_prefetch_abort() {
   mmu_switch_to_kernel();
   process_delete();
 
   return TRUE;
 }
+
+
 
 // TODO (thomas.bargetz@gmail.com) not part of the MMU!
 BOOLEAN mmu_handle_data_abort() {
@@ -422,7 +395,7 @@ BOOLEAN mmu_handle_data_abort() {
 
     mmu_switch_to_kernel();
     mmu_create_mapped_page(process_table[process_active]->master_table_address,
-                       (address) accessed_address);
+                       (address) accessed_address,TRUE,TRUE);
     mmu_init_memory_for_process(process_table[process_active]);
     doContextSwitch = FALSE;
   } else {

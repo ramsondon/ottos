@@ -155,6 +155,7 @@ void i2c_test() {
 
 void mmu_test() {
   devices_init();
+  irq_enable();
 
   mmu_init();
 
@@ -165,7 +166,7 @@ void mmu_test() {
   irq_init();
   timer_init();
   irq_register_context_switch();
-  irq_enable();
+
 
   kernel_to_user_mode();
 }

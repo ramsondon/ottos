@@ -43,6 +43,8 @@ enum memory_type {
   INT_RAM, EXT_DDR
 };
 
+void ram_manager_init();
+
 void ram_manager_reserve_page(enum memory_type mem, int pageNumber);
 void ram_manager_release_page(enum memory_type mem, int pageNumber);
 
