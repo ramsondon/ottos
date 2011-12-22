@@ -24,16 +24,20 @@
 #include <ottos/system.h>
 #include <ottos/kernel.h>
 #include <ottos/const.h>
+#include <ottos/timer.h>
 
 #include "../../bin/led_test.h"
 #include "../../bin/serial_test.h"
 #include "../../bin/console.h"
+<<<<<<< HEAD
+#include "../../bin/uptime_test.h"
+=======
 #include "../../bin/i2c_test.h"
 #include "../drivers/i2c/i2c.h"
+>>>>>>> b1f4ea038bdb4e00e0a86f1aca1316fa97c0bda5
 
 #include "kernel/intc/irq.h"
 #include "kernel/pm/process.h"
-#include "kernel/timer/timer.h"
 #include "dev/devices.h"
 #include "../hal/uart.h"
 
@@ -44,11 +48,10 @@
 
 void timer_test() {
 
-
   process_table_init();
 
-  process_create(1, (int)toggle_led1);
-  process_create(1, (int)toggle_led2);
+  process_create(1, (int) toggle_led1);
+  process_create(1, (int) toggle_led2);
 
   devices_init();
 
@@ -86,40 +89,38 @@ void devices_test() {
 
 void serial_test() {
 
+  process_table_init();
+
+  //    process_create(1, (int)serial_test_test_yield);
+  //    process_create(1, (int)toggle_led1_yield);
+  //    process_create(1, (int)toggle_led2_yield);
 
 
-   process_table_init();
+  //process_create(1, (int) led1_on);
+  //process_create(1, (int) led1_off);
+  process_create(1, (int) toggle_led1);
+  process_create(1, (int) toggle_led2);
+  //process_create(1, (int) serial_test_write_1);
+  //process_create(1, (int) serial_test_write_2);
+  //process_create(1, (int) serial_test_write_3);
+  //process_create(1, (int) serial_test_write_4);
+  //process_create(1, (int) serial_test_write_5);
+  process_create(1, (int) serial_test_calculator);
 
-//    process_create(1, (int)serial_test_test_yield);
-//    process_create(1, (int)toggle_led1_yield);
-//    process_create(1, (int)toggle_led2_yield);
+  devices_init();
+  serial_test_create();
 
+  irq_init();
 
-   //process_create(1, (int) led1_on);
-   //process_create(1, (int) led1_off);
-   process_create(1, (int) toggle_led1);
-   process_create(1, (int) toggle_led2);
-   //process_create(1, (int) serial_test_write_1);
-   //process_create(1, (int) serial_test_write_2);
-   //process_create(1, (int) serial_test_write_3);
-   //process_create(1, (int) serial_test_write_4);
-   //process_create(1, (int) serial_test_write_5);
-   process_create(1, (int) serial_test_calculator);
+  timer_init();
 
-    devices_init();
-    serial_test_create();
+  irq_register_context_switch();
 
-    irq_init();
+  irq_enable();
+  kernel_to_user_mode();
+  //    sys_yield();
 
-    timer_init();
-
-    irq_register_context_switch();
-
-    irq_enable();
-    kernel_to_user_mode();
-//    sys_yield();
-
-//    serial_test_test();
+  //    serial_test_test();
 }
 
 void serial_test_calc() {
@@ -158,7 +159,8 @@ void process_exit_test() {
 }
 
 void dummy_process() {
-  for(;;);
+  for (;;)
+    ;
 }
 
 void console_test() {
@@ -204,7 +206,21 @@ void fs_test() {
   kernel_print(buffer);
   fl_fclose(file);
 
+}
 
+void system_time_test() {
+  process_table_init();
+
+  process_create(1, (int) toggle_led1);
+  process_create(1, (int) uptime_test);
+
+  devices_init();
+  irq_init();
+  timer_init();
+  irq_register_context_switch();
+
+  irq_enable();
+  kernel_to_user_mode();
 }
 
 void i2c_test() {
@@ -224,7 +240,8 @@ int main(int argc, char **argv) {
 //  process_exit_test();
 //  console_test();
 //  fs_test();
-    i2c_test();
+//  i2c_test();
+    uptime_test();
 
   for(;;);
 

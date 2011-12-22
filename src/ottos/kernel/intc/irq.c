@@ -26,8 +26,8 @@
 #include <ottos/memory.h>
 #include <ottos/kernel.h>
 #include <ottos/platform.h>
+#include <ottos/timer.h>
 
-#include "../timer/timer.h"
 #include "../pm/process.h"
 #include "../sched/scheduler.h"
 
