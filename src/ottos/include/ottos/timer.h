@@ -24,6 +24,9 @@
 #ifndef TIMER_H_
 #define TIMER_H_
 
+#include <ottos/types.h>
+#include <ottos/const.h>
+
 #define MAX_TIMER_COUNT 20
 #define DEFAULT_TICKS 10
 
@@ -33,8 +36,11 @@ typedef struct {
     int curr_ticks;
 } system_timer_t;
 
-void timer_init();
-void timer_add_handler(void (*handle)(void), int ticks);
-void timer_remove_handler(void (*handle)(void));
+EXTERN void timer_init();
+EXTERN void timer_add_handler(void (*handle)(void), int ticks);
+EXTERN void timer_remove_handler(void (*handle)(void));
+EXTERN uint64_t timer_system_uptime();
+EXTERN time_t timer_parse_time(uint64_t ms);
+EXTERN void timer_sprint_time(time_t time, char* buffer);
 
 #endif /* TIMER_H_ */

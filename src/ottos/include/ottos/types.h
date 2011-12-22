@@ -45,5 +45,12 @@ typedef struct message_t {
     int pid_t;
 } message_t;
 
+typedef struct {
+  int days;
+  int hours;
+  int minutes;
+  int seconds;
+  int miliseconds;
+} time_t;
 
 #endif /* OTTOS_TYPES_H_ */
