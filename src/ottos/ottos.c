@@ -29,12 +29,9 @@
 #include "../../bin/led_test.h"
 #include "../../bin/serial_test.h"
 #include "../../bin/console.h"
-<<<<<<< HEAD
 #include "../../bin/uptime_test.h"
-=======
 #include "../../bin/i2c_test.h"
 #include "../drivers/i2c/i2c.h"
->>>>>>> b1f4ea038bdb4e00e0a86f1aca1316fa97c0bda5
 
 #include "kernel/intc/irq.h"
 #include "kernel/pm/process.h"
