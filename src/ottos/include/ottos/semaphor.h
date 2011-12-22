@@ -41,6 +41,6 @@ EXTERN int semaphor_wait(semaphor_t* sem);
 EXTERN int semaphor_trywait(semaphor_t* sem);
 EXTERN int semaphor_timedwait(semaphor_t* sem, const struct timespec_t *abs_timeout);
 EXTERN int semaphor_getvalue();
-EXTERN int semaphor_post();
+EXTERN int semaphor_post(semaphor_t* sem);
 
 #endif /* SEMAPHOR_H_ */
