@@ -9,18 +9,19 @@
 
 MEMORY
 {
-   int_ram:  ORIGIN = 0x40200000  LENGTH = 0x0000FFFF
+   int_ram:  ORIGIN = 0x40200000  LENGTH = 0x0000BFC4
+   int_vecs: ORIGIN = 0x4020BFC4  LENGTH = 0x0000003B
    ext_ddr:  ORIGIN = 0x82000000  LENGTH = 0x02000000 // 256 MBit
 }
 
 SECTIONS
 {
-   .intudef    > 0x4020FFC8
-   .intswi     > 0x4020FFCC
-   .intpabt	   > 0x4020FFEC
-   .intdabt    > 0x4020FFF0
-   .intirq     > 0x4020FFDC   
-
+   .intvecs    > int_vecs
+   
+   .irq        > int_ram {
+   		irq.obj
+   }
+   
    .const      > ext_ddr
    .bss        > ext_ddr
    .far        > ext_ddr
@@ -30,7 +31,7 @@ SECTIONS
    .cinit      > ext_ddr
    .cio        > ext_ddr
    
-   .text       > int_ram
+   .text       > ext_ddr
    .sysmem     > ext_ddr
    .switch     > ext_ddr
 }
