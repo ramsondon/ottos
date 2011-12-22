@@ -74,13 +74,13 @@ address first_free_in_ext_DDR;
 address mmu_create_master_table();
 void mmu_map_one_to_one(address master_table_address, address start_address,
                         unsigned int length);
-address create_or_get_l2_table(address master_table_address,
+address mmu_create_or_get_l2_table(address master_table_address,
                                int master_table_entry_number);
-address create_mapped_page(address master_table_address,
+address mmu_create_mapped_page(address master_table_address,
                            address virtual_address);
 void map_directly(address master_table_address, address virtual_address,
                   address physical_address);
-BOOLEAN is_process_page(address page_address);
+BOOLEAN mmu_is_process_page(address page_address);
 void mmu_set_master_table_pointer_to(address table_address);
 
 void mmu_init() {
@@ -196,7 +196,7 @@ void mmu_init_memory_for_process(process_t* process) {
   // TODO (thomas.bargetz@gmail.com) loading processes shouldn't be here
   // fake loader
   start_address = process->pcb.restart_address;
-  newPage = create_mapped_page(process->master_table_address,
+  newPage = mmu_create_mapped_page(process->master_table_address,
                                (address) start_address);
 
   // TODO (thomas.bargetz@gmail.com) 4 is another magic number
@@ -247,7 +247,7 @@ void mmu_map_one_to_one(address master_table_address, address start_address,
   for (i = 0; i < nr_of_master_table_entries; i++) {
     // determine the page table entry (index)
     unsigned int master_table_entry_number = (unsigned int) start_address >> 20;
-    address l2_table_adress = create_or_get_l2_table(master_table_address,
+    address l2_table_adress = mmu_create_or_get_l2_table(master_table_address,
                                                      master_table_entry_number);
 
     if (l2_table_adress > (address) 0x0) {
@@ -268,7 +268,7 @@ void mmu_map_one_to_one(address master_table_address, address start_address,
 }
 
 // returns the l2 table address
-address create_or_get_l2_table(address master_table_address,
+address mmu_create_or_get_l2_table(address master_table_address,
                                int master_table_entry_number) {
   address result;
   unsigned int table_entry;
@@ -295,7 +295,7 @@ address create_or_get_l2_table(address master_table_address,
   return result;
 }
 
-address create_mapped_page(address master_table_address,
+address mmu_create_mapped_page(address master_table_address,
                            address virtual_address) {
   address new_page;
 
@@ -310,7 +310,7 @@ void map_directly(address master_table_address, address virtual_address,
                   address physical_address) {
 
   unsigned int master_table_entry_number = (unsigned int) virtual_address >> 20;
-  address l2_table_address = create_or_get_l2_table(master_table_address,
+  address l2_table_address = mmu_create_or_get_l2_table(master_table_address,
                                                     master_table_entry_number);
 
   address page_address = (address) (((unsigned int) physical_address >> 12)
@@ -347,7 +347,7 @@ void mmu_delete_process_memory(process_t* process) {
               + l2_table_entry)) >> 12) << 12);
 
           // if the page has been initialised and it's a process page, then release the page
-          if ((page_address != 0) && (is_process_page(page_address))) {
+          if ((page_address != 0) && (mmu_is_process_page(page_address))) {
             page_number
                 = ram_manager_page_for_address(&type,
                                                (unsigned int) page_address);
@@ -377,7 +377,7 @@ void mmu_delete_process_memory(process_t* process) {
   }
 }
 
-BOOLEAN is_process_page(address page_address) {
+BOOLEAN mmu_is_process_page(address page_address) {
   address intVecsPageStart = (address) ((((unsigned int) &intvecs_start) >> 12)
       << 12);
 
@@ -421,7 +421,7 @@ BOOLEAN mmu_handle_data_abort() {
       >= PROCESS_MEMORY_START) && (accessed_address < PROCESS_MEMORY_END)) {
 
     mmu_switch_to_kernel();
-    create_mapped_page(process_table[process_active]->master_table_address,
+    mmu_create_mapped_page(process_table[process_active]->master_table_address,
                        (address) accessed_address);
     mmu_init_memory_for_process(process_table[process_active]);
     doContextSwitch = FALSE;
