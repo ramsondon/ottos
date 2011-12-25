@@ -43,6 +43,25 @@
 
 #include "../../drivers/mmchs/mmchs.h"
 
+#include "../tty/tty.h"
+
+void tty_test() {
+  devices_init();
+
+  process_table_init();
+
+  process_create(1, (int) tty_run);
+  process_create(1, (int) toggle_led1);
+  process_create(1, (int) toggle_led2);
+
+  irq_init();
+
+  irq_register_context_switch();
+
+  irq_enable();
+  kernel_to_user_mode();
+}
+
 void timer_test() {
 
   process_table_init();
@@ -238,7 +257,9 @@ int main(int argc, char **argv) {
 //  console_test();
 //  fs_test();
 //  i2c_test();
-    uptime_test();
+//  uptime_test();
+//  tty_test();
+  tty_run();
 
   for(;;);
 
