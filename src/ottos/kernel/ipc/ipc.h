@@ -1,4 +1,4 @@
-/* serial.h
+/* ipc.h
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,34 +17,41 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Nov 19, 2011
+ *  Created on: Dec 22, 2011
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef DRIVERS_SERIAL_SERIAL_H_
-#define DRIVERS_SERIAL_SERIAL_H_
+#ifndef OTTOS_KERNEL_IPC_IPC_H_
+#define OTTOS_KERNEL_IPC_IPC_H_
 
-#include <ottos/drivers/driver.h>
-#include <ottos/dev/device.h>
+/*
+ * TODO:  - Critical Regions
+ *        - Mutual Exclusion with Busy Waiting
+ *        - Sleep and Wakeup
+ *        - Semaphores
+ *        - Message Passing - send, receive
+ *        - waitpid(pid_t pid)
+ */
 
-EXTERN int serial_read(char* buf, int count);
-EXTERN int serial_write(const char* buf, int count);
+#include <ottos/const.h>
+#include <ottos/types.h>
+
+#define SUCCESS 1
+#define WAITING 0
+
+/*
+ * Sends a message_t to the a process listening to namespace ns
+ */
+EXTERN int ipc_send_msg(char* ns, message_t msg);
+
+/*
+ * Receives all message_t sent to namespace msg
+ *
+ * @param ns Namespace
+ * @param msg message received message
+ * @return SUCCESS = 1, WAITING = 0
+ */
+EXTERN int ipc_receive_msg(char* ns, message_t* msg);
 
 
-int serial_open_(device_t dev);
-int serial_close_(device_t dev);
-int serial_read_(device_t dev, int count, char* buffer);
-int serial_write_(device_t dev, int count, char* buffer);
-int serial_ioctl_(device_t dev, ioctl_t msg);
-int serial_create_(device_t dev);
-
-static driver_t omap_serial_driver = {
-  serial_open_,
-  serial_close_,
-  serial_read_,
-  serial_write_,
-  serial_ioctl_,
-  serial_create_
-};
-
-#endif /* DRIVERS_SERIAL_SERIAL_H_ */
+#endif /* OTTOS_KERNEL_IPC_IPC_H_ */

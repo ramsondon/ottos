@@ -22,6 +22,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <ottos/drivers/driver.h>
 #include <ottos/memory.h>
@@ -158,28 +159,29 @@ int serial_test_write_5() {
 }
 
 int serial_test_calculator() {
-  driver_t drv = driver_get(SERIAL_0);
   char buffer[1];
   int a = 0;
   int b = 0;
   int res = 0;
-  drv.create(SERIAL_0);
+  const char* title = "\n\rOttos Serial Test Calculator\n\r";
+  const char* op1 = "\n\rEnter Op1:";
+  const char* op2 = "\n\rEnter Op2:";
+  const char* result = "\n\rResult of Op1 + Op2: ";
   while (1) {
-    drv.write(SERIAL_0, 32, "\n\rOttos Serial Test Calculator\n\r");
-
-    drv.write(SERIAL_0, 13, "\n\rEnter Op1:");
-    drv.read(SERIAL_0, 1, buffer);
+    serial_write(title, strlen(title));
+    serial_write(op1, strlen(op1));
+    serial_read(buffer, 1);
     a = atoi(buffer);
-    drv.write(SERIAL_0, 1, buffer);
+    serial_write(buffer, 1);
 
-    drv.write(SERIAL_0, 13, "\n\rEnter Op2:");
-    drv.read(SERIAL_0, 1, buffer);
+    serial_write(op2, strlen(op2));
+    serial_read(buffer, 1);
     b = atoi(buffer);
-    drv.write(SERIAL_0, 1, buffer);
+    serial_write(buffer, 1);
     res = a + b;
     sprintf(buffer, "%d", res);
-    drv.write(SERIAL_0, 23, "\n\rResult of Op1 + Op2: ");
-    drv.write(SERIAL_0, 1, buffer);
+    serial_write(result, strlen(result));
+    serial_write(buffer, 1);
   }
   return 0;
 }

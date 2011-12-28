@@ -53,18 +53,18 @@ void tty_test() {
 
   tty_run();
 
-//  process_table_init();
-//
-//  process_create(1, (int) tty_run);
-//  process_create(1, (int) toggle_led1);
-//  process_create(1, (int) toggle_led2);
-//
-//  irq_init();
-//
-//  irq_register_context_switch();
-//
-//  irq_enable();
-//  kernel_to_user_mode();
+  //  process_table_init();
+  //
+  //  process_create(1, (int) tty_run);
+  //  process_create(1, (int) toggle_led1);
+  //  process_create(1, (int) toggle_led2);
+  //
+  //  irq_init();
+  //
+  //  irq_register_context_switch();
+  //
+  //  irq_enable();
+  //  kernel_to_user_mode();
 }
 
 void timer_test() {
@@ -236,22 +236,23 @@ void i2c_test() {
   pulse_leds();
 }
 
-
 int main(int argc, char **argv) {
 
-//  process_test();
-//  timer_test();
-//  serial_test();
-//  serial_test_calc();
-//  process_exit_test();
-//  console_test();
+  //  process_test();
+  //  timer_test();
+  //  serial_test();
+  //  serial_test_calc();
+  //  process_exit_test();
+  //  console_test();
   fs_test();
-//  i2c_test();
-//  uptime_test();
-//  tty_test();
-//  tty_run();
+  //  i2c_test();
+  //  uptime_test();
+  //  tty_test();
+  //  tty_run();
+  //  system_time_test();
+  //  uptime_test();
 
-  for(;;);
+  for (;;);
 
   return 0;
 }

@@ -1,4 +1,4 @@
-/* serial.h
+/* semaphor.c
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,34 +17,11 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Nov 19, 2011
+ *  Created on: Dec 22, 2011
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef DRIVERS_SERIAL_SERIAL_H_
-#define DRIVERS_SERIAL_SERIAL_H_
-
-#include <ottos/drivers/driver.h>
-#include <ottos/dev/device.h>
-
-EXTERN int serial_read(char* buf, int count);
-EXTERN int serial_write(const char* buf, int count);
+#include <ottos/semaphor.h>
 
 
-int serial_open_(device_t dev);
-int serial_close_(device_t dev);
-int serial_read_(device_t dev, int count, char* buffer);
-int serial_write_(device_t dev, int count, char* buffer);
-int serial_ioctl_(device_t dev, ioctl_t msg);
-int serial_create_(device_t dev);
-
-static driver_t omap_serial_driver = {
-  serial_open_,
-  serial_close_,
-  serial_read_,
-  serial_write_,
-  serial_ioctl_,
-  serial_create_
-};
-
-#endif /* DRIVERS_SERIAL_SERIAL_H_ */
+//TODO:(ramsondon@gmail.com) implement semaphor functions

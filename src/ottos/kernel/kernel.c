@@ -23,8 +23,9 @@
 
 #include <ottos/kernel.h>
 #include <ottos/io.h>
-#include <ottos/drivers/driver.h>
-#include <ottos/dev/device.h>
+
+#include "../../drivers/serial/serial.h"
+
 
 void kernel_panic(const char* str) {
   kernel_print("**** KERNEL PANIC ****\n\r");
@@ -58,9 +59,7 @@ void kernel_debug(ERROR_CODE code, const char* message) {
 
 void kernel_print(const char* str) {
 //  // TODO(fdomig@gmail.com) Has to be refactored to use an own printf()
-  driver_t serial_driver = driver_get(SERIAL_0);
-  serial_driver.create(SERIAL_0);
-  serial_driver.write(SERIAL_0, strlen(str), (char*)str);
+  serial_write((char*)str, strlen(str));
 }
 
 void kernel_halt() {

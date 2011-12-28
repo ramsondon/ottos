@@ -21,8 +21,8 @@
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#ifndef PROCESS_C_H_
-#define PROCESS_C_H_
+#ifndef OTTOS_KERNEL_PM_PROCESS_H_
+#define OTTOS_KERNEL_PM_PROCESS_H_
 
 #include <ottos/const.h>
 #include <ottos/types.h>
@@ -88,4 +88,4 @@ pid_t process_create(int priority, int initial_address);
 // deletes the active process
 void process_delete();
 
-#endif /* PROCESS_C_H_ */
+#endif /* OTTOS_KERNEL_PM_PROCESS_H_ */
