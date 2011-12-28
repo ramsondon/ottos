@@ -27,20 +27,24 @@
 #include <ottos/drivers/driver.h>
 #include <ottos/dev/device.h>
 
-int serial_open(device_t dev);
-int serial_close(device_t dev);
-int serial_read(device_t dev, int count, char* buffer);
-int serial_write(device_t dev, int count, char* buffer);
-int serial_ioctl(device_t dev, ioctl_t msg);
-int serial_create(device_t dev);
+EXTERN int serial_gets(char* buf, int count);
+EXTERN int serial_write(const char* buf, int count);
+
+
+int serial_open_(device_t dev);
+int serial_close_(device_t dev);
+int serial_read_(device_t dev, int count, char* buffer);
+int serial_write_(device_t dev, int count, char* buffer);
+int serial_ioctl_(device_t dev, ioctl_t msg);
+int serial_create_(device_t dev);
 
 static driver_t omap_serial_driver = {
-  serial_open,
-  serial_close,
-  serial_read,
-  serial_write,
-  serial_ioctl,
-  serial_create
+  serial_open_,
+  serial_close_,
+  serial_read_,
+  serial_write_,
+  serial_ioctl_,
+  serial_create_
 };
 
 #endif /* DRIVERS_SERIAL_SERIAL_H_ */

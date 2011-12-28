@@ -29,7 +29,7 @@
 
 static int init_uart_rs232_ = FALSE;
 
-int serial_create(device_t dev) {
+int serial_create_(device_t dev) {
   if (dev == SERIAL_0 && init_uart_rs232_ == FALSE) {
     uart_init((mem_address_t*) UART3, UART_MODE_16X, uart_protocol_rs232,
             UART_FLOW_CONTROL_DISABLE_FLAG);
@@ -39,14 +39,14 @@ int serial_create(device_t dev) {
   return FALSE;
 }
 
-int serial_open(device_t dev) {
-  return serial_create(dev);
+int serial_open_(device_t dev) {
+  return serial_create_(dev);
 }
-int serial_close(device_t dev) {
+int serial_close_(device_t dev) {
   return FALSE;
 }
 
-int serial_read(device_t dev, int count, char* buffer) {
+int serial_read_(device_t dev, int count, char* buffer) {
 
   mem_address_t* uart = (mem_address_t*)UART3;
   int i = 0;
@@ -60,7 +60,7 @@ int serial_read(device_t dev, int count, char* buffer) {
   return i;
 }
 
-int serial_write(device_t dev, int count, char* buffer) {
+int serial_write_(device_t dev, int count, char* buffer) {
 
   mem_address_t* uart = (mem_address_t*) UART3;
   int i = 0;
@@ -75,7 +75,18 @@ int serial_write(device_t dev, int count, char* buffer) {
   return FALSE;
 }
 
-int serial_ioctl(device_t dev, ioctl_t msg) {
+int serial_ioctl_(device_t dev, ioctl_t msg) {
   return FALSE;
+}
+
+int serial_gets(char* buf, int count) {
+  serial_create_(SERIAL_0);
+  return serial_read_(SERIAL_0, count, buf);
+}
+
+int serial_write(const char* buf, int count) {
+
+  serial_create_(SERIAL_0);
+  return serial_write_(SERIAL_0, count, (char*)buf);
 }
 
