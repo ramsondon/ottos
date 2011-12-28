@@ -28,13 +28,19 @@
 #include <ottos/types.h>
 #include <ottos/kernel.h>
 
-#include "../fs/fs.h"
+#include "../fs/vfat/fat_filelib.h"
 
 // keep track of the current working directory
 // start with the users $HOME directory
 static char tty_cwd[MAX_PATH_LENGTH] = HOME_DIRECTORY;
 
 // private functions
+static void tty_error(const char* message) {
+  char buffer[2096];
+  sprintf(buffer, "-%s: %s\n\r", TTY_NAME, message);
+  kernel_print(buffer);
+}
+
 static void tty_username(char* buffer) {
   sprintf(buffer, "%s", USERNAME);
 }
@@ -46,7 +52,7 @@ static void tty_hostname(char* buffer) {
 static void tty_print_prefix() {
   char username[16];
   char hostname[16];
-  char prefix[64  + MAX_PATH_LENGTH];
+  char prefix[64 + MAX_PATH_LENGTH];
 
   tty_username(username);
   tty_hostname(hostname);
@@ -60,8 +66,35 @@ static BOOLEAN tty_find_binary(const char* name) {
 }
 
 // TODO (fdomig@gmail.com) move the CMDs to a separate file
-static void tty_cmd_change_cwd(char* args) {
+static void tty_cmd_ls(char* directory) {
+  FL_DIR dirstat;
+
+  if (directory == NULL) {
+    directory = tty_cwd;
+  }
+
+  if (fl_opendir(directory, &dirstat)) {
+    struct fs_dir_ent dirent;
+
+    while (fl_readdir(&dirstat, &dirent) == 0) {
+      char buffer[512];
+      sprintf(buffer, "%srwx------ %8d root root   YYY %s\n\r", dirent.is_dir
+          ? 'd' : '-', dirent.size, dirent.filename);
+      kernel_print(buffer);
+    }
+
+    fl_closedir(&dirstat);
+  }
+}
+
+static void tty_cmd_cd(char* args) {
   // TODO (fdomig@gmail.com) ensure, the directory to change to exists
+  if (!fl_is_dir(args)) {
+    char buffer[512];
+    sprintf("cd: %s: No such directory", args);
+    tty_error(buffer);
+    return;
+  }
 
   // change to home directory if no path is given
   if (args == NULL) {
@@ -83,11 +116,12 @@ static void tty_cmd_change_cwd(char* args) {
     // change to parent directory
     if (*(args + 1) == '.' && strlen(tty_cwd) > 1) {
       int i = strlen(tty_cwd);
-      while (tty_cwd[--i] != DIRECTORY_SEPARATOR);
+      while (tty_cwd[--i] != DIRECTORY_SEPARATOR)
+        ;
       if (i > 0) {
         tty_cwd[i] = '\0';
       } else {
-        tty_cwd[i+1] = '\0';
+        tty_cwd[i + 1] = '\0';
       }
     }
 
@@ -151,21 +185,24 @@ void tty_run() {
 
     // check for a built in command
     if (strcmp(cmd, "cd") == 0) {
-      tty_cmd_change_cwd(tokens);
+      tty_cmd_cd(tokens);
 
     } else if (strcmp(cmd, "pwd") == 0) {
       tty_cmd_pwd();
 
+    } else if (strcmp(cmd, "ls") == 0) {
+      tty_cmd_ls(tokens);
+
       // finally, is there a application with the entered name?
     } else if (!tty_find_binary(cmd)) {
       char debug[256];
-      sprintf(debug, "-%s: %s command not found\n\r", TTY_NAME, line);
-      kernel_print(debug);
+      sprintf(debug, "%s command not found", line);
+      tty_error(debug);
       continue;
     }
 
     // run a new process
-    if (cmd[strlen(cmd)-1] == START_IN_BACKGROUND_SYSMBOL) {
+    if (cmd[strlen(cmd) - 1] == START_IN_BACKGROUND_SYSMBOL) {
       background = TRUE;
     }
 
