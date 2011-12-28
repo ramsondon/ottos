@@ -30,7 +30,28 @@
  *        - Sleep and Wakeup
  *        - Semaphores
  *        - Message Passing - send, receive
+ *        - waitpid(pid_t pid)
  */
+
+#include <ottos/const.h>
+#include <ottos/types.h>
+
+#define SUCCESS 1
+#define WAITING 0
+
+/*
+ * Sends a message_t to the a process listening to namespace ns
+ */
+EXTERN int ipc_send_msg(char* ns, message_t msg);
+
+/*
+ * Receives all message_t sent to namespace msg
+ *
+ * @param ns Namespace
+ * @param msg message received message
+ * @return SUCCESS = 1, WAITING = 0
+ */
+EXTERN int ipc_receive_msg(char* ns, message_t* msg);
 
 
 #endif /* OTTOS_KERNEL_IPC_IPC_H_ */

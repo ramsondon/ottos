@@ -24,23 +24,34 @@
 #ifndef SEMAPHOR_H_
 #define SEMAPHOR_H_
 
+#include <ottos/types.h>
 #include <ottos/const.h>
 #include <ottos/time.h>
 
 /*
  * Ottos Semaphor
- *
- *
  */
 typedef struct semaphor_t {
-    int count;
+    pid_t pid; /* pid of last operation */
+    uint16_t value; /* current value */
+    uint16_t ncnt; /* num procs awaiting increase in value */
+    uint16_t zcnt; /* num procs awaiting sem_val = 0 */
 } semaphor_t;
 
-EXTERN void semaphor_init(semaphor_t* sem, int foo, int baz/* TODO: identify params */);
+EXTERN void semaphor_down(semaphor_t* sem);
+EXTERN void semaphor_up(semaphor_t* sem);
+
+
+EXTERN int semaphor_init(semaphor_t* sem, int pshared, unsigned int value);
 EXTERN int semaphor_wait(semaphor_t* sem);
 EXTERN int semaphor_trywait(semaphor_t* sem);
 EXTERN int semaphor_timedwait(semaphor_t* sem, const struct timespec_t *abs_timeout);
-EXTERN int semaphor_getvalue();
+EXTERN int semaphor_getvalue(semaphor_t* sem, int*);
 EXTERN int semaphor_post(semaphor_t* sem);
+EXTERN int semaphor_close(semaphor_t * sem);
+EXTERN int semaphor_destroy(semaphor_t * sem);
+EXTERN semaphor_t* semaphor_open(const char * name, int oflag, ...);
+EXTERN int semaphor_unlink(const char *);
+
 
 #endif /* SEMAPHOR_H_ */
