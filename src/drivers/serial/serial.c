@@ -79,7 +79,7 @@ int serial_ioctl_(device_t dev, ioctl_t msg) {
   return FALSE;
 }
 
-int serial_gets(char* buf, int count) {
+int serial_read(char* buf, int count) {
   serial_create_(SERIAL_0);
   return serial_read_(SERIAL_0, count, buf);
 }

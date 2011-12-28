@@ -27,7 +27,7 @@
 #include <ottos/drivers/driver.h>
 #include <ottos/dev/device.h>
 
-EXTERN int serial_gets(char* buf, int count);
+EXTERN int serial_read(char* buf, int count);
 EXTERN int serial_write(const char* buf, int count);
 
 
