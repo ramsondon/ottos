@@ -239,6 +239,7 @@ int main(int argc, char **argv) {
 //  fs_test();
 //  i2c_test();
 //  system_time_test();
+//    uptime_test();
 
   for(;;);
 
