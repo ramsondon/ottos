@@ -46,20 +46,25 @@
 #include "../tty/tty.h"
 
 void tty_test() {
+
   devices_init();
+  mmchs_init();
+  fs_init();
 
-  process_table_init();
+  tty_run();
 
-  process_create(1, (int) tty_run);
-  process_create(1, (int) toggle_led1);
-  process_create(1, (int) toggle_led2);
-
-  irq_init();
-
-  irq_register_context_switch();
-
-  irq_enable();
-  kernel_to_user_mode();
+//  process_table_init();
+//
+//  process_create(1, (int) tty_run);
+//  process_create(1, (int) toggle_led1);
+//  process_create(1, (int) toggle_led2);
+//
+//  irq_init();
+//
+//  irq_register_context_switch();
+//
+//  irq_enable();
+//  kernel_to_user_mode();
 }
 
 void timer_test() {
@@ -201,27 +206,12 @@ void console_test() {
 }
 
 void fs_test() {
-  file_t* file;
-  char buffer[512];
-  //char text[] = { 't', 'e', 's', 't', '\n', '\r' };
-  char text[] = "new file\n\r\0";
-
   devices_init();
   mmchs_init();
   fs_init();
+
   fl_listdirectory("/");
-
-  file = (file_t*) fl_fopen("/test/thenewest.txt", "a");
-  fl_fwrite(text, sizeof(text), sizeof(text), file);
-  fl_fclose(file);
-
-  fl_listdirectory("/test/");
-
-  file = (file_t*) fl_fopen("/test/thenewest.txt", "r");
-  fl_fread(buffer, 512, sizeof(text), file);
-  kernel_print(buffer);
-  fl_fclose(file);
-
+  fl_listdirectory("/bin/");
 }
 
 void system_time_test() {
@@ -255,11 +245,11 @@ int main(int argc, char **argv) {
 //  serial_test_calc();
 //  process_exit_test();
 //  console_test();
-//  fs_test();
+  fs_test();
 //  i2c_test();
 //  uptime_test();
 //  tty_test();
-  tty_run();
+//  tty_run();
 
   for(;;);
 
