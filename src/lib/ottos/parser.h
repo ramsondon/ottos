@@ -24,29 +24,7 @@
 #ifndef PARSER_H_
 #define PARSER_H_
 
-#include <ottos/types.h>
-
-struct code;
-typedef struct code code_t;
-
-struct code {
-	unsigned char byte_count;
-	unsigned short address;
-	unsigned char record_type;
-	byte_t* bytes;
-
-	code_t* next;
-};
-
-struct code_bytes;
-typedef struct code_bytes code_bytes_t;
-
-struct code_bytes {
-	char* byte_0;
-	char* byte_1;
-	char* byte_2;
-	char* byte_3;
-};
+#include <ottos/code.h>
 
 code_t* parser_parse(code_bytes_t* code_bytes);
 void parser_free_parsed_code(code_t* code);
