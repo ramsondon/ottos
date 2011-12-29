@@ -31,7 +31,7 @@
 
 
 
-void load_process_code(process_t* process, code_bytes_t* code_bytes) {
+void loader_load(process_t* process, code_bytes_t* code_bytes) {
 	code_t* code_begin = parser_parse(code_bytes);
 
 	// reserve memory for the code

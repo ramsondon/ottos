@@ -39,14 +39,14 @@ void serial_test() {
 
   //process_create(1, (int) led1_on);
   //process_create(1, (int) led1_off);
-  process_create(1, (int) toggle_led1);
-  process_create(1, (int) toggle_led2);
+//  process_create(1, (int) toggle_led1);
+//  process_create(1, (int) toggle_led2);
   //process_create(1, (int) serial_test_write_1);
   //process_create(1, (int) serial_test_write_2);
   //process_create(1, (int) serial_test_write_3);
   //process_create(1, (int) serial_test_write_4);
   //process_create(1, (int) serial_test_write_5);
-  process_create(1, (int) serial_test_calculator);
+//  process_create(1, (int) serial_test_calculator);
 
   devices_init();
   serial_test_create();
@@ -67,8 +67,8 @@ void serial_test() {
 void serial_test_calc() {
 
   process_table_init();
-  process_create(1, (int) toggle_led1);
-  process_create(1, (int) serial_test_calculator);
+//  process_create(1, (int) toggle_led1);
+//  process_create(1, (int) serial_test_calculator);
 
   devices_init();
 
@@ -85,9 +85,9 @@ void serial_test_calc() {
 void process_exit_test() {
 
   process_table_init();
-  process_create(1, (int) serial_test_write_exit_1);
-  process_create(1, (int) serial_test_write_exit_2);
-  process_create(1, (int) toggle_led1);
+//  process_create(1, (int) serial_test_write_exit_1);
+//  process_create(1, (int) serial_test_write_exit_2);
+//  process_create(1, (int) toggle_led1);
 
   devices_init();
 
@@ -102,11 +102,11 @@ void process_exit_test() {
 void console_test() {
 
   process_table_init();
-  process_create(1, (int) toggle_led1);
-  process_create(1, (int) toggle_led2);
+//  process_create(1, (int) toggle_led1);
+//  process_create(1, (int) toggle_led2);
 
   //process_create(1, (int) dummy_process);
-  process_create(1, (int) console_start);
+//  process_create(1, (int) console_start);
 
   devices_init();
 
@@ -156,8 +156,8 @@ void mmu_test() {
   mmu_init();
 
   process_table_init();
-  process_create(1, (int) toggle_led1);
-  process_create(1, (int) toggle_led2);
+  //process_create(1, (int) toggle_led1);
+  //process_create(1, (int) toggle_led2);
 
   irq_init();
   timer_init();

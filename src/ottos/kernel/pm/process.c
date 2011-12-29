@@ -48,91 +48,95 @@ int process_next_free_entry = 0;
 int process_active = -1;
 
 void process_update_next_free_entry() {
-  int i = 0;
-  for (i = 0; i < PROCESS_MAX_COUNT; i++) {
-    if (process_table[i] == NULL) {
-      process_next_free_entry = i;
-      return;
-    }
-  }
+	int i = 0;
+	for (i = 0; i < PROCESS_MAX_COUNT; i++) {
+		if (process_table[i] == NULL) {
+			process_next_free_entry = i;
+			return;
+		}
+	}
 }
 
 void process_table_init() {
-  int i = 0;
-  for (i = 0; i < PROCESS_MAX_COUNT; i++) {
-    process_table[i] = NULL;
-  }
+	int i = 0;
+	for (i = 0; i < PROCESS_MAX_COUNT; i++) {
+		process_table[i] = NULL;
+	}
 }
 
 void process_delete() {
 
-  if (process_active == PID_INVALID) return;
+	if (process_active == PID_INVALID)
+		return;
 
-  if (process_table[process_active]->parent != NULL) {
+	if (process_table[process_active]->parent != NULL) {
 
-    // remove child from parent
-    process_table[process_active]->parent->child = NULL;
+		// remove child from parent
+		process_table[process_active]->parent->child = NULL;
 
-    // unblock parent
-    if (process_table[process_active]->parent->state == BLOCKED) {
-      process_table[process_active]->parent->state = READY;
-    }
-  }
-   //delete Mastertable Entries for process
-  mmu_delete_process_memory(process_table[process_active]);
-  // delete the process
-  free(process_table[process_active]);
+		// unblock parent
+		if (process_table[process_active]->parent->state == BLOCKED) {
+			process_table[process_active]->parent->state = READY;
+		}
+	}
+	//delete Mastertable Entries for process
+	mmu_delete_process_memory(process_table[process_active]);
+	// delete the process
+	free(process_table[process_active]);
 
-  // remove the active process from process table
-  process_table[process_active] = NULL;
+	// remove the active process from process table
+	process_table[process_active] = NULL;
 
-  process_update_next_free_entry();
+	process_update_next_free_entry();
 }
 
-pid_t process_create(int priority, int initial_address) {
+pid_t process_create(int priority, code_bytes_t* code_bytes) {
 
-  process_t* p = (process_t*) malloc(sizeof(process_t));
-  p->code_location = (address) 0;
-  p->pid = process_next_free_entry;
-  p->priority = priority;
-  p->state = READY;
-  p->child = NULL;
-  p->parent = NULL;
+	process_t* p = (process_t*) malloc(sizeof(process_t));
+	p->code_location = (address) 0;
+	p->pid = process_next_free_entry;
+	p->priority = priority;
+	p->state = READY;
+	p->child = NULL;
+	p->parent = NULL;
 
-  if (process_active != PID_INVALID) {
+	if (process_active != PID_INVALID) {
 
-    process_table[process_active]->child = p;
-    p->parent = process_table[process_active];
-  }
+		process_table[process_active]->child = p;
+		p->parent = process_table[process_active];
+	}
 
-  p->pcb.R0 = 0;
-  p->pcb.R1 = 0;
-  p->pcb.R2 = 0;
-  p->pcb.R3 = 0;
-  p->pcb.R4 = 0;
-  p->pcb.R5 = 0;
-  p->pcb.R6 = 0;
-  p->pcb.R7 = 0;
-  p->pcb.R8 = 0;
-  p->pcb.R9 = 0;
-  p->pcb.R10 = 0;
-  p->pcb.R11 = 0;
-  p->pcb.R12 = 0;
+	p->pcb.R0 = 0;
+	p->pcb.R1 = 0;
+	p->pcb.R2 = 0;
+	p->pcb.R3 = 0;
+	p->pcb.R4 = 0;
+	p->pcb.R5 = 0;
+	p->pcb.R6 = 0;
+	p->pcb.R7 = 0;
+	p->pcb.R8 = 0;
+	p->pcb.R9 = 0;
+	p->pcb.R10 = 0;
+	p->pcb.R11 = 0;
+	p->pcb.R12 = 0;
 
-  p->pcb.restart_address = initial_address;
-  p->pcb.CPSR = 0x80000110;
+	p->pcb.restart_address = PROCESS_MEMORY_START;
+	p->pcb.CPSR = 0x80000110;
 
-  // pODO sep repurn address po an exip funcpion which removes phe process
-  // from phe process pable and calls phe scheduler
-  p->pcb.R14 = (int) sys_exit;
+	// pODO sep repurn address po an exip funcpion which removes phe process
+	// from phe process pable and calls phe scheduler
+	p->pcb.R14 = (int) sys_exit;
 
-  // set new stack frame
-  p->pcb.R13 = PROCESS_STACK_START_ADDRESS + p->pid * PROCESS_STACK_SIZE;
+	// set new stack frame
+	p->pcb.R13 = PROCESS_STACK_START_ADDRESS + p->pid * PROCESS_STACK_SIZE;
 
-  process_table[p->pid] = p;
+	// load the process code
+	loader_load(p, code_bytes);
 
-  // find the next free entry in the process table
-  process_update_next_free_entry();
+	process_table[p->pid] = p;
 
-  return p->pid;
+	// find the next free entry in the process table
+	process_update_next_free_entry();
+
+	return p->pid;
 }

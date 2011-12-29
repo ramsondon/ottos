@@ -27,6 +27,7 @@
 #include <ottos/const.h>
 #include <ottos/types.h>
 #include <ottos/limits.h>
+#include "../loader/loader.h"
 
 #define PROCESS_STACK_START_ADDRESS  0x8200A000
 #define PROCESS_STACK_SIZE           0x00010000
@@ -55,6 +56,9 @@ typedef struct {
     int R14;
 } pcb_t;
 
+struct process;
+typedef struct process process_t;
+
 struct process {
     address master_table_address;
     address code_location;
@@ -66,12 +70,10 @@ struct process {
     pcb_t pcb;
 
     // TODO is child the right name?
-    struct process* child;
+    process_t* child;
     // TODO is parent the right name?
-    struct process* parent;
+    process_t* parent;
 };
-
-typedef struct process process_t;
 
 // the process table contains all processes of the
 // operating system
@@ -87,7 +89,7 @@ EXTERN int process_active;
 void process_table_init();
 
 // creates a new process and returns the pid of it
-pid_t process_create(int priority, int initial_address);
+pid_t process_create(int priority, code_bytes_t* code_bytes);
 
 // deletes the active process
 void process_delete();

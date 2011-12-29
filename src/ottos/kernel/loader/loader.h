@@ -27,6 +27,9 @@
 #include <ottos/code.h>
 #include "../pm/process.h"
 
-void load_process_code(process_t* process, code_bytes_t* code_bytes);
+// forward declaration
+typedef struct process process_t;
+
+void loader_load(process_t* process, code_bytes_t* code_bytes);
 
 #endif /* LOADER_H_ */

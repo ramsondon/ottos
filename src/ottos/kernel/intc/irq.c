@@ -32,6 +32,7 @@
 #include "../pm/process.h"
 #include "../sched/scheduler.h"
 #include "../mmu/mmu.h"
+#include "../loader/loader.h"
 
 #include "irq.h"
 
@@ -258,9 +259,9 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 		context_switch();
 	case SYS_CREATE_PROCESS:
 		// r1 = priority
-		// r2 = initial_address
+		// r2 = code bytes
 		// r3 = wait_for_exit
-		process_create(r1, r2);
+		/*load_process_code(process_table[process_create(r1)], r2);
 		if (r3 != FALSE) {
 			// the current process will be blocked until the
 			// child exited
@@ -272,7 +273,7 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 			// switch to next process
 			context_switch();
 
-		}
+		}*/
 		break;
 	default:
 		// ignore
