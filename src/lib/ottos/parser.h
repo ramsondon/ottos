@@ -30,13 +30,12 @@ struct code;
 typedef struct code code_t;
 
 struct code {
-	int byte_count;
-	int address;
-	int record_type;
+	unsigned char byte_count;
+	unsigned short address;
+	unsigned char record_type;
 	byte_t* bytes;
 
 	code_t* next;
-	code_t* previous;
 };
 
 struct code_bytes;
