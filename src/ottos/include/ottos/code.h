@@ -10,6 +10,14 @@
 
 #include <ottos/types.h>
 
+// record types defines
+#define CODE_RECORD_TYPE_DATA 						0x0
+#define CODE_RECORD_TYPE_EOF 							0x1
+#define CODE_RECORD_TYPE_EXTENDED_SEGMENT_ADDRESS 	0x2
+#define CODE_RECORD_TYPE_START_SEGMENT_ADDRESS		0x3
+#define CODE_RECORD_TYPE_EXTENDED_LINEAR_ADDRESS 		0x4
+#define CODE_RECORD_TYPE_START_LINEAR_ADDRESS 		0x5
+
 struct code;
 typedef struct code code_t;
 

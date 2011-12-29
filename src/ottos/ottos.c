@@ -22,6 +22,7 @@
 
 #include "kernel/mmu/mmu.h"
 #include "../lib/ottos/parser.h"
+#include "kernel/loader/loader.h"
 
 void timer_test() {
 
@@ -166,14 +167,14 @@ void mmu_test() {
   kernel_to_user_mode();
 }
 
-int _main(int argc, char **argv) {
+int main(int argc, char **argv) {
 
   //  process_test();
   //  timer_test();
   //  serial_test();
   //  serial_test_calc();
   //  process_exit_test();
-    console_test();
+  //  console_test();
   //  fs_test();
   //i2c_test();
   //mmu_test();

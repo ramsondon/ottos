@@ -1,12 +1,12 @@
-/* types.h
- * 
- * Copyright (c) 2011 The ottos project.
+/* loader.h
+ *
+ * Copyright (c) 2011 The ottos project. Inspired by the BOSS project.
  *
  * This work is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
  * any later version.
- * 
+ *
  * This work is distributed in the hope that it will be useful, but without
  * any warranty; without even the implied warranty of merchantability or
  * fitness for a particular purpose. See the GNU Lesser General Public License
@@ -18,38 +18,15 @@
  *
  *
  *  Created on: 21.10.2011
- *      Author: Franziskus Domig <fdomig@gmail.com>
+ *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#ifndef OTTOS_TYPES_H_
-#define OTTOS_TYPES_H_
+#ifndef LOADER_H_
+#define LOADER_H_
 
-#include <ottos/const.h>
-#include <stdint.h>
+#include <ottos/code.h>
+#include "../pm/process.h"
 
-#ifndef _SIZE_T
-#define _SIZE_T
-typedef uint32_t size_t;
-#endif
+void load_process_code(process_t* process, code_bytes_t* code_bytes);
 
-typedef unsigned char byte_t;
-typedef char BOOLEAN;
-
-typedef int pid_t;
-typedef volatile unsigned int mem_address_t;
-// TODO (thomas.bargetz@gmail.com) use mem_address_t!
-typedef volatile unsigned int* address;
-
-typedef int (*function_t)();
-
-typedef unsigned long address_t;
-typedef address_t file_t;
-
-typedef struct message_t {
-    int pid_t;
-} message_t;
-
-
-
-
-#endif /* OTTOS_TYPES_H_ */
+#endif /* LOADER_H_ */

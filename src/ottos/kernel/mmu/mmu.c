@@ -1,6 +1,6 @@
 /* mmu.c
  *
- * Copyright (c) 2011 The ottos project.
+ * Copyright (c) 2011 The ottos project. Inspired by the BOSS project.
  *
  * This work is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -162,9 +162,7 @@ void mmu_set_master_table_pointer_to(address table_address) {
 }
 
 void mmu_init_memory_for_process(process_t* process) {
-	unsigned int start_address;
-	address newPage;
-	//process_t* savedTaskPointer = m_process[process->pid];
+	int i = 0;
 
 	if (process->master_table_address != NULL) {
 		mmu_set_master_table_pointer_to(process->master_table_address);
@@ -183,19 +181,19 @@ void mmu_init_memory_for_process(process_t* process) {
 	mmu_map_one_to_one(process->master_table_address, (address) EXT_DDR_START,
 			(unsigned int) first_free_in_ext_DDR - EXT_DDR_START, TRUE, TRUE);
 
-	//task->messageQueueAddress = createMappedPage(task->masterTableAddress, (address)MESSAGE_QUEUE_VIRTUAL_ADDRESS);
+    //task->memoryManager = (MemoryManager*)createMappedPage(task->masterTableAddress, (address)MESSAGE_QUEUE_VIRTUAL_ADDRESS, true, true);
+    //MemoryManager::getInstanceAt((address)task->memoryManager);
 
-	// TODO (thomas.bargetz@gmail.com) loading processes shouldn't be here
-	// fake loader
-	start_address = process->pcb.restart_address;
-	newPage = mmu_create_mapped_page(process->master_table_address,
-			(address) start_address, TRUE, TRUE);
+    //mapHardwareRegisters(task);
 
-	// TODO (thomas.bargetz@gmail.com) 4 is another magic number
-	process->code_location = process->code_location + ((start_address
-			- PROCESS_MEMORY_START) / 4);
-	// load necessary instructions into new page
-	memcpy((void*) newPage, (void*) (process->code_location), MMU_PAGE_SIZE);
+    // map process code
+    for (i = 0; i < process->page_count; i++)  {
+        // The next virtual address is the first address plus 4096 bytes (4KB)
+        address virtual_address = (address)(process->pcb.restart_address + (i * MMU_PAGE_SIZE));
+        // The next physical address is the first address plus 4096 bytes (4KB)
+        address physical_address = (address)(((unsigned int)(process->code_location)) + (i * MMU_PAGE_SIZE));
+        mmu_map_directly(process->master_table_address, virtual_address, physical_address, TRUE, TRUE);
+    }
 
 	mmu_set_master_table_pointer_to(process->master_table_address);
 
@@ -269,10 +267,12 @@ address mmu_create_mapped_page(address master_table_address,
 
 void mmu_map_directly(address master_table_address, address virtual_address,
 		address physical_address, BOOLEAN kernel_access, BOOLEAN user_access) {
+
 	unsigned int masterTableEntryNumber = (unsigned int) virtual_address >> 20;
 	address l2_table_address = mmu_create_or_get_l2_table(master_table_address,
 			masterTableEntryNumber);
-	if (l2_table_address != 0x0) {
+
+	if (l2_table_address != 0) {
 		address page_address = (address) (((unsigned int) physical_address
 				>> 12) << 12);
 

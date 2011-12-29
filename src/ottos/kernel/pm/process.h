@@ -58,6 +58,8 @@ typedef struct {
 struct process {
     address master_table_address;
     address code_location;
+    int page_count;
+
     pid_t pid;
     int priority;
     enum ProcessState state;
