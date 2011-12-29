@@ -1,12 +1,12 @@
-/* types.h
- * 
+/* parser.h
+ *
  * Copyright (c) 2011 The ottos project.
  *
  * This work is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
  * any later version.
- * 
+ *
  * This work is distributed in the hope that it will be useful, but without
  * any warranty; without even the implied warranty of merchantability or
  * fitness for a particular purpose. See the GNU Lesser General Public License
@@ -18,37 +18,39 @@
  *
  *
  *  Created on: 21.10.2011
- *      Author: Franziskus Domig <fdomig@gmail.com>
+ *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#ifndef OTTOS_TYPES_H_
-#define OTTOS_TYPES_H_
+#ifndef PARSER_H_
+#define PARSER_H_
 
-#include <ottos/const.h>
-#include <stdint.h>
+#include <ottos/types.h>
 
-#ifndef _SIZE_T
-#define _SIZE_T
-typedef uint32_t size_t;
-#endif
+struct code;
+typedef struct code code_t;
 
-typedef unsigned char byte_t;
-typedef char BOOLEAN;
+struct code {
+	int byte_count;
+	int address;
+	int record_type;
+	byte_t* bytes;
 
-typedef int pid_t;
-typedef volatile unsigned int mem_address_t;
-typedef volatile unsigned int* address;
+	code_t* next;
+	code_t* previous;
+};
 
-typedef int (*function_t)();
+struct code_bytes;
+typedef struct code_bytes code_bytes_t;
 
-typedef unsigned long address_t;
-typedef address_t file_t;
+struct code_bytes {
+	char* byte_0;
+	char* byte_1;
+	char* byte_2;
+	char* byte_3;
+};
 
-typedef struct message_t {
-    int pid_t;
-} message_t;
+code_t* parser_parse(code_bytes_t* code_bytes);
+void parser_free_parsed_code(code_t* code);
 
 
-
-
-#endif /* OTTOS_TYPES_H_ */
+#endif /* PARSER_H_ */

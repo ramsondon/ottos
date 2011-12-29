@@ -21,6 +21,7 @@
 #include "../../drivers/mmchs/mmchs.h"
 
 #include "kernel/mmu/mmu.h"
+#include "../lib/ottos/parser.h"
 
 void timer_test() {
 
@@ -100,25 +101,19 @@ void process_exit_test() {
 void console_test() {
 
   process_table_init();
-  //process_create(1, (int) toggle_led1);
-  //process_create(1, (int) toggle_led2);
+  process_create(1, (int) toggle_led1);
+  process_create(1, (int) toggle_led2);
 
   //process_create(1, (int) dummy_process);
-  // process_create(1, (int) console_start);
+  process_create(1, (int) console_start);
 
   devices_init();
 
   irq_init();
-
   timer_init();
-
-  // timer_add_handler(toggle_led_1, 5000);
-  // timer_add_handler(toggle_led_2, 10000);
-  _enable_interrupts();
-
   irq_register_context_switch();
-
   irq_enable();
+
   kernel_to_user_mode();
 }
 
@@ -171,17 +166,17 @@ void mmu_test() {
   kernel_to_user_mode();
 }
 
-int main(int argc, char **argv) {
+int _main(int argc, char **argv) {
 
   //  process_test();
   //  timer_test();
   //  serial_test();
   //  serial_test_calc();
   //  process_exit_test();
-  //  console_test();
+    console_test();
   //  fs_test();
   //i2c_test();
-  mmu_test();
+  //mmu_test();
 
   for (;;)
     ;
