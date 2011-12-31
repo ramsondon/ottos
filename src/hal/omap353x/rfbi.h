@@ -59,5 +59,4 @@
 #define RFBI_HSYNC_WIDTH  0x94
 
 
-
 #endif /* HAL_OMAP3530X_RFBI_H_ */

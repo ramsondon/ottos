@@ -40,8 +40,10 @@
 
 #include "../fs/fs.h"
 #include "../fs/vfat/fat_filelib.h"
-
 #include "../../drivers/mmchs/mmchs.h"
+
+#include "../graphics/graphics.h"
+#include "../drivers/display/disp.h"
 
 void timer_test() {
 
@@ -227,19 +229,111 @@ void i2c_test() {
   pulse_leds();
 }
 
+#define RES_WIDTH 1024
+#define RES_HEIGHT 768
+#define WIDTH  1024
+#define HEIGHT 768
+#define FBADDR ((void *)0x83000000)
+void display_test() {
+  int i = 0;
+  int x, y, u;
+  RastPort *rp;
+
+  video_init(RES_WIDTH, RES_HEIGHT); // --> video.c (ganz unten)
+  rp = graphics_init(FBADDR, RES_WIDTH, RES_HEIGHT, BM_RGB16); // graphics.c
+  omap_attach_framebuffer(0, rp->drawable.bitmap); // --> video.c
+
+  // also set it to the tv out (top-left corner of same data)
+  //omap_attach_framebuffer(VID_VID2 | VID_TVOUT, rp->drawable.bitmap);
+
+  moveTo(rp, 0, 0);
+  setColour(rp, 0x3e31a2);
+  drawRect(rp, WIDTH, HEIGHT);
+
+  setColour(rp, 0x00ffff);
+  moveTo(rp, 20, 20);
+  drawString(rp, "Hello this weather station is powered by OttOS!");
+  setColour(rp, 0xffff00);
+  moveTo(rp, 40, 40);
+  drawString(rp, "Hello this weather station is powered by OttOS!");
+  setColour(rp, 0xff00ff);
+  moveTo(rp, 60, 60);
+  drawString(rp, "Hello this weather station is powered by OttOS!");
+
+  setColour(rp, 0xffffff);
+
+  x = 80;
+  y = 100;
+  u = 10;
+
+  // write H
+  moveTo(rp, x, y);
+  drawRect(rp, u, 5*u);
+  moveTo(rp, x+3*u, y);
+  drawRect(rp, u, 5*u);
+  moveTo(rp, x+u, y+2*u);
+  drawRect(rp, 2*u, u);
+
+  x += 5*u;
+  // write E
+  moveTo(rp, x, y);
+  drawRect(rp, u, 5*u);
+  moveTo(rp, x+u, y);
+  drawRect(rp, 3*u, u);
+  moveTo(rp, x+u, y+2*u);
+  drawRect(rp, 2*u, u);
+  moveTo(rp, x+u, y+4*u);
+  drawRect(rp, 3*u, u);
+
+  x += 5*u;
+  // write L
+  moveTo(rp, x, y);
+  drawRect(rp, u, 5*u);
+  moveTo(rp, x+u, y+4*u);
+  drawRect(rp, 3*u, u);
+
+  x += 5*u;
+  // write L
+  moveTo(rp, x, y);
+  drawRect(rp, u, 5*u);
+  moveTo(rp, x+u, y+4*u);
+  drawRect(rp, 3*u, u);
+
+  x += 5*u;
+  // write O
+  moveTo(rp, x, y);
+  drawRect(rp, u, 5*u);
+  moveTo(rp, x+3*u, y);
+  drawRect(rp, u, 5*u);
+  moveTo(rp, x+u, y);
+  drawRect(rp, 2*u, u);
+  moveTo(rp, x+u, y+4*u);
+  drawRect(rp, 2*u, u);
+
+  x += 5*u;
+  // write !
+  moveTo(rp, x, y);
+  drawRect(rp, u, 3*u);
+  moveTo(rp, x, y+4*u);
+  drawRect(rp, u, u);
+
+  return;
+}
+
 
 int main(int argc, char **argv) {
 
 //  process_test();
 //  timer_test();
 //  serial_test();
-  serial_test_calc();
+//  serial_test_calc();
 //  process_exit_test();
 //  console_test();
 //  fs_test();
 //  i2c_test();
 //  system_time_test();
 //    uptime_test();
+  display_test();
 
   for(;;);
 
