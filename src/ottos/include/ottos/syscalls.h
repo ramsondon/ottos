@@ -30,6 +30,7 @@
 #define SYS_YIELD   1
 #define SYS_EXIT    8
 #define SYS_CREATE_PROCESS 9
+#define SYS_MMU_TEST 10
 
 /**
  * I/O system calls

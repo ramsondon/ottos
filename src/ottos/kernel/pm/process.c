@@ -128,7 +128,7 @@ pid_t process_create(int priority, code_bytes_t* code_bytes) {
 	p->pcb.R14 = (int) sys_exit;
 
 	// set new stack frame
-	p->pcb.R13 = PROCESS_STACK_START_ADDRESS + p->pid * PROCESS_STACK_SIZE;
+	p->pcb.R13 = PROCESS_STACK_START + p->pid * PROCESS_STACK_SIZE;
 
 	// load the process code
 	loader_load(p, code_bytes);

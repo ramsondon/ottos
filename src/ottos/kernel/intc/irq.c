@@ -257,6 +257,9 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 		// old pcb has to be saved
 		process_active = PID_INVALID;
 		context_switch();
+	case SYS_MMU_TEST:
+	  kernel_print("sys_mmu_test\r\n");
+	  break;
 	case SYS_CREATE_PROCESS:
 		// r1 = priority
 		// r2 = code bytes

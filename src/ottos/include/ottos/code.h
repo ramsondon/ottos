@@ -23,7 +23,7 @@ typedef struct code code_t;
 
 struct code {
 	unsigned char byte_count;
-	unsigned short address;
+	unsigned int address;
 	unsigned char record_type;
 	byte_t* bytes;
 

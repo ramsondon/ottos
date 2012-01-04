@@ -29,8 +29,11 @@
 #include <ottos/limits.h>
 #include "../loader/loader.h"
 
-#define PROCESS_STACK_START_ADDRESS  0x8200A000
-#define PROCESS_STACK_SIZE           0x00010000
+//#define PROCESS_STACK_START_ADDRESS  0x8200A000
+//#define PROCESS_STACK_SIZE           0x00010000
+
+#define PROCESS_STACK_START 0x10000000
+#define PROCESS_STACK_SIZE  0x00002000
 
 enum ProcessState {
   READY, BLOCKED, RUNNING
