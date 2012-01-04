@@ -36,22 +36,58 @@
 #include <ottos/const.h>
 #include <ottos/types.h>
 
-#define SUCCESS 1
-#define WAITING 0
+#define SUCCESS           1
+#define WAITING           0
+#define NAMESPACE_IN_USE -1
+
+/*
+ * IPC message
+ */
+typedef struct ipc_message_t {
+    pid_t sender;
+    const char* ns;
+    struct message_t* message;
+    struct ipc_message_t* next;
+} IPC_MESSAGE;
+
+/*
+ * IPC message queue
+ */
+typedef struct ipc_message_queue_t {
+    IPC_MESSAGE* head;
+    IPC_MESSAGE* last;
+} IPC_MESSAGE_QUEUE;
+
+/*
+ * IPC message queue global reference
+ */
+static IPC_MESSAGE_QUEUE ipc_message_queue = {
+   NULL,
+   NULL
+};
+
+/*
+ * Returns SUCCESS if a message is available for a certain namespace ns, else
+ * WAITING.
+ */
+EXTERN int ipc_lookup_msg(const char* ns);
 
 /*
  * Sends a message_t to the a process listening to namespace ns
  */
-EXTERN int ipc_send_msg(char* ns, message_t msg);
+EXTERN int ipc_send_msg(const char* ns, message_t msg);
 
 /*
  * Receives all message_t sent to namespace msg
+ *
+ * This method does not block the kernel!! If no message is available for that
+ * namespace the result will be WAITING
  *
  * @param ns Namespace
  * @param msg message received message
  * @return SUCCESS = 1, WAITING = 0
  */
-EXTERN int ipc_receive_msg(char* ns, message_t* msg);
+EXTERN int ipc_receive_msg(const char* ns, message_t* msg);
 
 
 #endif /* OTTOS_KERNEL_IPC_IPC_H_ */
