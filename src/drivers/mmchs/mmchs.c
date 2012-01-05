@@ -49,8 +49,8 @@ static BLOCK_IO_MEDIA mmchs_media = {
 
 static BOOLEAN mmchs_media_change = TRUE;
 
-static void mmchs_debug(uint32_t error_code, const char* message) {
-  kernel_debug(error_code, message);
+static void mmchs_debug(uint32_t code, const char* message) {
+  kernel_debug(code, message);
 }
 
 static void mmchs_error(uint32_t error_code, const char* message) {
