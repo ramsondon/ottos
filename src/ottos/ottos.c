@@ -26,6 +26,7 @@
 #include <ottos/const.h>
 #include <ottos/timer.h>
 
+//#include "../../bin/ipc_test.h"
 #include "../../bin/led_test.h"
 #include "../../bin/serial_test.h"
 #include "../../bin/console.h"
@@ -34,6 +35,7 @@
 #include "../drivers/i2c/i2c.h"
 
 #include "kernel/intc/irq.h"
+#include "kernel/ipc/ipc.h"
 #include "kernel/pm/process.h"
 #include "dev/devices.h"
 #include "../hal/uart.h"
@@ -138,6 +140,26 @@ void serial_test_calc() {
   kernel_to_user_mode();
 }
 
+//void ipc_test_send_receive() {
+//
+//  process_table_init();
+//  process_create(1, (int) toggle_led1);
+//  process_create(1, (int) toggle_led2);
+//  process_create(1, (int) ipc_test_sender);
+//  process_create(1, (int) ipc_test_receiver);
+//
+//  devices_init();
+//
+//  irq_init();
+//
+//  timer_init();
+//
+//  irq_register_context_switch();
+//
+//  irq_enable();
+//  kernel_to_user_mode();
+//}
+
 void process_exit_test() {
 
   process_table_init();
@@ -227,21 +249,84 @@ void i2c_test() {
   pulse_leds();
 }
 
+void test_ipc_module_sender() {
+
+  const char* namespace = "foobar";
+  char * output1 = "";
+  static int code = 0;
+  while (1) {
+    message_t msg;
+    msg.type = code++;
+
+    sprintf(output1, "send: %d\n", msg.type);
+    //kernel_print(output);
+    printf(output1);
+    ipc_send_msg(namespace, msg);
+  }
+}
+
+void test_ipc_module_receiver() {
+
+  const char* namespace = "foobar";
+  while (1) {
+    message_t message;
+    char* output = "";
+    while (ipc_receive_msg(namespace, &message) == WAITING) {
+      ;
+    }
+    sprintf(output, "received: %d\n", message.type);
+    //kernel_print(output);
+    printf(output);
+  }
+}
+
+void test_ipc_module() {
+
+  process_create(1, (int) test_ipc_module_sender);
+  process_create(1, (int) test_ipc_module_receiver);
+
+  devices_init();
+
+  irq_init();
+
+  timer_init();
+
+  irq_register_context_switch();
+
+  irq_enable();
+  kernel_to_user_mode();
+
+  //  while (1) {
+  //    int i = 0;
+  //    test_ipc_module_sender();
+  //    for (i = 0; i < 10000; i++) {
+  //      ;
+  //    }
+  //    test_ipc_module_receiver();
+  //    for (i = 0; i < 10000; i++) {
+  //      ;
+  //    }
+  //  }
+}
 
 int main(int argc, char **argv) {
 
-//  process_test();
-//  timer_test();
-//  serial_test();
-  serial_test_calc();
-//  process_exit_test();
-//  console_test();
-//  fs_test();
-//  i2c_test();
-//  system_time_test();
-//    uptime_test();
+  //  process_test();
+  //  timer_test();
+  //  serial_test();
+  //  serial_test_calc();
+  //  process_exit_test();
+  //  console_test();
+  //  fs_test();
+  //  i2c_test();
+  //  system_time_test();
+  //    uptime_test();
+  //  ipc_test_send_receive();
 
-  for(;;);
+  test_ipc_module();
+
+  for (;;)
+    ;
 
   return 0;
 }
