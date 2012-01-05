@@ -28,6 +28,7 @@
 
 #include "../intc/irq.h"
 #include "../sched/scheduler.h"
+#include "../ipc/ipc.h"
 
 #include "process.h"
 
@@ -77,6 +78,8 @@ void process_delete() {
       process_table[process_active]->parent->state = READY;
     }
   }
+
+  ipc_remove_all_msg(process_active);
 
   // delete the process
   free(process_table[process_active]);

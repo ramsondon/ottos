@@ -38,7 +38,6 @@
 
 #define SUCCESS           1
 #define WAITING           0
-#define NAMESPACE_IN_USE -1
 
 /*
  * IPC message
@@ -88,6 +87,12 @@ EXTERN int ipc_send_msg(const char* ns, message_t msg);
  * @return SUCCESS = 1, WAITING = 0
  */
 EXTERN int ipc_receive_msg(const char* ns, message_t* msg);
+
+/*
+ * Removes all messages of process with pid_t pid. Has to be called on Process
+ * deletion.
+ */
+EXTERN void ipc_remove_all_msg(pid_t pid);
 
 
 #endif /* OTTOS_KERNEL_IPC_IPC_H_ */
