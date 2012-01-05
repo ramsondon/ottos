@@ -244,10 +244,10 @@ int main(int argc, char **argv) {
   //  serial_test_calc();
   //  process_exit_test();
   //  console_test();
-  fs_test();
+  // fs_test();
   //  i2c_test();
   //  uptime_test();
-  //  tty_test();
+    tty_test();
   //  tty_run();
   //  system_time_test();
   //  uptime_test();

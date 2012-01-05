@@ -29,6 +29,7 @@
 #include <ottos/kernel.h>
 
 #include "../fs/vfat/fat_filelib.h"
+#include "../drivers/serial/serial.h"
 
 // keep track of the current working directory
 // start with the users $HOME directory
@@ -148,7 +149,7 @@ static int tty_start_process(const char* bin, char* args, BOOLEAN background) {
 void tty_run() {
   while (TRUE) {
     // XXX: how do we ensure, we do not read more than 1025 characters?
-    char line[1024 + 1];
+    char line[1024 + 1] = { '\0' };
     char* tokens;
     char* cmd;
     int rc;
@@ -161,7 +162,8 @@ void tty_run() {
     // TODO (m.schmid@students.fhv.at) read from serial device
     // this has to be a system call in the end since we move this to
     // a user mode application
-    rc = scanf("%1024[^\n]%*[^\n]", line);
+    //rc = scanf("%1024[^\n]%*[^\n]", line);
+    rc = serial_getline(line, 1024);
     if (rc == EOF) {
       // TODO (fdomig@gmail.com) line was already at EOF while trying to get
       // the first character
@@ -173,7 +175,7 @@ void tty_run() {
     // changed to use our serial device - I have no idea how to do that
     // in the end we need a system call to get this done since we need to
     // move the TTY to the user space
-    if (!feof(stdin) && !ferror(stdin)) getchar();
+    //if (!feof(stdin) && !ferror(stdin)) getchar();
 
     // split input string into tokens
     tokens = strtok(line, SPLIT_CHARS);
