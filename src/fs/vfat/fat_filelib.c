@@ -33,6 +33,7 @@
 #include <string.h>
 
 #include <ottos/io.h>
+#include <ottos/kernel.h>
 
 #include "fat_defs.h"
 #include "fat_access.h"
@@ -66,7 +67,7 @@ static struct fat_list	_free_file_list;
 //-----------------------------------------------------------------------------
 // Local Functions
 //-----------------------------------------------------------------------------
-static void				_fl_init();
+// static void				_fl_init();
 
 //-----------------------------------------------------------------------------
 // _allocate_file: Find a slot in the open files buffer for a new file
@@ -668,7 +669,7 @@ int fl_attach_media(fn_diskio_read rd, fn_diskio_write wr)
 	// Initialise FAT parameters
 	if ((res = fatfs_init(&_fs)) != FAT_INIT_OK)
 	{
-		FAT_PRINTF(("FAT_FS: Error could not load FAT details (%d)!\r\n", res));
+	  kernel_error(res, "FAT_FS: Error could not load FAT details");
 		return res;
 	}
 
@@ -1221,7 +1222,7 @@ int fl_fwrite(const void * data, int size, int count, void *f )
 	uint32 offset;	
 	uint32 length = (size*count);
 	uint8 *buffer = (uint8 *)data;
-	int dirtySector = 0;
+	// int dirtySector = 0;
 	uint32 bytesWritten = 0;
 	uint32 copyCount;
 
@@ -1427,14 +1428,11 @@ int fl_createdirectory(const char *path)
 void fl_listdirectory(const char *path)
 {
 	FL_DIR dirstat;
-	int filenumber = 0;
 
 	// If first call to library, initialise
 	CHECK_FL_INIT();
 
 	FL_LOCK(&_fs);
-
-	FAT_PRINTF(("\r\nNo.             Filename\r\n"));
 
 	if (fl_opendir(path, &dirstat))
 	{
@@ -1442,14 +1440,9 @@ void fl_listdirectory(const char *path)
 
 		while (fl_readdir(&dirstat, &dirent) == 0)
 		{
-			if (dirent.is_dir)
-			{
-				FAT_PRINTF(("%d - %s <DIR> (0x%08lx)\r\n",++filenumber, dirent.filename, dirent.cluster));
-			}
-			else
-			{
-				FAT_PRINTF(("%d - %s [%d bytes] (0x%08lx)\r\n",++filenumber, dirent.filename, dirent.size, dirent.cluster));
-			}
+		  char buffer[512];
+		  sprintf(buffer, "%crwx------ %5d %s\r\n", (dirent.is_dir ? 'd' : '-'), dirent.size, dirent.filename);
+		  kernel_print(buffer);
 		}
 
 		fl_closedir(&dirstat);

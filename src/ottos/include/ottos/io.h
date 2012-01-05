@@ -42,4 +42,6 @@ EXTERN char* itoa(int n, char* s, int b);
 
 EXTERN char* strrev(char* str);
 
+EXTERN char *strtrim_right(char *p, char c);
+
 #endif /* OTTOS_IO_H_ */

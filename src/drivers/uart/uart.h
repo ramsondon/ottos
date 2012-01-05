@@ -91,14 +91,14 @@ void uart_enable_tcr(mem_address_t* uart_base_addr);
  * transmission queue is empty. check with uart_is_empty_write_queue() for
  * all bytes to write.
  */
-void uart_write(mem_address_t* uart_base_addr, char* buffer);
+void uart_write(mem_address_t* uart_base_addr, char c);
 
 /*
- * Reads one character from the UART device into the buffer. This function does
+ * Reads one character from the UART device. This function does
  * not check if the receive queue is empty. check with
  * uart_is_empty_read_queue() for all bytes to read.
  */
-void uart_read(mem_address_t* uart_base_addr, char* buffer);
+char uart_read(mem_address_t* uart_base_addr);
 
 /*
  * Returns 1 if the UART transmission queue is empty, else 0
