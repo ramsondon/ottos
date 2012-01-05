@@ -114,7 +114,6 @@ void ipc_remove_all_msg(pid_t pid) {
         ipc_remove_from_queue(&ipc_message_queue, current, prev);
 
         // free message
-        // TODO: free current message->content when determined sizeof that shit
         free(current->message);
         current->message = NULL;
         free(current);
@@ -135,8 +134,6 @@ int ipc_receive_msg(const char* ns, message_t* msg) {
 
       // set ouptut message
       msg->type = current->message->type;
-//    TODO: FIX CONTENT pointer copy  with memcpy()
-//    msg->content = current->message->content;
 
       // remove message from queue
       ipc_remove_from_queue(&ipc_message_queue, current, prev);

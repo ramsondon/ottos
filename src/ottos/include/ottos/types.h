@@ -42,8 +42,7 @@ typedef unsigned long address_t;
 typedef address_t file_t;
 
 typedef struct message_t {
-    int pid_t; /* for what? */
-    int code; /* the message code */
+    int type; /* the message type - to determine by process */
 } message_t;
 
 typedef struct {
