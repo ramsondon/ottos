@@ -204,8 +204,8 @@ void tty_run() {
     cmd = tokens;
     tokens = strtok(NULL, SPLIT_CHARS);
 
-    // XXX: built in CMDs are for test only; late each built in CMD may get
-    // an own binary
+    // XXX: built in CMDs are for test only; later each built in CMD will get
+    // an own binary file
 
     // check for a built in command
     if (strcmp(cmd, "cd") == 0) {
