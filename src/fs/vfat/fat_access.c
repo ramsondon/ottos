@@ -710,7 +710,7 @@ int fatfs_list_directory_next(struct fatfs *fs,
   uint8 i, item;
   uint16 recordoffset;
   uint8 LFNIndex = 0;
-  uint32 x = 0;
+  //uint32 x = 0;
   struct fat_dir_entry *directoryEntry;
   char *long_filename = NULL;
   char short_filename[13];

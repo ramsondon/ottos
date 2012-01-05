@@ -50,6 +50,7 @@ void kernel_debug(ERROR_CODE code, const char* message) {
   char code_str[8];
   itoa(code, code_str, 10);
 
+  // TODO (fdomig@gmail.com) has to be refactored, to write into a log file.
   kernel_print("DEBUG [");
   kernel_print(code_str);
   kernel_print("]: ");
