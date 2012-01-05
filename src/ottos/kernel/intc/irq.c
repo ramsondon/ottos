@@ -67,7 +67,7 @@ extern int stack_pointer_original;
 		stack_pointer_original = stack_pointer_saved_context + SAVED_REGISTERS_SPACE;
 
 #define SAVE_CONTEXT_ABT \
-		asm(" SUB     R14, R14, #8"); \
+		/*asm(" SUB     R14, R14, #8");*/ \
 		asm(" STMFD   R13!, {R0-R12, R14}     ; Save Process-Registers "); \
 		asm(" LDR     R0, stack_pointer_saved_context");	\
 		asm(" STR     R13, [R0], #0");	\
@@ -133,7 +133,9 @@ void irq_handle_dabt() {
 	if(mmu_handle_data_abort() == TRUE) {
 		context_switch();
 	}
-	RESTORE_AND_SWITCH_CONTEXT;
+	//RESTORE_AND_SWITCH_CONTEXT;
+	asm(" LDMFD   R13!, {R0-R12, R14}");
+	asm(" SUBS    PC, R14, #8");
 }
 
 #pragma TASK(irq_handle_pabt)
@@ -144,7 +146,9 @@ void irq_handle_pabt() {
 		context_switch();
 	}
 
-	RESTORE_AND_SWITCH_CONTEXT;
+	//RESTORE_AND_SWITCH_CONTEXT;
+  asm(" LDMFD   R13!, {R0-R12, R14}");
+  asm(" SUBS    PC, R14, #4");
 }
 
 void context_switch() {

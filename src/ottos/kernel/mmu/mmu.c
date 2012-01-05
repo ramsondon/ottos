@@ -147,16 +147,16 @@ void mmu_init() {
 }
 
 void mmu_set_master_table_pointer_to(address table_address) {
-  // unsigned int temp_address;
+  unsigned int temp_address;
 
-  //process_table_master_address = table_address;
-  //// align the given table_address (set the last 12 bits to zero)
-  //temp_address = (unsigned int) process_table_master_address & MMU_ALIGN_ADDRESS;
-  //process_table_master_address = (address) temp_address;
+  process_table_master_address = table_address;
+  // align the given table_address (set the last 12 bits to zero)
+  temp_address = (unsigned int) process_table_master_address & MMU_ALIGN_ADDRESS;
+  process_table_master_address = (address) temp_address;
 
   // align the given table_address (set the last 12 bits to zero)
-  process_table_master_address = (address) ((unsigned int) table_address
-      & MMU_ALIGN_ADDRESS);
+  //process_table_master_address = (address) ((unsigned int) table_address
+  //    & MMU_ALIGN_ADDRESS);
 
   asm(" LDR   R1, process_table_master_address");
   asm(" LDR   R1, [R1]");
@@ -169,6 +169,9 @@ void mmu_set_master_table_pointer_to(address table_address) {
 
 void mmu_init_memory_for_process(process_t* process) {
   int i = 0;
+
+  //volatile unsigned int* code;
+  //unsigned int irgendwas;
 
   if (process->master_table_address != NULL) {
     mmu_set_master_table_pointer_to(process->master_table_address);
@@ -206,6 +209,19 @@ void mmu_init_memory_for_process(process_t* process) {
   }
 
   mmu_set_master_table_pointer_to(process->master_table_address);
+
+  /*
+  code = (volatile unsigned int*) 0x20000;
+  irgendwas = *code;
+
+  code = (volatile unsigned int*)0x20004;
+  irgendwas = *code;
+
+  code = (volatile unsigned int*)0x20008;
+  irgendwas = *code;
+
+  code = (volatile unsigned int*)0x2000C;
+  irgendwas = *code;*/
 
   //m_process[process->pid] = process;
   /*
@@ -460,6 +476,7 @@ BOOLEAN mmu_handle_prefetch_abort() {
 // TODO (thomas.bargetz@gmail.com) not part of the MMU!
 BOOLEAN mmu_handle_data_abort() {
   BOOLEAN do_context_switch = FALSE;
+
   accessed_address = 0;
   fault_state = 0;
 
@@ -474,13 +491,13 @@ BOOLEAN mmu_handle_data_abort() {
   asm(" LDR r1, fault_state");
   asm(" STR r0, [r1]");
 
-  // TODO (thomas.bargetz@gmail.com) 0x4 the magic number appears again!
   if (mmu_is_legal(accessed_address, fault_state) == TRUE) {
 
     mmu_switch_to_kernel();
     mmu_create_mapped_page(process_table[process_active]->master_table_address,
                            (address) accessed_address, 0);
     mmu_init_memory_for_process(process_table[process_active]);
+
     do_context_switch = FALSE;
   } else {
     if (process_active != PID_INVALID) {
