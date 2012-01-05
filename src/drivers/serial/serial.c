@@ -36,7 +36,7 @@ int serial_create_(device_t dev) {
     init_uart_rs232_ = TRUE;
     return TRUE;
   }
-  return FALSE;
+  return init_uart_rs232_;
 }
 
 int serial_open_(device_t dev) {
