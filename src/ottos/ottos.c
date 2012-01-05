@@ -45,28 +45,6 @@
 
 #include "../tty/tty.h"
 
-void tty_test() {
-
-  devices_init();
-  mmchs_init();
-  fs_init();
-
-  tty_run();
-
-  //  process_table_init();
-  //
-  //  process_create(1, (int) tty_run);
-  //  process_create(1, (int) toggle_led1);
-  //  process_create(1, (int) toggle_led2);
-  //
-  //  irq_init();
-  //
-  //  irq_register_context_switch();
-  //
-  //  irq_enable();
-  //  kernel_to_user_mode();
-}
-
 void timer_test() {
 
   process_table_init();
@@ -205,15 +183,6 @@ void console_test() {
   kernel_to_user_mode();
 }
 
-void fs_test() {
-  devices_init();
-  mmchs_init();
-  fs_init();
-
-  fl_listdirectory("/");
-  fl_listdirectory("/bin/");
-}
-
 void system_time_test() {
   process_table_init();
 
@@ -236,8 +205,16 @@ void i2c_test() {
   pulse_leds();
 }
 
+static void loop_forever() {
+  for (;;);
+}
+
 int main(int argc, char **argv) {
 
+  // these methods has to be called for EVERY test method
+  devices_init();
+
+  // these methods are the specific tests for every module
   //  process_test();
   //  timer_test();
   //  serial_test();
@@ -252,7 +229,7 @@ int main(int argc, char **argv) {
   //  system_time_test();
   //  uptime_test();
 
-  for (;;);
+  loop_forever();
 
   return 0;
 }

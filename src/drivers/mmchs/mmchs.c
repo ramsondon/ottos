@@ -49,6 +49,9 @@ static BLOCK_IO_MEDIA mmchs_media = {
 
 static BOOLEAN mmchs_media_change = TRUE;
 
+// forward declaration
+static MMCHS_STATUS mmchs_init();
+
 static void mmchs_debug(uint32_t code, const char* message) {
   kernel_debug(code, message);
 }
@@ -1033,7 +1036,7 @@ DEV_STATUS mmchs_device_write(EXTERNAL_DEVICE *this, uint32_t reg,
 
 EXTERNAL_DEVICE* mmchs_io_device;
 
-MMCHS_STATUS mmchs_init() {
+static MMCHS_STATUS mmchs_init() {
 
   memset(&mmchs_card_info, 0, sizeof(mmchs_card_info));
   mmchs_io_device = malloc(sizeof(EXTERNAL_DEVICE)); // TODO: we create a leak here!

@@ -40,5 +40,6 @@
 #define LOG_DIRECTORY               "/var/log" // again, this is standard UNIX
 
 EXTERN void tty_run();
+EXTERN void tty_test();
 
 #endif /* TTY_H_ */

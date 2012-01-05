@@ -211,3 +211,7 @@ void tty_run() {
     tty_start_process(cmd, tokens, background);
   }
 }
+
+void tty_test() {
+  tty_run();
+}
