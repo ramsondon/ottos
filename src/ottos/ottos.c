@@ -252,18 +252,18 @@ void display_test() {
 
   setColour(rp, 0x00ffff);
   moveTo(rp, 20, 20);
-  drawString(rp, "Hello this weather station is powered by OttOS!");
+  drawString(rp, "Hello this weather station is powered by OttOS!",1);
   setColour(rp, 0xffff00);
-  moveTo(rp, 40, 40);
-  drawString(rp, "Hello this weather station is powered by OttOS!");
+  moveTo(rp, 80, 40);
+  drawString(rp, "Hello this weather station is powered by OttOS!",2);
   setColour(rp, 0xff00ff);
-  moveTo(rp, 60, 60);
-  drawString(rp, "Hello this weather station is powered by OttOS!");
+  moveTo(rp, 120, 60);
+  drawString(rp, "...:: OttOS ::...",3);
 
   setColour(rp, 0xffffff);
 
   x = 80;
-  y = 100;
+  y = 200;
   u = 10;
 
   // write H

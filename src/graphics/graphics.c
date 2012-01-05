@@ -80,54 +80,56 @@ void drawPixel(RastPort *rp) {
   *((unsigned short *) rp->point) = rp->colour;
 }
 
-void drawChar(RastPort *rp, unsigned int c) {
-  int i, j;
+void drawChar(RastPort *rp, unsigned int c, int scale) {
+  int i, j, s;
   int w, h;
   unsigned short *outp;
   unsigned int colour = rp->colour;
   unsigned const char *inp;
 
+  // check if character is valid for the used font
   if (c < rp->font.romfont->first || c > rp->font.romfont->last) {
     return;
   }
 
+  // get dimension of character
   w = rp->font.romfont->width;
   h = rp->font.romfont->height;
-
   c = (c - rp->font.romfont->first) * w;
-
-  outp = ((unsigned short *) rp->point) - rp->font.romfont->baseline
-      * rp->drawable.bitmap->stride;
+  outp = ((unsigned short *)rp->point) - rp->font.romfont->baseline*scale*rp->drawable.bitmap->stride;
   inp = rp->font.romfont->bitmap + c;
 
-  for (j = 0; j < h; j++) {
-    for (i = 0; i < w; i++) {
-      unsigned int b;
-
-      b = inp[i];
-      if (b) outp[i] = colour;
+  for (j=0;j<h;j++) {
+    for (s=0;s<scale;s++)  {
+      for (i=0;i<w*scale;i++) {
+        unsigned int b = inp[i/scale];
+        if (b) {
+          outp[i] = colour;
+        }
+      }
+      outp = (unsigned short *)((char *)outp + rp->drawable.bitmap->stride);
     }
-    outp = (unsigned short *) ((char *) outp + rp->drawable.bitmap->stride);
     inp += rp->font.romfont->stride;
   }
 
-  rp->point = ((unsigned short *) rp->point) + w;
-  rp->x += w;
+  rp->point = ((unsigned short *)rp->point) + w*scale;
+  rp->x += w*scale;
 }
 
-void drawString(RastPort *rp, const char *s) {
+void drawString(RastPort *rp, const char *s, int scale) {
   unsigned int c;
   unsigned int x = rp->x;
 
   while ((c = *s++)) {
     if (c == '\n') {
-      if (rp->y + 20 > rp->drawable.bitmap->height) {
+      if (rp->y + 20 > rp->drawable.bitmap->height*scale) {
         moveTo(rp, x, 20);
       } else {
-        moveTo(rp, x, rp->y + rp->font.romfont->lineheight);
+        moveTo(rp, x, rp->y + rp->font.romfont->lineheight*scale);
       }
     } else {
-      drawChar(rp, c);
+      drawChar(rp, c, scale);
     }
   }
 }
+

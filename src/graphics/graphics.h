@@ -79,8 +79,8 @@ EXTERN void setColour(RastPort* rp, unsigned int rgb);
 EXTERN void moveTo(RastPort* rp, int x, int y);
 EXTERN void drawPixel(RastPort* rp);
 EXTERN void drawRect(RastPort* rp, int w, int h);
-EXTERN void drawChar(RastPort* rp, unsigned int c);
-EXTERN void drawString(RastPort* rp, const char* s);
+EXTERN void drawChar(RastPort* rp, unsigned int c, int scale);
+EXTERN void drawString(RastPort* rp, const char* s, int scale);
 
 
 #endif /* GRAPHICS_H_ */
