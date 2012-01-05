@@ -25,19 +25,24 @@
 #include <ottos/memory.h>
 #include "../ram_manager/ram_manager.h"
 
+#include "fault_status_flags.h"
 #include "mmu.h"
 
 asm(" .bss _process_table_master_address, 4");
 asm(" .bss _accessed_address, 4");
+asm(" .bss _fault_state, 4");
 
 asm(" .global _process_table_master_address");
 asm(" .global _accessed_address");
+asm(" .global _fault_state");
 
 asm("process_table_master_address .field _process_table_master_address, 32");
 asm("accessed_address .field _accessed_address, 32");
+asm("fault_state .field _fault_state, 32");
 
 extern address process_table_master_address;
 extern unsigned int accessed_address;
+extern unsigned int fault_state;
 extern volatile unsigned int kernel_master_table;
 extern volatile unsigned int int_RAM_start;
 extern volatile unsigned int ext_DDR_start;
@@ -117,7 +122,7 @@ void mmu_init() {
   ram_manager_reserve_pages(EXT_DDR, 0, nrOfKernelPages);
 
   // *** initialise the domain access ***
-  // Set Domain Access control register to 0101 0101 0101 0101 0101 0101 0101 0111 .. lol?
+  // Set Domain Access control register to 0101 0101 0101 0101 0101 0101 0101 0111
   asm(" MOV   R0, #0x5557");
   asm(" MOVT  R0, #0x5555");
   asm(" MCR   P15, #0, R0, C3, C0, #0");
@@ -132,7 +137,7 @@ void mmu_init() {
     *table_address = i | MMU_SECTION_ENTRY_INITIAL_VALUE_FOR_KERNEL;
     table_address++;
   }
-  *table_address = MMU_SECTION_ENTRY_INITIAL_VALUE_FOR_KERNEL;
+  *table_address = 0xFFF00C12; //MMU_SECTION_ENTRY_INITIAL_VALUE_FOR_KERNEL;
 
   // *** enable the MMU ***
   // set internal MMU from OMAP 3530 on
@@ -178,7 +183,7 @@ void mmu_init_memory_for_process(process_t* process) {
   mmu_map_one_to_one(process->master_table_address, (address) INT_RAM_START,
                      (unsigned int) first_free_in_int_RAM - INT_RAM_START, 0);
   mmu_map_one_to_one(process->master_table_address, &intvecs_start,
-                     MMU_INTVECTS_SIZE, 1);
+                     MMU_INTVECTS_SIZE, 0);
   mmu_map_one_to_one(process->master_table_address, (address) EXT_DDR_START,
                      (unsigned int) first_free_in_ext_DDR - EXT_DDR_START, 0);
 
@@ -387,10 +392,65 @@ void mmu_switch_to_kernel() {
   mmu_set_master_table_pointer_to(&kernel_master_table);
 }
 
+BOOLEAN mmu_is_legal(unsigned int accessed_address, unsigned int fault_status) {
+  BOOLEAN result = FALSE;
+  BOOLEAN write_access = readBit(&fault_status, 11); // 11'th bit
+  unsigned int status_field = (fault_status & 0xF); // last 4 bit
+  BOOLEAN sd_bit = readBit(&fault_status, 12); // 12'th bit
+  BOOLEAN s_bit = readBit(&fault_status, 10); // 10'th bit
+  status_field |= (sd_bit << 6);
+  status_field |= (s_bit << 5);
+
+  if (write_access == TRUE) {
+    switch (status_field) {
+      case PERMISSION_FAULT_SECTION:
+      case PERMISSION_FAULT_PAGE:
+        result = FALSE;
+        break;
+      case TRANSLATION_FAULT_SECTION:
+      case TRANSLATION_FAULT_PAGE:
+        result = (((accessed_address >= PROCESS_STACK_START)
+            && (accessed_address < PROCESS_STACK_START + PROCESS_STACK_SIZE))
+            || ((accessed_address >= PROCESS_SYSMEM_START) && (accessed_address
+                < PROCESS_SYSMEM_START + PROCESS_SYSMEM_SIZE)));
+        //|| ((accessed_address >= MESSAGE_QUEUE_VIRTUAL_ADDRESS) && (accessedAddress < MESSAGE_QUEUE_VIRTUAL_ADDRESS + MESSAGE_QUEUE_SIZE)));
+        break;
+      case DEBUG_EVENT:
+        result = TRUE;
+        break;
+      default:
+        result = FALSE;
+        break;
+    }
+  } else {
+    result = FALSE;
+    /*
+     switch (status_field) {
+     case TRANSLATION_FAULT_SECTION:
+     case TRANSLATION_FAULT_PAGE:
+     result = FALSE;//((accessed_address >= PROCESS_MEMORY_START) && (accessed_address < PROCESS_MEMORY_END));
+     break;
+     case DEBUG_EVENT:
+     result = TRUE;
+     break;
+     default:
+     result = FALSE;
+     break;
+     }
+     */
+  }
+
+  return result;
+}
+
 // TODO (thomas.bargetz@gmail.com) not part of the MMU!
 
 
 BOOLEAN mmu_handle_prefetch_abort() {
+
+  asm("\t MRC p15, #0, R0, C6, C0, #2\n");
+  asm("\t MRC p15, #0, R1, C5, C0, #1\n");
+
   mmu_switch_to_kernel();
   process_delete();
 
@@ -399,8 +459,9 @@ BOOLEAN mmu_handle_prefetch_abort() {
 
 // TODO (thomas.bargetz@gmail.com) not part of the MMU!
 BOOLEAN mmu_handle_data_abort() {
-  BOOLEAN doContextSwitch = FALSE;
-  unsigned int accessed_address = 0;
+  BOOLEAN do_context_switch = FALSE;
+  accessed_address = 0;
+  fault_state = 0;
 
   asm(" MRC   P15, #0, R0, C6, C0, #0");
   // Read data fault address register
@@ -408,20 +469,25 @@ BOOLEAN mmu_handle_data_abort() {
   asm(" STR   R0, [R1]\n");
   // TODO check for read / write permissions
 
+  // Get the abort status
+  asm(" MRC p15, #0, r0, c5, c0, #0");
+  asm(" LDR r1, fault_state");
+  asm(" STR r0, [r1]");
+
   // TODO (thomas.bargetz@gmail.com) 0x4 the magic number appears again!
-  if ((accessed_address % 0x4 == 0) && (accessed_address
-      >= PROCESS_MEMORY_START) && (accessed_address < PROCESS_MEMORY_END)) {
+  if (mmu_is_legal(accessed_address, fault_state) == TRUE) {
 
     mmu_switch_to_kernel();
     mmu_create_mapped_page(process_table[process_active]->master_table_address,
                            (address) accessed_address, 0);
     mmu_init_memory_for_process(process_table[process_active]);
-    doContextSwitch = FALSE;
+    do_context_switch = FALSE;
   } else {
-
-    mmu_switch_to_kernel();
-    process_delete();
-    doContextSwitch = TRUE;
+    if (process_active != PID_INVALID) {
+      mmu_switch_to_kernel();
+      process_delete();
+      do_context_switch = TRUE;
+    }
   }
-  return doContextSwitch;
+  return do_context_switch;
 }

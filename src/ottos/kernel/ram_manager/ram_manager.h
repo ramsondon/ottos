@@ -43,6 +43,9 @@ enum memory_type {
   INT_RAM, EXT_DDR
 };
 
+// TODO (thomas.bargetz@gmail.com) move this function!
+BOOLEAN readBit(address number, int bitOffset);
+
 void ram_manager_init();
 
 void ram_manager_reserve_page(enum memory_type mem, int pageNumber);
