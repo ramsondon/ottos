@@ -179,6 +179,4 @@ EXTERN EXTERNAL_DEVICE* mmchs_io_device;
 
 EXTERN BLOCK_IO_PROTOCOL mmchs_block_io;
 
-EXTERN MMCHS_STATUS mmchs_init();
-
 #endif /* MMCHS_H_ */

@@ -32,7 +32,7 @@ static int init_uart_rs232_ = FALSE;
 int serial_create_(device_t dev) {
   if (dev == SERIAL_0 && init_uart_rs232_ == FALSE) {
     uart_init((mem_address_t*) UART3, UART_MODE_16X, uart_protocol_rs232,
-            UART_FLOW_CONTROL_DISABLE_FLAG);
+              UART_FLOW_CONTROL_DISABLE_FLAG);
     init_uart_rs232_ = TRUE;
     return TRUE;
   }
@@ -48,14 +48,14 @@ int serial_close_(device_t dev) {
 
 int serial_read_(device_t dev, int count, char* buffer) {
 
-  mem_address_t* uart = (mem_address_t*)UART3;
+  mem_address_t* uart = (mem_address_t*) UART3;
   int i = 0;
 
   for (; i < count; i++) {
     // block while waiting for data
     while (uart_is_empty_read_queue(uart))
       ;
-    uart_read(uart, &buffer[i]);
+    buffer[i] = uart_read(uart);
   }
   return i;
 }
@@ -66,10 +66,13 @@ int serial_write_(device_t dev, int count, char* buffer) {
   int i = 0;
 
   for (; i < count; i++, buffer++) {
-   // block while queue is full
-   while (!uart_is_empty_write_queue(uart))
-     ;
-   uart_write(uart, buffer);
+    // block while queue is full
+    while (!uart_is_empty_write_queue(uart))
+      ;
+    uart_write(uart, *buffer);
+    /*if (*buffer == '\n') {
+      uart_write(uart, '\r');
+    }*/
   }
 
   return FALSE;
@@ -84,9 +87,22 @@ int serial_read(char* buf, int count) {
   return serial_read_(SERIAL_0, count, buf);
 }
 
+int serial_getline(char* buf, int size) {
+  char c = 0;
+  int i = 0;
+
+  serial_create_(SERIAL_0);
+  while (c != '\r' && i < size) {
+    serial_read_(SERIAL_0, 1, &c);
+    buf[i++] = c;
+    serial_write(&c, 1);
+  }
+  return --i;
+}
+
 int serial_write(const char* buf, int count) {
 
   serial_create_(SERIAL_0);
-  return serial_write_(SERIAL_0, count, (char*)buf);
+  return serial_write_(SERIAL_0, count, (char*) buf);
 }
 

@@ -271,11 +271,11 @@ int uart_is_empty_write_queue(mem_address_t* uart_base_addr) {
 }
 
 /* writes one character to the UART device */
-void uart_write(mem_address_t* uart_base_addr, char* buffer) {
-  *UART_MEM_ADD(uart_base_addr, UART_THR_REG) = *buffer;
+void uart_write(mem_address_t* uart_base_addr, char c) {
+  *UART_MEM_ADD(uart_base_addr, UART_THR_REG) = c;
 }
 
 /* reads one character from the UART device */
-void uart_read(mem_address_t* uart_base_addr, char* buffer) {
-  *buffer = *UART_MEM_ADD(uart_base_addr, UART_RHR_REG);
+char uart_read(mem_address_t* uart_base_addr) {
+  return *UART_MEM_ADD(uart_base_addr, UART_RHR_REG);
 }

@@ -34,10 +34,10 @@ typedef uint32_t uint32;
 typedef uint16_t uint16;
 typedef uint8_t  uint8;
 
-EXTERN void fs_init();
-
 EXTERN int fs_read(uint32 sector, uint8 *buffer, uint32 sector_count);
 
 EXTERN int fs_write(uint32 sector, uint8 *buffer, uint32 sector_count);
+
+EXTERN void fs_test();
 
 #endif /* FS_H_ */

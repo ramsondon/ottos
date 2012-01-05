@@ -62,3 +62,20 @@ char* itoa(int n, char* s, int b) {
   s[i] = '\0';
   return strrev(s);
 }
+
+char *strtrim_right(char *p, char c) {
+  char *end;
+  int len;
+
+  len = strlen(p);
+  while (*p && len) {
+    end = p + len - 1;
+    if (c == *end) {
+      *end = 0;
+    } else {
+      break;
+    }
+    len = strlen(p);
+  }
+  return (p);
+}
