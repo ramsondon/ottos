@@ -60,6 +60,14 @@ void sys_create_process(int priority, int initial_address, int wait_for_exit) {
   swi(SYS_CREATE_PROCESS, priority, initial_address, wait_for_exit);
 }
 
+void sys_send(const char* ns, message_t* msg) {
+  swi(SYS_SEND, (unsigned)ns, (unsigned)msg, 0);
+}
+
+void sys_receive(const char* ns, message_t *msg) {
+  swi(SYS_RECEIVE, (unsigned)ns, (unsigned)msg, 0);
+}
+
 address_t sys_open(char* filename, int flags) {
 
   address_t  address = (address_t) (void*)0;

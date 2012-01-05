@@ -30,6 +30,7 @@
 
 #include "../pm/process.h"
 #include "../sched/scheduler.h"
+#include "../ipc/ipc.h"
 
 #include "irq.h"
 
@@ -225,6 +226,12 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
         // switch to next process
         context_switch();
       }
+      break;
+    case SYS_SEND: /* ipc send message */
+      ipc_send_msg((const char *)r1, *((message_t*)r2));
+      break;
+    case SYS_RECEIVE: /* ipc receive message */
+      ipc_receive_msg((const char *)r1, (message_t*)r2);
       break;
     default:
       // ignore
