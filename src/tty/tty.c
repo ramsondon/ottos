@@ -146,7 +146,29 @@ static int tty_start_process(const char* bin, char* args, BOOLEAN background) {
   return 0;
 }
 
+static void tty_print_startup() {
+  char buffer0[80] = "\n\r";
+  char buffer1[80] = "\n\r";
+  char buffer2[80] = "  *****************************************\n\r";
+  char buffer3[80] = "  *           Welcome to OttOS!           *\n\r";
+  char buffer4[80] = "  *****************************************\n\r";
+  char buffer5[80] = "\n\r";
+  char buffer6[80] = "\n\r";
+
+  serial_write(buffer0, strlen(buffer0));
+  serial_write(buffer1, strlen(buffer1));
+  serial_write(buffer2, strlen(buffer2));
+  serial_write(buffer3, strlen(buffer3));
+  serial_write(buffer4, strlen(buffer4));
+  serial_write(buffer5, strlen(buffer5));
+  serial_write(buffer6, strlen(buffer6));
+
+}
+
 void tty_run() {
+
+  tty_print_startup();
+
   while (TRUE) {
     // XXX: how do we ensure, we do not read more than 1025 characters?
     char line[1024 + 1] = { '\0' };

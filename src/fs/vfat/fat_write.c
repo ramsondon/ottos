@@ -258,7 +258,7 @@ static int fatfs_find_free_dir_offset(struct fatfs *fs, uint32 dirCluster, int e
 		}
 	} // End of while loop
 
-	return 0;
+	//return 0;
 }
 //-----------------------------------------------------------------------------
 // fatfs_add_file_entry: Add a directory entry to a location found by FindFreeOffset
@@ -362,6 +362,6 @@ int fatfs_add_file_entry(struct fatfs *fs, uint32 dirCluster, char *filename, ch
 			return 0;
 	} // End of while loop
 
-	return 0;
+	//return 0;
 }
 #endif
