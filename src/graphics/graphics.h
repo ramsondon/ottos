@@ -26,6 +26,7 @@
 
 #include <ottos/types.h>
 #include <ottos/const.h>
+#include "bitmap.h"
 
 typedef struct {
   const char* name;
@@ -59,15 +60,18 @@ typedef struct {
 #define BM_UYVY 11
 
 typedef struct {
-  int x, y;
-  void* point;
-  unsigned int colour;
+  int x;                /* width position of the current pixel on the screen */
+  int y;                /* height position of the current pixel on the screen */
+  void* point;          /* pointer to the memory where the current pixel resides */
+  unsigned int colour;  /* current color which is used to draw pixels */
+
   union {
     RomFont* romfont;
-  } font;
+  } font;               /* default font */
+
   union {
     BitMap* bitmap;
-  } drawable;
+  } drawable;           /* ??? */
 } RastPort;
 
 EXTERN RomFont const font_misc_fixed;
@@ -75,12 +79,12 @@ EXTERN RomFont const font_misc_fixed;
 /* can only be called once ... */
 RastPort* graphics_init(char *fbaddr, int width, int height, int type);
 
-EXTERN void setColour(RastPort* rp, unsigned int rgb);
+EXTERN void setColor(RastPort* rp, unsigned int rgb);
 EXTERN void moveTo(RastPort* rp, int x, int y);
 EXTERN void drawPixel(RastPort* rp);
 EXTERN void drawRect(RastPort* rp, int w, int h);
 EXTERN void drawChar(RastPort* rp, unsigned int c, int scale);
 EXTERN void drawString(RastPort* rp, const char* s, int scale);
-
+EXTERN void drawBitmap(int x, int y, BITMAP_HEADER* bmp_header, RGBA *data);
 
 #endif /* GRAPHICS_H_ */

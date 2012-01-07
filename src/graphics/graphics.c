@@ -23,8 +23,8 @@
 
 #include "graphics.h"
 
-RastPort defrp;
-BitMap fb;
+static RastPort defrp;
+static BitMap fb;
 
 /* can only be called once ... */
 RastPort *graphics_init(char *fbaddr, int width, int height, int type) {
@@ -43,10 +43,17 @@ RastPort *graphics_init(char *fbaddr, int width, int height, int type) {
   return &defrp;
 }
 
-void setColour(RastPort *rp, unsigned int rgb) {
+void setColor(RastPort *rp, unsigned int rgb) {
   // TODO: switch rp->drawable->format ...
   rp->colour = ((rgb & 0xf80000) >> 8) | ((rgb & 0xfc00) >> 5) | ((rgb & 0xf8) >> 3);
 }
+
+/*
+void setColor(RastPort *rp, unsigned int r, unsigned int g, unsigned int b) {
+  // TODO: switch rp->drawable->format ...
+  rp->colour = ((rgb & 0xf80000) >> 8) | ((rgb & 0xfc00) >> 5) | ((rgb & 0xf8) >> 3);
+}
+*/
 
 void drawRect(RastPort *rp, int w, int h) {
   int i, j;
@@ -132,4 +139,30 @@ void drawString(RastPort *rp, const char *s, int scale) {
     }
   }
 }
+
+void drawBitmap(int x, int y, BITMAP_HEADER* bmp_header, RGBA* data) {
+
+  int w, l;
+  int curX = x;
+  int curY = y;
+  RGBA* curPixel = data;
+
+  // TODO: implement
+  moveTo(&defrp, curX, curY);
+
+  for (l = 0; l < bmp_header->height; l++) {
+    curX = x;
+    for (w = 0; w < bmp_header->width; w++) {
+      RGBA color = *curPixel;
+      setColor(&defrp, (color.Red << 6) | (color.Green << 4) | (color.Blue << 2));
+      moveTo(&defrp, curX, curY);
+      drawPixel(&defrp);
+      curPixel++;
+      curX++;
+    }
+
+    curY++;
+  }
+}
+
 
