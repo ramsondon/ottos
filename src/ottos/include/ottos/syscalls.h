@@ -40,7 +40,6 @@
 #define SYS_READ    4
 #define SYS_WRITE   5
 
-
 /*
  * IPC system calls
  */

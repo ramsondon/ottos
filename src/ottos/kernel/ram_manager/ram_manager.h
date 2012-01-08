@@ -25,47 +25,37 @@
 
 #include <ottos/types.h>
 #include <ottos/const.h>
-#include <../kernel/pm/process.h>
+#include "../kernel/pm/process.h"
 
-#define MAX_PAGES_IN_INT_RAM 16
-#define MAX_PAGES_IN_EXT_DDR 8192
+#define RAM_MANAGER_MAX_PAGES_IN_INT_RAM 16
+#define RAM_MANAGER_MAX_PAGES_IN_EXT_DDR 8192
 
-#define INT_RAM_START 0x40200000
-#define INT_RAM_SIZE  0x00010000
+#define RAM_MANAGER_INT_RAM_START 0x40200000
+#define RAM_MANAGER_INT_RAM_SIZE  0x00010000
 
-#define EXT_DDR_START 0x82000000
-#define EXT_DDR_SIZE  0x02000000
+#define RAM_MANAGER_EXT_DDR_START 0x82000000
+#define RAM_MANAGER_EXT_DDR_SIZE  0x02000000
 
-#define ROM_INTERRUPT_ENTRIES 0x14000
-#define ROM_INTERRUPT_LENGTH 0x1C
+#define RAM_MANAGER_ROM_INTERRUPT_ENTRIES 0x14000
+#define RAM_MANAGER_ROM_INTERRUPT_LENGTH 0x1C
 
-enum memory_type {
-  INT_RAM, EXT_DDR
+enum ram_manager_memory_type {
+	INT_RAM, EXT_DDR
 };
 
-// TODO (thomas.bargetz@gmail.com) move this function!
-BOOLEAN readBit(address number, int bitOffset);
-
+// initializes the ram manager
 void ram_manager_init();
 
-void ram_manager_reserve_page(enum memory_type mem, int pageNumber);
-void ram_manager_release_page(enum memory_type mem, int pageNumber);
+// finds the next free memory location and returns the address of it
+address ram_manager_find_free_memory(int nr_of_pages, BOOLEAN align, BOOLEAN reserve);
 
-address ram_manager_find_free_memory_in(enum memory_type mem, int nrOfPages,
-                                        BOOLEAN align, BOOLEAN reserve);
-address ram_manager_find_free_memory(int nrOfPages, BOOLEAN align,
-                                     BOOLEAN reserve);
+// returns the page number for address
+int ram_manager_page_for_address(enum ram_manager_memory_type* type, unsigned int address);
 
-int ram_manager_page_for_address(enum memory_type* type,
-                                 unsigned int memAddress);
-address ram_manager_address_of_page(enum memory_type mem,
-                                    int pageNumberInMemory);
+// reserves pages
+void ram_manager_reserve_pages(enum ram_manager_memory_type type, int first_page_number, int nr_of_pages);
 
-void ram_manager_reserve_pages(enum memory_type mem, int firstPageNumber,
-                               int nrOfPages);
-void ram_manager_release_pages(enum memory_type mem, int firstPageNumber,
-                               int nrOfPages);
-
-int ram_manager_max_pages_in(enum memory_type mem);
+// releases pages
+void ram_manager_release_pages(enum ram_manager_memory_type type, int first_page_number, int nr_of_pages);
 
 #endif /* RAM_MANAGER_H_ */

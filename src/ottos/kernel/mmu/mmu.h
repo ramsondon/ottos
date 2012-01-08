@@ -25,27 +25,27 @@
 #ifndef MMU_H_
 #define MMU_H_
 
-
-
 #include <ottos/types.h>
 #include <ottos/const.h>
 #include "../pm/process.h"
 
-
-#define PROCESS_MEMORY_START 0x20000
-#define PROCESS_MEMORY_END 0x1000000
-
 #define MMU_PAGE_SIZE 0x1000 // 4 kB page
-
+// Initialises the mmu and the ram_manager.
 void mmu_init();
+
+// Tells the mmu to switch to the kernel's master page
 void mmu_switch_to_kernel();
+
+// Tells the mmu to switch to the process' master page. If no master page exists, one will be created
 void mmu_init_memory_for_process(process_t* process);
+
+// Deletes the pages of the process
 void mmu_delete_process_memory(process_t* process);
+
+// Handles the prefetch abort. Deletes the current active process and induces a context switch by returning TRUE
 BOOLEAN mmu_handle_prefetch_abort();
+
+// Handles the data abort. Creates mapped pages if necessary.
 BOOLEAN mmu_handle_data_abort();
-
-
-
-
 
 #endif /* MMU_H_ */

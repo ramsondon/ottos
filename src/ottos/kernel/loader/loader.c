@@ -29,8 +29,6 @@
 #include "../ram_manager/ram_manager.h"
 #include "loader.h"
 
-
-
 void loader_load(process_t* process, code_bytes_t* code_bytes) {
 	code_t* code_begin = parser_parse(code_bytes);
 
@@ -43,19 +41,19 @@ void loader_load(process_t* process, code_bytes_t* code_bytes) {
 	int page_count = 0;
 	address memory_start = NULL;
 
-	while(code_current != NULL) {
+	while (code_current != NULL) {
 		// check the record type data to find the start and end page
-		if(code_current->record_type == CODE_RECORD_TYPE_DATA) {
+		if (code_current->record_type == CODE_RECORD_TYPE_DATA) {
 			// the first hex number of the address of the current code
 			// defines the page number
 
 			// 1ABC = 1 page
 			// 4000 = 4 page
 			int page_number = code_current->address / MMU_PAGE_SIZE;
-			if(page_number < page_start) {
+			if (page_number < page_start) {
 				page_start = page_number;
 			}
-			if(page_number > page_end) {
+			if (page_number > page_end) {
 				page_end = page_number;
 			}
 		}
@@ -69,13 +67,13 @@ void loader_load(process_t* process, code_bytes_t* code_bytes) {
 
 	// load the code in the reserved memory
 	code_current = code_begin;
-	while(code_current != NULL) {
-		if(code_current->record_type == CODE_RECORD_TYPE_DATA) {
+	while (code_current != NULL) {
+		if (code_current->record_type == CODE_RECORD_TYPE_DATA) {
 			// handle data record
 			// get the start address for this record
-			address address_start = (address)((int)memory_start + code_current->address - PROCESS_MEMORY_START);
+			address address_start = (address) ((int) memory_start + code_current->address - PROCESS_MEMORY_START);
 			// copy the code data into the reserved memory
-			memcpy((int*)address_start, code_current->bytes, code_current->byte_count);
+			memcpy((int*) address_start, code_current->bytes, code_current->byte_count);
 		}
 
 		code_current = code_current->next;

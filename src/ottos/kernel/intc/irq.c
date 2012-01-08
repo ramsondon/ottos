@@ -107,8 +107,7 @@ void irq_add_handler(int irq_id, void(*fn)(void)) {
 	int_handler_[irq_id] = fn;
 
 	/* activate the specific interrupt (interrupt mask) */
-	*((mem_address_t*) (MPU_INTC + INTCPS_MIR_CLEARn(register_nb))) |= (1
-			<< (irq_id % 32));
+	*((mem_address_t*) (MPU_INTC + INTCPS_MIR_CLEARn(register_nb))) |= (1 << (irq_id % 32));
 }
 
 void irq_handle_irq(int irq_id) {
@@ -196,10 +195,11 @@ void context_switch() {
 		asm(" LDMFD   R13!, {R2-R12, R14} ; Reload remaining stacked values" );
 		asm(" STR     R14, [R0, #-12]       ; Store R14_irq, the interrupted process's restart address" );
 		asm(" STMIA   R0, {R2-R14}^         ; Store user R2-R14 ");
-	} else {
-		asm(" LDR     R13, stack_pointer_original");
-		asm(" LDR     R13, [R13], #0");
 	}
+
+	// restore the stack pointer of the interrupt
+	asm(" LDR     R13, stack_pointer_original");
+	asm(" LDR     R13, [R13], #0");
 
 	// Then load the new process's User mode state and return to it.");
 	asm(" LDMIA   R1!, {R12, R14}       ; Put interrupted process's CPSR" );
@@ -213,17 +213,6 @@ void context_switch() {
 #pragma TASK(irq_handle)
 EXTERN void irq_handle() {
 
-	// This will be called before entering the function
-	// SUB R14, R14, #4
-	/*
-	 asm(" SUB     R14, R14, #4            ; Put return address of the interrupted task into R14 ");
-	 asm(" STMFD   R13!, {R0-R12, R14}     ; Save Process-Registers ");
-
-	 asm(" LDR     R0, stack_pointer_saved_context");
-	 asm(" STR     R13, [R0], #0");
-
-	 stack_pointer_original = stack_pointer_saved_context
-	 + SAVED_REGISTERS_SPACE;*/
 	SAVE_CONTEXT_IRQ;
 
 	mmu_switch_to_kernel();
@@ -243,14 +232,6 @@ EXTERN void irq_handle() {
 #pragma TASK(irq_handle_swi)
 EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 
-	/*
-	 asm(" STMFD   R13!, {R0-R12, R14} ; Save Process-Registers ");
-
-	 asm(" LDR     R0, stack_pointer_saved_context");
-	 asm(" STR     R13, [R0], #0");
-
-	 stack_pointer_original = stack_pointer_saved_context
-	 + SAVED_REGISTERS_SPACE + SWI_PARAMETERS_SPACE;*/
 	SAVE_CONTEXT_SWI;
 
 	mmu_switch_to_kernel();
@@ -299,10 +280,14 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 		mmu_init_memory_for_process(process_table[process_active]);
 	}
 
-	//RESTORE_AND_SWITCH_CONTEXT;
+	// reload process context
 	asm(" LDMFD   R13!, {R0-R12, R14}");
+
+	// restore the interrupt stack pointer
 	asm(" LDR     R13, stack_pointer_original");
 	asm(" LDR     R13, [R13], #0");
+
+	// switch to process
 	asm(" MOVS	  PC, R14");
 
 }

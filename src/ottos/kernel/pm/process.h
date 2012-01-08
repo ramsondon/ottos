@@ -27,10 +27,10 @@
 #include <ottos/const.h>
 #include <ottos/types.h>
 #include <ottos/limits.h>
-#include "../loader/loader.h"
+#include <ottos/code.h>
 
-//#define PROCESS_STACK_START_ADDRESS  0x8200A000
-//#define PROCESS_STACK_SIZE           0x00010000
+#define PROCESS_MEMORY_START 0x20000
+#define PROCESS_MEMORY_END 0x1000000
 
 #define PROCESS_STACK_START 0x10000000
 #define PROCESS_STACK_SIZE  0x00002000
@@ -75,9 +75,7 @@ struct process {
     enum ProcessState state;
     pcb_t pcb;
 
-    // TODO is child the right name?
     process_t* child;
-    // TODO is parent the right name?
     process_t* parent;
 };
 

@@ -71,5 +71,6 @@
 #define CLEAR_BIT(addr, offset) *addr &= ~(1 << offset);
 #define TOGGLE_BIT(addr, offset) *(addr) ^= (1 << offset);
 #define READ_BIT(addr, offset) (*(addr) & (1 << offset));
+#define READ_SINGLE_BIT(addr, offset) (*(addr) & (1 << offset)) >> offset;
 
 #endif /* BITS_H_ */
