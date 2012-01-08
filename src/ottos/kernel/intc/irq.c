@@ -299,5 +299,10 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 		mmu_init_memory_for_process(process_table[process_active]);
 	}
 
-	RESTORE_AND_SWITCH_CONTEXT;
+	//RESTORE_AND_SWITCH_CONTEXT;
+	asm(" LDMFD   R13!, {R0-R12, R14}");
+	asm(" LDR     R13, stack_pointer_original");
+	asm(" LDR     R13, [R13], #0");
+	asm(" MOVS	  PC, R14");
+
 }

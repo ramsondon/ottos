@@ -47,8 +47,6 @@ EXTERN void swi(unsigned syscall_nr, unsigned param1, unsigned param2, unsigned 
 #define REG_1 "r1"
 #define REG_2 "r2"
 
-EXTERN
-
 void sys_yield() {
   swi(SYS_YIELD, 0, 0, 0);
 }

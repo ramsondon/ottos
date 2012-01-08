@@ -171,8 +171,6 @@ void mmu_set_master_table_pointer_to(address table_address) {
 void mmu_init_memory_for_process(process_t* process) {
 	int i = 0;
 
-	kernel_print("init memory for process\r\n");
-
 	//  volatile unsigned int* code;
 	//  unsigned int irgendwas;
 
