@@ -48,6 +48,9 @@ EXTERN int sys_close();
 EXTERN void sys_send(pid_t pid, message_t* msg);
 EXTERN struct message_t* sys_receive();
 
+/*
+ * MMU system calls
+ */
 EXTERN void sys_mmu_test();
 
 #endif /* SYSTEM_H_ */

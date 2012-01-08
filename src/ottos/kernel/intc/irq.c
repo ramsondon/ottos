@@ -25,8 +25,8 @@
 #include <ottos/const.h>
 #include <ottos/memory.h>
 #include <ottos/kernel.h>
-
 #include <ottos/platform.h>
+#include <ottos/drivers/driver.h>
 
 #include "../timer/timer.h"
 #include "../pm/process.h"
@@ -229,6 +229,15 @@ EXTERN void irq_handle() {
 	RESTORE_AND_SWITCH_CONTEXT;
 }
 
+void irq_swi_handle_sys_open(unsigned int device) {
+	driver_get(device).open(device);
+}
+
+void irq_swi_handle_sys_write(unsigned int device, unsigned int count, unsigned int buffer) {
+	char casted_buffer = (char)buffer;
+	driver_get(device).write(device, count, &casted_buffer);
+}
+
 #pragma TASK(irq_handle_swi)
 EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 
@@ -270,6 +279,22 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 		 context_switch();
 
 		 }*/
+		break;
+	case SYS_OPEN:
+		// r1 = device_t
+		irq_swi_handle_sys_open(r1);
+		break;
+	case SYS_READ:
+		// TODO implement return value
+		break;
+	case SYS_WRITE:
+		// r1 = device_t
+		// r2 = size of buffer
+		// r3 = buffer (int)
+		irq_swi_handle_sys_write(r1, r2, r3);
+		break;
+	case SYS_CLOSE:
+		// TODO implement
 		break;
 	default:
 		// ignore
