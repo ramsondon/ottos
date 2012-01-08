@@ -236,13 +236,13 @@ int _main(int argc, char **argv) {
     printf("> byte_count: %x, addr: %x\r\n\t", current->byte_count,
            current->address);
 
-    for (i = 0; i < current->byte_count; i++) {
-      if (i % 4 == 0) {
-        printf(" ");
-      }
-      printf("%x%x", current->bytes[i] >> 4, current->bytes[i] % 16);
-    }
-    printf("\r\n");
+//    for (i = 0; i < current->byte_count; i++) {
+//      if (i % 4 == 0) {
+//        printf(" ");
+//      }
+//      printf("%x%x", current->bytes[i] >> 4, current->bytes[i] % 16);
+//    }
+//    printf("\r\n");
 
 
     current = current->next;

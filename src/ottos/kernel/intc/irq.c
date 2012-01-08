@@ -130,7 +130,9 @@ void irq_handle_udef() {
 void irq_handle_dabt() {
 	SAVE_CONTEXT_ABT;
 
-	if(mmu_handle_data_abort() == TRUE) {
+	//kernel_print("data abort\r\n");
+
+	if (mmu_handle_data_abort() == TRUE) {
 		context_switch();
 	}
 	//RESTORE_AND_SWITCH_CONTEXT;
@@ -142,13 +144,15 @@ void irq_handle_dabt() {
 void irq_handle_pabt() {
 	SAVE_CONTEXT_ABT;
 
-	if(mmu_handle_prefetch_abort() == TRUE) {
+	//kernel_print("prefetch abort\r\n");
+
+	if (mmu_handle_prefetch_abort() == TRUE) {
 		context_switch();
 	}
 
 	//RESTORE_AND_SWITCH_CONTEXT;
-  asm(" LDMFD   R13!, {R0-R12, R14}");
-  asm(" SUBS    PC, R14, #4");
+	asm(" LDMFD   R13!, {R0-R12, R14}");
+	asm(" SUBS    PC, R14, #4");
 }
 
 void context_switch() {
@@ -211,15 +215,15 @@ EXTERN void irq_handle() {
 
 	// This will be called before entering the function
 	// SUB R14, R14, #4
-/*
-	asm(" SUB     R14, R14, #4            ; Put return address of the interrupted task into R14 ");
-	asm(" STMFD   R13!, {R0-R12, R14}     ; Save Process-Registers ");
+	/*
+	 asm(" SUB     R14, R14, #4            ; Put return address of the interrupted task into R14 ");
+	 asm(" STMFD   R13!, {R0-R12, R14}     ; Save Process-Registers ");
 
-	asm(" LDR     R0, stack_pointer_saved_context");
-	asm(" STR     R13, [R0], #0");
+	 asm(" LDR     R0, stack_pointer_saved_context");
+	 asm(" STR     R13, [R0], #0");
 
-	stack_pointer_original = stack_pointer_saved_context
-			+ SAVED_REGISTERS_SPACE;*/
+	 stack_pointer_original = stack_pointer_saved_context
+	 + SAVED_REGISTERS_SPACE;*/
 	SAVE_CONTEXT_IRQ;
 
 	mmu_switch_to_kernel();
@@ -229,6 +233,10 @@ EXTERN void irq_handle() {
 	/* forward the interrupt to the handler routine */
 	irq_handle_irq(*((mem_address_t*) (MPU_INTC + INTCPS_SIR_IRQ)));
 
+	if (process_active != PID_INVALID) {
+		mmu_init_memory_for_process(process_table[process_active]);
+	}
+
 	RESTORE_AND_SWITCH_CONTEXT;
 }
 
@@ -236,13 +244,13 @@ EXTERN void irq_handle() {
 EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 
 	/*
-	asm(" STMFD   R13!, {R0-R12, R14} ; Save Process-Registers ");
+	 asm(" STMFD   R13!, {R0-R12, R14} ; Save Process-Registers ");
 
-	asm(" LDR     R0, stack_pointer_saved_context");
-	asm(" STR     R13, [R0], #0");
+	 asm(" LDR     R0, stack_pointer_saved_context");
+	 asm(" STR     R13, [R0], #0");
 
-	stack_pointer_original = stack_pointer_saved_context
-			+ SAVED_REGISTERS_SPACE + SWI_PARAMETERS_SPACE;*/
+	 stack_pointer_original = stack_pointer_saved_context
+	 + SAVED_REGISTERS_SPACE + SWI_PARAMETERS_SPACE;*/
 	SAVE_CONTEXT_SWI;
 
 	mmu_switch_to_kernel();
@@ -262,29 +270,33 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 		process_active = PID_INVALID;
 		context_switch();
 	case SYS_MMU_TEST:
-	  kernel_print("sys_mmu_test\r\n");
-	  break;
+		kernel_print("sys_mmu_test\r\n");
+		break;
 	case SYS_CREATE_PROCESS:
 		// r1 = priority
 		// r2 = code bytes
 		// r3 = wait_for_exit
 		/*load_process_code(process_table[process_create(r1)], r2);
-		if (r3 != FALSE) {
-			// the current process will be blocked until the
-			// child exited
+		 if (r3 != FALSE) {
+		 // the current process will be blocked until the
+		 // child exited
 
-			// TODO is blocked the correct state?
-			process_table[process_active]->state = BLOCKED;
+		 // TODO is blocked the correct state?
+		 process_table[process_active]->state = BLOCKED;
 
-			// block current process
-			// switch to next process
-			context_switch();
+		 // block current process
+		 // switch to next process
+		 context_switch();
 
-		}*/
+		 }*/
 		break;
 	default:
 		// ignore
 		break;
+	}
+
+	if (process_active != PID_INVALID) {
+		mmu_init_memory_for_process(process_table[process_active]);
 	}
 
 	RESTORE_AND_SWITCH_CONTEXT;

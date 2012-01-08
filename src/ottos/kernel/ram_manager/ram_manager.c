@@ -29,8 +29,8 @@
 
 #define ENTRY_SIZE 8 // 8 bit
 
-BOOLEAN occupied_pages_int_RAM[MAX_PAGES_IN_INT_RAM / 8];
-BOOLEAN occupied_pages_ext_DDR[MAX_PAGES_IN_EXT_DDR / 8];
+BOOLEAN occupied_pages_int_RAM[MAX_PAGES_IN_INT_RAM / ENTRY_SIZE];
+BOOLEAN occupied_pages_ext_DDR[MAX_PAGES_IN_EXT_DDR / ENTRY_SIZE];
 
 void ram_manager_init() {
   int i;
@@ -55,19 +55,29 @@ void ram_manager_init() {
   }
 }
 
+BOOLEAN readBit(address number, int bitOffset) {
+    return (*(number) & (1 << bitOffset)) >> bitOffset;
+}
+
+void setBit(address number, int bitOffset) {
+    *(number) |= (1 << bitOffset);
+}
+
 void ram_manager_reserve_page(enum memory_type mem, int page_number) {
   int entryNumber = (page_number / (sizeof(address) * ENTRY_SIZE));
   int bitNumber = (page_number % (sizeof(address) * ENTRY_SIZE));
 
-  if ((mem == INT_RAM) && (page_number < MAX_PAGES_IN_INT_RAM)) {
-    SET_BIT((((address)occupied_pages_int_RAM) + entryNumber), bitNumber);
-  } else if ((mem == EXT_DDR) && (page_number < MAX_PAGES_IN_EXT_DDR)) {
-    SET_BIT((((address)occupied_pages_ext_DDR) + entryNumber), bitNumber);
-  }
-}
+//  BOOLEAN check = FALSE;
 
-BOOLEAN readBit(address number, int bitOffset) {
-    return (*(number) & (1 << bitOffset)) >> bitOffset;
+  if ((mem == INT_RAM) && (page_number < MAX_PAGES_IN_INT_RAM)) {
+	  //check = readBit(((address)occupied_pages_int_RAM) + entryNumber, bitNumber);
+	  setBit(((address)occupied_pages_int_RAM) + entryNumber, bitNumber);
+	  //check = readBit(((address)occupied_pages_int_RAM) + entryNumber, bitNumber);
+    //SET_BIT((((address)occupied_pages_int_RAM) + entryNumber), bitNumber);
+  } else if ((mem == EXT_DDR) && (page_number < MAX_PAGES_IN_EXT_DDR)) {
+    //SET_BIT((((address)occupied_pages_ext_DDR) + entryNumber), bitNumber);
+	  setBit(((address)occupied_pages_ext_DDR) + entryNumber, bitNumber);
+  }
 }
 
 BOOLEAN ram_manager_is_occupied(enum memory_type mem, int page_number) {
@@ -151,7 +161,7 @@ address ram_manager_find_free_memory_in(enum memory_type mem, int nr_of_pages, B
       freePages++;
       if (freePages == nr_of_pages) {
         result = ram_manager_address_of_page(mem, (i - nr_of_pages) + 1);
-        if (reserve) {
+        if (reserve == TRUE) {
           ram_manager_reserve_pages(mem, (i - nr_of_pages) + 1, nr_of_pages);
         }
       }

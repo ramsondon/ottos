@@ -131,7 +131,9 @@ pid_t process_create(int priority, code_bytes_t* code_bytes) {
 	p->pcb.R13 = PROCESS_STACK_START + PROCESS_STACK_SIZE;
 
 	// load the process code
-	loader_load(p, code_bytes);
+	if (code_bytes != NULL) {
+		loader_load(p, code_bytes);
+	}
 
 	process_table[p->pid] = p;
 
