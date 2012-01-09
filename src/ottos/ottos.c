@@ -164,7 +164,7 @@ void test_ipc_module_sender() {
     length = sprintf(output1, "send: %d\n\r", msg.type);
     output1[length] = '\0';
     kernel_print(output1);
-    //printf(output1);
+
     ipc_send_msg(namespace, msg);
 
     kernel_sleep(2000);
@@ -183,7 +183,6 @@ void test_ipc_module_receiver() {
     length = sprintf(output, "received: %d\n\r", message.type);
     output[length] = '\0';
     kernel_print(output);
-    //printf(output);
   }
 }
 

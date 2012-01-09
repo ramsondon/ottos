@@ -53,6 +53,7 @@ typedef struct ipc_message_t {
  * IPC message queue
  */
 typedef struct ipc_message_queue_t {
+    int pending;
     IPC_MESSAGE* head;
     IPC_MESSAGE* last;
 } IPC_MESSAGE_QUEUE;
@@ -61,6 +62,7 @@ typedef struct ipc_message_queue_t {
  * IPC message queue global reference
  */
 static IPC_MESSAGE_QUEUE ipc_message_queue = {
+   0,
    NULL,
    NULL
 };

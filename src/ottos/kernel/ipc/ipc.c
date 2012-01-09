@@ -55,6 +55,8 @@ static int ipc_add_to_queue(IPC_MESSAGE_QUEUE* queue, IPC_MESSAGE* ipcmsg) {
     queue->last->next = ipcmsg;
     queue->last = ipcmsg;
   }
+  queue->pending++;
+
   return SUCCESS;
 }
 
@@ -76,6 +78,8 @@ static int ipc_remove_from_queue(IPC_MESSAGE_QUEUE* queue, IPC_MESSAGE* msg, IPC
     }
     prev->next = msg->next;
   }
+  queue->pending--;
+
   return SUCCESS;
 }
 
