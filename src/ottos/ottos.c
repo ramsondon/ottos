@@ -153,33 +153,35 @@ void i2c_test() {
 
 void test_ipc_module_sender() {
 
-  //const char* namespace = "foobar";
-  char * output1 = "";
+  const char* namespace = "foobar";
+  char output1[100];
+  int length = 0;
   static int code = 0;
-  int i = 0;
   while (1) {
     message_t msg;
     msg.type = code++;
 
-    for (i=0; i < 10000; i++)
-      ;
-    sprintf(output1, "\n\rsend: %d\n\r\0", msg.type);
+    length = sprintf(output1, "send: %d\n\r", msg.type);
+    output1[length] = '\0';
     kernel_print(output1);
     //printf(output1);
-    ipc_send_msg("foobar", msg);
+    ipc_send_msg(namespace, msg);
+
+    kernel_sleep(2000);
   }
 }
 
 void test_ipc_module_receiver() {
-
- // const char* namespace = "foobar";
+  int length = 0;
+  char output[100];
+  const char* namespace = "foobar";
   while (1) {
     message_t message;
-    char* output = "";
-    while (ipc_receive_msg("foobar", &message) == WAITING) {
+    while (ipc_receive_msg(namespace, &message) == WAITING) {
       ;
     }
-    sprintf(output, "\n\rreceived: %d\n\r\0", message.type);
+    length = sprintf(output, "received: %d\n\r", message.type);
+    output[length] = '\0';
     kernel_print(output);
     //printf(output);
   }
@@ -187,6 +189,7 @@ void test_ipc_module_receiver() {
 
 void test_ipc_module() {
 
+  process_create(1, (int) toggle_led1);
   process_create(1, (int) test_ipc_module_sender);
   process_create(1, (int) test_ipc_module_receiver);
 
@@ -198,18 +201,6 @@ void test_ipc_module() {
 
   irq_enable();
   kernel_to_user_mode();
-
-  //  while (1) {
-  //    int i = 0;
-  //    test_ipc_module_sender();
-  //    for (i = 0; i < 10000; i++) {
-  //      ;
-  //    }
-  //    test_ipc_module_receiver();
-  //    for (i = 0; i < 10000; i++) {
-  //      ;
-  //    }
-  //  }
 
 }
 
