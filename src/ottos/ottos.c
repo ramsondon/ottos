@@ -191,6 +191,7 @@ void test_ipc_module() {
 
   process_create(1, (int) toggle_led1);
   process_create(1, (int) test_ipc_module_sender);
+  process_create(1, (int) test_ipc_module_sender);
   process_create(1, (int) test_ipc_module_receiver);
 
   irq_init();
