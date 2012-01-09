@@ -31,6 +31,9 @@
  *        - Semaphores
  *        - Message Passing - send, receive
  *        - waitpid(pid_t pid)
+ *
+ * TODO:  implement BLOCK process while waiting for a message for a certain
+ *        namespace
  */
 
 #include <ottos/const.h>
