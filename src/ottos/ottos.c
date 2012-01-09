@@ -153,30 +153,33 @@ void i2c_test() {
 
 void test_ipc_module_sender() {
 
-  const char* namespace = "foobar";
+  //const char* namespace = "foobar";
   char * output1 = "";
   static int code = 0;
+  int i = 0;
   while (1) {
     message_t msg;
     msg.type = code++;
 
-    sprintf(output1, "send: %d\n", msg.type);
+    for (i=0; i < 10000; i++)
+      ;
+    sprintf(output1, "\n\rsend: %d\n\r\0", msg.type);
     kernel_print(output1);
     //printf(output1);
-    ipc_send_msg(namespace, msg);
+    ipc_send_msg("foobar", msg);
   }
 }
 
 void test_ipc_module_receiver() {
 
-  const char* namespace = "foobar";
+ // const char* namespace = "foobar";
   while (1) {
     message_t message;
     char* output = "";
-    while (ipc_receive_msg(namespace, &message) == WAITING) {
+    while (ipc_receive_msg("foobar", &message) == WAITING) {
       ;
     }
-    sprintf(output, "received: %d\n", message.type);
+    sprintf(output, "\n\rreceived: %d\n\r\0", message.type);
     kernel_print(output);
     //printf(output);
   }
