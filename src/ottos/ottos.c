@@ -26,6 +26,8 @@
 #include <ottos/const.h>
 #include <ottos/timer.h>
 
+#include <ottos/io.h>
+
 //#include "../../bin/ipc_test.h"
 #include "../../bin/led_test.h"
 #include "../../bin/serial_test.h"
@@ -159,8 +161,8 @@ void test_ipc_module_sender() {
     msg.type = code++;
 
     sprintf(output1, "send: %d\n", msg.type);
-    //kernel_print(output);
-    printf(output1);
+    kernel_print(output1);
+    //printf(output1);
     ipc_send_msg(namespace, msg);
   }
 }
@@ -175,8 +177,8 @@ void test_ipc_module_receiver() {
       ;
     }
     sprintf(output, "received: %d\n", message.type);
-    //kernel_print(output);
-    printf(output);
+    kernel_print(output);
+    //printf(output);
   }
 }
 
@@ -184,8 +186,6 @@ void test_ipc_module() {
 
   process_create(1, (int) test_ipc_module_sender);
   process_create(1, (int) test_ipc_module_receiver);
-
-  devices_init();
 
   irq_init();
 
@@ -232,9 +232,11 @@ int main(int argc, char **argv) {
   // fs_test();
   //  i2c_test();
   //  uptime_test();
-  tty_test();
+  // tty_test();
   //  system_time_test();
   //  uptime_test();
+  test_ipc_module();
+
 
   // do an endless loop
   loop_forever();
