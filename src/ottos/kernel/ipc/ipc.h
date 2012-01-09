@@ -68,9 +68,9 @@ typedef struct ipc_message_queue_t {
  * IPC message queue global reference
  */
 static IPC_MESSAGE_QUEUE ipc_message_queue = {
-   0,
-   NULL,
-   NULL
+   0,     /* number of pending messages in queue */
+   NULL,  /* IPC_MESSAGE* head of list */
+   NULL   /* IPC_MESSAGE* last element of list */
 };
 
 /*
