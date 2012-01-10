@@ -43,3 +43,7 @@ void sys_mmu_test() {
 	swi(SYS_MMU_TEST, 0, 0, 0);
 }
 
+void sys_print(int length, char* output) {
+  swi(SYS_PRINT, length, (unsigned int)output, 0);
+}
+

@@ -53,4 +53,9 @@ EXTERN struct message_t* sys_receive();
  */
 EXTERN void sys_mmu_test();
 
+/*
+ * Syscall tests
+ */
+EXTERN void sys_print(int length, char* output);
+
 #endif /* SYSTEM_H_ */

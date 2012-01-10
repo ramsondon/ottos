@@ -42,6 +42,9 @@ void mmu_init_memory_for_process(process_t* process);
 // Deletes the pages of the process
 void mmu_delete_process_memory(process_t* process);
 
+// Returns the physical address for the given process and virtual address
+unsigned int mmu_get_physical_address(process_t* process, unsigned int  virtual_address);
+
 // Handles the prefetch abort. Deletes the current active process and induces a context switch by returning TRUE
 BOOLEAN mmu_handle_prefetch_abort();
 

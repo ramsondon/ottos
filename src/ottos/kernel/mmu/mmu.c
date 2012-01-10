@@ -377,6 +377,17 @@ BOOLEAN mmu_is_legal(unsigned int accessed_address, unsigned int fault_status) {
 	return FALSE;
 }
 
+unsigned int mmu_get_physical_address(process_t* process, unsigned int virtual_address) {
+  unsigned int master_table_entry_number = virtual_address >> 20;
+  address l2_table_address = mmu_create_or_get_l2_table(process->master_table_address, master_table_entry_number, 0);
+  unsigned int l2_table_entry_number = ((unsigned int) virtual_address >> 12) - (((unsigned int) virtual_address >> 12) & 0xFFF00);
+  unsigned int l2_table_entry = *(l2_table_address + l2_table_entry_number);
+
+  unsigned int physical_address =  ((l2_table_entry >> 12)<<12) + ((virtual_address << 20) >> 20);
+
+  return physical_address;
+}
+
 BOOLEAN mmu_handle_prefetch_abort() {
 	mmu_switch_to_kernel();
 	process_delete();

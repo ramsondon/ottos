@@ -233,9 +233,27 @@ void irq_swi_handle_sys_open(unsigned int device) {
 	driver_get(device).open(device);
 }
 
-void irq_swi_handle_sys_write(unsigned int device, unsigned int count, unsigned int buffer) {
-	char casted_buffer = (char)buffer;
-	driver_get(device).write(device, count, &casted_buffer);
+void irq_swi_handle_sys_write(unsigned int device, unsigned int count, unsigned int buffer_pointer) {
+
+  char* buffer = (char*)mmu_get_physical_address(process_table[process_active], buffer_pointer);
+
+	//char casted_buffer = (char)buffer;
+	driver_get(device).write(device, count, buffer);
+}
+
+void irq_swi_handle_sys_print(int length, unsigned int output_buffer) {
+  // output_buffer is an address
+
+  char output[1024];
+  char* temp = (char*)mmu_get_physical_address(process_table[process_active], output_buffer);
+  int i = 0;
+
+  for(i = 0; i < length; i++) {
+    output[i] = temp[i];
+  }
+  output[length] = '\0';
+
+  kernel_print(output);
 }
 
 #pragma TASK(irq_handle_swi)
@@ -260,6 +278,7 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 		process_active = PID_INVALID;
 		context_switch();
 	case SYS_MMU_TEST:
+	  // TODO r1 = buffer pointer for output
 		kernel_print("sys_mmu_test\r\n");
 		break;
 	case SYS_CREATE_PROCESS:
@@ -296,6 +315,11 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 	case SYS_CLOSE:
 		// TODO implement
 		break;
+	case SYS_PRINT:
+	  // r1 = length
+	  // r2 = output buffer
+	  irq_swi_handle_sys_print(r1, r2);
+	  break;
 	default:
 		// ignore
 		break;
