@@ -79,9 +79,6 @@ void process_delete() {
     }
   }
 
-  // remove all pending messages for process
-  ipc_remove_all_msg(process_active);
-
   // delete the process
   free(process_table[process_active]);
 
