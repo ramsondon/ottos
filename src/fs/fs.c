@@ -28,20 +28,13 @@
 #include "vfat/fat_filelib.h"
 #include "../drivers/mmchs/mmchs.h"
 
-// lazy initialize on demand
-static BOOLEAN fs_is_initialized = FALSE;
-static void fs_init() {
+void fs_init() {
+  mmchs_init();
   fl_init();
   fl_attach_media(fs_read, fs_write);
-  fs_is_initialized = TRUE;
 }
 
 int fs_read(uint32 sector, uint8 *buffer, uint32 sector_count) {
-  // lazy initialize
-  if (!fs_is_initialized) {
-    fs_init();
-  }
-
   mmchs_io_device->read(mmchs_io_device,
                          sector,
                          sector_count * FS_SECTOR_SIZE,
@@ -51,11 +44,6 @@ int fs_read(uint32 sector, uint8 *buffer, uint32 sector_count) {
 }
 
 int fs_write(uint32 sector, uint8 *buffer, uint32 sector_count) {
-  // lazy initialize
-  if (!fs_is_initialized) {
-    fs_init();
-  }
-
   mmchs_io_device->write(mmchs_io_device,
                            sector,
                            sector_count * FS_SECTOR_SIZE,
@@ -65,6 +53,7 @@ int fs_write(uint32 sector, uint8 *buffer, uint32 sector_count) {
 }
 
 void fs_test() {
+  fs_init();
   fl_listdirectory("/");
   fl_listdirectory("/bin/");
 }
