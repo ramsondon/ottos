@@ -65,13 +65,54 @@ typedef struct ipc_message_queue_t {
 } IPC_MESSAGE_QUEUE;
 
 /*
- * IPC message queue global reference
+ * IPC receiver
+ */
+typedef struct ipc_client_t {
+    int pid_t;
+    struct ipc_client_t* next;
+} IPC_CLIENT;
+
+typedef struct ipc_client_queue_t {
+    int size;
+    IPC_CLIENT* head;
+} IPC_CLIENT_QUEUE;
+
+
+typedef struct ipc_namespace_t {
+    const char* ns;
+    struct ipc_client_queue_t receivers;
+    struct ipc_client_queue_t senders;
+    struct ipc_namespace_t* next;
+} IPC_NAMESPACE;
+
+/*
+ * IPC Namespace register
+ */
+typedef struct ipc_namespace_queue_t {
+    int size;
+    IPC_NAMESPACE* head;
+} IPC_NAMESPACE_QUEUE;
+
+
+/*
+ * IPC message queue global instance
  */
 static IPC_MESSAGE_QUEUE ipc_message_queue = {
    0,     /* number of pending messages in queue */
    NULL,  /* IPC_MESSAGE* head of list */
    NULL   /* IPC_MESSAGE* last element of list */
 };
+
+/*
+ * IPC namespace queue global instance
+ */
+static IPC_NAMESPACE_QUEUE ipc_namespace_queue = {
+    0,    /* namespace size */
+    NULL  /* IPC_NAMESPACE head of list */
+};
+
+EXTERN int ipc_register_namespace(const char* ns, pid_t pid);
+EXTERN int ipc_register_receiver(IPC_NAMESPACE* ns, pid_t pid);
 
 /*
  * Returns SUCCESS if a message is available for a certain namespace ns, else
