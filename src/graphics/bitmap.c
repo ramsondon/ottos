@@ -25,7 +25,7 @@
 #include <ottos/types.h>
 #include <ottos/const.h>
 
-/* NEEDED FOR MEMORY ALLOCATION */
+/* !!!!!! NEEDED FOR MEMORY ALLOCATION !!!!!! */
 #include <stdlib.h>
 
 
@@ -76,7 +76,7 @@ static unsigned int Convert(unsigned int Color, unsigned int FromBitCount,
 }
 
 /* Load specified Bitmap and stores it as RGBA in an internal buffer */
-RGBA* Load(void* filecontent, int size, BITMAP_FILEHEADER* bmpFileHeader, BITMAP_HEADER* bmpHeader) {
+RGBA* graphics_parse_bmp_picture(void* filecontent, int size, BITMAP_FILEHEADER* bmpFileHeader, BITMAP_HEADER* bmpHeader) {
 //  std::ifstream file(Filename, std::ios::binary | std::ios::in);
 //
 //  if (file.bad()) {
@@ -90,10 +90,9 @@ RGBA* Load(void* filecontent, int size, BITMAP_FILEHEADER* bmpFileHeader, BITMAP
   int k, Index;
   unsigned int i, j, LineWidth;
   unsigned int ColorTableSize = 0;
-  uint8_t* Line;
+  char* Line;
   char* file = filecontent;
   char* eof = file + size;  // marks the end of the file in the memory
-  bool Result = TRUE;
   BGRA* ColorTable;
 
   //file.read((char*) &bmpFileHeader, BITMAP_FILEHEADER_SIZE); // read file Bitmap File Header into bmpFileHeader
@@ -139,9 +138,7 @@ RGBA* Load(void* filecontent, int size, BITMAP_FILEHEADER* bmpFileHeader, BITMAP
 
   //file.seekg(bmpFileHeader->BitsOffset, std::ios::beg); // jump to position bmpFileHeader->BitsOffset
   file = ((char*)filecontent) + bmpFileHeader->BitsOffset;
-
   Index = 0;
-  Result = TRUE;
 
   if (bmpHeader->Compression == 0) {
     uint8_t *LinePtr;
@@ -285,7 +282,7 @@ RGBA* Load(void* filecontent, int size, BITMAP_FILEHEADER* bmpFileHeader, BITMAP
     }
   } else if (bmpHeader->Compression == 2) { // RLE 4
     /* RLE 4 is not supported */
-    Result = FALSE;
+    return 0;
   } else if (bmpHeader->Compression == 3) { // BITFIELDS
     /* We assumes that mask of each color component can be in any order */
     unsigned int i, j;
@@ -329,27 +326,9 @@ RGBA* Load(void* filecontent, int size, BITMAP_FILEHEADER* bmpFileHeader, BITMAP
   //delete [] Line;
   //file.close();
 
-  //return Result;
   return m_BitmapData;
 }
 
-/* Copies internal RGBA buffer to user specified buffer */
-//bool GetBits(void* Buffer, unsigned int Size) {
-//  bool Result = FALSE;
-//  if (Size == 0 || Buffer == 0) {
-//    Size = m_BitmapSize * sizeof(RGBA);
-//    Result = (m_BitmapSize != 0);
-//  } else {
-//    memcpy(Buffer, m_BitmapData, Size);
-//    Result = TRUE;
-//  }
-//  return Result;
-//}
-
-/* Returns internal RGBA buffer */
-//void* GetBits() {
-//  return m_BitmapData;
-//}
 
 /* Copies internal RGBA buffer to user specified buffer and converts it into destination
  * bit format specified by component masks.
@@ -431,176 +410,3 @@ bool GetBits(void* Buffer, BITMAP_HEADER* bmpHeader, unsigned int Size, unsigned
 
   return Result;
 }
-
-/* See GetBits().
- * It creates a corresponding color table (palette) which have to be destroyed by the user after usage.
- *
- * Supported Bit depths are: 4, 8
- *
- * Todo: Optimize, use optimized palette, do ditehring (see my dithering class), support padding for 4 bit bitmaps
- */
-/*
-bool GetBitsWithPalette(void* Buffer, BITMAP_HEADER* bmpHeader, unsigned int Size, unsigned int BitCount,
-                        BGRA* Palette, unsigned int PaletteSize,
-                        bool OptimalPalette, bool IncludePadding) {
-  // DEFAULT VALUES:
-  IncludePadding = TRUE
-  OptimalPalette = FALSE
-
-  bool Result = FALSE;
-  int r, g, b;
-  unsigned int w, LineWidth, i;
-  unsigned int j = 0;
-  uint8_t* BufferPtr;
-
-  if (BitCount > 16) {
-    return FALSE;
-  }
-
-  w = bmpHeader->Width;
-  LineWidth = (w + 3) & ~3;
-
-  if (Size == 0 || Buffer == 0) {
-    Size = (LineWidth * bmpHeader->Height * BitCount) / 8;
-    return TRUE;
-  }
-
-  if (OptimalPalette) {
-    PaletteSize = 0;
-    // Not implemented
-  } else {
-    if (BitCount == 1) {
-      PaletteSize = 2;
-      // Not implemented: Who need that?
-    } else if (BitCount == 4) { // 2:2:1
-      PaletteSize = 16;
-      Palette = new BGRA[PaletteSize];
-      for (r = 0; r < 4; r++) {
-        for (g = 0; g < 2; g++) {
-          for (b = 0; b < 2; b++) {
-            Palette[r | g << 2 | b << 3].Red = r ? (r << 6) | 0x3f : 0;
-            Palette[r | g << 2 | b << 3].Green = g ? (g << 7) | 0x7f : 0;
-            Palette[r | g << 2 | b << 3].Blue = b ? (b << 7) | 0x7f : 0;
-            Palette[r | g << 2 | b << 3].Alpha = 0xff;
-          }
-        }
-      }
-    } else if (BitCount == 8) { // 3:3:2
-      PaletteSize = 256;
-      Palette = new BGRA[PaletteSize];
-      for (r = 0; r < 8; r++) {
-        for (g = 0; g < 8; g++) {
-          for (b = 0; b < 4; b++) {
-            Palette[r | g << 3 | b << 6].Red = r ? (r << 5) | 0x1f : 0;
-            Palette[r | g << 3 | b << 6].Green = g ? (g << 5) | 0x1f : 0;
-            Palette[r | g << 3 | b << 6].Blue = b ? (b << 6) | 0x3f : 0;
-            Palette[r | g << 3 | b << 6].Alpha = 0xff;
-          }
-        }
-      }
-    } else if (BitCount == 16) { // 5:5:5
-      // Not implemented
-    }
-  }
-
-  BufferPtr = (uint8_t*) Buffer;
-
-  for (i = 0; i < m_BitmapSize; i++) {
-    if (BitCount == 1) {
-      // Not implemented: Who needs that?
-    } else if (BitCount == 4) {
-      BufferPtr = ((m_BitmapData[i].Red >> 6) | (m_BitmapData[i].Green >> 7) << 2
-          | (m_BitmapData[i].Blue >> 7) << 3) << 4;
-      i++;
-      BufferPtr |= (m_BitmapData[i].Red >> 6) | (m_BitmapData[i].Green >> 7) << 2
-          | (m_BitmapData[i].Blue >> 7) << 3;
-    } else if (BitCount == 8) {
-      BufferPtr = (m_BitmapData[i].Red >> 5) | (m_BitmapData[i].Green >> 5) << 3
-          | (m_BitmapData[i].Blue >> 5) << 6;
-    } else if (BitCount == 16) {
-      // Not implemented
-    }
-
-    if (IncludePadding) {
-      unsigned int k;
-      j++;
-      if (j >= w) {
-        for (k = 0; k < (LineWidth - w); k++) {
-          BufferPtr += BitCount / 8;
-        }
-        j = 0;
-      }
-    }
-
-    BufferPtr++;
-  }
-
-  Result = TRUE;
-
-  return Result;
-}
-*/
-
-/* Set Bitmap Bits. Will be converted to RGBA internally */
-/*
-bool SetBits(void* Buffer, BITMAP_HEADER* bmpHeader, unsigned int Width, unsigned int Height,
-             unsigned int RedMask, unsigned int GreenMask,
-             unsigned int BlueMask, unsigned int AlphaMask) {
-
-  // DEFAULT VALUE for: AlphaMask = 0!!!
-  uint32_t BitCountRed, BitCountGreen, BitCountBlue, BitCountAlpha;
-  unsigned int i, Color, BitCount;
-  uint8_t* BufferPtr;
-
-  if (Buffer == 0) {
-    return FALSE;
-  }
-
-  BufferPtr = (uint8_t*) Buffer;
-
-  bmpHeader->width = Width;
-  bmpHeader->height = Height;
-  bmpHeader->BitCount = 32;
-  bmpHeader->Compression = 3;
-
-  m_BitmapSize = bmpHeader->width * bmpHeader->height;
-  m_BitmapData = new RGBA[m_BitmapSize];
-
-  // Find bit count by masks (rounded to next 8 bit boundary)
-
-  BitCount = (BitCountByMask(RedMask | GreenMask | BlueMask | AlphaMask) + 7) & ~7;
-
-  BitCountRed = BitCountByMask(RedMask);
-  BitCountGreen = BitCountByMask(GreenMask);
-  BitCountBlue = BitCountByMask(BlueMask);
-  BitCountAlpha = BitCountByMask(AlphaMask);
-
-  for (i = 0; i < m_BitmapSize; i++) {
-    Color = 0;
-    if (BitCount <= 8) {
-      Color = *((uint8_t*) BufferPtr);
-      BufferPtr += 1;
-    } else if (BitCount <= 16) {
-      Color = *((uint16_t*) BufferPtr);
-      BufferPtr += 2;
-    } else if (BitCount <= 24) {
-      Color = *((uint32_t*) BufferPtr);
-      BufferPtr += 3;
-    } else if (BitCount <= 32) {
-      Color = *((uint32_t*) BufferPtr);
-      BufferPtr += 4;
-    } else {
-      // unsupported
-      BufferPtr += 1;
-    }
-
-    m_BitmapData[i].Alpha = Convert(ComponentByMask(Color, AlphaMask), BitCountAlpha, 8);
-    m_BitmapData[i].Red = Convert(ComponentByMask(Color, RedMask), BitCountRed, 8);
-    m_BitmapData[i].Green = Convert(ComponentByMask(Color, GreenMask), BitCountGreen, 8);
-    m_BitmapData[i].Blue = Convert(ComponentByMask(Color, BlueMask), BitCountBlue, 8);
-  }
-
-  return TRUE;
-}
-*/
-

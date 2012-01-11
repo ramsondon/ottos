@@ -1,4 +1,4 @@
-/* dispc.c
+/* video.c
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -22,7 +22,7 @@
  */
 
 #include "../../hal/platform.h"
-#include "disp.h"
+#include "video.h"
 
 #include <ottos/memory.h>
 
@@ -58,99 +58,7 @@ DISP_VIDEO_MODE modes[] = {
 };
 
 
-/*
- Default video-encoder setup for NTSC and PAL from OMAP TRM S15.8.5.4
- */
-
-/*
-struct {
-  int reg;
-  unsigned int mode[2];
-} venc_setup[] = {
-       { VENC_VIDOUT_CTRL, { 0x00000001, 0x00000001 } },
-       { VENC_LLEN, { 0x00000359, 0x0000035F } },
-       { VENC_FLENS, { 0x0000020C, 0x00000270 } },
-       { VENC_HFLTR_CTRL, { 0x00000000, 0x00000000 } },
-       { VENC_CC_CARR_WSS_CARR, { 0x043F2631, 0x2F7225ED } },
-       { VENC_C_PHASE, { 0x00000000, 0x00000000 } },
-       { VENC_GAIN_U, { 0x00000102, 0x00000111 } },
-       { VENC_GAIN_V, { 0x0000016C, 0x00000181 } },
-       { VENC_GAIN_Y, { 0x0000012F, 0x00000140 } },
-       { VENC_BLACK_LEVEL, { 0x00000043, 0x0000003B } },
-       { VENC_BLANK_LEVEL, { 0x00000038, 0x0000003B } },
-       { VENC_X_COLOR, { 0x00000007, 0x00000007 } },
-       { VENC_M_CONTROL,  { 0x00000001, 0x00000002 } },
-       { VENC_BSTAMP_WSS_DATA, { 0x00000038, 0x0000003F } },
-       { VENC_S_CARR, { 0x21F07C1F, 0x2A098ACB } },
-       { VENC_LINE21, { 0x00000000, 0x00000000 } },
-       { VENC_LN_SEL, { 0x01310011, 0x01290015 } },
-       { VENC_L21_WC_CTL, { 0x0000F003, 0x0000F603 } },
-       { VENC_HTRIGGER_VTRIGGER, { 0x00000000, 0x00000000 } },
-       { VENC_SAVID_EAVID, { 0x069300F4, 0x06A70108 } },
-       { VENC_FLEN_FAL, { 0x0016020C, 0x00180270 } },
-       { VENC_LAL_PHASE_RESET, { 0x00060107, 0x00040135 } },
-       { VENC_HS_INT_START_STOP_X, { 0x008E0350, 0x00880358 } },
-       { VENC_HS_EXT_START_STOP_X, { 0x000F0359, 0x000F035F } },
-       { VENC_VS_INT_START_X, { 0x01A00000, 0x01A70000 } },
-       { VENC_VS_INT_STOP_X_VS_INT_START_Y, { 0x020701A0, 0x000001A7 } },
-       { VENC_VS_INT_STOP_Y_VS_EXT_START_X, { 0x01AC0024, 0x01AF0000 } },
-       { VENC_VS_EXT_STOP_X_VS_EXT_START_Y, { 0x020D01AC, 0x000101AF } },
-       { VENC_VS_EXT_STOP_Y, { 0x00000006, 0x00000025 } },
-       { VENC_AVID_START_STOP_X, { 0x03480078, 0x03530083 } },
-       { VENC_AVID_START_STOP_Y, { 0x02060024, 0x026C002E } },
-       { VENC_FID_INT_START_X_FID_INT_START_Y, { 0x0001008A, 0x0001008A } },
-       { VENC_FID_INT_OFFSET_Y_FID_EXT_START_X, { 0x01AC0106, 0x002E0138 } },
-       { VENC_FID_EXT_START_Y_FID_EXT_OFFSET_Y, { 0x01060006, 0x01380001 } },
-       { VENC_TVDETGP_INT_START_STOP_X, { 0x00140001, 0x00140001 } },
-       { VENC_TVDETGP_INT_START_STOP_Y, { 0x00010001, 0x00010001 } },
-       { VENC_GEN_CTRL, { 0x00F90000, 0x00FF0000 } },
-       { VENC_OUTPUT_CONTROL, { 0x0000000D, 0x0000000D } }, // s-video
-      //{ VENC_OUTPUT_CONTROL,    { 0x0000000A, 0x0000000A } }, // composite
-       { VENC_OUTPUT_TEST, { 0x00000000, 0x00000000 } },
-
-      // S15.5.8.3 "The DSS.VENC_F_CONTROL and DSS.VENC_SYNC_CTRL registers must be
-      //            the last ones to be changed by software."
-      //{ VENC_F_CONTROL,     { 0x00000000, 0x00000000 } },
-       { VENC_SYNC_CTRL, { 0x00008040, 0x00000040 } }, { -1 }
-};
-*/
-
-// init video encoder.
-// by default just show test pattern
-// This doesn't work
-/*
-static void omap_venc_init(int mode) {
-  void *VENC = VENC_BASE;
-  int i;
-
-  Write32(VENC, VENC_F_CONTROL, VENC_RESET);
-  //dprintf("venc reset\n");
-  while (Read32(VENC, VENC_F_CONTROL) & VENC_RESET)
-    //dprintf("waiting venc reset\n");
-
-  for (i = 0; venc_setup[i].reg != -1; i++)
-    Write32(VENC, venc_setup[i].reg, venc_setup[i].mode[mode]);
-
-  // Set digital size to match tv standard
-  if (mode == VENC_MODE_PAL) Write32(DISPC_BASE, DISPC_SIZE_DIG, (286 << 16)
-      | 719);
-  else Write32(DISPC_BASE, DISPC_SIZE_DIG, (239 << 16) | 719);
-
-  // set a test pattern only
-  Write32(VENC, VENC_F_CONTROL, VENC_SVDS_COLOURBAR | (7 << 2));
-}
-*/
-
-// init beagle gpio for video
-/*
-static void omap_beagle_init(void) {
-  // setup GPIO stuff, i can't find any references to these
-  Write32(GPIO1_BASE, GPIO_OE, 0xfefffedf);
-  Write32(GPIO1_BASE, GPIO_SETDATAOUT, 0x01000120);
-}
-*/
-
-static void omap_clock_init(void) {
+static void video_clock_init(void) {
   // sets pixel clock to 72MHz
 
   // sys_clk = 26.0 Mhz
@@ -163,19 +71,17 @@ static void omap_clock_init(void) {
   // without affecting other system clocks - do don't.
 
   // pll4 clock multiplier/divider
-  //Write32(CM_CLOCK_BASE, CM_CLKSEL2_PLL, (432 << 8) | 12);
   MMIO_WRITE32(CM_CLKSEL2_PLL, (432 << 8) | 12);
 
   // tv clock divider, dss1 alwon fclk divider (S. 487)
-  //Write32(CM_DSS_BASE, CM_CLKSEL_DSS, (16 << 8) | 6);
   MMIO_WRITE32(CM_CLKSEL_DSS, (16 << 8) | 6);
 
   // core/peripheral PLL to 1MHz
-  //Write32(CM_CLOCK_BASE, CM_CLKEN_PLL, 0x00370037);
   MMIO_WRITE32(CM_CLKEN_PLL, 0x00370037);
 }
 
-static void omap_dss_init(void) {
+
+static void video_dss_init(void) {
   MMIO_WRITE32(DSS_SYSCONFIG, DSS_AUTOIDLE);
 
   // Select DSS1 ALWON as clock source
@@ -183,7 +89,8 @@ static void omap_dss_init(void) {
       | DSS_DAC_DEMEN | DSS_VENC_CLOCK_4X_ENABLE);
 }
 
-static void omap_dispc_init(void) {
+
+static void video_dispc_init(void) {
   MMIO_WRITE32(DISPC_SYSCONFIG, DISPC_MIDLEMODE_SMART | DISPC_SIDLEMODE_SMART
       | DISPC_ENWAKEUP | DISPC_AUTOIDLE);
 
@@ -234,67 +141,46 @@ static void omap_dispc_init(void) {
     ;
 }
 
-static void omap_set_lcd_mode(int w, int h) {
+
+static void video_set_lcd_mode(int w, int h) {
   int i;
   DISP_VIDEO_MODE *m;
 
-  //dprintf("omap3: set_lcd_mode %d,%d\n", w, h);
-
   for (i = 0; i < sizeof(modes) / sizeof(modes[0]); i++) {
-    if (w <= modes[i].width && h <= modes[i].height) goto found;
+    if (w <= modes[i].width && h <= modes[i].height) {
+      goto found;
+    }
   }
+
   i -= 1;
 
 found:
   m = &modes[i];
 
-  //dprintf("omap3: found mode[%s]\n", m->name);
-
   MMIO_WRITE32(DISPC_SIZE_LCD, m->dispc_size);
   MMIO_WRITE32(DISPC_TIMING_H, m->dispc_timing_h);
   MMIO_WRITE32(DISPC_TIMING_V, m->dispc_timing_v);
 
-  //Set32(DISPC, DISPC_DIVISOR, 0xffff, m->dispc_divisor);
   MMIO_AND_THEN_OR32(DISPC_DIVISOR, ~0xffff, m->dispc_divisor);
-
-  //Set32(CM_DSS_BASE, CM_CLKSEL_DSS, 0xffff, m->dss_divisor);
   MMIO_AND_THEN_OR32(CM_CLKSEL_DSS, ~0xffff, m->dss_divisor);
 
   // Tell hardware to update, and wait for it
-  //Set32(DISPC, DISPC_CONTROL, DISPC_GOLCD, DISPC_GOLCD);
   MMIO_AND_THEN_OR32(DISPC_CONTROL, ~DISPC_GOLCD, DISPC_GOLCD);
 
   while ((MMIO_READ32(DISPC_CONTROL) & DISPC_GOLCD))
     ;
 }
 
-/*
-static void omap_disable_display(int vid) {
-  switch (vid) {
-    case 0:
-      Set32(DISPC_BASE, DISPC_GFX_ATTRIBUTES, DISPC_GFXENABLE, 0);
-      break;
-    case 1:
-      Set32(DISPC_BASE, DISPC_VID1_ATTRIBUTES, DISPC_VIDENABLE, 0);
-      break;
-    case 2:
-      Set32(DISPC_BASE, DISPC_VID2_ATTRIBUTES, DISPC_VIDENABLE, 0);
-      break;
-  }
-}
-*/
 
 // set a bitmap on the given video source
 // id: 0 = gfx, 1 = vid1, 2 = vid2
 // id: (1<<8) = set digital (tv) out
-void omap_attach_framebuffer(int id, BitMap *bm) {
+void video_attach_framebuffer(int id, BitMap *bm) {
   uint32_t vheight, vwidth, dheight, dwidth, pos, gsize;
   uint32_t vsize, attr = 0;
   uint32_t rowinc = 1;
   uint32_t data0 = (uint32_t) bm->data;
   uint32_t data1 = data0;
-
-  //dprintf("omap3: attach bitmap (%d,%d) 0x%08x to channel %d\n", bm->width, bm->height, bm->data, id);
 
   // FIXME: other formats than RGB16 taken from bitmap
   // FIXME: add a scale-to-fit bit for video overlays?
@@ -332,10 +218,6 @@ void omap_attach_framebuffer(int id, BitMap *bm) {
   pos = (((vheight - dheight) / 2) << 16) | (vwidth - dwidth) / 2;
   gsize = ((dheight - 1) << 16) | (dwidth - 1);
 
-  //dprintf("ompa3: display offset %08x\n", pos);
-  //dprintf("ompa3: display size   %08x\n", gsize);
-  //dprintf("ompa3: display rowinc %08x\n", rowinc);
-
   switch (id & 0x0f) {
     case 0:
       MMIO_WRITE32(DISPC_GFX_BA0, data0);
@@ -358,11 +240,8 @@ void omap_attach_framebuffer(int id, BitMap *bm) {
       MMIO_WRITE32(DISPC_VID1_FIFO_THRESHOLD, (0x3ff << 16) | 0x3c0);
       MMIO_WRITE32(DISPC_VID1_ROW_INC, rowinc);
       MMIO_WRITE32(DISPC_VID1_PIXEL_INC, 1);
-
-      MMIO_WRITE32(DISPC_VID1_ATTRIBUTES,
-      //DISPC_VIDFORMAT_RGB16
-              DISPC_VIDFORMAT_UYVY | attr | DISPC_VIDBURSTSIZE_16x32
-                  | DISPC_VIDENABLE);
+      MMIO_WRITE32(DISPC_VID1_ATTRIBUTES, DISPC_VIDFORMAT_UYVY | attr
+                   | DISPC_VIDBURSTSIZE_16x32 | DISPC_VIDENABLE);
       break;
     case 2:
       MMIO_WRITE32(DISPC_VID2_BA0, data0);
@@ -387,18 +266,17 @@ void omap_attach_framebuffer(int id, BitMap *bm) {
 
 
 void video_init(int width, int height) {
-  //dprintf("omap3: video_init()\n");
-
   MMIO_WRITE32(DISPC_IRQENABLE, 0x00000);
   MMIO_WRITE32(DISPC_IRQSTATUS, 0x1ffff);
 
-  //omap_beagle_init();
-  omap_clock_init();
-  omap_dss_init();
+  // initialize the clocks
+  video_clock_init();
+  // initialize the display subsystem
+  video_dss_init();
 
-  //omap_venc_init(VENC_MODE_PAL);
-  omap_dispc_init();
+  // initialize the display controller
+  video_dispc_init();
 
-  omap_set_lcd_mode(width, height);
+  video_set_lcd_mode(width, height);
 }
 

@@ -49,15 +49,16 @@ typedef struct {
 } BitMap;
 
 /* NB: these mirror the omap modes */
-#define BM_BITMAP1 0
-#define BM_BITMAP2 1
-#define BM_BITMAP4 2
-#define BM_BITMAP8 3
-#define BM_RGB16 6
-#define BM_RGB23 9
-#define BM_ARGB32 12
-#define BM_YUV2 10
-#define BM_UYVY 11
+#define BM_BITMAP1    0
+#define BM_BITMAP2    1
+#define BM_BITMAP4    2
+#define BM_BITMAP8    3
+#define BM_RGB16      6
+#define BM_RGB23      9
+#define BM_ARGB32     12
+#define BM_YUV2       10
+#define BM_UYVY       11
+
 
 typedef struct {
   int x;                /* width position of the current pixel on the screen */
@@ -74,17 +75,18 @@ typedef struct {
   } drawable;           /* ??? */
 } RastPort;
 
-EXTERN RomFont const font_misc_fixed;
+
+EXTERN RomFont const graphics_font_misc_fixed;
 
 /* can only be called once ... */
 RastPort* graphics_init(char *fbaddr, int width, int height, int type);
 
-EXTERN void setColor(RastPort* rp, unsigned int rgb);
-EXTERN void moveTo(RastPort* rp, int x, int y);
-EXTERN void drawPixel(RastPort* rp);
-EXTERN void drawRect(RastPort* rp, int w, int h);
-EXTERN void drawChar(RastPort* rp, unsigned int c, int scale);
-EXTERN void drawString(RastPort* rp, const char* s, int scale);
-EXTERN void drawBitmap(int x, int y, BITMAP_HEADER* bmp_header, RGBA *data);
+EXTERN void graphics_set_color(RastPort* rp, unsigned int rgb);
+EXTERN void graphics_move_to(RastPort* rp, int x, int y);
+EXTERN void graphics_draw_pixel(RastPort* rp);
+EXTERN void graphics_draw_rect(RastPort* rp, int w, int h);
+EXTERN void graphics_draw_char(RastPort* rp, unsigned int c, int scale);
+EXTERN void graphics_draw_string(RastPort* rp, const char* s, int scale);
+EXTERN void graphics_draw_picture(int x, int y, BITMAP_HEADER* bmp_header, RGBA *data);
 
 #endif /* GRAPHICS_H_ */

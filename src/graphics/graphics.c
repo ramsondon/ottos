@@ -37,13 +37,13 @@ RastPort *graphics_init(char *fbaddr, int width, int height, int type) {
   defrp.x = defrp.y = 0;
   defrp.point = fb.data;
   defrp.colour = 0x000000;
-  defrp.font.romfont = (RomFont*) &font_misc_fixed;
+  defrp.font.romfont = (RomFont*) &graphics_font_misc_fixed;
   defrp.drawable.bitmap = &fb;
 
   return &defrp;
 }
 
-void setColor(RastPort *rp, unsigned int rgb) {
+void graphics_set_color(RastPort *rp, unsigned int rgb) {
   // TODO: switch rp->drawable->format ...
   rp->colour = ((rgb & 0xf80000) >> 8) | ((rgb & 0xfc00) >> 5) | ((rgb & 0xf8) >> 3);
 }
@@ -55,7 +55,7 @@ void setColor(RastPort *rp, unsigned int r, unsigned int g, unsigned int b) {
 }
 */
 
-void drawRect(RastPort *rp, int w, int h) {
+void graphics_draw_rect(RastPort *rp, int w, int h) {
   int i, j;
   unsigned int colour = rp->colour;
   unsigned short *outp = rp->point;
@@ -76,18 +76,18 @@ void drawRect(RastPort *rp, int w, int h) {
   }
 }
 
-void moveTo(RastPort *rp, int x, int y) {
+void graphics_move_to(RastPort *rp, int x, int y) {
   rp->x = x;
   rp->y = y;
   rp->point = ((unsigned char *) rp->drawable.bitmap->data) + x * 2
       + y * rp->drawable.bitmap->stride;
 }
 
-void drawPixel(RastPort *rp) {
+void graphics_draw_pixel(RastPort *rp) {
   *((unsigned short *) rp->point) = rp->colour;
 }
 
-void drawChar(RastPort *rp, unsigned int c, int scale) {
+void graphics_draw_char(RastPort *rp, unsigned int c, int scale) {
   int i, j, s;
   int w, h;
   unsigned short *outp;
@@ -123,40 +123,37 @@ void drawChar(RastPort *rp, unsigned int c, int scale) {
   rp->x += w*scale;
 }
 
-void drawString(RastPort *rp, const char *s, int scale) {
+void graphics_draw_string(RastPort *rp, const char *s, int scale) {
   unsigned int c;
   unsigned int x = rp->x;
 
   while ((c = *s++)) {
     if (c == '\n') {
       if (rp->y + 20 > rp->drawable.bitmap->height*scale) {
-        moveTo(rp, x, 20);
+        graphics_move_to(rp, x, 20);
       } else {
-        moveTo(rp, x, rp->y + rp->font.romfont->lineheight*scale);
+        graphics_move_to(rp, x, rp->y + rp->font.romfont->lineheight*scale);
       }
     } else {
-      drawChar(rp, c, scale);
+      graphics_draw_char(rp, c, scale);
     }
   }
 }
 
-void drawBitmap(int x, int y, BITMAP_HEADER* bmp_header, RGBA* data) {
-
+void graphics_draw_picture(int x, int y, BITMAP_HEADER* bmp_header, RGBA* data) {
   int w, l;
   int curX = x;
   int curY = y;
   RGBA* curPixel = data;
 
-  // TODO: implement
-  moveTo(&defrp, curX, curY);
+  graphics_move_to(&defrp, curX, curY);
 
   for (l = 0; l < bmp_header->height; l++) {
     curX = x;
     for (w = 0; w < bmp_header->width; w++) {
-      RGBA color = *curPixel;
-      setColor(&defrp, (color.Red << 6) | (color.Green << 4) | (color.Blue << 2));
-      moveTo(&defrp, curX, curY);
-      drawPixel(&defrp);
+      graphics_set_color(&defrp, (curPixel->Red << 6) | (curPixel->Green << 4) | (curPixel->Blue << 2));
+      graphics_move_to(&defrp, curX, curY);
+      graphics_draw_pixel(&defrp);
       curPixel++;
       curX++;
     }

@@ -1,4 +1,4 @@
-/* disp.h
+/* video.h
  *
  * Copyright (c) 2011 The ottos project.
  *
@@ -21,8 +21,8 @@
  *      Author: Florian Gopp (go.goflo@gmail.com)
  */
 
-#ifndef DISP_H_
-#define DISP_H_
+#ifndef VIDEO_H_
+#define VIDEO_H_
 
 #include <ottos/types.h>
 #include <ottos/const.h>
@@ -42,6 +42,6 @@ typedef struct {
 } DISP_VIDEO_MODE;
 
 EXTERN void video_init(int width, int height);
-EXTERN void omap_attach_framebuffer(int id, BitMap* bm);
+EXTERN void video_attach_framebuffer(int id, BitMap* bm);
 
-#endif /* DISP_H_ */
+#endif /* VIDEO_H_ */
