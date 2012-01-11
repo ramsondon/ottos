@@ -1441,7 +1441,8 @@ void fl_listdirectory(const char *path)
 		while (fl_readdir(&dirstat, &dirent) == 0)
 		{
 		  char buffer[512];
-		  sprintf(buffer, "%crwx------ %5d %s\r\n", (dirent.is_dir ? 'd' : '-'), dirent.size, dirent.filename);
+		  sprintf(buffer, "%crwx------ root wheel %5d %s\r\n",
+		         (dirent.is_dir ? 'd' : '-'), dirent.size, dirent.filename);
 		  kernel_print(buffer);
 		}
 

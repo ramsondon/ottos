@@ -5,3 +5,4 @@ Release/
 .project
 .settings/
 minicom.cap
+*.ccxml
