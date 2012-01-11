@@ -79,7 +79,7 @@ int fatfs_init(struct fatfs *fs) {
   }
 
   // XXX: DEBUG
-  memory_print(fs->currentsector.sector, 512);
+  // memory_print(fs->currentsector.sector, 512);
 
   // Make Sure 0x55 and 0xAA are at end of sector
   // (this should be the case regardless of the MBR or boot sector)
@@ -139,7 +139,7 @@ int fatfs_init(struct fatfs *fs) {
   }
 
   // XXX: DEBUG
-  memory_print(fs->currentsector.sector, 512);
+  // memory_print(fs->currentsector.sector, 512);
 
 
   // Make sure there are 512 bytes per cluster

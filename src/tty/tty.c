@@ -165,6 +165,15 @@ static void tty_print_startup() {
 
 }
 
+int tty_getline(char* buffer, int length) {
+  int i = 0;
+  do {
+    serial_read(buffer + i, 1);
+  } while (*(buffer + i) != '\n' && i++ < length);
+  buffer[--i] = '\0';
+  return i;
+}
+
 void tty_run() {
 
   tty_print_startup();
@@ -185,7 +194,9 @@ void tty_run() {
     // this has to be a system call in the end since we move this to
     // a user mode application
     //rc = scanf("%1024[^\n]%*[^\n]", line);
-    rc = serial_getline(line, 1024);
+    // rc = serial_getline(line, 1024);
+    rc = tty_getline(line, 1024);
+
     if (rc == EOF) {
       // TODO (fdomig@gmail.com) line was already at EOF while trying to get
       // the first character
@@ -204,8 +215,8 @@ void tty_run() {
     cmd = tokens;
     tokens = strtok(NULL, SPLIT_CHARS);
 
-    // XXX: built in CMDs are for test only; late each built in CMD may get
-    // an own binary
+    // XXX: built in CMDs are for test only; later each built in CMD will get
+    // an own binary file
 
     // check for a built in command
     if (strcmp(cmd, "cd") == 0) {
@@ -220,7 +231,7 @@ void tty_run() {
       // finally, is there a application with the entered name?
     } else if (!tty_find_binary(cmd)) {
       char debug[256];
-      sprintf(debug, "%s command not found", line);
+      sprintf(debug, "\r\n%s command not found", line);
       tty_error(debug);
       continue;
     }
