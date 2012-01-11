@@ -38,9 +38,9 @@ void video_test() {
   BITMAP_HEADER* bmpHeader;
 
   // init
-  video_init(RES_WIDTH, RES_HEIGHT); // --> video.c (ganz unten)
-  rp = graphics_init(FBADDR, RES_WIDTH, RES_HEIGHT, BM_RGB16); // graphics.c
-  video_attach_framebuffer(0, rp->drawable.bitmap); // --> video.c
+  video_init(RES_WIDTH, RES_HEIGHT);
+  rp = graphics_init(FBADDR, RES_WIDTH, RES_HEIGHT, BM_RGB16);
+  video_attach_framebuffer(0, rp->drawable.bitmap);
 
   // also set it to the tv out (top-left corner of same data)
   //video_attach_framebuffer(VID_VID2 | VID_TVOUT, rp->drawable.bitmap);
@@ -59,11 +59,15 @@ void video_test() {
   graphics_move_to(rp, 500, 300);
   graphics_draw_string(rp, "...:: OttOS ::...",4);
 
+  // draw line
+  graphics_draw_line(rp, 300, 300, 400, 600, 1);
+  graphics_draw_line(rp, 600, 300, 400, 100, 1);
+  graphics_draw_line(rp, 400, 300, 200, 600, 1);
 
   //bmp = graphics_parse_bmp_picture(sun_16_colors, TEST_PICTURE_SUN_16_SIZE, bmpFileHeader, bmpHeader);
   //graphics_draw_picture(200, 200, bmpHeader, bmp);
 
-
+  /*
   // write 'HELLO' with rectangles
   x = 80;
   y = 200;
@@ -120,6 +124,7 @@ void video_test() {
   graphics_draw_rect(rp, u, 3*u);
   graphics_move_to(rp, x, y+4*u);
   graphics_draw_rect(rp, u, u);
+  */
 
   return;
 }

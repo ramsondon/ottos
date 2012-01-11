@@ -23,6 +23,8 @@
 
 #include "graphics.h"
 
+#include <math.h>
+
 static RastPort defrp;
 static BitMap fb;
 
@@ -36,7 +38,7 @@ RastPort *graphics_init(char *fbaddr, int width, int height, int type) {
 
   defrp.x = defrp.y = 0;
   defrp.point = fb.data;
-  defrp.colour = 0x000000;
+  defrp.color = 0x000000;
   defrp.font.romfont = (RomFont*) &graphics_font_misc_fixed;
   defrp.drawable.bitmap = &fb;
 
@@ -45,19 +47,12 @@ RastPort *graphics_init(char *fbaddr, int width, int height, int type) {
 
 void graphics_set_color(RastPort *rp, unsigned int rgb) {
   // TODO: switch rp->drawable->format ...
-  rp->colour = ((rgb & 0xf80000) >> 8) | ((rgb & 0xfc00) >> 5) | ((rgb & 0xf8) >> 3);
+  rp->color = ((rgb & 0xf80000) >> 8) | ((rgb & 0xfc00) >> 5) | ((rgb & 0xf8) >> 3);
 }
-
-/*
-void setColor(RastPort *rp, unsigned int r, unsigned int g, unsigned int b) {
-  // TODO: switch rp->drawable->format ...
-  rp->colour = ((rgb & 0xf80000) >> 8) | ((rgb & 0xfc00) >> 5) | ((rgb & 0xf8) >> 3);
-}
-*/
 
 void graphics_draw_rect(RastPort *rp, int w, int h) {
   int i, j;
-  unsigned int colour = rp->colour;
+  unsigned int colour = rp->color;
   unsigned short *outp = rp->point;
 
   if (w + rp->x > rp->drawable.bitmap->width) {
@@ -76,6 +71,49 @@ void graphics_draw_rect(RastPort *rp, int w, int h) {
   }
 }
 
+void graphics_draw_graph(RastPort *rp, int data[], int length,
+                         unsigned int color_line, unsigned int color_background) {
+
+}
+
+// see: http://de.wikipedia.org/wiki/Bresenham-Algorithmus
+void graphics_draw_line(RastPort* rp, int x_start, int y_start, int x_end, int y_end, int width) {
+  int dx = abs(x_end - x_start);
+  int dy = -abs(y_end - y_start);
+  int sy = -1, sx = -1, e2;
+  int err = dx + dy;
+
+  // go to start point
+  graphics_move_to(rp, x_start, y_start);
+
+  if (y_start < y_end) {
+    sy = 1;
+  }
+  if (x_start < x_end) {
+    sx = 1;
+  }
+
+  for(;;){
+    graphics_move_to(rp, x_start, y_start);
+    graphics_draw_pixel(rp);
+    if (x_start == x_end && y_start == y_end) {
+      break;
+    }
+
+    e2 = 2*err;
+
+    if (e2 > dy) {
+      err += dy;
+      x_start += sx;
+    }
+
+    if (e2 < dx) {
+      err += dx;
+      y_start += sy;
+    }
+  }
+}
+
 void graphics_move_to(RastPort *rp, int x, int y) {
   rp->x = x;
   rp->y = y;
@@ -84,14 +122,14 @@ void graphics_move_to(RastPort *rp, int x, int y) {
 }
 
 void graphics_draw_pixel(RastPort *rp) {
-  *((unsigned short *) rp->point) = rp->colour;
+  *((unsigned short *) rp->point) = rp->color;
 }
 
 void graphics_draw_char(RastPort *rp, unsigned int c, int scale) {
   int i, j, s;
   int w, h;
   unsigned short *outp;
-  unsigned int colour = rp->colour;
+  unsigned int colour = rp->color;
   unsigned const char *inp;
 
   // check if character is valid for the used font
@@ -161,5 +199,4 @@ void graphics_draw_picture(int x, int y, BITMAP_HEADER* bmp_header, RGBA* data) 
     curY++;
   }
 }
-
 

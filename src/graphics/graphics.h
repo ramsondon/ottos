@@ -64,7 +64,7 @@ typedef struct {
   int x;                /* width position of the current pixel on the screen */
   int y;                /* height position of the current pixel on the screen */
   void* point;          /* pointer to the memory where the current pixel resides */
-  unsigned int colour;  /* current color which is used to draw pixels */
+  unsigned int color;  /* current color which is used to draw pixels */
 
   union {
     RomFont* romfont;
@@ -85,6 +85,7 @@ EXTERN void graphics_set_color(RastPort* rp, unsigned int rgb);
 EXTERN void graphics_move_to(RastPort* rp, int x, int y);
 EXTERN void graphics_draw_pixel(RastPort* rp);
 EXTERN void graphics_draw_rect(RastPort* rp, int w, int h);
+EXTERN void graphics_draw_line(RastPort* rp, int x_start, int y_start, int x_end, int y_end, int width);
 EXTERN void graphics_draw_char(RastPort* rp, unsigned int c, int scale);
 EXTERN void graphics_draw_string(RastPort* rp, const char* s, int scale);
 EXTERN void graphics_draw_picture(int x, int y, BITMAP_HEADER* bmp_header, RGBA *data);
