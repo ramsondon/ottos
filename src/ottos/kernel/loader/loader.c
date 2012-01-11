@@ -21,7 +21,7 @@
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#include <ottos/parser.h>
+#include "../../../lib/ottos/parser.h"
 #include <ottos/const.h>
 #include <ottos/types.h>
 #include <ottos/code.h>
