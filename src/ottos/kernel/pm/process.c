@@ -80,6 +80,7 @@ void process_delete() {
 		}
 	}
 	//delete Mastertable Entries for process
+	// TODO (thomas.bargetz@gmail.com) check this function
 	mmu_delete_process_memory(process_table[process_active]);
 	// delete the process
 	free(process_table[process_active]);

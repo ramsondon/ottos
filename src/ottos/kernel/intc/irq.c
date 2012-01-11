@@ -235,10 +235,11 @@ void irq_swi_handle_sys_open(unsigned int device) {
 
 void irq_swi_handle_sys_write(unsigned int device, unsigned int count, unsigned int buffer_pointer) {
 
-  char* buffer = (char*)mmu_get_physical_address(process_table[process_active], buffer_pointer);
+  //char* buffer = (char*)mmu_get_physical_address(process_table[process_active], buffer_pointer);
 
-	//char casted_buffer = (char)buffer;
-	driver_get(device).write(device, count, buffer);
+	char casted_buffer = (char)buffer_pointer;
+	//driver_get(device).write(device, count, buffer);
+	driver_get(device).write(device, count, &casted_buffer);
 }
 
 void irq_swi_handle_sys_print(int length, unsigned int output_buffer) {
@@ -269,6 +270,7 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 		context_switch();
 		break;
 	case SYS_EXIT:
+    kernel_print("sys_exit\r\n");
 		// delete the active process
 		process_delete();
 
