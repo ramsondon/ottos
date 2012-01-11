@@ -26,19 +26,32 @@
 
 /* Display subsystem base address */
 
-#define DSS 0x48050000
+#define DSS_BASE 0x48050000
 
 
 /* Display subsystem register offsets */
 
-#define DSS_REVISIONNUMBER  0x000
-#define DSS_SYSCONFIG       0x010
-#define DSS_SYSSTATUS       0x014
-#define DSS_IRQSTATUS       0x018
-#define DSS_CONTROL         0x040
-#define DSS_SDI_CONTROL     0x044
-#define DSS_PLL_CONTROL     0x048
-#define DSS_SDI_STATUS      0x05C
+#define DSS_REVISIONNUMBER    (DSS_BASE + 0x000)
+#define DSS_SYSCONFIG         (DSS_BASE + 0x010)
+#define DSS_SYSSTATUS         (DSS_BASE + 0x014)
+#define DSS_IRQSTATUS         (DSS_BASE + 0x018)
+#define DSS_CONTROL           (DSS_BASE + 0x040)
+#define DSS_SDI_CONTROL       (DSS_BASE + 0x044)
+#define DSS_PLL_CONTROL       (DSS_BASE + 0x048)
+#define DSS_SDI_STATUS        (DSS_BASE + 0x05C)
+
+#define DSS_AUTOIDLE                BIT0
+#define DSS_SOFTRESET               BIT1
+#define DSS_RESETDONE               BIT0
+#define DSS_DSI_IRQ                 BIT1
+#define DSS_DISPC_IRQ               BIT0
+#define DSS_VENC_OUT_SEL            BIT6    /* set s-video */
+#define DSS_DAC_POWERDN_BGZ         BIT5
+#define DSS_DAC_DEMEN               BIT4
+#define DSS_VENC_CLOCK_4X_ENABLE    BIT3
+#define DSS_VENC_CLOCK_MODE         BIT2    /* set square pixel */
+#define DSS_DSI_CLK_SWITCH          BIT1    /* select DSI2 PLL FCLK otherwise DSS1 ALWON FCLK */
+#define DSS_DSS1_CLK_SWITCH         BIT0    /* same */
 
 
 #endif /* HAL_OMAP353X_DSS_H_ */
