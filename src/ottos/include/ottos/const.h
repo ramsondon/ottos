@@ -35,5 +35,4 @@
 
 #define PID_INVALID -1
 
-
 #endif /* CONST_H_ */

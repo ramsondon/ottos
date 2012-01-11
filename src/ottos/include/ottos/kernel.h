@@ -32,7 +32,7 @@
  * has to be inlined by the compiler.
  */
 inline void kernel_to_user_mode() {
-  asm("\t CPS 0x10");
+	asm("\t CPS 0x10");
 }
 
 /**
