@@ -141,6 +141,8 @@ int main(int argc, char **argv) {
   // these methods has to be called for EVERY test method
   process_table_init();
   devices_init();
+  mmchs_init();
+  fs_init();
 
   // these methods are the specific tests for every module
   //  process_test();
@@ -151,10 +153,10 @@ int main(int argc, char **argv) {
   //  fs_test();
   //  i2c_test();
   //  uptime_test();
-  //  tty_test();
+    tty_test();
   //  system_time_test();
   //  uptime_test();
-  video_test();
+  // video_test();
 
   // do an endless loop
   loop_forever();
