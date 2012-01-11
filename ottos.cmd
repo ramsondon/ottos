@@ -5,7 +5,7 @@
 //
 
 -stack           0x00002000
--heap            0x00001000
+-heap            0x00010000
 
 MEMORY
 {
@@ -43,21 +43,21 @@ SECTIONS
 		irq.obj                      //IRQ Object für Data Abort der MMU muss im intRam sein
 	}
 	.pinit      > int_ram {
-			_int_RAM_start = .;
+		*(.pinit)
+		_int_RAM_start = .;
 				
    	}
 
 
 ///////////////////////////// ext_ddr //////////////////////////////
 
-	ORDER
+	ORDER	
+	 .const      > ext_ddr
 	 .text	    > ext_ddr
-
-	.bss        > ext_ddr
-	.const      > ext_ddr
-	.sysmem     > ext_ddr
-	.stackArea  > ext_ddr {
-	. = ALIGN(0x4);                    
+	 .sysmem     > ext_ddr
+	 .bss        > ext_ddr
+	 .stackArea  > ext_ddr {
+	   . = ALIGN(0x4);                    
        . = . + (0x1000);  // Größe des Kernel Stacks 4 Kbyte
        kernelStack = .;
 	   . = . + (0x1000);// Größe IRQ Stack  4 Kbyte

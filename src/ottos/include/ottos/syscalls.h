@@ -45,4 +45,14 @@
 #define SYS_SEND    6
 #define SYS_RECEIVE 7
 
+/*
+ * MMU calls
+ */
+#define SYS_MMU_TEST 10
+
+/*
+ * Syscall test
+ */
+#define SYS_PRINT 11
+
 #endif /* SYSCALLS_H_ */
