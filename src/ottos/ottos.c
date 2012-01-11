@@ -30,6 +30,7 @@
 #include "../../bin/serial_test.h"
 #include "../../bin/uptime_test.h"
 #include "../../bin/i2c_test.h"
+#include "../../bin/video_test.h"
 #include "../drivers/i2c/i2c.h"
 
 #include "kernel/intc/irq.h"
@@ -38,6 +39,9 @@
 
 #include "../fs/fs.h"
 #include "../tty/tty.h"
+
+#include "../fs/vfat/fat_filelib.h"
+#include "../../drivers/mmchs/mmchs.h"
 
 void timer_test() {
 
@@ -144,12 +148,13 @@ int main(int argc, char **argv) {
   //  serial_test();
   //  serial_test_calc();
   //  process_exit_test();
-   fs_test();
+  //  fs_test();
   //  i2c_test();
   //  uptime_test();
-  //tty_test();
+  //  tty_test();
   //  system_time_test();
   //  uptime_test();
+  video_test();
 
   // do an endless loop
   loop_forever();
