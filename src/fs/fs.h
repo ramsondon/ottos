@@ -40,4 +40,6 @@ EXTERN int fs_write(uint32 sector, uint8 *buffer, uint32 sector_count);
 
 EXTERN void fs_test();
 
+EXTERN void fs_init();
+
 #endif /* FS_H_ */

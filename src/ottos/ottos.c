@@ -148,7 +148,7 @@ int main(int argc, char **argv) {
   //  serial_test();
   //  serial_test_calc();
   //  process_exit_test();
-  // fs_test();
+  //  fs_test();
   //  i2c_test();
   //  uptime_test();
   //  tty_test();
