@@ -88,4 +88,7 @@ pid_t process_create(int priority, int initial_address);
 // deletes the active process
 void process_delete();
 
+// returns the current process pid
+EXTERN pid_t process_pid();
+
 #endif /* OTTOS_KERNEL_PM_PROCESS_H_ */

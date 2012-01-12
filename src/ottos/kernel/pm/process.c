@@ -134,3 +134,7 @@ pid_t process_create(int priority, int initial_address) {
 
   return p->pid;
 }
+
+pid_t process_pid() {
+  return process_active;
+}
