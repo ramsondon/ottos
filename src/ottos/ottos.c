@@ -125,6 +125,9 @@ int main(int argc, char **argv) {
   irq_disable();
   process_table_init();
   devices_init();
+  mmchs_init();
+  fs_init();
+
   mmu_init();
   irq_enable();
   //kernel_to_user_mode();
@@ -135,10 +138,10 @@ int main(int argc, char **argv) {
   //  serial_test();
   //  serial_test_calc();
   //  process_exit_test();
-    fs_test();
+  //  fs_test();
   //  i2c_test();
   //  uptime_test();
-  //  tty_test();
+    tty_test();
   //  system_time_test();
   //  uptime_test();
   //video_test();
