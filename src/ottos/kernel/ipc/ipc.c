@@ -25,7 +25,6 @@
 
 #include <ottos/types.h>
 
-#include "../pm/process.h"
 #include "ipc.h"
 
 /*
@@ -328,26 +327,26 @@ int ipc_lookup_msg(const char* ns) {
 /*
  * Binds the calling process as a sender to the namespace ns
  */
-int ipc_bind(const char* ns) {
+int ipc_bind(const char* ns, pid_t pid) {
 
   IPC_NAMESPACE* namespace = ipc_do_register_namespace(ns);
-  ipc_do_register_sender(namespace, process_pid());
+  ipc_do_register_sender(namespace, pid);
   return SUCCESS;
 }
 
 /*
  * Unbinds the calling process as a sender from the namespace
  */
-int ipc_unbind(const char* ns) {
+int ipc_unbind(const char* ns, pid_t pid) {
 
   IPC_NAMESPACE* namespace = ipc_lookup_namespace(ns);
 
   if (namespace != NULL) {
     // unregister sender process from namespace
-    ipc_do_unregister_sender(namespace, process_pid());
+    ipc_do_unregister_sender(namespace, pid);
     // unregister namespace if no sending process
     if (ipc_nr_of_sender(namespace) <= 0) {
-      ipc_do_unregister_namespace(ns, process_pid());
+      ipc_do_unregister_namespace(ns, pid);
     }
   }
   return SUCCESS;
@@ -357,13 +356,13 @@ int ipc_unbind(const char* ns) {
  * To use this method ipc_bind(ns) must be called first
  * Makes a copy of the message_t msg and adds it to the message buffer.
  */
-int ipc_send_msg(const char* ns, message_t msg) {
+int ipc_send_msg(const char* ns, message_t msg, pid_t pid) {
 
   message_t* msgcpy = NULL;
   IPC_MESSAGE* new_ipc_msg = NULL;
 
   // throw message away if ns is not registered or no process is listening
-  if (ipc_can_send(ns, process_pid())) {
+  if (ipc_can_send(ns, pid)) {
     return WAITING;
   }
 
@@ -374,7 +373,7 @@ int ipc_send_msg(const char* ns, message_t msg) {
   msgcpy->type = msg.type;
 
   /* set the pid_t of the sender */
-  new_ipc_msg->sender = process_pid();
+  new_ipc_msg->sender = pid;
   new_ipc_msg->message = msgcpy;
   new_ipc_msg->ns = ns;
   new_ipc_msg->next = NULL;
@@ -410,7 +409,7 @@ void ipc_remove_all_msg(pid_t pid) {
   }
 }
 
-int ipc_receive_msg(const char* ns, message_t* msg) {
+int ipc_receive_msg(const char* ns, message_t* msg, pid_t pid) {
 
   IPC_MESSAGE* current = ipc_message_queue.head;
   IPC_MESSAGE* prev = NULL;
@@ -420,7 +419,7 @@ int ipc_receive_msg(const char* ns, message_t* msg) {
   if (namespace != NULL) {
 
     // register receiver
-    ipc_do_register_receiver(namespace, process_pid());
+    ipc_do_register_receiver(namespace, pid);
 
     while (current != NULL) {
       if (strcmp(current->ns, ns) == 0) {

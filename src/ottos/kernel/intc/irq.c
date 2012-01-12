@@ -276,27 +276,29 @@ void irq_swi_handle_sys_print(int length, unsigned int output_buffer) {
 
 void irq_swi_handle_sys_bind(int ns) {
   const char* namespace =
-      (const char*) mmu_get_physical_address(process_table[process_active], ns);
+      (const char*) mmu_get_physical_address(process_table[process_pid()], ns);
 
-  ipc_bind(namespace);
+  ipc_bind(namespace, process_pid());
 }
 
 void irq_swi_handle_sys_send(int ns, int msg) {
   const char* namespace =
-      (const char*) mmu_get_physical_address(process_table[process_active], ns);
+      (const char*) mmu_get_physical_address(process_table[process_pid()], ns);
   message_t* message =
-      (message_t*) mmu_get_physical_address(process_table[process_active], msg);
+      (message_t*) mmu_get_physical_address(process_table[process_pid()], msg);
 
-  ipc_send_msg(namespace, *message);
+  ipc_send_msg(namespace, *message, process_pid());
 }
 
 void irq_swi_handle_sys_receive(int ns, int msg) {
   const char* namespace =
-      (const char*) mmu_get_physical_address(process_table[process_active], ns);
+      (const char*) mmu_get_physical_address(process_table[process_pid()], ns);
   message_t* message =
-      (message_t*) mmu_get_physical_address(process_table[process_active], msg);
+      (message_t*) mmu_get_physical_address(process_table[process_pid()], msg);
 
-  ipc_receive_msg(namespace, message);
+  ipc_receive_msg(namespace, message, process_pid());
+
+  // TODO: if not received BLOCK PROCESS and YIELD
 }
 
 #pragma TASK(irq_handle_swi)

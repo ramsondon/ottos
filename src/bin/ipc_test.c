@@ -72,16 +72,16 @@ void ipc_test_module_sender() {
   sprintf(output, "send: %d\n\r", msg.type);
   //kernel_print(output);
   printf(output);
-  ipc_send_msg(namespace, msg);
+//  ipc_send_msg(namespace, msg);
 }
 
 void ipc_test_module_receiver() {
 
   message_t message;
   char* output = "";
-  while (ipc_receive_msg(namespace, &message) == WAITING) {
-    ;
-  }
+//  while (ipc_receive_msg(namespace, &message) == WAITING) {
+//    ;
+//  }
   sprintf(output, "received: %d\n\r", message.type);
   //kernel_print(output);
   printf(output);
