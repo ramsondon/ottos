@@ -80,6 +80,10 @@ void process_delete() {
 			process_table[process_active]->parent->state = READY;
 		}
 	}
+
+	// destroy all namespaces and pending messages of this pid
+	ipc_kill_all(process_active);
+
 	//delete Mastertable Entries for process
 	// TODO (thomas.bargetz@gmail.com) check this function
 	mmu_delete_process_memory(process_table[process_active]);
