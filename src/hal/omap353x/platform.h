@@ -35,5 +35,9 @@
 #include "rfbi.h"
 #include "timer.h"
 #include "uart.h"
+#include "mcbsp.h"
+#include "prcm.h"
+#include "system.h"
+#include "tps65950scd.h"
 
 #endif /* HAL_OMAP353X_PLATFORM_H_ */
