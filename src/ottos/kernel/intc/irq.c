@@ -121,7 +121,7 @@ void context_switch() {
 
   pcb_old = PID_INVALID;
   if (process_active != PID_INVALID) {
-    if(process_table[process_active]->state == RUNNING) {
+    if (process_table[process_active]->state == RUNNING) {
       process_table[process_active]->state = READY;
     }
 
@@ -186,6 +186,18 @@ EXTERN void irq_handle() {
   asm(" LDMFD   R13!, {R0-R12, PC}^");
 }
 
+static int irq_swi_handle_sys_send(int ns, int msg) {
+  const char* namespace =
+      (const char*) mmu_get_physical_address(process_table[process_active], ns);
+  message_t* message = (message_t*)mmu_get_physical_address(process_table[process_active], msg);
+
+  ipc_send_msg(namespace, *message);
+}
+
+static int irq_swi_handle_sys_receive(int ns, int msg) {
+
+}
+
 #pragma TASK(irq_handle_swi)
 EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 
@@ -194,7 +206,8 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
   asm(" LDR     R0, stack_pointer_saved_context");
   asm(" STR     R13, [R0], #0");
 
-  stack_pointer_original = stack_pointer_saved_context + SAVED_REGISTERS_SPACE + SWI_PARAMETERS_SPACE;
+  stack_pointer_original = stack_pointer_saved_context + SAVED_REGISTERS_SPACE
+      + SWI_PARAMETERS_SPACE;
 
   // handle interrupts
   switch (r0) {
@@ -215,7 +228,7 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
       // r2 = initial_address
       // r3 = wait_for_exit
       process_create(r1, r2);
-      if(r3 != FALSE) {
+      if (r3 != FALSE) {
         // the current process will be blocked until the
         // child exited
 
@@ -228,10 +241,10 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
       }
       break;
     case SYS_SEND: /* ipc send message */
-      ipc_send_msg((const char *)r1, *((message_t*)r2));
+      irq_swi_handle_sys_send(r1, r2);
       break;
     case SYS_RECEIVE: /* ipc receive message */
-      ipc_receive_msg((const char *)r1, (message_t*)r2);
+      irq_swi_handle_sys_receive(r1, r2);
       break;
     default:
       // ignore
