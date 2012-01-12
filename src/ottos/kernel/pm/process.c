@@ -138,3 +138,10 @@ pid_t process_create(int priority, int initial_address) {
 pid_t process_pid() {
   return process_active;
 }
+
+/*
+ * Sets the process status to BLOCKED
+ */
+void process_block(pid_t pid) {
+  process_table[pid]->state = BLOCKED;
+}

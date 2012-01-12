@@ -91,4 +91,7 @@ void process_delete();
 // returns the current process pid
 EXTERN pid_t process_pid();
 
+// sets the ProcessState of process with pid_t pid to BLOCKED
+EXTERN void process_block(pid_t pid);
+
 #endif /* OTTOS_KERNEL_PM_PROCESS_H_ */
