@@ -59,7 +59,7 @@ typedef struct ipc_message_t {
  * IPC message queue
  */
 typedef struct ipc_message_queue_t {
-    int pending;
+    int size;
     IPC_MESSAGE* head;
     IPC_MESSAGE* last;
 } IPC_MESSAGE_QUEUE;
@@ -68,7 +68,7 @@ typedef struct ipc_message_queue_t {
  * IPC receiver
  */
 typedef struct ipc_client_t {
-    int pid_t;
+    pid_t pid;
     struct ipc_client_t* next;
 } IPC_CLIENT;
 
@@ -95,30 +95,21 @@ typedef struct ipc_namespace_queue_t {
 
 
 /*
- * IPC message queue global instance
- */
-static IPC_MESSAGE_QUEUE ipc_message_queue = {
-   0,     /* number of pending messages in queue */
-   NULL,  /* IPC_MESSAGE* head of list */
-   NULL   /* IPC_MESSAGE* last element of list */
-};
-
-/*
- * IPC namespace queue global instance
- */
-static IPC_NAMESPACE_QUEUE ipc_namespace_queue = {
-    0,    /* namespace size */
-    NULL  /* IPC_NAMESPACE head of list */
-};
-
-EXTERN int ipc_register_namespace(const char* ns, pid_t pid);
-EXTERN int ipc_register_receiver(IPC_NAMESPACE* ns, pid_t pid);
-
-/*
  * Returns SUCCESS if a message is available for a certain namespace ns, else
  * WAITING.
  */
 EXTERN int ipc_lookup_msg(const char* ns);
+
+/*
+ * Bind has to be called by the sender process
+ * Binds the calling process as a sender for messages at namespace ns
+ */
+EXTERN int ipc_bind(const char* ns);
+
+/*
+ * Unbinds a namespace of a sending process
+ */
+EXTERN int ipc_unbind(const char* ns);
 
 /*
  * Sends a message_t to the a process listening to namespace ns
@@ -136,6 +127,13 @@ EXTERN int ipc_send_msg(const char* ns, message_t msg);
  * @return SUCCESS = 1, WAITING = 0
  */
 EXTERN int ipc_receive_msg(const char* ns, message_t* msg);
+
+/*
+ * removes namespaces and pending messages for process with pid
+ * should only be called on garbage collection or process deletion
+ */
+EXTERN int ipc_kill_all(pid_t pid);
+
 
 /*
  * Removes all messages of process with pid_t pid. Has to be called on Process

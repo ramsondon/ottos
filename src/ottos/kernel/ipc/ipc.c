@@ -28,6 +28,24 @@
 #include "../pm/process.h"
 #include "ipc.h"
 
+/*
+ * IPC message queue global instance
+ */
+static IPC_MESSAGE_QUEUE ipc_message_queue = {
+   0,     /* number of pending messages in queue */
+   NULL,  /* IPC_MESSAGE* head of list */
+   NULL   /* IPC_MESSAGE* last element of list */
+};
+
+/*
+ * IPC namespace queue global instance
+ */
+static IPC_NAMESPACE_QUEUE ipc_namespace_queue = {
+    0,    /* namespace size */
+    NULL  /* IPC_NAMESPACE head of list */
+};
+
+
 static IPC_NAMESPACE* ipc_lookup_namespace(const char* ns) {
   /* iterate through the namespace register and lookup for matches*/
   IPC_NAMESPACE* current = ipc_namespace_queue.head;
@@ -45,7 +63,7 @@ static IPC_CLIENT* ipc_lookup_client(IPC_CLIENT_QUEUE queue, pid_t pid) {
   IPC_CLIENT* client = queue.head;
 
   while (client != NULL) {
-    if (client->pid_t == pid) {
+    if (client->pid == pid) {
 
       /* we found our receiver */
       return client;
@@ -104,12 +122,12 @@ static IPC_NAMESPACE* ipc_create_namespace(const char* ns) {
 static IPC_CLIENT* ipc_create_client(pid_t pid) {
 
   IPC_CLIENT* client = malloc(sizeof(IPC_CLIENT));
-  client->pid_t = pid;
+  client->pid = pid;
   client->next = NULL;
   return client;
 }
 
-int ipc_register_namespace(const char* ns, pid_t pid) {
+static IPC_NAMESPACE* ipc_do_register_namespace(const char* ns) {
 
   IPC_NAMESPACE* namespace = ipc_lookup_namespace(ns);
 
@@ -122,62 +140,136 @@ int ipc_register_namespace(const char* ns, pid_t pid) {
     /* increment namspace count */
     ipc_namespace_queue.size++;
   }
+  return namespace;
+}
 
-  if (ipc_lookup_sender(namespace, pid) == NULL) {
-    IPC_CLIENT* sender = ipc_create_client(pid);
+static int ipc_do_unregister_all_clients(IPC_CLIENT_QUEUE* queue) {
+
+  IPC_CLIENT* client = queue->head;
+  while (client != NULL) {
+    free(client);
+    client = client->next;
+  }
+  queue->head = NULL;
+  queue->size = 0;
+  return SUCCESS;
+}
+
+static int ipc_do_unregister_namespace(const char* ns, pid_t pid) {
+
+  IPC_NAMESPACE* namespace = ipc_namespace_queue.head;
+  IPC_NAMESPACE* prev = NULL;
+
+  while (namespace != NULL) {
+    if (strcmp(namespace->ns, ns) == 0) {
+      prev->next = namespace->next;
+      namespace->ns = NULL;
+
+      // remove all registered receivers and senders
+      ipc_do_unregister_all_clients(&namespace->senders);
+      ipc_do_unregister_all_clients(&namespace->receivers);
+
+      free(namespace);
+      return SUCCESS;
+    }
+    prev = namespace;
+    namespace = namespace->next;
+  }
+  return WAITING;
+}
+
+static IPC_CLIENT* ipc_do_register_sender(IPC_NAMESPACE* namespace, pid_t pid) {
+
+  IPC_CLIENT* sender = ipc_lookup_sender(namespace, pid);
+
+  if (sender == NULL) {
+    /* allocate a new IPC_CLIENT */
+    sender = ipc_create_client(pid);
     sender->next = namespace->senders.head;
     namespace->senders.head = sender;
 
     /* increment sender count */
     namespace->senders.size++;
   }
-
-  return SUCCESS;
+  return sender;
 }
 
-int ipc_register_receiver(IPC_NAMESPACE* ns, pid_t pid) {
+static IPC_CLIENT* ipc_do_register_receiver(IPC_NAMESPACE* namespace, pid_t pid) {
 
-  IPC_CLIENT* receiver = NULL;
+  IPC_CLIENT* receiver = ipc_lookup_receiver(namespace, pid);
 
-  /* return if the pid_t is already in queue for namespace ns */
-  if (ipc_lookup_receiver(ns, pid) != NULL) {
-    return SUCCESS;
+  if (receiver == NULL) {
+
+    /* register receiver in existing namespace */
+    receiver = ipc_create_client(pid);
+    receiver->next = namespace->receivers.head;
+    namespace->receivers.head = receiver;
+
+    /* increment receiver count for namespace */
+    namespace->receivers.size++;
   }
-  /* register receiver in existing namespace */
-  receiver = ipc_create_client(pid);
-  receiver->next = ns->receivers.head;
-  ns->receivers.head = receiver;
+  return receiver;
+}
 
-  /*increment receiver count for namespace */
-  ns->receivers.size++;
+/*
+ * Removes the cur pointer from the queue. Does not free any memory
+ * cur and prev must be members of the queue
+ */
+static int ipc_remove_client_from_queue(IPC_CLIENT_QUEUE* queue,
+                                        IPC_CLIENT* cur, IPC_CLIENT* prev) {
+  /*
+   * if the previous is NULL then we just can set our head of the queue to the
+   * current's next pointer
+   */
+  if (prev) {
+    queue->head = cur->next;
+  } else {
+    prev->next = cur->next;
+  }
+  queue->size--;
 
   return SUCCESS;
 }
 
-static int ipc_unregister_receiver(const char* ns, pid_t pid) {
-  // TODO: implement
-  // free memory
-  // decrement size of queue
-  return FALSE;
-}
+static int ipc_do_unregister_client(IPC_CLIENT_QUEUE* queue, pid_t pid) {
 
-static int ipc_unregister_namespace(const char* ns, pid_t pid) {
-  // TODO: implement
-  // free memory if necessary
-  // decrement size of queue
-  return FALSE;
-}
+  IPC_CLIENT* cur = queue->head;
+  IPC_CLIENT* prev = NULL;
 
-int ipc_lookup_msg(const char* ns) {
-  IPC_MESSAGE* current = ipc_message_queue.head;
+  while (cur != NULL) {
+    if (cur->pid == pid) {
 
-  while (current != NULL) {
-    if (strcmp(current->ns, ns) == 0) {
+      /* we found our IPC_CLIENT - so free it in namespace */
+      ipc_remove_client_from_queue(queue, cur, prev);
+
+      // free memory for IPC_CLIENT
+      free(cur);
+      cur = NULL;
       return SUCCESS;
     }
-    current = current->next;
+    prev = cur;
+    cur = cur->next;
   }
-  return WAITING;
+  return SUCCESS;
+}
+
+static int ipc_do_unregister_receiver(IPC_NAMESPACE* namespace, pid_t pid) {
+  return ipc_do_unregister_client(&namespace->receivers, pid);
+}
+
+static int ipc_do_unregister_sender(IPC_NAMESPACE* namespace, pid_t pid) {
+  return ipc_do_unregister_client(&namespace->senders, pid);
+}
+
+static int ipc_can_send(const char* ns, pid_t pid) {
+
+  IPC_NAMESPACE* namespace = ipc_lookup_namespace(ns);
+
+  if (namespace == NULL || ipc_lookup_sender(namespace, pid) == NULL
+      || ipc_nr_of_receiver(namespace) <= 0) {
+    return WAITING;
+  }
+  return SUCCESS;
 }
 
 /*
@@ -195,7 +287,7 @@ static int ipc_add_to_queue(IPC_MESSAGE_QUEUE* queue, IPC_MESSAGE* ipcmsg) {
     queue->last->next = ipcmsg;
     queue->last = ipcmsg;
   }
-  queue->pending++;
+  queue->size++;
 
   return SUCCESS;
 }
@@ -219,26 +311,73 @@ static int ipc_remove_from_queue(IPC_MESSAGE_QUEUE* queue, IPC_MESSAGE* msg,
     }
     prev->next = msg->next;
   }
-  queue->pending--;
+  queue->size--;
 
   return SUCCESS;
 }
 
+int ipc_lookup_msg(const char* ns) {
+  IPC_MESSAGE* current = ipc_message_queue.head;
+
+  while (current != NULL) {
+    if (strcmp(current->ns, ns) == 0) {
+      return SUCCESS;
+    }
+    current = current->next;
+  }
+  return WAITING;
+}
+
 /*
+ * Binds the calling process as a sender to the namespace ns
+ */
+int ipc_bind(const char* ns) {
+
+  IPC_NAMESPACE* namespace = ipc_do_register_namespace(ns);
+  ipc_do_register_sender(namespace, process_pid());
+  return SUCCESS;
+}
+
+/*
+ * Unbinds the calling process as a sender from the namespace
+ */
+int ipc_unbind(const char* ns) {
+
+  IPC_NAMESPACE* namespace = ipc_lookup_namespace(ns);
+
+  if (namespace != NULL) {
+    // unregister sender process from namespace
+    ipc_do_unregister_sender(namespace, process_pid());
+    // unregister namespace if no sending process
+    if (ipc_nr_of_sender(namespace) <= 0) {
+      ipc_do_unregister_namespace(ns, process_pid());
+    }
+  }
+  return SUCCESS;
+}
+
+/*
+ * To use this method ipc_bind(ns) must be called first
  * Makes a copy of the message_t msg and adds it to the message buffer.
  */
 int ipc_send_msg(const char* ns, message_t msg) {
 
-  // TODO: throw away if ns is not registered
+  message_t* msgcpy = NULL;
+  IPC_MESSAGE* new_ipc_msg = NULL;
+
+  // throw message away if ns is not registered or no process is listening
+  if (ipc_can_send(ns, process_pid())) {
+    return WAITING;
+  }
 
   // create message
-  message_t* msgcpy = malloc(sizeof(message_t));
-  IPC_MESSAGE* new_ipc_msg = malloc(sizeof(IPC_MESSAGE));
+  msgcpy = malloc(sizeof(message_t));
+  new_ipc_msg = malloc(sizeof(IPC_MESSAGE));
 
   msgcpy->type = msg.type;
 
   /* set the pid_t of the sender */
-  new_ipc_msg->sender = process_active;
+  new_ipc_msg->sender = process_pid();
   new_ipc_msg->message = msgcpy;
   new_ipc_msg->ns = ns;
   new_ipc_msg->next = NULL;
@@ -274,10 +413,17 @@ void ipc_remove_all_msg(pid_t pid) {
 
 int ipc_receive_msg(const char* ns, message_t* msg) {
 
-  // TODO: add ipc_register_namespace
-
   IPC_MESSAGE* current = ipc_message_queue.head;
   IPC_MESSAGE* prev = NULL;
+  IPC_NAMESPACE* namespace = ipc_lookup_namespace(ns);
+
+  // check if namespace has been registered by a sender
+  if (namespace == NULL) {
+    return WAITING;
+  }
+  // register receiver
+  ipc_do_register_receiver(namespace, process_pid());
+
   while (current != NULL) {
     if (strcmp(current->ns, ns) == 0) {
 
@@ -290,12 +436,54 @@ int ipc_receive_msg(const char* ns, message_t* msg) {
       // free message
       free(current->message);
       free(current);
-
       return SUCCESS;
     }
     prev = current;
     current = current->next;
   }
   return WAITING;
+}
+
+/*
+ * kills all namespaces of pid if it is a sender
+ * removes this pid as receiver of every namespace
+ */
+int ipc_kill_all(pid_t pid) {
+
+  IPC_NAMESPACE* curns = ipc_namespace_queue.head;
+  IPC_NAMESPACE* prev = NULL;
+
+  while (curns != NULL) {
+    IPC_NAMESPACE* temp = curns;
+
+    ipc_do_unregister_sender(temp, pid);
+    ipc_do_unregister_receiver(temp, pid);
+
+
+    // we have been the only registered sender -> remove this namespace
+    if (ipc_nr_of_sender(temp) <= 0) {
+      ipc_do_unregister_all_clients(&temp->receivers);
+
+      if (prev == NULL) {
+        ipc_namespace_queue.head = curns->next;
+        free(temp);
+      } else {
+        prev->next = curns->next;
+        free(temp);
+      }
+      temp = NULL;
+      curns = curns->next;
+
+      // remove all messages sent by this pid
+      ipc_remove_all_msg(pid);
+
+
+    // the namespace has not been removed
+    } else {
+      prev = curns;
+      curns = curns->next;
+    }
+  }
+  return SUCCESS;
 }
 
