@@ -31,9 +31,9 @@
 #include "dispc.h"
 #include "i2c.h"
 #include "intc.h"
+#include "led.h"
+#include "rfbi.h"
 #include "timer.h"
 #include "uart.h"
-#include "led.h"
-
 
 #endif /* HAL_OMAP353X_PLATFORM_H_ */

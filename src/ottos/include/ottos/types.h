@@ -32,10 +32,14 @@
 typedef uint32_t size_t;
 #endif
 
+typedef unsigned char byte_t;
 typedef char BOOLEAN;
 
 typedef int pid_t;
 typedef volatile unsigned int mem_address_t;
+// TODO (thomas.bargetz@gmail.com) use mem_address_t!
+typedef volatile unsigned int* address;
+
 typedef int (*function_t)();
 
 typedef unsigned long address_t;
@@ -52,5 +56,4 @@ typedef struct {
   int seconds;
   int miliseconds;
 } time_t;
-
 #endif /* OTTOS_TYPES_H_ */

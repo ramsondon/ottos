@@ -63,6 +63,15 @@ static void tty_print_prefix() {
 }
 
 static BOOLEAN tty_find_binary(const char* name) {
+  char filename[512];
+  FILE* file;
+  sprintf(filename, "/bin/%s", name);
+
+  file = fl_fopen(filename, "r");
+  if (file != NULL) {
+    fl_fclose(file);
+    return TRUE;
+  }
   return FALSE;
 }
 
@@ -74,18 +83,35 @@ static void tty_cmd_ls(char* directory) {
     directory = tty_cwd;
   }
 
-  if (fl_opendir(directory, &dirstat)) {
-    struct fs_dir_ent dirent;
+  fl_listdirectory(directory);
+}
 
-    while (fl_readdir(&dirstat, &dirent) == 0) {
-      char buffer[512];
-      sprintf(buffer, "%srwx------ %8d root root   YYY %s\n\r", dirent.is_dir
-          ? 'd' : '-', dirent.size, dirent.filename);
-      kernel_print(buffer);
-    }
+static void tty_cmd_cat(char* args) {
+  FILE* file;
+  char filename[1024];
+  char line[512];
 
-    fl_closedir(&dirstat);
+  if (*args != '/') {
+    sprintf(filename, "%s/%s", tty_cwd, args);
+  } else {
+    sprintf(filename, "%s", args);
   }
+
+  file = fl_fopen(filename, "r");
+  if (file == NULL) {
+    char buffer[512];
+    sprintf(buffer, "cat: %s: No such file", args);
+    tty_error(buffer);
+    return;
+  }
+
+  while (!fl_feof(file)) {
+    fl_fread(line, 512, 512, file);
+    kernel_print(line);
+  }
+  kernel_print("\n\r");
+
+  fl_fclose(file);
 }
 
 static void tty_cmd_cd(char* args) {
@@ -135,7 +161,7 @@ static void tty_cmd_cd(char* args) {
 
 static void tty_cmd_pwd() {
   char buffer[MAX_PATH_LENGTH];
-  sprintf(buffer, "%s\n", tty_cwd);
+  sprintf(buffer, "%s\n\r", tty_cwd);
   kernel_print(buffer);
 }
 
@@ -165,6 +191,19 @@ static void tty_print_startup() {
 
 }
 
+int tty_getline(char* buffer, int length) {
+  int i = 0;
+  char c;
+  do {
+    serial_read(&c, 1);
+    serial_write(&c, 1);
+    buffer[i] = c;
+  } while (c != '\n' && i++ < length);
+
+  buffer[i] = '\0';
+  return i;
+}
+
 void tty_run() {
 
   tty_print_startup();
@@ -173,7 +212,7 @@ void tty_run() {
     // XXX: how do we ensure, we do not read more than 1025 characters?
     char line[1024 + 1] = { '\0' };
     char* tokens;
-    char* cmd;
+    char cmd[64];
     int rc;
     BOOLEAN background = FALSE;
 
@@ -184,8 +223,11 @@ void tty_run() {
     // TODO (m.schmid@students.fhv.at) read from serial device
     // this has to be a system call in the end since we move this to
     // a user mode application
-    //rc = scanf("%1024[^\n]%*[^\n]", line);
-    rc = serial_getline(line, 1024);
+    // rc = scanf("%1024[^\n]%*[^\n]", line);
+    // rc = serial_getline(line, 1024);
+    rc = tty_getline(line, 1024);
+    serial_write("\r", 1);
+
     if (rc == EOF) {
       // TODO (fdomig@gmail.com) line was already at EOF while trying to get
       // the first character
@@ -201,11 +243,12 @@ void tty_run() {
 
     // split input string into tokens
     tokens = strtok(line, SPLIT_CHARS);
-    cmd = tokens;
+    strcpy(cmd, tokens);
+    //cmd = tokens;
     tokens = strtok(NULL, SPLIT_CHARS);
 
-    // XXX: built in CMDs are for test only; late each built in CMD may get
-    // an own binary
+    // XXX: built in CMDs are for test only; later each built in CMD will get
+    // an own binary file
 
     // check for a built in command
     if (strcmp(cmd, "cd") == 0) {
@@ -216,6 +259,9 @@ void tty_run() {
 
     } else if (strcmp(cmd, "ls") == 0) {
       tty_cmd_ls(tokens);
+
+    } else if (strcmp(cmd, "cat") == 0) {
+      tty_cmd_cat(tokens);
 
       // finally, is there a application with the entered name?
     } else if (!tty_find_binary(cmd)) {

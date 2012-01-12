@@ -27,9 +27,16 @@
 #include <ottos/const.h>
 #include <ottos/types.h>
 #include <ottos/limits.h>
+#include <ottos/code.h>
 
-#define PROCESS_STACK_START_ADDRESS  0x8200A000
-#define PROCESS_STACK_SIZE           0x00010000
+#define PROCESS_MEMORY_START 0x20000
+#define PROCESS_MEMORY_END 0x1000000
+
+#define PROCESS_STACK_START 0x10000000
+#define PROCESS_STACK_SIZE  0x00002000
+
+#define PROCESS_SYSMEM_START 0x10002000
+#define PROCESS_SYSMEM_SIZE 0x00002000
 
 enum ProcessState {
   READY, BLOCKED, RUNNING
@@ -55,19 +62,22 @@ typedef struct {
     int R14;
 } pcb_t;
 
+struct process;
+typedef struct process process_t;
+
 struct process {
+    address master_table_address;
+    address code_location;
+    int page_count;
+
     pid_t pid;
     int priority;
     enum ProcessState state;
     pcb_t pcb;
 
-    // TODO is child the right name?
-    struct process* child;
-    // TODO is parent the right name?
-    struct process* parent;
+    process_t* child;
+    process_t* parent;
 };
-
-typedef struct process process_t;
 
 // the process table contains all processes of the
 // operating system
@@ -83,7 +93,7 @@ EXTERN int process_active;
 void process_table_init();
 
 // creates a new process and returns the pid of it
-pid_t process_create(int priority, int initial_address);
+pid_t process_create(int priority, code_bytes_t* code_bytes);
 
 // deletes the active process
 void process_delete();

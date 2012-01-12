@@ -52,6 +52,6 @@ EXTERN void irq_handle_dabt();
 #pragma INTERRUPT(irq_handle_pabt, PABT)
 EXTERN void irq_handle_pabt();
 
-EXTERN void irq_add_handler(int irq_id, void (*fn)(void));
+EXTERN void irq_add_handler(int irq_id, void(*fn)(void));
 
 #endif /* INTERRUPTHANDLER_H_ */

@@ -27,10 +27,14 @@
 #include <ottos/kernel.h>
 #include <ottos/platform.h>
 #include <ottos/timer.h>
+#include <ottos/drivers/driver.h>
 
 #include "../pm/process.h"
 #include "../sched/scheduler.h"
 #include "../ipc/ipc.h"
+
+#include "../mmu/mmu.h"
+#include "../loader/loader.h"
 
 #include "irq.h"
 
@@ -57,8 +61,37 @@ extern int pcb_new;
 extern int stack_pointer_saved_context;
 extern int stack_pointer_original;
 
-static void (*int_handler_[IRQ_MAX_COUNT])();
+#define SAVE_CONTEXT_IRQ \
+		asm(" SUB     R14, R14, #4            ; Put return address of the interrupted task into R14 "); \
+		asm(" STMFD   R13!, {R0-R12, R14}     ; Save Process-Registers "); \
+		asm(" LDR     R0, stack_pointer_saved_context");	\
+		asm(" STR     R13, [R0], #0");	\
+		stack_pointer_original = stack_pointer_saved_context + SAVED_REGISTERS_SPACE;
 
+#define SAVE_CONTEXT_DABT \
+		asm(" SUB     R14, R14, #8"); \
+		asm(" STMFD   R13!, {R0-R12, R14}     ; Save Process-Registers "); \
+		asm(" LDR     R0, stack_pointer_saved_context");	\
+		asm(" STR     R13, [R0], #0");	\
+		stack_pointer_original = stack_pointer_saved_context + SAVED_REGISTERS_SPACE;
+
+#define SAVE_CONTEXT_PABT \
+    asm(" SUB     R14, R14, #4"); \
+    asm(" STMFD   R13!, {R0-R12, R14}     ; Save Process-Registers "); \
+    asm(" LDR     R0, stack_pointer_saved_context");  \
+    asm(" STR     R13, [R0], #0");  \
+    stack_pointer_original = stack_pointer_saved_context + SAVED_REGISTERS_SPACE;
+
+#define SAVE_CONTEXT_SWI \
+		asm(" STMFD   R13!, {R0-R12, R14} ; Save Process-Registers ");	\
+		asm(" LDR     R0, stack_pointer_saved_context");	\
+		asm(" STR     R13, [R0], #0");	\
+		stack_pointer_original = stack_pointer_saved_context + SAVED_REGISTERS_SPACE + SWI_PARAMETERS_SPACE;
+
+#define RESTORE_AND_SWITCH_CONTEXT \
+		asm(" LDMFD   R13!, {R0-R12, PC}^");
+
+static void (*int_handler_[IRQ_MAX_COUNT])();
 void context_switch();
 
 void irq_register_context_switch() {
@@ -102,18 +135,37 @@ void irq_handle_udef() {
   kernel_panic("undefined\n\r");
 }
 
+#pragma TASK(irq_handle_dabt)
 void irq_handle_dabt() {
-  _disable_interrupts();
-  kernel_panic("data abort\n\r");
+  SAVE_CONTEXT_DABT;
+
+  //kernel_print("data abort\r\n");
+
+  if (mmu_handle_data_abort() == TRUE) {
+    context_switch();
+  }
+
+  RESTORE_AND_SWITCH_CONTEXT;
+  //asm(" LDMFD   R13!, {R0-R12, R14}");
+  //asm(" SUBS    PC, R14, #8");
 }
 
+#pragma TASK(irq_handle_pabt)
 void irq_handle_pabt() {
-  _disable_interrupts();
-  kernel_panic("prefetch abort\n\r");
+  SAVE_CONTEXT_PABT;
+
+  //kernel_print("prefetch abort\r\n");
+
+  if (mmu_handle_prefetch_abort() == TRUE) {
+    context_switch();
+  }
+
+  RESTORE_AND_SWITCH_CONTEXT;
+  //asm(" LDMFD   R13!, {R0-R12, R14}");
+  //asm(" SUBS    PC, R14, #4");
 }
 
 void context_switch() {
-
   // reload the stack pointer of the interrupt handler to get
   // the saved context
   asm(" LDR     R13, stack_pointer_saved_context");
@@ -124,11 +176,14 @@ void context_switch() {
     if (process_table[process_active]->state == RUNNING) {
       process_table[process_active]->state = READY;
     }
-
     // Get the TCB's of the processes to switch the context
     pcb_old = (int) &process_table[process_active]->pcb.CPSR;
   }
   scheduler_next();
+
+  // switch to active process memory
+  mmu_init_memory_for_process(process_table[process_active]);
+
   process_table[process_active]->state = RUNNING;
 
   pcb_new = (int) &process_table[process_active]->pcb.CPSR;
@@ -142,6 +197,11 @@ void context_switch() {
   asm(" LDR     R1, [R1], #0 ;" );
 
   if (pcb_old != PID_INVALID) {
+    //	  // reload the stack pointer of the interrupt handler to get
+    //	  // the saved context
+    //	  asm(" LDR     R13, stack_pointer_saved_context");
+    //	  asm(" LDR     R13, [R13], #0");
+
     // First store the old precess's User mode state to the PCB pointed to by R0."
     asm(" MRS     R12, SPSR             ; Get CPSR of interrupted process" );
     asm(" STR     R12, [R0], #8         ; Store CPSR to PCB, point R0 at PCB location for R0 value" );
@@ -150,10 +210,11 @@ void context_switch() {
     asm(" LDMFD   R13!, {R2-R12, R14} ; Reload remaining stacked values" );
     asm(" STR     R14, [R0, #-12]       ; Store R14_irq, the interrupted process's restart address" );
     asm(" STMIA   R0, {R2-R14}^         ; Store user R2-R14 ");
-  } else {
-    asm(" LDR     R13, stack_pointer_original");
-    asm(" LDR     R13, [R13], #0");
   }
+
+  // restore the stack pointer of the interrupt
+  asm(" LDR     R13, stack_pointer_original");
+  asm(" LDR     R13, [R13], #0");
 
   // Then load the new process's User mode state and return to it.");
   asm(" LDMIA   R1!, {R12, R14}       ; Put interrupted process's CPSR" );
@@ -167,29 +228,57 @@ void context_switch() {
 #pragma TASK(irq_handle)
 EXTERN void irq_handle() {
 
-  // This will be called before entering the function
-  // SUB R14, R14, #4
+  SAVE_CONTEXT_IRQ;
 
-  asm(" SUB     R14, R14, #4            ; Put return address of the interrupted task into R14 ");
-  asm(" STMFD   R13!, {R0-R12, R14}     ; Save Process-Registers ");
-
-  asm(" LDR     R0, stack_pointer_saved_context");
-  asm(" STR     R13, [R0], #0");
-
-  stack_pointer_original = stack_pointer_saved_context + SAVED_REGISTERS_SPACE;
+  mmu_switch_to_kernel();
 
   *((mem_address_t*) (MPU_INTC + INTCPS_CONTROL)) |= 0x1;
 
   /* forward the interrupt to the handler routine */
   irq_handle_irq(*((mem_address_t*) (MPU_INTC + INTCPS_SIR_IRQ)));
 
-  asm(" LDMFD   R13!, {R0-R12, PC}^");
+  if (process_active != PID_INVALID) {
+    mmu_init_memory_for_process(process_table[process_active]);
+  }
+
+  RESTORE_AND_SWITCH_CONTEXT;
+}
+
+void irq_swi_handle_sys_open(unsigned int device) {
+  driver_get(device).open(device);
+}
+
+void irq_swi_handle_sys_write(unsigned int device, unsigned int count,
+                              unsigned int buffer_pointer) {
+
+  //char* buffer = (char*)mmu_get_physical_address(process_table[process_active], buffer_pointer);
+
+  char casted_buffer = (char) buffer_pointer;
+  //driver_get(device).write(device, count, buffer);
+  driver_get(device).write(device, count, &casted_buffer);
+}
+
+void irq_swi_handle_sys_print(int length, unsigned int output_buffer) {
+  // output_buffer is an address
+
+  char output[1024];
+  char* temp = (char*) mmu_get_physical_address(process_table[process_active],
+                                                output_buffer);
+  int i = 0;
+
+  for (i = 0; i < length; i++) {
+    output[i] = temp[i];
+  }
+  output[length] = '\0';
+
+  kernel_print(output);
 }
 
 static int irq_swi_handle_sys_send(int ns, int msg) {
   const char* namespace =
       (const char*) mmu_get_physical_address(process_table[process_active], ns);
-  message_t* message = (message_t*)mmu_get_physical_address(process_table[process_active], msg);
+  message_t* message =
+      (message_t*) mmu_get_physical_address(process_table[process_active], msg);
 
   ipc_send_msg(namespace, *message);
 }
@@ -201,13 +290,9 @@ static int irq_swi_handle_sys_receive(int ns, int msg) {
 #pragma TASK(irq_handle_swi)
 EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 
-  asm(" STMFD   R13!, {R0-R12, R14} ; Save Process-Registers ");
+  SAVE_CONTEXT_SWI;
 
-  asm(" LDR     R0, stack_pointer_saved_context");
-  asm(" STR     R13, [R0], #0");
-
-  stack_pointer_original = stack_pointer_saved_context + SAVED_REGISTERS_SPACE
-      + SWI_PARAMETERS_SPACE;
+  mmu_switch_to_kernel();
 
   // handle interrupts
   switch (r0) {
@@ -215,6 +300,7 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
       context_switch();
       break;
     case SYS_EXIT:
+      kernel_print("sys_exit\r\n");
       // delete the active process
       process_delete();
 
@@ -223,33 +309,72 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
       // old pcb has to be saved
       process_active = PID_INVALID;
       context_switch();
+    case SYS_MMU_TEST:
+      // TODO r1 = buffer pointer for output
+      kernel_print("sys_mmu_test\r\n");
+      break;
     case SYS_CREATE_PROCESS:
       // r1 = priority
-      // r2 = initial_address
+      // r2 = code bytes
       // r3 = wait_for_exit
-      process_create(r1, r2);
-      if (r3 != FALSE) {
-        // the current process will be blocked until the
-        // child exited
+      /*load_process_code(process_table[process_create(r1)], r2);
+       if (r3 != FALSE) {
+       // the current process will be blocked until the
+       // child exited
 
-        // TODO is blocked the correct state?
-        process_table[process_active]->state = BLOCKED;
+       // TODO is blocked the correct state?
+       process_table[process_active]->state = BLOCKED;
 
-        // block current process
-        // switch to next process
-        context_switch();
-      }
+       // block current process
+       // switch to next process
+       context_switch();
+
+       }*/
       break;
-    case SYS_SEND: /* ipc send message */
-      irq_swi_handle_sys_send(r1, r2);
+    case SYS_OPEN:
+      // r1 = device_t
+      irq_swi_handle_sys_open(r1);
       break;
-    case SYS_RECEIVE: /* ipc receive message */
+    case SYS_READ:
+      // TODO implement return value
+      break;
+    case SYS_WRITE:
+      // r1 = device_t
+      // r2 = size of buffer
+      // r3 = buffer (int)
+      irq_swi_handle_sys_write(r1, r2, r3);
+      break;
+    case SYS_CLOSE:
+      // TODO implement
+      break;
+    case SYS_PRINT:
+      // r1 = length
+      // r2 = output buffer
+      irq_swi_handle_sys_print(r1, r2);
+      break;
+    case SYS_RECEIVE:
       irq_swi_handle_sys_receive(r1, r2);
+      break;
+    case SYS_SEND:
+      irq_swi_handle_sys_send(r1, r2);
       break;
     default:
       // ignore
       break;
   }
 
-  asm(" LDMFD   R13!, {R0-R12, PC}^");
+  if (process_active != PID_INVALID) {
+    mmu_init_memory_for_process(process_table[process_active]);
+  }
+
+  // reload process context
+  asm(" LDMFD R13!, {R0-R12, R14}");
+
+  // restore the interrupt stack pointer
+  asm(" LDR R13, stack_pointer_original");
+  asm(" LDR R13, [R13], #0");
+
+  // switch to process
+  asm(" MOVS PC, R14");
+
 }

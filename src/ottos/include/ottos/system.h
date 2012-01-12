@@ -48,4 +48,14 @@ EXTERN int sys_close();
 EXTERN void sys_send(const char* ns, message_t* msg);
 EXTERN void sys_receive(const char* ns, message_t* msg);
 
+/*
+ * MMU system calls
+ */
+EXTERN void sys_mmu_test();
+
+/*
+ * Syscall tests
+ */
+EXTERN void sys_print(int length, char* output);
+
 #endif /* SYSTEM_H_ */
