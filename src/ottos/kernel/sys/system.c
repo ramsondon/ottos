@@ -47,6 +47,10 @@ void sys_print(int length, char* output) {
   swi(SYS_PRINT, length, (unsigned int)output, 0);
 }
 
+void sys_bind(const char* ns) {
+  swi(SYS_BIND_NAMESPACE, (unsigned)ns, 0, 0);
+}
+
 void sys_send(const char* ns, message_t* msg) {
   swi(SYS_SEND, (unsigned)ns, (unsigned)msg, 0);
 }

@@ -45,6 +45,7 @@ EXTERN int sys_close();
 /*
  * IPC system calls
  */
+EXTERN void sys_bind(const char* ns);
 EXTERN void sys_send(const char* ns, message_t* msg);
 EXTERN void sys_receive(const char* ns, message_t* msg);
 

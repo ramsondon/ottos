@@ -274,7 +274,14 @@ void irq_swi_handle_sys_print(int length, unsigned int output_buffer) {
   kernel_print(output);
 }
 
-static int irq_swi_handle_sys_send(int ns, int msg) {
+void irq_swi_handle_sys_bind(int ns) {
+  const char* namespace =
+      (const char*) mmu_get_physical_address(process_table[process_active], ns);
+
+  ipc_bind(namespace);
+}
+
+void irq_swi_handle_sys_send(int ns, int msg) {
   const char* namespace =
       (const char*) mmu_get_physical_address(process_table[process_active], ns);
   message_t* message =
@@ -283,8 +290,13 @@ static int irq_swi_handle_sys_send(int ns, int msg) {
   ipc_send_msg(namespace, *message);
 }
 
-static int irq_swi_handle_sys_receive(int ns, int msg) {
+void irq_swi_handle_sys_receive(int ns, int msg) {
+  const char* namespace =
+      (const char*) mmu_get_physical_address(process_table[process_active], ns);
+  message_t* message =
+      (message_t*) mmu_get_physical_address(process_table[process_active], msg);
 
+  ipc_receive_msg(namespace, message);
 }
 
 #pragma TASK(irq_handle_swi)
@@ -352,11 +364,14 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
       // r2 = output buffer
       irq_swi_handle_sys_print(r1, r2);
       break;
-    case SYS_RECEIVE:
-      irq_swi_handle_sys_receive(r1, r2);
+    case SYS_BIND_NAMESPACE:
+      irq_swi_handle_sys_bind(r1);
       break;
     case SYS_SEND:
       irq_swi_handle_sys_send(r1, r2);
+      break;
+    case SYS_RECEIVE:
+      irq_swi_handle_sys_receive(r1, r2);
       break;
     default:
       // ignore
