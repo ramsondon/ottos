@@ -8,6 +8,7 @@
 #include "../../bin/uptime_test.h"
 #include "../../bin/i2c_test.h"
 #include "../../bin/video_test.h"
+#include "../../bin/audio_test.h"
 #include "../drivers/i2c/i2c.h"
 
 #include "kernel/intc/irq.h"
@@ -141,9 +142,10 @@ int main(int argc, char **argv) {
   //  fs_test();
   //  i2c_test();
   //  uptime_test();
-    tty_test();
+  //  tty_test();
   //  system_time_test();
   //  uptime_test();
+  audio_test();
   //video_test();
   //user_app_test();
 
