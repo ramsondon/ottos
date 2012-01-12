@@ -107,10 +107,6 @@ RGBA* graphics_parse_bmp_picture(void* filecontent, int size, BITMAP_FILEHEADER*
   bmpHeader = (BITMAP_HEADER*)file;
 
   /* Load Color Table */
-  //file.seekg(BITMAP_FILEHEADER_SIZE + bmpHeader->HeaderSize, std::ios::beg); // jump to character (BITMAP_FILEHEADER_SIZE + bmpHeader->HeaderSize)
-  // jump to begin of color table
-  file += bmpHeader->HeaderSize;
-
   if (bmpHeader->BitCount == 1) {
     ColorTableSize = 2;
   } else if (bmpHeader->BitCount == 4) {
@@ -123,6 +119,11 @@ RGBA* graphics_parse_bmp_picture(void* filecontent, int size, BITMAP_FILEHEADER*
   if (ColorTableSize != bmpHeader->ClrUsed) {
     return 0;
   }
+
+  // jump to Color Table
+  //file.seekg(BITMAP_FILEHEADER_SIZE + bmpHeader->HeaderSize, std::ios::beg); // jump to character (BITMAP_FILEHEADER_SIZE + bmpHeader->HeaderSize)
+  // jump to begin of color table
+  file += bmpHeader->HeaderSize;
 
   //BGRA* ColorTable = new BGRA[ColorTableSize]; // std::bad_alloc exception should be thrown if memory is not available
   //file.read((char*) ColorTable, sizeof(BGRA) * ColorTableSize);

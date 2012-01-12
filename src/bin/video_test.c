@@ -25,21 +25,56 @@
 
 #include "../drivers/video/video.h"
 #include "../graphics/graphics.h"
+#include "../graphics/bitmap.h"
+
+#include "../fs/vfat/fat_filelib.h"
+//#include "../fs/fs.h"
+
+#include <stdlib.h>
+
+
+#define SUN_16_SIZE     2166
+
+void video_bmp_test() {
+  // filesystem & fat stuff
+  char* buffer = malloc(SUN_16_SIZE);
+  void* framebuffer = malloc(3000000);
+  void* file;
+  RastPort *rp;
+
+  // bitmap stuff
+  RGBA* bmp;
+  BITMAP_FILEHEADER* bmpFileHeader = (BITMAP_FILEHEADER*)malloc(sizeof(BITMAP_FILEHEADER));
+  BITMAP_HEADER* bmpHeader = (BITMAP_HEADER*)malloc(sizeof(BITMAP_HEADER));
+
+  // load bmp file: sun.bmp | katze.bmp | katze_.bmp
+  fs_init();
+  file = fl_fopen("/sun.bmp", "r");
+  fl_fread(buffer, SUN_16_SIZE, SUN_16_SIZE, file);
+
+  // init video
+  video_init(RES_WIDTH, RES_HEIGHT);
+  rp = graphics_init(framebuffer, RES_WIDTH, RES_HEIGHT, BM_RGB16);
+  video_attach_framebuffer(0, rp->drawable.bitmap);
+
+  graphics_move_to(rp, 0, 0);
+  graphics_set_color(rp, 0x3e31a2);
+  graphics_draw_rect(rp, WIDTH, HEIGHT);
+
+  bmp = graphics_parse_bmp_picture(buffer, SUN_16_SIZE, bmpFileHeader, bmpHeader);
+  graphics_draw_picture(200, 200, bmpHeader, bmp);
+}
 
 
 void video_test() {
   int i = 0;
   int x, y, u;
   RastPort *rp;
-
-  // bitmap stuff
-  RGBA* bmp;
-  BITMAP_FILEHEADER* bmpFileHeader;
-  BITMAP_HEADER* bmpHeader;
+  void* framebuffer = malloc(3000000);
 
   // init
   video_init(RES_WIDTH, RES_HEIGHT);
-  rp = graphics_init(FBADDR, RES_WIDTH, RES_HEIGHT, BM_RGB16);
+  rp = graphics_init(framebuffer, RES_WIDTH, RES_HEIGHT, BM_RGB16);
   video_attach_framebuffer(0, rp->drawable.bitmap);
 
   // also set it to the tv out (top-left corner of same data)
@@ -63,9 +98,6 @@ void video_test() {
   graphics_draw_line(rp, 300, 300, 400, 600, 1);
   graphics_draw_line(rp, 600, 300, 400, 100, 1);
   graphics_draw_line(rp, 400, 300, 200, 600, 1);
-
-  //bmp = graphics_parse_bmp_picture(sun_16_colors, TEST_PICTURE_SUN_16_SIZE, bmpFileHeader, bmpHeader);
-  //graphics_draw_picture(200, 200, bmpHeader, bmp);
 
   /*
   // write 'HELLO' with rectangles
