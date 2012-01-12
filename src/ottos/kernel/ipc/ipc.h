@@ -134,12 +134,4 @@ EXTERN int ipc_receive_msg(const char* ns, message_t* msg);
  */
 EXTERN int ipc_kill_all(pid_t pid);
 
-
-/*
- * Removes all messages of process with pid_t pid. Has to be called on Process
- * deletion.
- */
-EXTERN void ipc_remove_all_msg(pid_t pid);
-
-
 #endif /* OTTOS_KERNEL_IPC_IPC_H_ */

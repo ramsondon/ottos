@@ -31,20 +31,17 @@
 /*
  * IPC message queue global instance
  */
-static IPC_MESSAGE_QUEUE ipc_message_queue = {
-   0,     /* number of pending messages in queue */
-   NULL,  /* IPC_MESSAGE* head of list */
-   NULL   /* IPC_MESSAGE* last element of list */
+static IPC_MESSAGE_QUEUE ipc_message_queue = { 0, /* number of pending messages in queue */
+NULL, /* IPC_MESSAGE* head of list */
+NULL /* IPC_MESSAGE* last element of list */
 };
 
 /*
  * IPC namespace queue global instance
  */
-static IPC_NAMESPACE_QUEUE ipc_namespace_queue = {
-    0,    /* namespace size */
-    NULL  /* IPC_NAMESPACE head of list */
+static IPC_NAMESPACE_QUEUE ipc_namespace_queue = { 0, /* namespace size */
+NULL /* IPC_NAMESPACE head of list */
 };
-
 
 static IPC_NAMESPACE* ipc_lookup_namespace(const char* ns) {
   /* iterate through the namespace register and lookup for matches*/
@@ -388,7 +385,9 @@ int ipc_send_msg(const char* ns, message_t msg) {
   return SUCCESS;
 }
 
-/* removes all messages in queue of sender process pid_t pid*/
+/*
+ * Removes all messages of process with pid_t pid.
+ */
 void ipc_remove_all_msg(pid_t pid) {
 
   IPC_MESSAGE* current = ipc_message_queue.head;
@@ -418,29 +417,30 @@ int ipc_receive_msg(const char* ns, message_t* msg) {
   IPC_NAMESPACE* namespace = ipc_lookup_namespace(ns);
 
   // check if namespace has been registered by a sender
-  if (namespace == NULL) {
-    return WAITING;
-  }
-  // register receiver
-  ipc_do_register_receiver(namespace, process_pid());
+  if (namespace != NULL) {
 
-  while (current != NULL) {
-    if (strcmp(current->ns, ns) == 0) {
+    // register receiver
+    ipc_do_register_receiver(namespace, process_pid());
 
-      // set ouptut message
-      msg->type = current->message->type;
+    while (current != NULL) {
+      if (strcmp(current->ns, ns) == 0) {
 
-      // remove message from queue
-      ipc_remove_from_queue(&ipc_message_queue, current, prev);
+        // set ouptut message
+        msg->type = current->message->type;
 
-      // free message
-      free(current->message);
-      free(current);
-      return SUCCESS;
+        // remove message from queue
+        ipc_remove_from_queue(&ipc_message_queue, current, prev);
+
+        // free message
+        free(current->message);
+        free(current);
+        return SUCCESS;
+      }
+      prev = current;
+      current = current->next;
     }
-    prev = current;
-    current = current->next;
   }
+
   return WAITING;
 }
 
@@ -459,7 +459,6 @@ int ipc_kill_all(pid_t pid) {
     ipc_do_unregister_sender(temp, pid);
     ipc_do_unregister_receiver(temp, pid);
 
-
     // we have been the only registered sender -> remove this namespace
     if (ipc_nr_of_sender(temp) <= 0) {
       ipc_do_unregister_all_clients(&temp->receivers);
@@ -477,8 +476,7 @@ int ipc_kill_all(pid_t pid) {
       // remove all messages sent by this pid
       ipc_remove_all_msg(pid);
 
-
-    // the namespace has not been removed
+      // the namespace has not been removed
     } else {
       prev = curns;
       curns = curns->next;
