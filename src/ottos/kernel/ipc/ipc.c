@@ -324,6 +324,19 @@ int ipc_lookup_msg(const char* ns) {
   return WAITING;
 }
 
+int ipc_lookup_msg_for(pid_t pid) {
+  IPC_MESSAGE* current = ipc_message_queue.head;
+
+  while (current != NULL) {
+    if (current->receiver == pid) {
+      return SUCCESS;
+    }
+    current = current->next;
+  }
+  return WAITING;
+
+}
+
 /*
  * Binds the calling process as a sender to the namespace ns
  */
@@ -356,31 +369,50 @@ int ipc_unbind(const char* ns, pid_t pid) {
  * To use this method ipc_bind(ns) must be called first
  * Makes a copy of the message_t msg and adds it to the message buffer.
  */
-int ipc_send_msg(const char* ns, message_t msg, pid_t pid) {
+int ipc_send_msg(const char* ns, message_t msg, pid_t sender) {
 
   message_t* msgcpy = NULL;
   IPC_MESSAGE* new_ipc_msg = NULL;
+  IPC_NAMESPACE* namespace = NULL;
+  IPC_CLIENT* receiver = NULL;
 
+  /****************************************************************************
+   *  TODO: ramsondon@gmail.com
+   *
+   *  BEGIN REFACTOR
+   */
   // throw message away if ns is not registered or no process is listening
-  if (ipc_can_send(ns, pid)) {
+  if (ipc_can_send(ns, sender)) {
     return WAITING;
   }
 
-  // create message
-  msgcpy = malloc(sizeof(message_t));
-  new_ipc_msg = malloc(sizeof(IPC_MESSAGE));
+  namespace = ipc_lookup_namespace(ns);
+  receiver = namespace->receivers.head;
 
-  msgcpy->type = msg.type;
+  /*
+   * END REFACTOR
+   * **************************************************************************
+   */
 
-  /* set the pid_t of the sender */
-  new_ipc_msg->sender = pid;
-  new_ipc_msg->message = msgcpy;
-  new_ipc_msg->ns = ns;
-  new_ipc_msg->next = NULL;
+  while (receiver != NULL) {
+    // create message
+    msgcpy = malloc(sizeof(message_t));
+    new_ipc_msg = malloc(sizeof(IPC_MESSAGE));
 
-  // add message to queue
-  ipc_add_to_queue(&ipc_message_queue, new_ipc_msg);
+    msgcpy->type = msg.type;
 
+    /* set the pid_t of the sender */
+    new_ipc_msg->sender = sender;
+    new_ipc_msg->receiver = receiver->pid;
+    new_ipc_msg->message = msgcpy;
+    new_ipc_msg->ns = ns;
+    new_ipc_msg->next = NULL;
+
+    // add message to queue
+    ipc_add_to_queue(&ipc_message_queue, new_ipc_msg);
+
+    receiver = receiver->next;
+  }
   return SUCCESS;
 }
 

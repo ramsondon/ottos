@@ -42,6 +42,10 @@ enum ProcessState {
   READY, BLOCKED, RUNNING
 };
 
+enum BlockState {
+  NONE, IPC_RECEIVE
+};
+
 typedef struct {
     int CPSR;
     int restart_address;
@@ -73,6 +77,7 @@ struct process {
     pid_t pid;
     int priority;
     enum ProcessState state;
+    enum BlockState blockstate;
     pcb_t pcb;
 
     process_t* child;

@@ -50,6 +50,7 @@
  */
 typedef struct ipc_message_t {
     pid_t sender;
+    pid_t receiver;
     const char* ns;
     struct message_t* message;
     struct ipc_message_t* next;
@@ -99,6 +100,8 @@ typedef struct ipc_namespace_queue_t {
  * WAITING.
  */
 EXTERN int ipc_lookup_msg(const char* ns);
+
+EXTERN int ipc_lookup_msg_for(pid_t pid);
 
 /*
  * Bind has to be called by the sender process

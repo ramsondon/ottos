@@ -21,8 +21,18 @@
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
+#include "../ipc/ipc.h"
 #include "../pm/process.h"
 #include "scheduler.h"
+
+void scheduler_handle_pending_ipc_receive(pid_t pid) {
+
+  if (ipc_lookup_msg_for(pid) == SUCCESS) {
+    process_table[pid]->state = READY;
+    process_table[pid]->blockstate = NONE;
+  }
+}
+
 
 void scheduler_next() {
 
@@ -31,9 +41,25 @@ void scheduler_next() {
 	for (i = (process_active + 1) % PROCESS_MAX_COUNT; i < PROCESS_MAX_COUNT; i
 			= (i + 1) % PROCESS_MAX_COUNT) {
 
-		if (process_table[i] != NULL && process_table[i]->state == READY) {
-			process_active = i;
-			return;
+		if (process_table[i] != NULL) {
+
+		  // handle blocked processes
+		  if (process_table[i]->state == BLOCKED) {
+		    switch(process_table[i]->blockstate) {
+		      case IPC_RECEIVE:
+		        scheduler_handle_pending_ipc_receive((pid_t)i);
+		        break;
+		      default:
+		        // strange behaviour - this case should not appear
+		        break;
+		    }
+		  }
+
+		  // choose new process
+		  if (process_table[i]->state == READY) {
+		    process_active = i;
+		  }
+		  return;
 		}
 	}
 }

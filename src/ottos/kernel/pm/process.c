@@ -106,6 +106,7 @@ pid_t process_create(int priority, code_bytes_t* code_bytes) {
 	p->pid = process_next_free_entry;
 	p->priority = priority;
 	p->state = READY;
+	p->blockstate = NONE;
 	p->child = NULL;
 	p->parent = NULL;
 

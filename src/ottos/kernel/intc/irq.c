@@ -288,6 +288,9 @@ void irq_swi_handle_sys_send(int ns, int msg) {
       (message_t*) mmu_get_physical_address(process_table[process_pid()], msg);
 
   ipc_send_msg(namespace, *message, process_pid());
+
+  // TODO: ramsondon@gmail.com check if works
+  // have to context_switch and BLOCK if message could not be sent or ignore?
 }
 
 void irq_swi_handle_sys_receive(int ns, int msg) {
@@ -296,9 +299,14 @@ void irq_swi_handle_sys_receive(int ns, int msg) {
   message_t* message =
       (message_t*) mmu_get_physical_address(process_table[process_pid()], msg);
 
-  ipc_receive_msg(namespace, message, process_pid());
+  if (ipc_receive_msg(namespace, message, process_pid()) == WAITING) {
 
-  // TODO: if not received BLOCK PROCESS and YIELD
+    process_table[process_pid()]->state = BLOCKED;
+    process_table[process_pid()]->blockstate = IPC_RECEIVE;
+
+    // TODO: ramsondon@gmail.com check if works
+    context_switch();
+  }
 }
 
 #pragma TASK(irq_handle_swi)
