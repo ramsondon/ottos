@@ -35,33 +35,33 @@
 static const char* namespace = "foobaz";
 
 void ipc_test_sender() {
-  char * output;
-  while (1) {
-    int i = 0;
-    message_t msg;
-    msg.type = CODE_PRINT;
-    for (i = 0; i < 10000; i++) {
-      ;
-    }
-    sprintf(output, "send: %d\n\r", msg.type);
-    kernel_print(output);
-    sys_send(namespace, &msg);
-  }
+//  char * output;
+//  while (1) {
+//    int i = 0;
+//    message_t msg;
+//    msg.type = CODE_PRINT;
+//    for (i = 0; i < 10000; i++) {
+//      ;
+//    }
+//    sprintf(output, "send: %d\n\r", msg.type);
+//    kernel_print(output);
+//    sys_send(namespace, &msg);
+//  }
 
 }
 
 void ipc_test_receiver() {
 
-  message_t message;
-  char* output;
-  while (1) {
-//    while (message == NULL) {
-    // TODO: check return value
-      sys_receive(namespace, &message);
-//    }
-    sprintf(output, "received: %d\n\r", message.type);
-    kernel_print(output);
-  }
+//  message_t message;
+//  char* output;
+//  while (1) {
+////    while (message == NULL) {
+//    // TODO: check return value
+////      sys_receive(namespace, &message);
+////    }
+//    sprintf(output, "received: %d\n\r", message.type);
+//    kernel_print(output);
+//  }
 }
 
 void ipc_test_module_sender() {
@@ -77,14 +77,14 @@ void ipc_test_module_sender() {
 
 void ipc_test_module_receiver() {
 
-  message_t message;
-  char* output = "";
-//  while (ipc_receive_msg(namespace, &message) == WAITING) {
-//    ;
-//  }
-  sprintf(output, "received: %d\n\r", message.type);
-  //kernel_print(output);
-  printf(output);
+//  message_t message;
+//  char* output = "";
+////  while (ipc_receive_msg(namespace, &message) == WAITING) {
+////    ;
+////  }
+//  sprintf(output, "received: %d\n\r", message.type);
+//  //kernel_print(output);
+//  printf(output);
 }
 
 void ipc_test_module() {
