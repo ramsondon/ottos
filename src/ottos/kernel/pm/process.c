@@ -30,6 +30,7 @@
 #include "../sched/scheduler.h"
 #include "../ipc/ipc.h"
 #include "../mmu/mmu.h"
+#include "../loader/loader.h"
 
 #include "process.h"
 
@@ -81,8 +82,8 @@ void process_delete() {
 		}
 	}
 
-	// destroy all namespaces and pending messages of this pid
-	ipc_kill_all(process_active);
+	// destroy all namespaces and pending messages of this IPC receiver pid
+	ipc_kill_receiver(process_active);
 
 	//delete Mastertable Entries for process
 	// TODO (thomas.bargetz@gmail.com) check this function
@@ -162,4 +163,10 @@ pid_t process_pid() {
  */
 void process_block(pid_t pid) {
   process_table[pid]->state = BLOCKED;
+}
+
+void process_unblock(pid_t pid) {
+
+  process_table[pid]->state = READY;
+  process_table[pid]->blockstate = NONE;
 }

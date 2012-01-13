@@ -261,8 +261,7 @@ static int ipc_can_send(const char* ns, pid_t pid) {
 
   IPC_NAMESPACE* namespace = ipc_lookup_namespace(ns);
 
-  if (namespace == NULL || ipc_lookup_sender(namespace, pid) == NULL
-      || ipc_nr_of_receiver(namespace) <= 0) {
+  if (namespace == NULL || ipc_nr_of_receiver(namespace) <= 0) {
     return WAITING;
   }
   return SUCCESS;
@@ -312,6 +311,31 @@ static int ipc_remove_from_queue(IPC_MESSAGE_QUEUE* queue, IPC_MESSAGE* msg,
   return SUCCESS;
 }
 
+/*
+ * Removes all messages to be received of process with pid_t pid.
+ */
+static void ipc_remove_all_msg(pid_t pid) {
+
+  IPC_MESSAGE* current = ipc_message_queue.head;
+  IPC_MESSAGE* prev = NULL;
+
+  while (current != NULL) {
+    if (current->receiver == pid) {
+      // remove message from queue
+      ipc_remove_from_queue(&ipc_message_queue, current, prev);
+
+      // free message
+      free(current->message);
+      current->message = NULL;
+      free(current);
+      current = NULL;
+      return;
+    }
+    prev = current;
+    current = current->next;
+  }
+}
+
 int ipc_lookup_msg(const char* ns) {
   IPC_MESSAGE* current = ipc_message_queue.head;
 
@@ -334,7 +358,18 @@ int ipc_lookup_msg_for(pid_t pid) {
     current = current->next;
   }
   return WAITING;
+}
 
+int ipc_lookup_msg_concrete(const char* ns, pid_t pid) {
+  IPC_MESSAGE* current = ipc_message_queue.head;
+
+  while (current != NULL) {
+    if (strcmp(current->ns, ns) == 0 && current->receiver == pid) {
+      return SUCCESS;
+    }
+    current = current->next;
+  }
+  return WAITING;
 }
 
 /*
@@ -343,12 +378,12 @@ int ipc_lookup_msg_for(pid_t pid) {
 int ipc_bind(const char* ns, pid_t pid) {
 
   IPC_NAMESPACE* namespace = ipc_do_register_namespace(ns);
-  ipc_do_register_sender(namespace, pid);
+  ipc_do_register_receiver(namespace, pid);
   return SUCCESS;
 }
 
 /*
- * Unbinds the calling process as a sender from the namespace
+ * Unbinds the calling process as a receiver from the namespace
  */
 int ipc_unbind(const char* ns, pid_t pid) {
 
@@ -356,18 +391,19 @@ int ipc_unbind(const char* ns, pid_t pid) {
 
   if (namespace != NULL) {
     // unregister sender process from namespace
-    ipc_do_unregister_sender(namespace, pid);
+    ipc_do_unregister_receiver(namespace, pid);
     // unregister namespace if no sending process
-    if (ipc_nr_of_sender(namespace) <= 0) {
+    if (ipc_nr_of_receiver(namespace) <= 0) {
       ipc_do_unregister_namespace(ns, pid);
+      ipc_remove_all_msg(pid);
     }
   }
   return SUCCESS;
 }
 
 /*
- * To use this method ipc_bind(ns) must be called first
  * Makes a copy of the message_t msg and adds it to the message buffer.
+ * If no receiver is available the result will be waiting.
  */
 int ipc_send_msg(const char* ns, message_t msg, pid_t sender) {
 
@@ -416,31 +452,6 @@ int ipc_send_msg(const char* ns, message_t msg, pid_t sender) {
   return SUCCESS;
 }
 
-/*
- * Removes all messages of process with pid_t pid.
- */
-void ipc_remove_all_msg(pid_t pid) {
-
-  IPC_MESSAGE* current = ipc_message_queue.head;
-  IPC_MESSAGE* prev = NULL;
-
-  while (current != NULL) {
-    if (current->sender == pid) {
-      // remove message from queue
-      ipc_remove_from_queue(&ipc_message_queue, current, prev);
-
-      // free message
-      free(current->message);
-      current->message = NULL;
-      free(current);
-      current = NULL;
-      return;
-    }
-    prev = current;
-    current = current->next;
-  }
-}
-
 int ipc_receive_msg(const char* ns, message_t* msg, pid_t pid) {
 
   IPC_MESSAGE* current = ipc_message_queue.head;
@@ -448,10 +459,7 @@ int ipc_receive_msg(const char* ns, message_t* msg, pid_t pid) {
   IPC_NAMESPACE* namespace = ipc_lookup_namespace(ns);
 
   // check if namespace has been registered by a sender
-  if (namespace != NULL) {
-
-    // register receiver
-    ipc_do_register_receiver(namespace, pid);
+  if (namespace != NULL && ipc_lookup_receiver(namespace, pid) != NULL) {
 
     while (current != NULL) {
       if (strcmp(current->ns, ns) == 0) {
@@ -471,15 +479,13 @@ int ipc_receive_msg(const char* ns, message_t* msg, pid_t pid) {
       current = current->next;
     }
   }
-
   return WAITING;
 }
 
 /*
- * kills all namespaces of pid if it is a sender
- * removes this pid as receiver of every namespace
+ *
  */
-int ipc_kill_all(pid_t pid) {
+int ipc_kill_receiver(pid_t pid) {
 
   IPC_NAMESPACE* curns = ipc_namespace_queue.head;
   IPC_NAMESPACE* prev = NULL;
@@ -487,30 +493,36 @@ int ipc_kill_all(pid_t pid) {
   while (curns != NULL) {
     IPC_NAMESPACE* temp = curns;
 
-    ipc_do_unregister_sender(temp, pid);
-    ipc_do_unregister_receiver(temp, pid);
+    // we found our pid as a receiver in the current namespace
+    if (ipc_lookup_receiver(temp, pid) != NULL) {
 
-    // we have been the only registered sender -> remove this namespace
-    if (ipc_nr_of_sender(temp) <= 0) {
-      ipc_do_unregister_all_clients(&temp->receivers);
+      // so we have to unregister it
+      ipc_do_unregister_receiver(temp, pid);
 
-      if (prev == NULL) {
-        ipc_namespace_queue.head = curns->next;
-        free(temp);
+      // if we now have no more receivers of this namespace we can remove it.
+      if (ipc_nr_of_receiver(temp) <= 0) {
+
+        // free all registered senders
+        ipc_do_unregister_all_clients(&temp->senders);
+
+        if (prev == NULL) {
+          ipc_namespace_queue.head = curns->next;
+          free(temp);
+        } else {
+          prev->next = curns->next;
+          free(temp);
+        }
+        temp = NULL;
+        curns = curns->next;
+
+        // remove all messages sent by this pid
+        ipc_remove_all_msg(pid);
+
+        // the namespace has not been removed
       } else {
-        prev->next = curns->next;
-        free(temp);
+        prev = curns;
+        curns = curns->next;
       }
-      temp = NULL;
-      curns = curns->next;
-
-      // remove all messages sent by this pid
-      ipc_remove_all_msg(pid);
-
-      // the namespace has not been removed
-    } else {
-      prev = curns;
-      curns = curns->next;
     }
   }
   return SUCCESS;

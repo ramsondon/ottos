@@ -274,39 +274,50 @@ void irq_swi_handle_sys_print(int length, unsigned int output_buffer) {
   kernel_print(output);
 }
 
-void irq_swi_handle_sys_bind(int ns) {
+void irq_swi_handle_sys_bind(unsigned int ns, unsigned int success) {
   const char* namespace =
       (const char*) mmu_get_physical_address(process_table[process_pid()], ns);
 
-  ipc_bind(namespace, process_pid());
-}
+  int* result = (int*)mmu_get_physical_address(process_table[process_pid()], success);
 
-void irq_swi_handle_sys_send(int ns, int msg) {
-  const char* namespace =
-      (const char*) mmu_get_physical_address(process_table[process_pid()], ns);
-  message_t* message =
-      (message_t*) mmu_get_physical_address(process_table[process_pid()], msg);
-
-  ipc_send_msg(namespace, *message, process_pid());
-
+  *result = ipc_bind(namespace, process_pid());
   // TODO: ramsondon@gmail.com check if works
-  // have to context_switch and BLOCK if message could not be sent or ignore?
 }
 
-void irq_swi_handle_sys_receive(int ns, int msg) {
+void irq_swi_handle_sys_send(unsigned int ns, unsigned int msg, unsigned int success) {
   const char* namespace =
       (const char*) mmu_get_physical_address(process_table[process_pid()], ns);
   message_t* message =
       (message_t*) mmu_get_physical_address(process_table[process_pid()], msg);
 
-  if (ipc_receive_msg(namespace, message, process_pid()) == WAITING) {
+  int* result = (int*)mmu_get_physical_address(process_table[process_pid()], success);
 
+  *result = ipc_send_msg(namespace, *message, process_pid());
+  // TODO: ramsondon@gmail.com check if works
+}
+
+void irq_handle_sys_wait_msg(unsigned int ns) {
+  const char* namespace =
+        (const char*) mmu_get_physical_address(process_table[process_pid()], ns);
+
+  if (ipc_lookup_msg_concrete(namespace, process_pid()) == WAITING) {
     process_table[process_pid()]->state = BLOCKED;
-    process_table[process_pid()]->blockstate = IPC_RECEIVE;
+    process_table[process_pid()]->blockstate = IPC_WAIT;
 
     // TODO: ramsondon@gmail.com check if works
     context_switch();
   }
+}
+
+void irq_swi_handle_sys_receive(unsigned int ns, unsigned int msg, unsigned int success) {
+  const char* namespace =
+      (const char*) mmu_get_physical_address(process_table[process_pid()], ns);
+  message_t* message =
+      (message_t*) mmu_get_physical_address(process_table[process_pid()], msg);
+  int* result = (int*)mmu_get_physical_address(process_table[process_pid()], success);
+
+  *result = ipc_receive_msg(namespace, message, process_pid());
+  // TODO: ramsondon@gmail.com check if works
 }
 
 #pragma TASK(irq_handle_swi)
@@ -375,13 +386,16 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
       irq_swi_handle_sys_print(r1, r2);
       break;
     case SYS_BIND_NAMESPACE:
-      irq_swi_handle_sys_bind(r1);
+      irq_swi_handle_sys_bind(r1, r2);
       break;
     case SYS_SEND:
-      irq_swi_handle_sys_send(r1, r2);
+      irq_swi_handle_sys_send(r1, r2, r3);
+      break;
+    case SYS_WAIT_MSG:
+      irq_handle_sys_wait_msg(r1);
       break;
     case SYS_RECEIVE:
-      irq_swi_handle_sys_receive(r1, r2);
+      irq_swi_handle_sys_receive(r1, r2, r3);
       break;
     default:
       // ignore

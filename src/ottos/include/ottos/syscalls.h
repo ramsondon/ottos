@@ -42,9 +42,10 @@
 /*
  * IPC system calls
  */
-#define SYS_BIND_NAMESPACE 12
-#define SYS_SEND    6
-#define SYS_RECEIVE 7
+#define SYS_BIND_NAMESPACE  12
+#define SYS_SEND            6
+#define SYS_WAIT_MSG        13
+#define SYS_RECEIVE         7
 
 /*
  * MMU calls

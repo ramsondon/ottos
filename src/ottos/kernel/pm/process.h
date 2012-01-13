@@ -43,7 +43,7 @@ enum ProcessState {
 };
 
 enum BlockState {
-  NONE, IPC_RECEIVE
+  NONE, IPC_WAIT
 };
 
 typedef struct {
@@ -108,5 +108,8 @@ EXTERN pid_t process_pid();
 
 // sets the ProcessState of process with pid_t pid to BLOCKED
 EXTERN void process_block(pid_t pid);
+
+// sets the process to READY state and blockstate to NONE
+EXTERN void process_unblock(pid_t pid);
 
 #endif /* OTTOS_KERNEL_PM_PROCESS_H_ */

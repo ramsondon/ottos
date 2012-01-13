@@ -25,11 +25,10 @@
 #include "../pm/process.h"
 #include "scheduler.h"
 
-void scheduler_handle_pending_ipc_receive(pid_t pid) {
+void scheduler_handle_pending_ipc_msg(pid_t pid) {
 
   if (ipc_lookup_msg_for(pid) == SUCCESS) {
-    process_table[pid]->state = READY;
-    process_table[pid]->blockstate = NONE;
+    process_unblock(pid);
   }
 }
 
@@ -46,8 +45,8 @@ void scheduler_next() {
 		  // handle blocked processes
 		  if (process_table[i]->state == BLOCKED) {
 		    switch(process_table[i]->blockstate) {
-		      case IPC_RECEIVE:
-		        scheduler_handle_pending_ipc_receive((pid_t)i);
+		      case IPC_WAIT:
+		        scheduler_handle_pending_ipc_msg((pid_t)i);
 		        break;
 		      default:
 		        // strange behaviour - this case should not appear

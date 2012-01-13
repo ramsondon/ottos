@@ -103,14 +103,16 @@ EXTERN int ipc_lookup_msg(const char* ns);
 
 EXTERN int ipc_lookup_msg_for(pid_t pid);
 
+EXTERN int ipc_lookup_msg_concrete(const char* ns, pid_t pid);
+
 /*
- * Bind has to be called by the sender process
- * Binds the calling process as a sender for messages at namespace ns
+ * Bind has to be called by the receiver process
+ * Binds the calling process as a receiver for messages at namespace ns
  */
 EXTERN int ipc_bind(const char* ns, pid_t pid);
 
 /*
- * Unbinds a namespace of a sending process
+ * Unbinds a namespace of a receiving process
  */
 EXTERN int ipc_unbind(const char* ns, pid_t pid);
 
@@ -135,6 +137,6 @@ EXTERN int ipc_receive_msg(const char* ns, message_t* msg, pid_t pid);
  * removes namespaces and pending messages for process with pid
  * should only be called on garbage collection or process deletion
  */
-EXTERN int ipc_kill_all(pid_t pid);
+EXTERN int ipc_kill_receiver(pid_t pid);
 
 #endif /* OTTOS_KERNEL_IPC_IPC_H_ */
