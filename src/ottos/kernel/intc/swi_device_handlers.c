@@ -1,4 +1,4 @@
-/* syscalls.h
+/* swi_device_handlers.c
  * 
  * Copyright (c) 2011 The ottos project.
  *
@@ -17,49 +17,23 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 27 Oct 2011
+ *  Created on: 13 Jan 2012
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#ifndef SYSCALLS_H_
-#define SYSCALLS_H_
+#include <ottos/drivers/driver.h>
+#include <ottos/dev/device.h>
+#include "swi_device_handlers.h"
 
-/*
- * Process system calls
- */
-#define SYS_YIELD   1
-#define SYS_EXIT    2
-#define SYS_CREATE_PROCESS 3
+BOOLEAN swi_handle_sys_open(int* fd, int device_id, int flags) {
+  device_t device = (device_t)device_id;
+  driver_get(device).open(device);
+  fd = device;
+}
 
-/**
- * I/O system calls
- */
-#define SYS_OPEN    10
-#define SYS_CLOSE   11
-#define SYS_READ    12
-#define SYS_WRITE   13
+BOOLEAN swi_handle_sys_close(int* return_value, int fd);
+BOOLEAN swi_hande_sys_read(size_t* read_bytes, int fd, char* buffer, int length);
 
-/**
- * File system calls
- */
-#define SYS_FOPEN   20
+BOOLEAN swi_handle_sys_write(size_t* written_bytes, int fd, char* buffer, size_t nbytes) {
 
-/*
- * IPC system calls
- */
-#define SYS_SEND    30
-#define SYS_RECEIVE 31
-
-/*
- * MMU calls
- */
-#define SYS_MMU_TEST 40
-
-/*
- * Syscall test
- */
-#define SYS_PRINT 50
-
-#define SYS_MAX_SYSCALL_NR SYS_PRINT
-
-#endif /* SYSCALLS_H_ */
+}

@@ -90,6 +90,8 @@ extern int stack_pointer_original;
 		asm(" LDMFD   R13!, {R0-R12, PC}^");
 
 static void (*int_handler_[IRQ_MAX_COUNT])();
+static BOOLEAN (*swi_handler_[SYS_MAX_SYSCALL_NR])(unsigned int syscall_nr, unsigned int param1, unsigned int param2, unsigned int param3);
+
 void context_switch();
 
 void irq_register_context_switch() {
@@ -99,6 +101,10 @@ void irq_register_context_switch() {
 
 void irq_init() {
 	ARRAY_INIT(int_handler_, IRQ_MAX_COUNT, NULL);
+  ARRAY_INIT(swi_handler_, SYS_MAX_SYSCALL_NR, NULL);
+
+  // add swi handler
+  //TODO
 }
 
 void irq_enable() {
