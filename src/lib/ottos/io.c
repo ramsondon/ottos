@@ -26,7 +26,6 @@
 
 #include <ottos/io.h>
 #include <ottos/types.h>
-#include <ottos/system.h>
 
 char tolower(char c) {
   return (c >= (char) 65 && c <= (char) 90) ? c + 32 : c;

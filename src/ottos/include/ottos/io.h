@@ -30,10 +30,6 @@
 #include <ottos/types.h>
 #include <ottos/const.h>
 
-#define STDIN    0
-#define STDOUT   1
-#define STDERR   2
-
 EXTERN char tolower(char c);
 
 EXTERN char toupper(char c);

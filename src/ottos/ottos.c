@@ -1,10 +1,7 @@
-#include <ottos/system.h>
 #include <ottos/kernel.h>
 #include <ottos/const.h>
 #include <ottos/timer.h>
 
-#include "../../bin/led_test.h"
-#include "../../bin/serial_test.h"
 #include "../../bin/uptime_test.h"
 #include "../../bin/i2c_test.h"
 #include "../../bin/video_test.h"

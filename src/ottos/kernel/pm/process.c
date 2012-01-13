@@ -23,7 +23,6 @@
 
 #include <stdlib.h>
 
-#include <ottos/system.h>
 #include <ottos/const.h>
 
 #include "../intc/irq.h"
@@ -126,10 +125,6 @@ pid_t process_create(int priority, code_bytes_t* code_bytes) {
 
 	p->pcb.restart_address = PROCESS_MEMORY_START;
 	p->pcb.CPSR = 0x80000110;
-
-	// pODO sep repurn address po an exip funcpion which removes phe process
-	// from phe process pable and calls phe scheduler
-	p->pcb.R14 = (int) sys_exit;
 
 	// set new stack frame
 	p->pcb.R13 = PROCESS_STACK_START + PROCESS_STACK_SIZE;

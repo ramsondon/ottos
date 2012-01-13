@@ -39,6 +39,11 @@
 #define SYS_READ    4
 #define SYS_WRITE   5
 
+/**
+ * File system calls
+ */
+#define SYS_FOPEN   12
+
 /*
  * IPC system calls
  */
