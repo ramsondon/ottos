@@ -56,8 +56,8 @@ void devices_init() {
   devices_create(SERIAL_0, omap_serial_driver);
 }
 
-driver_t devices_driver(device_t dev) {
-  return device_container[dev]->driver;
+driver_t* devices_driver(device_t dev) {
+  return &(device_container[dev]->driver);
 }
 
 /*

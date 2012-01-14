@@ -26,9 +26,11 @@
 
 #include <ottos/const.h>
 
-BOOLEAN swi_handle_sys_open(int* fd, int device_id, int flags);
-BOOLEAN swi_handle_sys_close(int* return_value, int fd);
-BOOLEAN swi_hande_sys_read(size_t* read_bytes, int fd, char* buffer, int length);
-BOOLEAN swi_handle_sys_write(size_t* written_bytes, int fd, char* buffer, size_t nbytes);
+//BOOLEAN swi_handle_sys_open(int* fd, int device_id, int flags);
+//BOOLEAN swi_handle_sys_close(int* return_value, int fd);
+//BOOLEAN swi_hande_sys_read(size_t* read_bytes, int fd, char* buffer, int length);
+//BOOLEAN swi_handle_sys_write(size_t* written_bytes, int fd, char* buffer, size_t nbytes);
+
+BOOLEAN swi_handle(unsigned int syscall_nr, unsigned int param1, unsigned int param2, unsigned int param3);
 
 #endif /* SWI_DEVICE_HANDLERS_H_ */

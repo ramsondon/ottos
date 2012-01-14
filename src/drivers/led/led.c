@@ -21,6 +21,7 @@
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
+#include <ottos/error.h>
 #include <ottos/dev/device.h>
 #include <ottos/types.h>
 
@@ -39,11 +40,11 @@ int led_open(device_t dev) {
   // determine the led device bit for device_t dev
   int bit = led_device_bit(dev);
   if (bit == DEVICE_INVALID) {
-    return FALSE;
+    return LED_ERROR_DEVICE_INVALID;
   }
   // enable output at gpio5
   *(mem_address_t*) GPIO5_OE |= (1 << bit);
-  return TRUE;
+  return DRIVER_NO_ERROR;
 }
 
 /*
@@ -56,9 +57,9 @@ int led_close(device_t dev) {
   if (bit != DEVICE_INVALID) {
     // disable output at gpio5
     *(mem_address_t*) GPIO5_OE &= ~(1 << bit);
-    return TRUE;
+    return DRIVER_NO_ERROR;
   }
-  return FALSE;
+  return LED_ERROR_DEVICE_INVALID;
 }
 
 int led_read(device_t dev, int count, char* buffer) {
@@ -67,9 +68,9 @@ int led_read(device_t dev, int count, char* buffer) {
   if (bit != DEVICE_INVALID) {
     *buffer = (char) (*(mem_address_t*) GPIO5_DATAOUT & (1 << bit)
         ? LED_ON : LED_OFF);
-    return TRUE;
+    return DRIVER_NO_ERROR;
   }
-  return FALSE;
+  return LED_ERROR_DEVICE_INVALID;
 }
 
 int led_write(device_t dev, int count, char* buffer) {
@@ -77,7 +78,7 @@ int led_write(device_t dev, int count, char* buffer) {
   int task = (int) *buffer;
   int bit = led_device_bit(dev);
   if (bit == DEVICE_INVALID) {
-    return FALSE;
+    return LED_ERROR_DEVICE_INVALID;
   }
 
   switch (task) {
@@ -88,17 +89,17 @@ int led_write(device_t dev, int count, char* buffer) {
       *(mem_address_t*) GPIO5_DATAOUT &= ~(1 << bit);
       break;
     default:
-      return FALSE;
+      return LED_ERROR_UNKNOWN_TASK;
   }
-  return TRUE;
+  return DRIVER_NO_ERROR;
 }
 
 int led_ioctl(device_t dev, ioctl_t msg) {
-  return FALSE;
+  return DRIVER_ERROR_NOT_SUPPORTED;
 }
 
 int led_create(device_t dev) {
-  return FALSE;
+  return DRIVER_ERROR_NOT_SUPPORTED;
 }
 
 /*

@@ -29,7 +29,7 @@
  */
 #define SYS_YIELD   1
 #define SYS_EXIT    2
-#define SYS_CREATE_PROCESS 3
+#define SYS_EXEC	3
 
 /**
  * I/O system calls
@@ -49,17 +49,5 @@
  */
 #define SYS_SEND    30
 #define SYS_RECEIVE 31
-
-/*
- * MMU calls
- */
-#define SYS_MMU_TEST 40
-
-/*
- * Syscall test
- */
-#define SYS_PRINT 50
-
-#define SYS_MAX_SYSCALL_NR SYS_PRINT
 
 #endif /* SYSCALLS_H_ */

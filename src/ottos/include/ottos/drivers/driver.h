@@ -40,6 +40,7 @@ typedef struct driver_t {
     int (*open)(device_t dev);
     int (*close)(device_t dev);
     int (*read)(device_t dev, int count, char* buffer);
+    // TODO buffer type should be const char*
     int (*write)(device_t dev, int count, char* buffer);
     int (*ioctl)(device_t dev, ioctl_t msg);
     int (*create)(device_t dev);
@@ -48,7 +49,7 @@ typedef struct driver_t {
 /*
  * Returns the driver for device dev
  */
-EXTERN driver_t driver_get(device_t dev);
+EXTERN driver_t* driver_get(device_t dev);
 
 
 #endif /* DRIVER_H_ */

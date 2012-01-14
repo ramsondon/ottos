@@ -27,6 +27,9 @@
 #include <ottos/drivers/driver.h>
 #include <ottos/dev/device.h>
 
+#define LED_ERROR_DEVICE_INVALID 1
+#define LED_ERROR_UNKNOWN_TASK 2
+
 int led_open(device_t dev);
 int led_close(device_t dev);
 int led_read(device_t dev, int count, char* buffer);

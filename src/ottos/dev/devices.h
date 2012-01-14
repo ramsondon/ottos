@@ -38,6 +38,6 @@ typedef struct device_map_entry_t {
 EXTERN void devices_init();
 
 /* returns the driver_t for device_t */
-EXTERN driver_t devices_driver(device_t dev);
+EXTERN driver_t* devices_driver(device_t dev);
 
 #endif /* DEVICES_H_ */

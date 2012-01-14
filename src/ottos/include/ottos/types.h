@@ -56,4 +56,9 @@ typedef struct {
   int seconds;
   int miliseconds;
 } time_t;
+
+typedef enum system_file_type {
+	DEVICE_FILE, NON_DEVICE_FILE
+} system_file_type_t;
+
 #endif /* OTTOS_TYPES_H_ */

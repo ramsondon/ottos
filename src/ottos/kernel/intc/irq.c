@@ -34,6 +34,7 @@
 #include "../mmu/mmu.h"
 #include "../loader/loader.h"
 
+#include "swi_device_handlers.h"
 #include "irq.h"
 
 #define SAVED_REGISTERS_SPACE (14 * 4)
@@ -90,7 +91,6 @@ extern int stack_pointer_original;
 		asm(" LDMFD   R13!, {R0-R12, PC}^");
 
 static void (*int_handler_[IRQ_MAX_COUNT])();
-static BOOLEAN (*swi_handler_[SYS_MAX_SYSCALL_NR])(unsigned int syscall_nr, unsigned int param1, unsigned int param2, unsigned int param3);
 
 void context_switch();
 
@@ -101,10 +101,6 @@ void irq_register_context_switch() {
 
 void irq_init() {
 	ARRAY_INIT(int_handler_, IRQ_MAX_COUNT, NULL);
-  ARRAY_INIT(swi_handler_, SYS_MAX_SYSCALL_NR, NULL);
-
-  // add swi handler
-  //TODO
 }
 
 void irq_enable() {
@@ -247,104 +243,19 @@ EXTERN void irq_handle() {
 	RESTORE_AND_SWITCH_CONTEXT;
 }
 
-void irq_swi_handle_sys_open(unsigned int device) {
-	driver_get(device).open(device);
-}
-
-void irq_swi_handle_sys_write(unsigned int device, unsigned int count, unsigned int buffer_pointer) {
-
-  //char* buffer = (char*)mmu_get_physical_address(process_table[process_active], buffer_pointer);
-
-	char casted_buffer = (char)buffer_pointer;
-	//driver_get(device).write(device, count, buffer);
-	driver_get(device).write(device, count, &casted_buffer);
-}
-
-void irq_swi_handle_sys_print(int length, unsigned int output_buffer) {
-  // output_buffer is an address
-
-  char output[1024];
-  char* temp = (char*)mmu_get_physical_address(process_table[process_active], output_buffer);
-  int i = 0;
-
-  for(i = 0; i < length; i++) {
-    output[i] = temp[i];
-  }
-  output[length] = '\0';
-
-  kernel_print(output);
-}
-
 #pragma TASK(irq_handle_swi)
-EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
+EXTERN void irq_handle_swi(unsigned int syscall_nr, unsigned int param1, unsigned int param2, unsigned int param3) {
 
 	SAVE_CONTEXT_SWI;
 
 	mmu_switch_to_kernel();
 
-	// handle interrupts
-	switch (r0) {
-	case SYS_YIELD:
+	if(swi_handle(syscall_nr, param1, param2, param3) == TRUE) {
+		// switch to next process
 		context_switch();
-		break;
-	case SYS_EXIT:
-    kernel_print("sys_exit\r\n");
-		// delete the active process
-		process_delete();
-
-		// set the process_active to invalid
-		// to tell the context switch, that no
-		// old pcb has to be saved
-		process_active = PID_INVALID;
-		context_switch();
-	case SYS_MMU_TEST:
-	  // TODO r1 = buffer pointer for output
-		kernel_print("sys_mmu_test\r\n");
-		break;
-	case SYS_CREATE_PROCESS:
-		// r1 = priority
-		// r2 = code bytes
-		// r3 = wait_for_exit
-		/*load_process_code(process_table[process_create(r1)], r2);
-		 if (r3 != FALSE) {
-		 // the current process will be blocked until the
-		 // child exited
-
-		 // TODO is blocked the correct state?
-		 process_table[process_active]->state = BLOCKED;
-
-		 // block current process
-		 // switch to next process
-		 context_switch();
-
-		 }*/
-		break;
-	case SYS_OPEN:
-		// r1 = device_t
-		irq_swi_handle_sys_open(r1);
-		break;
-	case SYS_READ:
-		// TODO implement return value
-		break;
-	case SYS_WRITE:
-		// r1 = device_t
-		// r2 = size of buffer
-		// r3 = buffer (int)
-		irq_swi_handle_sys_write(r1, r2, r3);
-		break;
-	case SYS_CLOSE:
-		// TODO implement
-		break;
-	case SYS_PRINT:
-	  // r1 = length
-	  // r2 = output buffer
-	  irq_swi_handle_sys_print(r1, r2);
-	  break;
-	default:
-		// ignore
-		break;
 	}
 
+	// return to active process
 	if (process_active != PID_INVALID) {
 		mmu_init_memory_for_process(process_table[process_active]);
 	}
@@ -356,7 +267,7 @@ EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3) {
 	asm(" LDR     R13, stack_pointer_original");
 	asm(" LDR     R13, [R13], #0");
 
-	// switch to process
+	// return to active process
 	asm(" MOVS	  PC, R14");
 
 }

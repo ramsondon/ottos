@@ -25,6 +25,6 @@
 #include "../dev/devices.h"
 
 
-driver_t driver_get(device_t dev) {
+driver_t* driver_get(device_t dev) {
   return devices_driver(dev);
 }

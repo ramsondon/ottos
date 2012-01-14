@@ -34,5 +34,6 @@
 #define FALSE   0
 
 #define PID_INVALID -1
+#define SYSTEM_FD_INVALID -1
 
 #endif /* CONST_H_ */
