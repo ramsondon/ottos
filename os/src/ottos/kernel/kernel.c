@@ -43,7 +43,7 @@ void kernel_error(ERROR_CODE code, const char* message) {
   kernel_print(code_str);
   kernel_print("]: ");
   kernel_print(message);
-  kernel_print("\r");
+  kernel_print("\n\r");
 }
 
 void kernel_debug(ERROR_CODE code, const char* message) {
@@ -55,7 +55,7 @@ void kernel_debug(ERROR_CODE code, const char* message) {
   kernel_print(code_str);
   kernel_print("]: ");
   kernel_print(message);
-  kernel_print("\r");
+  kernel_print("\n\r");
 }
 
 void kernel_print(const char* str) {

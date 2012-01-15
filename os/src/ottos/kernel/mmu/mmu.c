@@ -390,7 +390,15 @@ unsigned int mmu_get_physical_address(process_t* process, unsigned int virtual_a
 
 BOOLEAN mmu_handle_prefetch_abort() {
 	mmu_switch_to_kernel();
-	process_delete();
+
+	kernel_debug(MMU_PREFETCH_ABORT, "handle prefetch abort");
+
+	if(process_active != PID_INVALID) {
+		kernel_error(MMU_PREFETCH_ABORT, "delete process");
+		process_delete();
+	} else {
+		kernel_error(MMU_PREFETCH_ABORT, "no active process - ignore");
+	}
 
 	// return always TRUE to induce a context switch
 	return TRUE;
@@ -410,18 +418,23 @@ BOOLEAN mmu_handle_data_abort() {
 	asm(" LDR r1, fault_state");
 	asm(" STR r0, [r1]");
 
-	if (mmu_is_legal(accessed_address, fault_state) == TRUE) {
+	mmu_switch_to_kernel();
+	kernel_debug(MMU_DATA_ABORT, "handle data abort");
 
-		mmu_switch_to_kernel();
+	if (mmu_is_legal(accessed_address, fault_state) == TRUE) {
+		kernel_debug(MMU_DATA_ABORT, "create mapped page");
+
 		mmu_create_mapped_page(process_table[process_active]->master_table_address, (address) accessed_address, 0);
 		mmu_init_memory_for_process(process_table[process_active]);
 	} else {
 		if (process_active != PID_INVALID) {
-			mmu_switch_to_kernel();
+			kernel_error(MMU_DATA_ABORT_ILLEGAL, "illegal accessed address and fault status, deleting process");
 			process_delete();
 
 			// return TRUE to induce a context switch
 			return TRUE;
+		} else {
+			kernel_error(MMU_DATA_ABORT_ILLEGAL, "no active process - ignore");
 		}
 	}
 

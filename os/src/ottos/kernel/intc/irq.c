@@ -138,30 +138,22 @@ void irq_handle_udef() {
 void irq_handle_dabt() {
 	SAVE_CONTEXT_DABT;
 
-	//kernel_print("data abort\r\n");
-
 	if (mmu_handle_data_abort() == TRUE) {
 		context_switch();
 	}
 
 	RESTORE_AND_SWITCH_CONTEXT;
-	//asm(" LDMFD   R13!, {R0-R12, R14}");
-	//asm(" SUBS    PC, R14, #8");
 }
 
 #pragma TASK(irq_handle_pabt)
 void irq_handle_pabt() {
 	SAVE_CONTEXT_PABT;
 
-	//kernel_print("prefetch abort\r\n");
-
 	if (mmu_handle_prefetch_abort() == TRUE) {
 		context_switch();
 	}
 
 	RESTORE_AND_SWITCH_CONTEXT;
-	//asm(" LDMFD   R13!, {R0-R12, R14}");
-	//asm(" SUBS    PC, R14, #4");
 }
 
 void context_switch() {
