@@ -47,6 +47,7 @@ struct process_file_descriptor;
 typedef struct process_file_descriptor process_file_descriptor_t;
 struct process_file_descriptor {
 	int fd;
+	void* file;
 	enum system_file_type type;
 	process_file_descriptor_t* next;
 };
@@ -113,7 +114,11 @@ void process_delete();
 process_file_descriptor_t* process_get_file_descriptor(int fd);
 
 // creates a new process file descriptor and returns it
-process_file_descriptor_t* process_add_file_descriptor(int fd, enum system_file_type file_type);
+//process_file_descriptor_t* process_add_file_descriptor(int fd, enum system_file_type file_type);
+
+process_file_descriptor_t* process_add_device_descriptor(int fd);
+
+process_file_descriptor_t* process_add_file_descriptor(void* file);
 
 // removes the process file descriptor for the given file descriptor id
 void process_remove_file_descriptor(int fd);

@@ -21,8 +21,8 @@
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-//#include <ottos/drivers/driver.h>
-//#include <ottos/dev/device.h>
+// TODO move fs to a different folder?
+#include <vfat/fat_filelib.h>
 #include <ottos/error.h>
 #include <ottos/const.h>
 #include <ottos/types.h>
@@ -53,21 +53,86 @@ BOOLEAN swi_handle_sys_create(int priority, int executable_file_address, int blo
 	// get the real address of the executable_file_address
 	const char* executable_file = (const char*) mmu_get_physical_address(process_table[process_active], executable_file_address);
 
-	code_bytes_t code;
+	long file_length = 0;
+	const char mode[] = { 'r' };
 
 	// read executable file
 	// the hex data is stored in 4 files
 	// the filenames are executable_file.i0, executable_file.i1, executable_file.i2, executable_file.i3
 	// where executable_file is the real filename or path
+	const char* extension = ".i0";
+	int extension_length = strlen(extension);
+	int executable_filename_length = strlen(executable_file);
+	int hex_filename_length = executable_filename_length + extension_length;
 
-	// TODO open the files
-	// TODO read the hex data
-	code.byte_0 = 0; // data in executable_file.i0
-	code.byte_1 = 0; // data in executable_file.i1
-	code.byte_2 = 0; // data in executable_file.i2
-	code.byte_3 = 0; // data in executable_file.i3
+	const char* executable_filename_0 = malloc(sizeof(char) * hex_filename_length);
+	const char* executable_filename_1 = malloc(sizeof(char) * hex_filename_length);
+	const char* executable_filename_2 = malloc(sizeof(char) * hex_filename_length);
+	const char* executable_filename_3 = malloc(sizeof(char) * hex_filename_length);
 
-	process_create(priority, &code);
+	void* executable_file_0;
+	void* executable_file_1;
+	void* executable_file_2;
+	void* executable_file_3;
+
+	strcpy(executable_filename_0, executable_file);
+	strcat(executable_filename_0, ".i0");
+
+	strcpy(executable_filename_1, executable_file);
+	strcat(executable_filename_1, ".i1");
+
+	strcpy(executable_filename_2, executable_file);
+	strcat(executable_filename_2, ".i2");
+
+	strcpy(executable_filename_3, executable_file);
+	strcat(executable_filename_3, ".i3");
+
+	executable_file_0 = fl_open(executable_filename_0, mode);
+	executable_file_1 = fl_open(executable_filename_1, mode);
+	executable_file_2 = fl_open(executable_filename_2, mode);
+	executable_file_3 = fl_open(executable_filename_3, mode);
+
+	if (executable_file_0 == NULL || executable_file_1 == NULL || executable_file_2 == NULL || executable_file_3 == NULL) {
+		kernel_error(FILE_UNKNOWN, "Cannot open hex files for execution. One or more files doesn't exist");
+	} else {
+
+		// get the file length
+		fl_fseek(executable_file_0, 0, SEEK_END);
+		file_length = fl_ftell(executable_file_0);
+
+		char* byte_file_0 = malloc(sizeof(char) * file_length);
+		char* byte_file_1 = malloc(sizeof(char) * file_length);
+		char* byte_file_2 = malloc(sizeof(char) * file_length);
+		char* byte_file_3 = malloc(sizeof(char) * file_length);
+
+		fl_fread(byte_file_0, file_length, file_length, executable_file_0);
+		fl_fread(byte_file_1, file_length, file_length, executable_file_1);
+		fl_fread(byte_file_2, file_length, file_length, executable_file_2);
+		fl_fread(byte_file_3, file_length, file_length, executable_file_3);
+
+		code_bytes_t code;
+		code.byte_0 = byte_file_0; // data in executable_file.i0
+		code.byte_1 = byte_file_1; // data in executable_file.i1
+		code.byte_2 = byte_file_2; // data in executable_file.i2
+		code.byte_3 = byte_file_3; // data in executable_file.i3
+
+		process_create(priority, &code);
+
+		free(code.byte_0);
+		free(code.byte_1);
+		free(code.byte_2);
+		free(code.byte_3);
+	}
+
+	fl_fclose(executable_file_0);
+	fl_fclose(executable_file_1);
+	fl_fclose(executable_file_2);
+	fl_fclose(executable_file_3);
+
+	free(executable_filename_0);
+	free(executable_filename_1);
+	free(executable_filename_2);
+	free(executable_filename_3);
 
 	if (block_current == TRUE) {
 		// block the active process
@@ -86,7 +151,7 @@ BOOLEAN swi_handle_sys_open(int fd_address, int device_id, int flags) {
 	device_t device = (device_t) device_id;
 	driver_t* driver = driver_get(device);
 	if (driver == NULL) {
-		kernel_error(DEVICE_UNKNOWN_ID, "Cannot open device or file");
+		kernel_error(DEVICE_UNKNOWN_ID, "Cannot open device");
 	} else {
 		device_error_code = driver->open(device);
 		if (device_error_code != 0) {
@@ -98,7 +163,7 @@ BOOLEAN swi_handle_sys_open(int fd_address, int device_id, int flags) {
 			*fd = device;
 
 			// add a new process file descriptor
-			process_add_file_descriptor(*fd, DEVICE_FILE);
+			process_add_device_descriptor(*fd);
 		}
 	}
 
@@ -117,11 +182,11 @@ BOOLEAN swi_handle_sys_close(int error_code_address, int fd) {
 		if (fd_process->type == DEVICE_FILE) {
 			device_t device = (device_t) fd;
 			*error_code = driver_get(device)->close(device);
-
-			process_remove_file_descriptor(fd);
 		} else {
 			swi_handle_sys_fclose(error_code, fd_process);
 		}
+
+		process_remove_file_descriptor(fd);
 	}
 
 	return FALSE;
@@ -173,30 +238,37 @@ BOOLEAN swi_handle_sys_fopen(int fd_address, int path_address, int flags) {
 	// get the real address of the path address
 	const char* path = (const char*) mmu_get_physical_address(process_table[process_active], path_address);
 
-	// TODO open file
-	*fd = SYSTEM_FD_INVALID;
+	// TODO parse flags to get the mode
+	const char mode[] = { 'r' };
+	FL_FILE* file = fl_fopen(path, mode);
+
+	if (file == NULL) {
+		kernel_error(FILE_UNKNOWN, "Cannot open file");
+	} else {
+		process_file_descriptor_t* fd_process = process_add_file_descriptor(file);
+		*fd = fd_process->fd;
+	}
 
 	return FALSE;
 }
 
 BOOLEAN swi_handle_sys_fclose(int* error_code, process_file_descriptor_t* fd_process) {
 
-	// TODO close file
-	*error_code = SYSTEM_FD_INVALID;
+	fl_fclose(fd_process->file);
 
 	return FALSE;
 }
 
 BOOLEAN swi_handle_sys_fwrite(process_file_descriptor_t* fd_process, const char* buffer, int buffer_size) {
 
-	// TODO write into file
+	fl_fwrite(buffer, buffer_size, buffer_size, fd_process->file);
 
 	return FALSE;
 }
 
 BOOLEAN swi_handle_sys_fread(process_file_descriptor_t* fd_process, char* buffer, int count) {
 
-	// TODO read from file
+	fl_fread(buffer, count, count, fd_process->file);
 
 	return FALSE;
 }

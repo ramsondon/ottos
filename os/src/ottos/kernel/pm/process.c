@@ -190,38 +190,28 @@ process_file_descriptor_t* process_get_file_descriptor(int fd) {
 	return NULL;
 }
 
-void process_create_file_descriptor(process_file_descriptor_t* fd_process, int fd, enum system_file_type file_type) {
+void process_create_file_descriptor(process_file_descriptor_t* fd_process, int fd, void* file, enum system_file_type file_type) {
 	fd_process->fd = fd;
+	fd_process->file = file;
 	fd_process->type = file_type;
 	fd_process->next = NULL;
 }
 
-process_file_descriptor_t* process_add_file_descriptor(int fd, enum system_file_type file_type) {
+process_file_descriptor_t* process_add_file_descriptor_(int fd, void* file, enum system_file_type file_type) {
 
 	if (process_active != PID_INVALID && process_get_file_descriptor(fd) == NULL) {
 		process_file_descriptor_t* current = process_table[process_active]->open_file_list;
 		process_file_descriptor_t* previous = NULL;
 
-		//		if (current == NULL) {
-		//			// head is NULL
-		//			current = malloc(sizeof(process_file_descriptor_t));
-		//			process_create_file_descriptor(current, fd, file_type);
-		//			process_table[process_active]->open_file_list = current;
-		//			return current;
-		//		} else {
 		while (current != NULL) {
 			if (current->next == NULL) {
 				previous = current;
-				//					current->next = malloc(sizeof(process_file_descriptor_t));
-				//					process_create_file_descriptor(current, fd, file_type);
-				//					return current->next;
 			}
 			current = current->next;
 		}
-		//		}
 
 		current = malloc(sizeof(process_file_descriptor_t));
-		process_create_file_descriptor(current, fd, file_type);
+		process_create_file_descriptor(current, fd, file, file_type);
 		if (previous != NULL) {
 			previous->next = current;
 		} else {
@@ -234,6 +224,31 @@ process_file_descriptor_t* process_add_file_descriptor(int fd, enum system_file_
 	}
 
 	return NULL;
+}
+
+process_file_descriptor_t* process_add_device_descriptor(int fd) {
+
+	return process_add_file_descriptor_(fd, NULL, DEVICE_FILE);
+}
+
+#define PROCESS_START_FD	100
+static int process_get_next_fd() {
+	int i = 0;
+
+	process_file_descriptor_t* current = process_table[process_active]->open_file_list;
+	while(current != NULL) {
+		if(current->type == NON_DEVICE_FILE) {
+			i++;
+		}
+		current = current->next;
+	}
+
+	return i + PROCESS_START_FD;
+}
+
+process_file_descriptor_t* process_add_file_descriptor(void* file) {
+
+	return process_add_file_descriptor_(process_get_next_fd(), file, NON_DEVICE_FILE);
 }
 
 void process_remove_file_descriptor(int fd) {
@@ -258,6 +273,7 @@ void process_remove_file_descriptor(int fd) {
 				// head of list
 				process_table[process_active]->open_file_list = NULL;
 			}
+			free(current->file);
 			free(current);
 		}
 	}
