@@ -48,7 +48,7 @@ static int system_get_device_id(const char* path) {
 	return SYSTEM_DEV_ID_INVALID;
 }
 
-int open(const char* path, int flags) {
+int sys_open(const char* path, int flags) {
 	int return_value = SYSTEM_FD_INVALID;
 	int device_id = SYSTEM_DEV_ID_INVALID;
 
@@ -67,7 +67,7 @@ int open(const char* path, int flags) {
 	return return_value;
 }
 
-size_t write(int fd, const char* buffer, size_t nbytes) {
+size_t sys_write(int fd, const char* buffer, size_t nbytes) {
 	size_t return_value = nbytes;
 
 	// ignoring written bytes (return_value)
@@ -76,7 +76,7 @@ size_t write(int fd, const char* buffer, size_t nbytes) {
 	return return_value;
 }
 
-size_t read(int fd, const char* buffer, size_t count) {
+size_t sys_read(int fd, const char* buffer, size_t count) {
 	size_t return_value = count;
 
 	// ignoring read bytes (return value)
@@ -85,7 +85,7 @@ size_t read(int fd, const char* buffer, size_t count) {
 	return return_value;
 }
 
-int close(int fd) {
+int sys_close(int fd) {
 	int return_value = 0;
 
 	swi(SYS_CLOSE, (unsigned int) &return_value, fd, 0);

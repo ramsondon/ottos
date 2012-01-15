@@ -39,9 +39,9 @@
 #define SYSTEM_FLAG_READ 1
 #define SYSTEM_FLAG_WRITE 2
 
-EXTERN int open(const char* path, int flags);
-EXTERN size_t read(int fd, const char* buffer, size_t count);
-EXTERN size_t write(int fd, const char* buffer, size_t nbytes);
-EXTERN int close(int fd);
+EXTERN int sys_open(const char* path, int flags);
+EXTERN size_t sys_read(int fd, const char* buffer, size_t count);
+EXTERN size_t sys_write(int fd, const char* buffer, size_t nbytes);
+EXTERN int sys_close(int fd);
 
 #endif /* SYSTEM_H_ */

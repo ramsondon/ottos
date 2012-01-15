@@ -26,9 +26,9 @@
 #include <ottos_api/io.h>
 
 void print(const char* buffer) {
-	int fd = open(SYSTEM_SERIAL_0_PATH, SYSTEM_FLAG_WRITE);
+	int fd = sys_open(SYSTEM_SERIAL_0_PATH, SYSTEM_FLAG_WRITE);
 	if (fd != SYSTEM_FD_INVALID) {
-		write(fd, buffer, strlen(buffer));
-		close(fd);
+		sys_write(fd, buffer, strlen(buffer));
+		sys_close(fd);
 	}
 }

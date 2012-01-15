@@ -42,32 +42,32 @@ const char* led_get_path(led_t led) {
 }
 
 void led_on(led_t led) {
-	int fd = open(led_get_path(led), SYSTEM_FLAG_WRITE);
+	int fd = sys_open(led_get_path(led), SYSTEM_FLAG_WRITE);
 	if (fd != SYSTEM_FD_INVALID) {
-		write(fd, LED_ON, 1);
-		close(fd);
+		sys_write(fd, LED_ON, 1);
+		sys_close(fd);
 	}
 }
 
 void led_off(led_t led) {
-	int fd = open(led_get_path(led), SYSTEM_FLAG_WRITE);
+	int fd = sys_open(led_get_path(led), SYSTEM_FLAG_WRITE);
 	if (fd != SYSTEM_FD_INVALID) {
-		write(fd, LED_OFF, 1);
-		close(fd);
+		sys_write(fd, LED_OFF, 1);
+		sys_close(fd);
 	}
 }
 
 void led_toggle(led_t led) {
-	int fd = open(led_get_path(led), SYSTEM_FLAG_WRITE);
+	int fd = sys_open(led_get_path(led), SYSTEM_FLAG_WRITE);
 	if (fd != SYSTEM_FD_INVALID) {
 		char buffer[1];
 
-		read(fd, buffer, 1);
+		sys_read(fd, buffer, 1);
 		if (buffer[0] == led_on_buffer[0]) {
-			write(fd, LED_OFF, 1);
+			sys_write(fd, LED_OFF, 1);
 		} else {
-			write(fd, LED_ON, 1);
+			sys_write(fd, LED_ON, 1);
 		}
-		close(fd);
+		sys_close(fd);
 	}
 }
