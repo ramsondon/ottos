@@ -497,6 +497,12 @@ int ipc_kill_receiver(pid_t pid) {
   IPC_NAMESPACE* curns = ipc_namespace_queue.head;
   IPC_NAMESPACE* prev = NULL;
 
+  /*
+   * TODO: (ramsondon@gmail.com) Add a flag to Process control block for pending
+   * messages if no pending messages for proc with pid_t pid do not handle this
+   * function
+   */
+
   while (curns != NULL) {
     IPC_NAMESPACE* temp = curns;
 
