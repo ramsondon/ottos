@@ -26,7 +26,6 @@
 #include <ottos/types.h>
 
 #include "ipc.h"
-
 /*
  * IPC message queue global instance
  */
@@ -45,11 +44,11 @@ NULL /* IPC_NAMESPACE head of list */
 static IPC_NAMESPACE* ipc_lookup_namespace(const char* ns) {
   /* iterate through the namespace register and lookup for matches*/
   IPC_NAMESPACE* current = ipc_namespace_queue.head;
-
   while (current != NULL) {
     if (strcmp(current->ns, ns) == 0) {
       return current;
     }
+    current = current->next;
   }
   return NULL;
 }
@@ -155,17 +154,25 @@ static int ipc_do_unregister_namespace(const char* ns, pid_t pid) {
 
   IPC_NAMESPACE* namespace = ipc_namespace_queue.head;
   IPC_NAMESPACE* prev = NULL;
-
   while (namespace != NULL) {
     if (strcmp(namespace->ns, ns) == 0) {
-      prev->next = namespace->next;
+      if (prev != NULL) {
+        prev->next = namespace->next;
+      }
       namespace->ns = NULL;
+      namespace->next = NULL;
 
       // remove all registered receivers and senders
       ipc_do_unregister_all_clients(&namespace->senders);
       ipc_do_unregister_all_clients(&namespace->receivers);
 
       free(namespace);
+      namespace = NULL;
+      ipc_namespace_queue.size--;
+
+      if (ipc_namespace_queue.size <= 0) {
+        ipc_namespace_queue.head = NULL;
+      }
       return SUCCESS;
     }
     prev = namespace;
@@ -213,11 +220,12 @@ static IPC_CLIENT* ipc_do_register_receiver(IPC_NAMESPACE* namespace, pid_t pid)
  */
 static int ipc_remove_client_from_queue(IPC_CLIENT_QUEUE* queue,
                                         IPC_CLIENT* cur, IPC_CLIENT* prev) {
+
   /*
    * if the previous is NULL then we just can set our head of the queue to the
    * current's next pointer
    */
-  if (prev) {
+  if (prev == NULL) {
     queue->head = cur->next;
   } else {
     prev->next = cur->next;
@@ -234,11 +242,10 @@ static int ipc_do_unregister_client(IPC_CLIENT_QUEUE* queue, pid_t pid) {
 
   while (cur != NULL) {
     if (cur->pid == pid) {
-
       /* we found our IPC_CLIENT - so free it in namespace */
       ipc_remove_client_from_queue(queue, cur, prev);
 
-      // free memory for IPC_CLIENT
+      // free  memory for IPC_CLIENT
       free(cur);
       cur = NULL;
       return SUCCESS;
@@ -396,9 +403,10 @@ int ipc_unbind(const char* ns, pid_t pid) {
     if (ipc_nr_of_receiver(namespace) <= 0) {
       ipc_do_unregister_namespace(ns, pid);
       ipc_remove_all_msg(pid);
+      return SUCCESS;
     }
   }
-  return SUCCESS;
+  return WAITING;
 }
 
 /*
@@ -418,7 +426,7 @@ int ipc_send_msg(const char* ns, message_t msg, pid_t sender) {
    *  BEGIN REFACTOR
    */
   // throw message away if ns is not registered or no process is listening
-  if (ipc_can_send(ns, sender)) {
+  if (ipc_can_send(ns, sender) == WAITING) {
     return WAITING;
   }
 
@@ -446,7 +454,6 @@ int ipc_send_msg(const char* ns, message_t msg, pid_t sender) {
 
     // add message to queue
     ipc_add_to_queue(&ipc_message_queue, new_ipc_msg);
-
     receiver = receiver->next;
   }
   return SUCCESS;
@@ -483,7 +490,7 @@ int ipc_receive_msg(const char* ns, message_t* msg, pid_t pid) {
 }
 
 /*
- *
+ * Kills all pending Namespaces and messages for pid_t pid if not in use
  */
 int ipc_kill_receiver(pid_t pid) {
 
@@ -514,17 +521,18 @@ int ipc_kill_receiver(pid_t pid) {
         }
         temp = NULL;
         curns = curns->next;
-
+        ipc_namespace_queue.size--;
         // remove all messages sent by this pid
         ipc_remove_all_msg(pid);
-
         // the namespace has not been removed
       } else {
         prev = curns;
         curns = curns->next;
       }
+    } else {
+      prev = curns;
+      curns = curns->next;
     }
   }
   return SUCCESS;
 }
-
