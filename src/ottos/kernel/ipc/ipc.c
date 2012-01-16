@@ -531,6 +531,8 @@ int ipc_kill_receiver(pid_t pid) {
         // remove all messages sent by this pid
         ipc_remove_all_msg(pid);
         // the namespace has not been removed
+
+        /* TODO: (ramsondon@gmail.com) refactor the following lines */
       } else {
         prev = curns;
         curns = curns->next;
