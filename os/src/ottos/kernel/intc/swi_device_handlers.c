@@ -51,7 +51,7 @@ BOOLEAN swi_handle_sys_exit() {
 	return TRUE;
 }
 
-BOOLEAN swi_handle_sys_create(int priority, int executable_file_address, int block_current) {
+BOOLEAN swi_handle_sys_create(int priority, int block_current, int executable_file_address) {
 	// get the real address of the executable_file_address
 	const char* executable_file = (const char*) mmu_get_physical_address(process_table[process_active], executable_file_address);
 
@@ -67,15 +67,22 @@ BOOLEAN swi_handle_sys_create(int priority, int executable_file_address, int blo
 	int executable_filename_length = strlen(executable_file);
 	int hex_filename_length = executable_filename_length + extension_length;
 
-	char* executable_filename_0 = (char*)malloc(sizeof(char) * hex_filename_length);
-	char* executable_filename_1 = (char*)malloc(sizeof(char) * hex_filename_length);
-	char* executable_filename_2 = (char*)malloc(sizeof(char) * hex_filename_length);
-	char* executable_filename_3 = (char*)malloc(sizeof(char) * hex_filename_length);
+	char* executable_filename_0 = (char*) malloc(sizeof(char) * hex_filename_length);
+	char* executable_filename_1 = (char*) malloc(sizeof(char) * hex_filename_length);
+	char* executable_filename_2 = (char*) malloc(sizeof(char) * hex_filename_length);
+	char* executable_filename_3 = (char*) malloc(sizeof(char) * hex_filename_length);
 
 	void* executable_file_0;
 	void* executable_file_1;
 	void* executable_file_2;
 	void* executable_file_3;
+
+	char* byte_file_0 = NULL;
+	char* byte_file_1 = NULL;
+	char* byte_file_2 = NULL;
+	char* byte_file_3 = NULL;
+
+	BOOLEAN abort = FALSE;
 
 	strcpy(executable_filename_0, executable_file);
 	strcat(executable_filename_0, ".i0");
@@ -89,33 +96,74 @@ BOOLEAN swi_handle_sys_create(int priority, int executable_file_address, int blo
 	strcpy(executable_filename_3, executable_file);
 	strcat(executable_filename_3, ".i3");
 
+	// check if files exist
 	executable_file_0 = fl_fopen(executable_filename_0, mode);
-	executable_file_1 = fl_fopen(executable_filename_1, mode);
-	executable_file_2 = fl_fopen(executable_filename_2, mode);
-	executable_file_3 = fl_fopen(executable_filename_3, mode);
+	abort = executable_file_0 == NULL;
+	fl_fclose(executable_file_0);
 
-	if (executable_file_0 == NULL || executable_file_1 == NULL || executable_file_2 == NULL || executable_file_3 == NULL) {
+	if (!abort) {
+		executable_file_1 = fl_fopen(executable_filename_1, mode);
+		abort = executable_file_1 == NULL;
+		fl_fclose(executable_file_1);
+	}
+
+	if (!abort) {
+		executable_file_2 = fl_fopen(executable_filename_2, mode);
+		abort = executable_file_2 == NULL;
+		fl_fclose(executable_file_2);
+	}
+
+	if (!abort) {
+		executable_file_3 = fl_fopen(executable_filename_3, mode);
+		abort = executable_file_3 == NULL;
+		fl_fclose(executable_file_3);
+	}
+
+	if(abort) {
 		kernel_error(FILE_UNKNOWN, "Cannot open hex files for execution. One or more files doesn't exist");
+//	}
+//	if (executable_file_0 == NULL) {
+//		kernel_error(FILE_UNKNOWN, "Cannot open hex files for execution. One or more files doesn't exist");
 	} else {
 		code_bytes_t code;
-		char* byte_file_0;
-		char* byte_file_1;
-		char* byte_file_2;
-		char* byte_file_3;
+		code.byte_0 = NULL;
+		code.byte_1 = NULL;
+		code.byte_2 = NULL;
+		code.byte_3 = NULL;
 
 		// get the file length
+		executable_file_0 = fl_fopen(executable_filename_0, mode);
 		fl_fseek(executable_file_0, 0, SEEK_END);
 		file_length = fl_ftell(executable_file_0);
+		fl_fseek(executable_file_0, 0, SEEK_SET);
 
 		byte_file_0 = malloc(sizeof(char) * file_length);
 		byte_file_1 = malloc(sizeof(char) * file_length);
 		byte_file_2 = malloc(sizeof(char) * file_length);
 		byte_file_3 = malloc(sizeof(char) * file_length);
 
-		fl_fread(byte_file_0, file_length, file_length, executable_file_0);
-		fl_fread(byte_file_1, file_length, file_length, executable_file_1);
-		fl_fread(byte_file_2, file_length, file_length, executable_file_2);
-		fl_fread(byte_file_3, file_length, file_length, executable_file_3);
+		fl_fread(byte_file_0, sizeof(char), file_length, executable_file_0);
+		fl_fclose(executable_file_0);
+		byte_file_0[file_length] = 0;
+		//		kernel_print(byte_file_0);
+
+		executable_file_1 = fl_fopen(executable_filename_1, mode);
+		fl_fread(byte_file_1, sizeof(char), file_length, executable_file_1);
+		fl_fclose(executable_file_1);
+		byte_file_1[file_length] = 0;
+		//		kernel_print(byte_file_1);
+
+		executable_file_2 = fl_fopen(executable_filename_2, mode);
+		fl_fread(byte_file_2, sizeof(char), file_length, executable_file_2);
+		fl_fclose(executable_file_2);
+		byte_file_2[file_length] = 0;
+		//		kernel_print(byte_file_2);
+
+		executable_file_3 = fl_fopen(executable_filename_3, mode);
+		fl_fread(byte_file_3, sizeof(char), file_length, executable_file_3);
+		fl_fclose(executable_file_3);
+		byte_file_3[file_length] = 0;
+		//		kernel_print(byte_file_3);
 
 		code.byte_0 = byte_file_0; // data in executable_file.i0
 		code.byte_1 = byte_file_1; // data in executable_file.i1
@@ -129,11 +177,6 @@ BOOLEAN swi_handle_sys_create(int priority, int executable_file_address, int blo
 		free(code.byte_2);
 		free(code.byte_3);
 	}
-
-	fl_fclose(executable_file_0);
-	fl_fclose(executable_file_1);
-	fl_fclose(executable_file_2);
-	fl_fclose(executable_file_3);
 
 	free(executable_filename_0);
 	free(executable_filename_1);
@@ -289,14 +332,19 @@ BOOLEAN swi_handle(unsigned int syscall_nr, unsigned int param1, unsigned int pa
 		return swi_handle_sys_exit();
 	case SYS_EXEC:
 		// param1 = priority
-		// param2 = file
-		// param3 = block_current
+		// param2 = block_current
+		// param3 = path
 		return swi_handle_sys_create(param1, param2, param3);
 	case SYS_OPEN:
 		// param1 = return value (fd)
 		// param2 = device id
 		// param3 = flags
 		return swi_handle_sys_open(param1, param2, param3);
+	case SYS_FOPEN:
+		// param1 = return value (fd)
+		// param2 = path
+		// param3 = falgs
+		return swi_handle_sys_fopen(param1, param2, param3);
 	case SYS_CLOSE:
 		// param1 = return value (error code)
 		// param2 = fd

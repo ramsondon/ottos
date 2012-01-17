@@ -44,4 +44,6 @@ EXTERN size_t sys_read(int fd, const char* buffer, size_t count);
 EXTERN size_t sys_write(int fd, const char* buffer, size_t nbytes);
 EXTERN int sys_close(int fd);
 
+EXTERN int sys_execute(int priority, BOOLEAN block_current, const char* path);
+
 #endif /* SYSTEM_H_ */

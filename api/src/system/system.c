@@ -92,3 +92,11 @@ int sys_close(int fd) {
 
 	return return_value;
 }
+
+int sys_execute(int priority, BOOLEAN block_current, const char* path) {
+
+	// ignoring return value
+	swi(SYS_EXEC, priority, (unsigned int)block_current, (unsigned int) path);
+
+	return -1;
+}
