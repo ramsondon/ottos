@@ -32,3 +32,11 @@ void print(const char* buffer) {
 		sys_close(fd);
 	}
 }
+
+void read_serial(char* buffer, size_t count) {
+	int fd = sys_open(SYSTEM_SERIAL_0_PATH, SYSTEM_FLAG_READ);
+	if(fd != SYSTEM_FD_INVALID) {
+		sys_read(fd, buffer, count);
+		sys_close(fd);
+	}
+}

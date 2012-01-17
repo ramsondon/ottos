@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include <ottos/kernel.h>
 #include <ottos/const.h>
 #include <ottos/timer.h>
@@ -82,7 +84,7 @@ void mmu_test() {
 void user_app_test() {
 	code_bytes_t code_bytes;
 
-	irq_disable();
+//	irq_disable();
 
 	mmu_init();
 
@@ -117,17 +119,51 @@ void user_app_test() {
 	kernel_print("go\r\n");
 }
 
+void tty_start() {
+	// load tty process
+	code_bytes_t* code = code_get("/bin/ottos_tty");
+	if(code == NULL) {
+		kernel_panic("Cannot start tty");
+		return;
+	}
+	process_create(1, code);
+
+	// TODO (thomas.bargetz@gmail.com) implement code_free function
+	free(code->byte_0);
+	free(code->byte_1);
+	free(code->byte_2);
+	free(code->byte_3);
+	free(code);
+}
+
+void startup() {
+	irq_disable();
+
+	irq_init();
+	timer_init();
+	process_table_init();
+	devices_init();
+	mmchs_init();
+	fs_init();
+	mmu_init();
+
+	tty_start();
+
+	irq_register_context_switch();
+	irq_enable();
+	kernel_to_user_mode();
+}
+
 int main(int argc, char **argv) {
   // these methods has to be called for EVERY test method
-  irq_disable();
-  process_table_init();
-  devices_init();
-  mmchs_init();
-  fs_init();
-  fl_listdirectory("/bin/");
-
-  mmu_init();
-  irq_enable();
+//  irq_disable();
+//  process_table_init();
+//  devices_init();
+//  mmchs_init();
+//  fs_init();
+//
+//  mmu_init();
+//  irq_enable();
   //kernel_to_user_mode();
 
   // these methods are the specific tests for every module
@@ -143,7 +179,8 @@ int main(int argc, char **argv) {
   //  system_time_test();
   //  uptime_test();
   //video_test();
-  user_app_test();
+//   user_app_test();
+  startup();
 
   // do an endless loop
   loop_forever();

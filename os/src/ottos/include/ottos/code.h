@@ -40,4 +40,6 @@ struct code_bytes {
 	char* byte_3;
 };
 
+EXTERN code_bytes_t* code_get(const char* executable_file);
+
 #endif /* CODE_H_ */
