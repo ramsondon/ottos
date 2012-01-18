@@ -45,15 +45,28 @@ typedef int (*function_t)();
 typedef unsigned long address_t;
 typedef address_t file_t;
 
+/*
+ * A message_t is a message to pass from some process to some other process.
+ * It is used for the IPC module.
+ * Systemcalls to use:
+ *  receiver process: sys_bind(namespace), sys_wait_msg(namesapce),
+ *    sys_receive(namespace, message_t)
+ *  sender process: sys_send(namespace, message_t)
+ *
+ *  @see: systemcalls
+ */
 typedef struct message_t {
-    int type; /* the message type - to determine by process */
+    int size;       /* the size of one entry of the message content */
+    int count;      /* the count of a message content's entry       */
+    void* content;  /* the actual message content                   */
+    int type;       /* the message type - to determine by process   */
 } message_t;
 
 typedef struct {
-  int days;
-  int hours;
-  int minutes;
-  int seconds;
-  int miliseconds;
+    int days;
+    int hours;
+    int minutes;
+    int seconds;
+    int miliseconds;
 } time_t;
 #endif /* OTTOS_TYPES_H_ */
