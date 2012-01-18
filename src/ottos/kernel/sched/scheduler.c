@@ -36,7 +36,7 @@ void scheduler_handle_pending_ipc_msg(pid_t pid) {
 void scheduler_next() {
 
 	int i = 0;
-	// scheudle round robin
+	// schedule round robin
 	for (i = (process_active + 1) % PROCESS_MAX_COUNT; i < PROCESS_MAX_COUNT; i
 			= (i + 1) % PROCESS_MAX_COUNT) {
 
