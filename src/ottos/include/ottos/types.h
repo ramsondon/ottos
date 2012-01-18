@@ -56,10 +56,10 @@ typedef address_t file_t;
  *  @see: systemcalls
  */
 typedef struct message_t {
+    int type;       /* the message type - to determine by process   */
     int size;       /* the size of one entry of the message content */
     int count;      /* the count of a message content's entry       */
     void* content;  /* the actual message content                   */
-    int type;       /* the message type - to determine by process   */
 } message_t;
 
 typedef struct {
