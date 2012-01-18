@@ -48,11 +48,11 @@ void sys_print(int length, char* output) {
 }
 
 void sys_bind(const char* ns, int* success) {
-  swi(SYS_BIND_NAMESPACE, (unsigned)ns, 0, 0);
+  swi(SYS_BIND_NAMESPACE, (unsigned)ns, (unsigned int)success, 0);
 }
 
 void sys_send(const char* ns, message_t* msg, int* success) {
-  swi(SYS_SEND, (unsigned)ns, (unsigned)msg, 0);
+  swi(SYS_SEND, (unsigned)ns, (unsigned)msg, (unsigned int) success);
 }
 
 void sys_wait_msg(const char* ns) {
@@ -60,6 +60,6 @@ void sys_wait_msg(const char* ns) {
 }
 
 void sys_receive(const char* ns, message_t *msg, int* success) {
-  swi(SYS_RECEIVE, (unsigned)ns, (unsigned)msg, 0);
+  swi(SYS_RECEIVE, (unsigned)ns, (unsigned)msg, (unsigned int) success);
 }
 
