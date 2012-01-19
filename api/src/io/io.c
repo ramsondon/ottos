@@ -22,8 +22,8 @@
  */
 
 #include <string.h>
-#include <ottos_api/system.h>
-#include <ottos_api/io.h>
+#include <api/system.h>
+#include <api/io.h>
 
 void print(const char* buffer) {
 	int fd = sys_open(SYSTEM_SERIAL_0_PATH, SYSTEM_FLAG_WRITE);

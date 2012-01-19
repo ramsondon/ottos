@@ -25,7 +25,7 @@
 #include <ottos/syscalls.h>
 #include <ottos/types.h>
 #include <ottos/dev/device.h>
-#include <ottos_api/system.h>
+#include <api/system.h>
 
 #pragma SWI_ALIAS(swi, 1)
 EXTERN void swi(unsigned int syscall_nr, unsigned int param1, unsigned int param2, unsigned int param3);

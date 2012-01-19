@@ -21,8 +21,8 @@
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#include <ottos_api/system.h>
-#include <ottos_api/led.h>
+#include <api/system.h>
+#include <api/led.h>
 
 static const char led_on_buffer[] = { 1 };
 static const char led_off_buffer[] = { 0 };

@@ -22,7 +22,7 @@
  */
 
 #include <ottos/const.h>
-#include <ottos_api/system.h>
+#include <api/system.h>
 
 int main() {
 

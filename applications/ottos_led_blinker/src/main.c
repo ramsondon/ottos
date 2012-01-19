@@ -21,7 +21,7 @@
 // *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
 // */
 
-#include <ottos_api/led.h>
+#include <api/led.h>
 
 int main() {
 
