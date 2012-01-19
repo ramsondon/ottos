@@ -439,11 +439,19 @@ int ipc_send_msg(const char* ns, message_t msg, pid_t sender) {
    */
 
   while (receiver != NULL) {
+
     // create message
     msgcpy = malloc(sizeof(message_t));
+    msgcpy->type = msg.type;
+    msgcpy->count = msg.count;
+    msgcpy->size = msg.size;
+
+    // TODO: check functionality with message->content
+    msgcpy->content = malloc(msg.size * msg.count);
     new_ipc_msg = malloc(sizeof(IPC_MESSAGE));
 
-    msgcpy->type = msg.type;
+
+
 
     /* set the pid_t of the sender */
     new_ipc_msg->sender = sender;
@@ -473,11 +481,16 @@ int ipc_receive_msg(const char* ns, message_t* msg, pid_t pid) {
 
         // set ouptut message
         msg->type = current->message->type;
+        msg->count = current->message->count;
+        msg->size = current->message->size;
+        msg->content = current->message->content;
 
         // remove message from queue
         ipc_remove_from_queue(&ipc_message_queue, current, prev);
 
         // free message
+        // TODO: check functionality
+        free(current->message->content);
         free(current->message);
         free(current);
         return SUCCESS;
