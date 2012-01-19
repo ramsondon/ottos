@@ -6,3 +6,4 @@ Release/
 .settings/
 minicom.cap
 *.ccxml
+tools/src/ihex2one
