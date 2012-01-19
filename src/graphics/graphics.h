@@ -60,6 +60,9 @@ typedef struct {
 #define BM_UYVY       11
 
 
+// correct the height of the ellipse --> this is needed because we use a 16:9 display but a 4:3 resolution
+#define GRAPHICS_RESOLUTION_CORRECTION_FACTOR   1.333
+
 typedef struct {
   int x;                /* width position of the current pixel on the screen */
   int y;                /* height position of the current pixel on the screen */
@@ -76,6 +79,11 @@ typedef struct {
 } RastPort;
 
 
+typedef struct {
+    int x;
+    int y;
+} Point;
+
 EXTERN RomFont const graphics_font_misc_fixed;
 
 /* can only be called once ... */
@@ -84,6 +92,7 @@ RastPort* graphics_init(char *fbaddr, int width, int height, int type);
 EXTERN void graphics_set_color(RastPort* rp, unsigned int rgb);
 EXTERN void graphics_move_to(RastPort* rp, int x, int y);
 EXTERN void graphics_draw_pixel(RastPort* rp);
+EXTERN void graphics_draw_ellipse(RastPort* rp, int xm, int ym, int a, int b);
 EXTERN void graphics_draw_rect(RastPort* rp, int w, int h);
 EXTERN void graphics_draw_line(RastPort* rp, int x_start, int y_start, int x_end, int y_end, int width);
 EXTERN void graphics_draw_char(RastPort* rp, unsigned int c, int scale);

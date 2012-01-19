@@ -32,29 +32,29 @@
 // So most of these modes are just approximate.
 // List must be in ascending order.
 DISP_VIDEO_MODE modes[] = {
-      // 640x480@72 31.500    640 24  40  128   480 9 3 28
-       { 640, 480, "640x480-71", ((480 - 1) << 16)
-          | (640 - 1), (128 << DISPCB_HBP) | (24
-          << DISPCB_HFP) | (40 << DISPCB_HSW), (28
-          << DISPCB_VBP) | (9 << DISPCB_VFP) | (3
-          << DISPCB_VSW), 2, 14 },
-      //    800x600, 60Hz   40.000    800 40  128 88    600 1 4 23
-       { 800, 600, "800x600-59", ((600 - 1) << 16)
-          | (800 - 1), (88 << DISPCB_HBP) | (40
-          << DISPCB_HFP) | (128 << DISPCB_HSW), (23
-          << DISPCB_VBP) | (1 << DISPCB_VFP) | (4
-          << DISPCB_VSW), 2, 11 },
-      // 1024x768, 60Hz   65.000    1024  24  136 160   768 3 6 29
-       { 1024, 768, "1024x768-61", ((768 - 1) << 16)
-          | (1024 - 1), (160 << DISPCB_HBP) | (24
-          << DISPCB_HFP) | (136 << DISPCB_HSW), (29
-          << DISPCB_VBP) | (3 << DISPCB_VFP) | (6
-          << DISPCB_VSW), 1, 13 },
-       { 1280, 1024, "1280x1024-60", ((1024 - 1) << 16)
-          | (1280 - 1), (248 << DISPCB_HBP) | (48
-          << DISPCB_HFP) | (112 << DISPCB_HSW), (38
-          << DISPCB_VBP) | (1 << DISPCB_VFP) | (3
-          << DISPCB_VSW), 1, 8 }
+      // 640x480@72
+       { 640, 480, "640x480-71", ((480 - 1) << 16) | (640 - 1),
+         (128 << DISPCB_HBP) | (24 << DISPCB_HFP) | (40 << DISPCB_HSW),
+         (28 << DISPCB_VBP) | (9 << DISPCB_VFP) | (3 << DISPCB_VSW), 2, 14 },
+
+      // 800x480@60
+       { 800, 480, "800x480-60", ((480 - 1) << 16) | (800 - 1),
+         (88 << DISPCB_HBP) | (40 << DISPCB_HFP) | (128 << DISPCB_HSW),
+         (28 << DISPCB_VBP) | (9 << DISPCB_VFP) | (3 << DISPCB_VSW), 2, 14 },
+
+        //    800x600, 60Hz   40.000    800 40  128 88    600 1 4 23
+       { 800, 600, "800x600-59", ((600 - 1) << 16) | (800 - 1),
+         (88 << DISPCB_HBP) | (40 << DISPCB_HFP) | (128 << DISPCB_HSW),
+          (23 << DISPCB_VBP) | (1 << DISPCB_VFP) | (4 << DISPCB_VSW), 2, 11 },
+
+          // 1024x768, 60Hz   65.000    1024  24  136 160   768 3 6 29
+       { 1024, 768, "1024x768-61", ((768 - 1) << 16) | (1024 - 1),
+          (160 << DISPCB_HBP) | (24 << DISPCB_HFP) | (136 << DISPCB_HSW),
+          (29 << DISPCB_VBP) | (3 << DISPCB_VFP) | (6 << DISPCB_VSW), 1, 13 },
+
+      { 1280, 1024, "1280x1024-60", ((1024 - 1) << 16) | (1280 - 1),
+         (248 << DISPCB_HBP) | (48 << DISPCB_HFP) | (112 << DISPCB_HSW),
+         (38 << DISPCB_VBP) | (1 << DISPCB_VFP) | (3 << DISPCB_VSW), 1, 8 }
 };
 
 

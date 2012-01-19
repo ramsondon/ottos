@@ -30,7 +30,6 @@
 #define RES_HEIGHT 768
 #define WIDTH  1024
 #define HEIGHT 768
-//#define FBADDR ((void *)0x83000000)
 
 EXTERN void video_test();
 EXTERN void video_bmp_test();

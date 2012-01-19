@@ -141,10 +141,12 @@ int main(int argc, char **argv) {
   //  fs_test();
   //  i2c_test();
   //  uptime_test();
-    tty_test();
+  //  tty_test();
   //  system_time_test();
   //  uptime_test();
-  //video_test();
+   video_test();
+  //video_bmp_test_file();
+  //video_bmp_test_array();
   //user_app_test();
 
   // do an endless loop

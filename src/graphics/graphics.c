@@ -22,7 +22,7 @@
  */
 
 #include "graphics.h"
-
+#include "colors.h"
 #include <math.h>
 
 static RastPort defrp;
@@ -36,7 +36,8 @@ RastPort *graphics_init(char *fbaddr, int width, int height, int type) {
   fb.stride = width * 2;
   fb.data = fbaddr;
 
-  defrp.x = defrp.y = 0;
+  defrp.x = 0;
+  defrp.y = 0;
   defrp.point = fb.data;
   defrp.color = 0x000000;
   defrp.font.romfont = (RomFont*) &graphics_font_misc_fixed;
@@ -46,7 +47,6 @@ RastPort *graphics_init(char *fbaddr, int width, int height, int type) {
 }
 
 void graphics_set_color(RastPort *rp, unsigned int rgb) {
-  // TODO: switch rp->drawable->format ...
   rp->color = ((rgb & 0xf80000) >> 8) | ((rgb & 0xfc00) >> 5) | ((rgb & 0xf8) >> 3);
 }
 
@@ -71,9 +71,76 @@ void graphics_draw_rect(RastPort *rp, int w, int h) {
   }
 }
 
-void graphics_draw_graph(RastPort *rp, int data[], int length,
-                         unsigned int color_line, unsigned int color_background) {
+static void graphics_set_pixel(RastPort* rp, int x, int y) {
+  graphics_move_to(rp, x, y);
+  graphics_draw_pixel(rp);
+}
 
+void graphics_draw_ellipse(RastPort* rp, int xm, int ym, int a, int b) {
+  int dx = 0, dy = b;
+  long a2 = a * a, b2 = b * b;
+  long err = b2 - (2 * b - 1) * a2, e2;
+
+  do {
+    graphics_draw_line(rp, xm + dx, ym + dy, xm + dx, ym - dy, 1);
+    graphics_draw_line(rp, xm - dx, ym + dy, xm - dx, ym - dy, 1);
+
+    e2 = 2 * err;
+    if (e2 < ((2 * dx + 1) * b2)) {
+      dx++;
+      err += (2 * dx + 1) * b2;
+    }
+    if (e2 > (-(2 * dy - 1) * a2)) {
+      dy--;
+      err -= (2 * dy - 1) * a2;
+    }
+  } while (dy >= 0);
+
+  while (dx++ < a) {
+    graphics_draw_line(rp, xm - dx, ym, xm + dx, ym, 1);
+  }
+}
+
+
+#define GRAPHICS_GRAPH_TEMP_MAX   40
+#define GRAPHICS_GRAPH_TEMP_MIN   -12.736
+
+void graphics_draw_graph(RastPort *rp, int* data, int length, int timespan, int height, int width,
+                         unsigned int color_line, unsigned int color_background) {
+  /*
+  int i, value, prev_x;
+  int x0 = rp->x;
+  int y0 = rp->y;
+  int margin = 3;
+  int span_in_pixel = width / length;
+  float degree_in_pixel = height / (abs(GRAPHICS_GRAPH_TEMP_MAX) + abs(GRAPHICS_GRAPH_TEMP_MIN));
+
+
+  // draw background rectangle
+  graphics_set_color(rp, color_background);
+  graphics_draw_rect(rp, width, height);
+  // draw vertical axis
+  graphics_set_color(rp, COLOR_Black);
+  graphics_draw_line(rp, x0+margin, y0+margin, x0+margin, y0+height-margin, 1);
+  // draw horizontal axis
+  graphics_draw_line(rp, x0+margin, y0+GRAPHICS_GRAPH_TEMP_MAX*degree_in_pixel,
+                     x0+widht-margin, y0+GRAPHICS_GRAPH_TEMP_MAX*degree_in_pixel, 1);
+
+  // draw dataline
+  graphics_set_color(rp, color_line);
+  x0 += margin + 1;
+  y0 += GRAPHICS_GRAPH_TEMP_MAX*degree_in_pixel;
+
+  for (i = 0; i < length; i++) {
+    value = data[i];
+    graphics_draw_line(rp, x0 + span_in_pixel * i, prev_y, x0 + span_in_pixel * (i + 1), y0 + value/degree_in_pixel, 1);
+    prev_y = y0 + value/degree_in_pixel;
+  }
+
+  graphics_move_to(rp, x0 - 5, y0);
+  graphics_draw_string(rp, "0", 2);
+
+  */
 }
 
 // see: http://de.wikipedia.org/wiki/Bresenham-Algorithmus

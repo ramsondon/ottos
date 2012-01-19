@@ -103,6 +103,6 @@ typedef struct _BGRA {
   uint8_t Alpha;
 } BGRA;
 
-EXTERN RGBA* graphics_parse_bmp_picture(void* filecontent, int size, BITMAP_FILEHEADER* bmpFileHeader, BITMAP_HEADER* bmpHeader);
-
+EXTERN RGBA* graphics_parse_bmp_picture(void* file, BITMAP_FILEHEADER* bmpFileHeader, BITMAP_HEADER* bmpHeader);
+EXTERN RGBA* graphics_parse_bmp_picture_array(void* file, int size, BITMAP_FILEHEADER* bmpFileHeader, BITMAP_HEADER* bmpHeader);
 #endif /* BITHMAP_H_ */
