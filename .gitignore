@@ -7,3 +7,8 @@ Release/
 minicom.cap
 *.ccxml
 ottos_api.lib
+applications/ottos_exec_test/lib/
+applications/ottos_ipcclient/
+applications/ottos_ipcserver/lib/
+applications/ottos_led_blinker/lib/
+applications/ottos_tty/lib/
