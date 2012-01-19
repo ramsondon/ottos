@@ -24,22 +24,27 @@
 #include "tty.h"
 
 #include <string.h>
-//#include <ottos/io.h>
+#include <stdlib.h>
+#include <ottos/io.h>
 #include <ottos/const.h>
 #include <ottos/types.h>
 #include <ottos_api/io.h>
 #include <ottos_api/system.h>
 
+#define FILE void
+
 // keep track of the current working directory
 // start with the users $HOME directory
-static char tty_cwd[MAX_PATH_LENGTH] = HOME_DIRECTORY;
+static char* tty_cwd;
 
 // private functions
-//static void tty_error(const char* message) {
-//  char buffer[2096];
-//  sprintf(buffer, "-%s: %s\n\r", TTY_NAME, message);
-//  print(buffer);
-//}
+static void tty_error(const char* message) {
+  print("-");
+  print(TTY_NAME);
+  print(": ");
+  print(message);
+  print("\n\r");
+}
 
 //static void tty_username(char* buffer) {
 //  sprintf(buffer, "%s", USERNAME);
@@ -50,35 +55,29 @@ static char tty_cwd[MAX_PATH_LENGTH] = HOME_DIRECTORY;
 //}
 
 static void tty_print_prefix() {
-//  char username[16];
-//  char hostname[16];
-//  char prefix[64 + MAX_PATH_LENGTH];
-
-//  tty_username(username);
-//  tty_hostname(hostname);
-
-  //sprintf(prefix, "%s@%s:%s%s ", username, hostname, tty_cwd, "#");
   print(USERNAME);
   print("@");
   print(HOSTNAME);
   print(":");
   print(tty_cwd);
   print("#");
-  //print(prefix);
 }
 
-//static BOOLEAN tty_find_binary(const char* name) {
-//  char filename[512];
-//  FILE* file;
-//  sprintf(filename, "/bin/%s", name);
-//
-//  file = fl_fopen(filename, "r");
-//  if (file != NULL) {
-//    fl_fclose(file);
-//    return TRUE;
-//  }
-//  return FALSE;
-//}
+static BOOLEAN tty_find_binary(const char* name) {
+  char* filename;
+  int fd;
+
+  filename = malloc(sizeof(char) * (strlen(name) + strlen(BIN_DIRECTORY) + 1));
+  sprintf(filename, "%s/%s", BIN_DIRECTORY, name);
+
+  fd = sys_open(filename, SYSTEM_FLAG_READ);
+  free(filename);
+  if (fd != NULL) {
+    sys_close(fd);
+    return TRUE;
+  }
+  return FALSE;
+}
 //
 //// TODO (fdomig@gmail.com) move the CMDs to a separate file
 //static void tty_cmd_ls(char* directory) {
@@ -172,7 +171,10 @@ static void tty_print_prefix() {
 
 static int tty_start_process(const char* bin, char* args, BOOLEAN background) {
 	// ignoring args
-    sys_execute(1, background, bin);
+  char* buffer = malloc(sizeof(char) * MAX_PATH_LENGTH);
+  sprintf(buffer, "/bin/%s", bin);
+  sys_execute(1, background, bin);
+  free(buffer);
 
   // TODO (fdomig@gmail.com) return the process return state on foreground process
   return 0;
@@ -203,6 +205,9 @@ int tty_getline(char* buffer, int length) {
 
 void tty_run() {
 
+  // FIXME
+  tty_cwd = malloc(sizeof(char) * MAX_PATH_LENGTH);
+
   tty_print_startup();
 
   while (TRUE) {
@@ -214,7 +219,7 @@ void tty_run() {
     BOOLEAN background = FALSE;
 
     // print prefix
-    //tty_print_prefix();
+    tty_print_prefix();
 
     // read one line
     // TODO (m.schmid@students.fhv.at) read from serial device
@@ -222,7 +227,7 @@ void tty_run() {
     // a user mode application
     // rc = scanf("%1024[^\n]%*[^\n]", line);
     // rc = serial_getline(line, 1024);
-    print("command: ");
+    // print("command: ");
     rc = tty_getline(line, 1024);
     print("\r\n");
     print("your command: ");
@@ -266,19 +271,23 @@ void tty_run() {
 //
 //      // finally, is there a application with the entered name?
 //    } else
-//    if (!tty_find_binary(cmd)) {
-//      char debug[256];
-//      sprintf(debug, "%s command not found", line);
-//      tty_error(debug);
-//      continue;
-//    }
+    if (!tty_find_binary(cmd)) {
+      char* debug = malloc(sizeof(char) * 256);
+      sprintf(debug, "%s command not found", line);
+      tty_error(debug);
+      free(debug);
+      continue;
+    }
 
     // run a new process
     if (cmd[strlen(cmd) - 1] == START_IN_BACKGROUND_SYSMBOL) {
       background = TRUE;
     }
-
-    print("starting process from binary...\r\n");
-    tty_start_process(cmd, tokens, background);
+    {
+      char* tmp_cmd = malloc(sizeof(char) * (strlen(cmd) + strlen(BIN_DIRECTORY) + 1));
+      sprintf(tmp_cmd, "%s/%s", BIN_DIRECTORY, cmd);
+      tty_start_process(tmp_cmd, tokens, background);
+      free(tmp_cmd);
+    }
   }
 }

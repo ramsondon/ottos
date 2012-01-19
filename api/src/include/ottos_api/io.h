@@ -24,6 +24,7 @@
 #ifndef IO_H_
 #define IO_H_
 
+#include <ottos/types.h>
 #include <ottos/const.h>
 
 #define STDIN    0
