@@ -21,8 +21,8 @@
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#ifndef LED_H_
-#define LED_H_
+#ifndef API_LED_H_
+#define API_LED_H_
 
 #include <ottos/const.h>
 
@@ -35,4 +35,4 @@ EXTERN void led_on(led_t led);
 EXTERN void led_off(led_t led);
 EXTERN void led_toggle(led_t led);
 
-#endif /* LED_H_ */
+#endif /* API_LED_H_ */

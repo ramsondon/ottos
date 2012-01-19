@@ -21,8 +21,8 @@
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#ifndef SYSTEM_H_
-#define SYSTEM_H_
+#ifndef API_SYSTEM_H_
+#define API_SYSTEM_H_
 
 #include <ottos/types.h>
 #include <ottos/const.h>
@@ -75,4 +75,4 @@ EXTERN void sys_wait_msg(const char* ns);
  */
 EXTERN void sys_receive(const char* ns, message_t* msg, int* success);
 
-#endif /* SYSTEM_H_ */
+#endif /* API_SYSTEM_H_ */
