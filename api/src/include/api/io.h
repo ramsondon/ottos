@@ -21,8 +21,8 @@
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#ifndef IO_H_
-#define IO_H_
+#ifndef API_IO_H_
+#define API_IO_H_
 
 #include <ottos/types.h>
 #include <ottos/const.h>
@@ -31,7 +31,17 @@
 #define STDOUT   1
 #define STDERR   2
 
+/*
+ * converts an integer to ascii
+ * @param n number to convert
+ * @param s the output buffer
+ * @param b format (dec = 10)
+ */
+EXTERN char* itoa(int n, char* s, int b);
+
+EXTERN char* strrev(char* str);
+
 EXTERN void print(const char* buffer);
 EXTERN void read_serial(char* buffer, size_t count);
 
-#endif /* IO_H_ */
+#endif /* API_IO_H_ */
