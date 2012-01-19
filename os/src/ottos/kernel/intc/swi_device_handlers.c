@@ -33,6 +33,7 @@
 #include <ottos/io.h>
 #include <ottos/dev/device.h>
 #include <ottos/drivers/driver.h>
+#include "../ipc/ipc.h"
 #include "../pm/process.h"
 #include "../mmu/mmu.h"
 #include "swi_device_handlers.h"
@@ -90,9 +91,9 @@ BOOLEAN swi_handle_sys_open(int fd_address, int device_id, int flags) {
 	} else {
 		device_error_code = driver->open(device);
 		if (device_error_code != 0) {
-			// could not open the device
-			// set the return value to the error code
-			*fd = device_error_code;
+      // could not open the device
+		  kernel_error(DRIVER_ERROR_CANNOT_OPEN, "An error occurred while opening a device");
+			*fd = SYSTEM_FD_INVALID;
 		} else {
 			// the file descriptor is the device
 			*fd = device;
@@ -208,6 +209,56 @@ BOOLEAN swi_handle_sys_fread(process_file_descriptor_t* fd_process, char* buffer
 	return FALSE;
 }
 
+BOOLEAN swi_handle_sys_bind(int ns_address, int result_address) {
+  const char* namespace =
+      (const char*) mmu_get_physical_address(process_table[process_pid()], ns_address);
+
+  int* result = (int*)mmu_get_physical_address(process_table[process_pid()], result_address);
+
+  *result = ipc_bind(namespace, process_pid());
+
+  return FALSE;
+}
+
+BOOLEAN swi_handle_sys_send(int ns_address, int msg_address, int result_address) {
+  const char* namespace =
+      (const char*) mmu_get_physical_address(process_table[process_pid()], ns_address);
+  message_t* message =
+      (message_t*) mmu_get_physical_address(process_table[process_pid()], msg_address);
+
+  int* result = (int*)mmu_get_physical_address(process_table[process_pid()], result_address);
+
+  *result = ipc_send_msg(namespace, *message, process_pid());
+
+  return FALSE;
+}
+
+BOOLEAN sys_handle_sys_wait(int ns_address) {
+  const char* namespace =
+        (const char*) mmu_get_physical_address(process_table[process_pid()], ns_address);
+
+  if (ipc_lookup_msg_concrete(namespace, process_pid()) == WAITING) {
+    process_table[process_pid()]->state = BLOCKED;
+    process_table[process_pid()]->blockstate = IPC_WAIT;
+
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+BOOLEAN swi_handle_sys_receive(int ns_address, int msg_address, int result_address) {
+  const char* namespace =
+      (const char*) mmu_get_physical_address(process_table[process_pid()], ns_address);
+  message_t* message =
+      (message_t*) mmu_get_physical_address(process_table[process_pid()], msg_address);
+  int* result = (int*)mmu_get_physical_address(process_table[process_pid()], result_address);
+
+  *result = ipc_receive_msg(namespace, message, process_pid());
+
+  return FALSE;
+}
+
 BOOLEAN swi_handle(unsigned int syscall_nr, unsigned int param1, unsigned int param2, unsigned int param3) {
 
 	// handle interrupts
@@ -245,6 +296,23 @@ BOOLEAN swi_handle(unsigned int syscall_nr, unsigned int param1, unsigned int pa
 		// param2 = buffer
 		// param3 = count
 		return swi_handle_sys_read(param1, param2, param3);
+  case SYS_BIND_NAMESPACE:
+    // param1 = namespace
+    // param2 = result
+    return swi_handle_sys_bind(param1, param2);
+  case SYS_SEND:
+    // param1 = namespace
+    // param2 = message
+    // param3 = result
+    return swi_handle_sys_send(param1, param2, param3);
+  case SYS_WAIT_MSG:
+    // param1 = namespace
+    return sys_handle_sys_wait(param1);
+  case SYS_RECEIVE:
+    // param1 = namespace
+    // param2 = message
+    // param3 = result
+    return swi_handle_sys_receive(param1, param2, param3);
 	default:
 		// unknown syscall number
 		kernel_error(SWI_UNKNOWN_SYSCALL_NR, "Unknown syscall-number. Ignoring.");

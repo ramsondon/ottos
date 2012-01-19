@@ -21,29 +21,33 @@
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
+#include <ottos/error.h>
 #include <ottos/types.h>
 
 #include "../../hal/platform.h"
 #include "../../drivers/uart/uart.h"
 #include "serial.h"
 
-static int init_uart_rs232_ = FALSE;
+static BOOLEAN init_uart_rs232_ = FALSE;
 
 int serial_create_(device_t dev) {
   if (dev == SERIAL_0 && init_uart_rs232_ == FALSE) {
     uart_init((mem_address_t*) UART3, UART_MODE_16X, uart_protocol_rs232,
               UART_FLOW_CONTROL_DISABLE_FLAG);
     init_uart_rs232_ = TRUE;
-    return TRUE;
   }
-  return FALSE;
+
+  if(init_uart_rs232_ == TRUE) {
+    return DRIVER_NO_ERROR;
+  }
+  return DRIVER_ERROR_CANNOT_OPEN;
 }
 
 int serial_open_(device_t dev) {
   return serial_create_(dev);
 }
 int serial_close_(device_t dev) {
-  return FALSE;
+  return DRIVER_NO_ERROR;
 }
 
 int serial_read_(device_t dev, int count, char* buffer) {

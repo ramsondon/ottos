@@ -39,56 +39,61 @@
 #define PROCESS_SYSMEM_SIZE 0x00002000
 
 enum ProcessState {
-	READY, BLOCKED, RUNNING
+  READY, BLOCKED, RUNNING
 };
 
 // TODO find a better name for this
 struct process_file_descriptor;
 typedef struct process_file_descriptor process_file_descriptor_t;
 struct process_file_descriptor {
-	int fd;
-	void* file;
-	enum system_file_type type;
-	process_file_descriptor_t* next;
+    int fd;
+    void* file;
+    enum system_file_type type;
+    process_file_descriptor_t* next;
+};
+
+enum BlockState {
+  NONE, IPC_WAIT
 };
 
 typedef struct {
-	int CPSR;
-	int restart_address;
-	int R0;
-	int R1;
-	int R2;
-	int R3;
-	int R4;
-	int R5;
-	int R6;
-	int R7;
-	int R8;
-	int R9;
-	int R10;
-	int R11;
-	int R12;
-	int R13;
-	int R14;
+    int CPSR;
+    int restart_address;
+    int R0;
+    int R1;
+    int R2;
+    int R3;
+    int R4;
+    int R5;
+    int R6;
+    int R7;
+    int R8;
+    int R9;
+    int R10;
+    int R11;
+    int R12;
+    int R13;
+    int R14;
 } pcb_t;
 
 struct process;
 typedef struct process process_t;
 
 struct process {
-	address master_table_address;
-	address code_location;
-	int page_count;
+    address master_table_address;
+    address code_location;
+    int page_count;
 
-	pid_t pid;
-	int priority;
-	enum ProcessState state;
-	pcb_t pcb;
+    pid_t pid;
+    int priority;
+    enum ProcessState state;
+    enum BlockState blockstate;
+    pcb_t pcb;
 
-	process_file_descriptor_t* open_file_list;
+    process_file_descriptor_t* open_file_list;
 
-	process_t* child;
-	process_t* parent;
+    process_t* child;
+    process_t* parent;
 };
 
 // the process table contains all processes of the
@@ -114,13 +119,21 @@ void process_delete();
 process_file_descriptor_t* process_get_file_descriptor(int fd);
 
 // creates a new process file descriptor and returns it
-//process_file_descriptor_t* process_add_file_descriptor(int fd, enum system_file_type file_type);
-
 process_file_descriptor_t* process_add_device_descriptor(int fd);
 
+// creates a new process file descriptor and returns it
 process_file_descriptor_t* process_add_file_descriptor(void* file);
 
 // removes the process file descriptor for the given file descriptor id
 void process_remove_file_descriptor(int fd);
+
+// returns the current process pid
+EXTERN pid_t process_pid();
+
+// sets the ProcessState of process with pid_t pid to BLOCKED
+EXTERN void process_block(pid_t pid);
+
+// sets the process to READY state and blockstate to NONE
+EXTERN void process_unblock(pid_t pid);
 
 #endif /* OTTOS_KERNEL_PM_PROCESS_H_ */

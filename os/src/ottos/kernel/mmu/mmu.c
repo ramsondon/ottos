@@ -423,7 +423,6 @@ BOOLEAN mmu_handle_data_abort() {
 
 	if (mmu_is_legal(accessed_address, fault_state) == TRUE) {
 		kernel_debug(MMU_DATA_ABORT, "create mapped page");
-
 		mmu_create_mapped_page(process_table[process_active]->master_table_address, (address) accessed_address, 0);
 		mmu_init_memory_for_process(process_table[process_active]);
 	} else {

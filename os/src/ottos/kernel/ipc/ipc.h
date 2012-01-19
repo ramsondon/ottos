@@ -31,27 +31,112 @@
  *        - Semaphores
  *        - Message Passing - send, receive
  *        - waitpid(pid_t pid)
+ *
+ * TODO:  implement BLOCK process while waiting for a message for a certain
+ *        namespace
+ * TODO:  implement global maximum number of messages to be sent
+ * TODO:  implement BLOCK process while maximum number of messages reached in
+ *        kernel and trying to send message
  */
 
 #include <ottos/const.h>
 #include <ottos/types.h>
 
-#define SUCCESS 1
-#define WAITING 0
+#define SUCCESS           1
+#define WAITING           0
+
+/*
+ * IPC message
+ */
+typedef struct ipc_message_t {
+    pid_t sender;
+    pid_t receiver;
+    const char* ns;
+    struct message_t* message;
+    struct ipc_message_t* next;
+} IPC_MESSAGE;
+
+/*
+ * IPC message queue
+ */
+typedef struct ipc_message_queue_t {
+    int size;
+    IPC_MESSAGE* head;
+    IPC_MESSAGE* last;
+} IPC_MESSAGE_QUEUE;
+
+/*
+ * IPC receiver
+ */
+typedef struct ipc_client_t {
+    pid_t pid;
+    struct ipc_client_t* next;
+} IPC_CLIENT;
+
+typedef struct ipc_client_queue_t {
+    int size;
+    IPC_CLIENT* head;
+} IPC_CLIENT_QUEUE;
+
+
+typedef struct ipc_namespace_t {
+    const char* ns;
+    struct ipc_client_queue_t receivers;
+    struct ipc_client_queue_t senders;
+    struct ipc_namespace_t* next;
+} IPC_NAMESPACE;
+
+/*
+ * IPC Namespace register
+ */
+typedef struct ipc_namespace_queue_t {
+    int size;
+    IPC_NAMESPACE* head;
+} IPC_NAMESPACE_QUEUE;
+
+
+/*
+ * Returns SUCCESS if a message is available for a certain namespace ns, else
+ * WAITING.
+ */
+EXTERN int ipc_lookup_msg(const char* ns);
+
+EXTERN int ipc_lookup_msg_for(pid_t pid);
+
+EXTERN int ipc_lookup_msg_concrete(const char* ns, pid_t pid);
+
+/*
+ * Bind has to be called by the receiver process
+ * Binds the calling process as a receiver for messages at namespace ns
+ */
+EXTERN int ipc_bind(const char* ns, pid_t pid);
+
+/*
+ * Unbinds a namespace of a receiving process
+ */
+EXTERN int ipc_unbind(const char* ns, pid_t pid);
 
 /*
  * Sends a message_t to the a process listening to namespace ns
  */
-EXTERN int ipc_send_msg(char* ns, message_t msg);
+EXTERN int ipc_send_msg(const char* ns, message_t msg, pid_t pid);
 
 /*
  * Receives all message_t sent to namespace msg
+ *
+ * This method does not block the kernel!! If no message is available for that
+ * namespace the result will be WAITING
  *
  * @param ns Namespace
  * @param msg message received message
  * @return SUCCESS = 1, WAITING = 0
  */
-EXTERN int ipc_receive_msg(char* ns, message_t* msg);
+EXTERN int ipc_receive_msg(const char* ns, message_t* msg, pid_t pid);
 
+/*
+ * removes namespaces and pending messages for process with pid
+ * should only be called on garbage collection or process deletion
+ */
+EXTERN int ipc_kill_receiver(pid_t pid);
 
 #endif /* OTTOS_KERNEL_IPC_IPC_H_ */

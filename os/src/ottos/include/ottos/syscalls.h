@@ -29,7 +29,7 @@
  */
 #define SYS_YIELD   1
 #define SYS_EXIT    2
-#define SYS_EXEC	3
+#define SYS_EXEC	  3
 
 /**
  * I/O system calls
@@ -39,6 +39,7 @@
 #define SYS_READ    12
 #define SYS_WRITE   13
 
+
 /**
  * File system calls
  */
@@ -47,7 +48,9 @@
 /*
  * IPC system calls
  */
-#define SYS_SEND    30
-#define SYS_RECEIVE 31
+#define SYS_BIND_NAMESPACE  30
+#define SYS_SEND            31
+#define SYS_WAIT_MSG        32
+#define SYS_RECEIVE         33
 
 #endif /* SYSCALLS_H_ */

@@ -45,5 +45,34 @@ EXTERN size_t sys_write(int fd, const char* buffer, size_t nbytes);
 EXTERN int sys_close(int fd);
 
 EXTERN int sys_execute(int priority, BOOLEAN block_current, const char* path);
+/**
+ * IPC system calls
+ */
+/*
+ * Binds a namespace of a sending process. Must be called before sending.
+ * @param success - output parameter if the the method succeeded
+ */
+EXTERN void sys_bind(const char* ns, int* success);
+
+/*
+ * Sends a message to namespace ns. sys_bind must be called first. The method
+ * will be handled successfully if a receiving process is running, else it will
+ * result in an error.
+ * @param success - output parameter if the the method succeeded
+ */
+EXTERN void sys_send(const char* ns, message_t* msg, int* success);
+
+/*
+ * Waits for an IPC message.
+ * The receive method has to be called afterwards to receive the correct message
+ */
+EXTERN void sys_wait_msg(const char* ns);
+
+/*
+ * Receives a message_t sent to namespace ns of a sending process. sys_wait_msg
+ * must be called first.
+ * @param success - output parameter if the the method succeeded
+ */
+EXTERN void sys_receive(const char* ns, message_t* msg, int* success);
 
 #endif /* SYSTEM_H_ */

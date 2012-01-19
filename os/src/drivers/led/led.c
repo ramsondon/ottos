@@ -40,7 +40,7 @@ int led_open(device_t dev) {
   // determine the led device bit for device_t dev
   int bit = led_device_bit(dev);
   if (bit == DEVICE_INVALID) {
-    return LED_ERROR_DEVICE_INVALID;
+    return DRIVER_ERROR_CANNOT_OPEN;
   }
   // enable output at gpio5
   *(mem_address_t*) GPIO5_OE |= (1 << bit);
@@ -59,7 +59,7 @@ int led_close(device_t dev) {
     *(mem_address_t*) GPIO5_OE &= ~(1 << bit);
     return DRIVER_NO_ERROR;
   }
-  return LED_ERROR_DEVICE_INVALID;
+  return DRIVER_ERROR_CANNOT_CLOSE;
 }
 
 int led_read(device_t dev, int count, char* buffer) {
@@ -70,7 +70,7 @@ int led_read(device_t dev, int count, char* buffer) {
         ? LED_ON : LED_OFF);
     return DRIVER_NO_ERROR;
   }
-  return LED_ERROR_DEVICE_INVALID;
+  return DRIVER_ERROR_CANNOT_READ;
 }
 
 int led_write(device_t dev, int count, char* buffer) {
@@ -78,7 +78,7 @@ int led_write(device_t dev, int count, char* buffer) {
   int task = (int) *buffer;
   int bit = led_device_bit(dev);
   if (bit == DEVICE_INVALID) {
-    return LED_ERROR_DEVICE_INVALID;
+    return DRIVER_ERROR_CANNOT_WRITE;
   }
 
   switch (task) {
@@ -89,7 +89,7 @@ int led_write(device_t dev, int count, char* buffer) {
       *(mem_address_t*) GPIO5_DATAOUT &= ~(1 << bit);
       break;
     default:
-      return LED_ERROR_UNKNOWN_TASK;
+      return DRIVER_ERROR_NOT_SUPPORTED;
   }
   return DRIVER_NO_ERROR;
 }

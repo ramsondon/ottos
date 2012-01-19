@@ -100,3 +100,19 @@ int sys_execute(int priority, BOOLEAN block_current, const char* path) {
 
 	return -1;
 }
+
+void sys_bind(const char* ns, int* success) {
+  swi(SYS_BIND_NAMESPACE, (unsigned int)ns, (unsigned int)success, 0);
+}
+
+void sys_send(const char* ns, message_t* msg, int* success) {
+  swi(SYS_SEND, (unsigned int)ns, (unsigned int)msg, (unsigned int) success);
+}
+
+void sys_wait_msg(const char* ns) {
+  swi(SYS_WAIT_MSG, (unsigned int)ns, 0,0);
+}
+
+void sys_receive(const char* ns, message_t *msg, int* success) {
+  swi(SYS_RECEIVE, (unsigned int)ns, (unsigned int)msg, (unsigned int) success);
+}
