@@ -17,17 +17,22 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 17 Jan 2012
+ *  Created on: 14 Jan 2012
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
+#ifndef API_LED_H_
+#define API_LED_H_
+
 #include <ottos/const.h>
-#include <api/system.h>
 
-int main() {
+typedef enum led {
+	LED_1,
+	LED_2
+} led_t;
 
-	const char* file = "/bin/ottos_led_blinker2";
-	sys_execute(1, TRUE, file);
+EXTERN void led_on(led_t led);
+EXTERN void led_off(led_t led);
+EXTERN void led_toggle(led_t led);
 
-	return 0;
-}
+#endif /* API_LED_H_ */

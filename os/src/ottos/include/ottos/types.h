@@ -57,7 +57,7 @@ typedef address_t file_t;
  */
 typedef struct message_t {
     int type;       /* the message type - to determine by process   */
-    int size;       /* the size of one entry of the message content */
+    size_t size;       /* the size of one entry of the message content */
     int count;      /* the count of a message content's entry       */
     void* content;  /* the actual message content                   */
 } message_t;

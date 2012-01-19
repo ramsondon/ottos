@@ -1,6 +1,6 @@
-/* io.h
+/* ipc.h
  * 
- * Copyright (c) 2011 The ottos_api project.
+ * Copyright (c) 2011 The api project.
  *
  * This work is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,21 +17,33 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 13 Jan 2012
- *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
+ *  Created on: Jan 19, 2012
+ *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef IO_H_
-#define IO_H_
+#ifndef API_IPC_H_
+#define API_IPC_H_
 
-#include <ottos/types.h>
-#include <ottos/const.h>
+#define IPC_SUCCESS 1
+#define IPC_WAITING 0
 
-#define STDIN    0
-#define STDOUT   1
-#define STDERR   2
 
-EXTERN void print(const char* buffer);
-EXTERN void read_serial(char* buffer, size_t count);
+/*
+ * Binds a namespace of a sending process. Must be called before sending.
+ */
+EXTERN int bind(const char* ns);
 
-#endif /* IO_H_ */
+/*
+ * Sends a message to namespace ns. sys_bind must be called first. The method
+ * will be handled successfully if a receiving process is running, else it will
+ * result in an error.
+ */
+EXTERN int send(const char* ns, message_t* msg);
+
+/*
+ * Receives a message_t sent to namespace ns of a sending process.
+ * Returns 1 if succeeded else 0
+ */
+EXTERN int receive(const char* ns, message_t* msg);
+
+#endif /* API_IPC_H_ */

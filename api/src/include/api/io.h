@@ -1,12 +1,12 @@
 /* io.h
- *
+ * 
  * Copyright (c) 2011 The ottos_api project.
  *
  * This work is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
  * any later version.
- *
+ * 
  * This work is distributed in the hope that it will be useful, but without
  * any warranty; without even the implied warranty of merchantability or
  * fitness for a particular purpose. See the GNU Lesser General Public License
@@ -17,22 +17,31 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 14 Jan 2012
+ *  Created on: 13 Jan 2012
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#ifndef LED_H_
-#define LED_H_
+#ifndef API_IO_H_
+#define API_IO_H_
 
+#include <ottos/types.h>
 #include <ottos/const.h>
 
-typedef enum led {
-	LED_1,
-	LED_2
-} led_t;
+#define STDIN    0
+#define STDOUT   1
+#define STDERR   2
 
-EXTERN void led_on(led_t led);
-EXTERN void led_off(led_t led);
-EXTERN void led_toggle(led_t led);
+/*
+ * converts an integer to ascii
+ * @param n number to convert
+ * @param s the output buffer
+ * @param b format (dec = 10)
+ */
+EXTERN char* itoa(int n, char* s, int b);
 
-#endif /* LED_H_ */
+EXTERN char* strrev(char* str);
+
+EXTERN void print(const char* buffer);
+EXTERN void read_serial(char* buffer, size_t count);
+
+#endif /* API_IO_H_ */

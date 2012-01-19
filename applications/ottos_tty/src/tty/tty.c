@@ -28,8 +28,8 @@
 #include <ottos/io.h>
 #include <ottos/const.h>
 #include <ottos/types.h>
-#include <ottos_api/io.h>
-#include <ottos_api/system.h>
+#include <api/io.h>
+#include <api/system.h>
 
 #define FILE void
 
