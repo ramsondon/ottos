@@ -42,6 +42,10 @@ enum ProcessState {
   READY, BLOCKED, RUNNING
 };
 
+enum BlockState {
+  NONE, IPC_WAIT
+};
+
 typedef struct {
     int CPSR;
     int restart_address;
@@ -73,6 +77,7 @@ struct process {
     pid_t pid;
     int priority;
     enum ProcessState state;
+    enum BlockState blockstate;
     pcb_t pcb;
 
     process_t* child;
@@ -97,5 +102,14 @@ pid_t process_create(int priority, code_bytes_t* code_bytes);
 
 // deletes the active process
 void process_delete();
+
+// returns the current process pid
+EXTERN pid_t process_pid();
+
+// sets the ProcessState of process with pid_t pid to BLOCKED
+EXTERN void process_block(pid_t pid);
+
+// sets the process to READY state and blockstate to NONE
+EXTERN void process_unblock(pid_t pid);
 
 #endif /* OTTOS_KERNEL_PM_PROCESS_H_ */

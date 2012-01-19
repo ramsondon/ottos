@@ -42,18 +42,42 @@ EXTERN size_t sys_read();
 EXTERN size_t sys_write();
 EXTERN int sys_close();
 
-/*
+/**
  * IPC system calls
  */
-EXTERN void sys_send(pid_t pid, message_t* msg);
-EXTERN struct message_t* sys_receive();
+/*
+ * Binds a namespace of a sending process. Must be called before sending.
+ * @param success - output parameter if the the method succeeded
+ */
+EXTERN void sys_bind(const char* ns, int* success);
 
 /*
+ * Sends a message to namespace ns. sys_bind must be called first. The method
+ * will be handled successfully if a receiving process is running, else it will
+ * result in an error.
+ * @param success - output parameter if the the method succeeded
+ */
+EXTERN void sys_send(const char* ns, message_t* msg, int* success);
+
+/*
+ * Waits for an IPC message.
+ * The receive method has to be called afterwards to receive the correct message
+ */
+EXTERN void sys_wait_msg(const char* ns);
+
+/*
+ * Receives a message_t sent to namespace ns of a sending process. sys_wait_msg
+ * must be called first.
+ * @param success - output parameter if the the method succeeded
+ */
+EXTERN void sys_receive(const char* ns, message_t* msg, int* success);
+
+/**
  * MMU system calls
  */
 EXTERN void sys_mmu_test();
 
-/*
+/**
  * Syscall tests
  */
 EXTERN void sys_print(int length, char* output);

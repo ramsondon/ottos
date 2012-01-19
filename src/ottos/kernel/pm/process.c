@@ -28,7 +28,9 @@
 
 #include "../intc/irq.h"
 #include "../sched/scheduler.h"
+#include "../ipc/ipc.h"
 #include "../mmu/mmu.h"
+#include "../loader/loader.h"
 
 #include "process.h"
 
@@ -79,6 +81,10 @@ void process_delete() {
 			process_table[process_active]->parent->state = READY;
 		}
 	}
+
+	// destroy all namespaces and pending messages of this IPC receiver pid
+	ipc_kill_receiver(process_active);
+
 	//delete Mastertable Entries for process
 	// TODO (thomas.bargetz@gmail.com) check this function
 	mmu_delete_process_memory(process_table[process_active]);
@@ -101,6 +107,7 @@ pid_t process_create(int priority, code_bytes_t* code_bytes) {
 	p->pid = process_next_free_entry;
 	p->priority = priority;
 	p->state = READY;
+	p->blockstate = NONE;
 	p->child = NULL;
 	p->parent = NULL;
 
@@ -145,4 +152,21 @@ pid_t process_create(int priority, code_bytes_t* code_bytes) {
 	process_update_next_free_entry();
 
 	return p->pid;
+}
+
+pid_t process_pid() {
+  return process_active;
+}
+
+/*
+ * Sets the process status to BLOCKED
+ */
+void process_block(pid_t pid) {
+  process_table[pid]->state = BLOCKED;
+}
+
+void process_unblock(pid_t pid) {
+
+  process_table[pid]->state = READY;
+  process_table[pid]->blockstate = NONE;
 }

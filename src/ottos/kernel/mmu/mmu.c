@@ -410,14 +410,16 @@ BOOLEAN mmu_handle_data_abort() {
 	asm(" LDR r1, fault_state");
 	asm(" STR r0, [r1]");
 
-	if (mmu_is_legal(accessed_address, fault_state) == TRUE) {
+  mmu_switch_to_kernel();
+  kernel_debug(1, "data abort");
 
-		mmu_switch_to_kernel();
+	if (mmu_is_legal(accessed_address, fault_state) == TRUE) {
+	  kernel_debug(1, "create mapped page");
 		mmu_create_mapped_page(process_table[process_active]->master_table_address, (address) accessed_address, 0);
 		mmu_init_memory_for_process(process_table[process_active]);
 	} else {
 		if (process_active != PID_INVALID) {
-			mmu_switch_to_kernel();
+			kernel_debug(1, "invalid accessed address and fault status");
 			process_delete();
 
 			// return TRUE to induce a context switch
