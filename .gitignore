@@ -5,3 +5,5 @@ Release/
 .project
 .settings/
 minicom.cap
+*.ccxml
+ottos_api.lib
