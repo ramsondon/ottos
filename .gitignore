@@ -6,4 +6,10 @@ Release/
 .settings/
 minicom.cap
 *.ccxml
+ottos_api.lib
 tools/src/ihex2one
+applications/ottos_exec_test/lib/
+applications/ottos_ipcclient/lib/
+applications/ottos_ipcserver/lib/
+applications/ottos_led_blinker/lib/
+applications/ottos_tty/lib/
