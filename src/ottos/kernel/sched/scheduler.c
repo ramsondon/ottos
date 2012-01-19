@@ -57,8 +57,8 @@ void scheduler_next() {
 		  // choose new process
 		  if (process_table[i]->state == READY) {
 		    process_active = i;
+		    return;
 		  }
-		  return;
 		}
 	}
 }
