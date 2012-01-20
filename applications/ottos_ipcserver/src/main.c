@@ -58,6 +58,7 @@ int main(int argc, char **argv) {
     // receive message
     if (receive("test", &msg) == IPC_SUCCESS) {
       int i = 0;
+      int* c = (int*)msg.content;
 
       itoa(msg.type, msgtype, 10);
       print(msgtype);
@@ -67,7 +68,6 @@ int main(int argc, char **argv) {
       // print message
       for (i = 0; i < 4; i++) {
           char convert[10] = { 0 };
-          int* c = (int*)msg.content;
           itoa(c[i], convert, 10);
           print(convert);
       }
