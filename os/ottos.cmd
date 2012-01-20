@@ -4,8 +4,8 @@
 // Basic configuration using only external memory
 //
 
--stack           0x00002000
--heap            0x00010000
+-stack           0x00010000
+-heap            0x00400000
 
 MEMORY
 {
