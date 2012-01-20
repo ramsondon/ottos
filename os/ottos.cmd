@@ -13,7 +13,7 @@ MEMORY
    int_ram:  ORIGIN = 0x40204000  LENGTH = 0x0000BFC4
    int_vecs: ORIGIN = 0x4020FFC4  LENGTH = 0x0000003B
    
-   ext_ddr:  ORIGIN = 0x82000000  LENGTH = 0x02000000 // 256 MBit = 32 MB
+   ext_ddr:  ORIGIN = 0x80000000  LENGTH = 0x10000000 // 256 MB
    										  
 }
 
