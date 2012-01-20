@@ -33,15 +33,6 @@ void busy_wait() {
     }
 }
 
-typedef struct foobaz_t {
-    int a;
-    int b;
-    int c;
-    int d;
-} foobaz_t;
-
-
-
 int main(int argc, char **argv) {
 
   int message_code = 0;
@@ -49,35 +40,29 @@ int main(int argc, char **argv) {
   while(1) {
 
     char msgtype[10] = {0};
-    message_t* msg = (message_t*)malloc(sizeof(message_t));
+    int content[4] = {0};
+    message_t msg;
+    msg.type = message_code++;
+    msg.size = sizeof(content);
+    msg.count = 1;
+    msg.content = &content;
 
-    msg->type = message_code++;
-    msg->size = sizeof(foobaz_t);
-    msg->count = 1;
-    msg->content = malloc(msg->size * msg->count);
-
-    ((foobaz_t*)msg->content)->a = 4;
-    ((foobaz_t*)msg->content)->b = 7;
-    ((foobaz_t*)msg->content)->c = 1;
-    ((foobaz_t*)msg->content)->d = 1;
+    content[0] = 4;
+    content[1] = 7;
+    content[2] = 1;
+    content[3] = 1;
 
     // wait some time to send message
     busy_wait();
     print("[CLIENT] [SEND] [TYPE] ");
 
-
-    if (send("test", msg) == IPC_SUCCESS) {
-      itoa(msg->type, msgtype, 10);
-
+    if (send("test", &msg) == IPC_SUCCESS) {
+      itoa(msg.type, msgtype, 10);
       print((char*)msgtype);
     } else {
       print("[ERROR WHILE SENDING]");
     }
     print("\n\r");
-
-    free(msg->content);
-    free(msg);
-    msg = NULL;
   }
 
   return 0;
