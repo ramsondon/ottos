@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
       for (i = 0; i < 4; i++) {
           char convert[10] = { 0 };
           int* c = (int*)msg.content;
-          itoa(*c, convert, 10);
+          itoa(c[i], convert, 10);
           print(convert);
       }
     } else {
