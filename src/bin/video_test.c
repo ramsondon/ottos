@@ -31,6 +31,8 @@
 #include "../fs/vfat/fat_filelib.h"
 //#include "../fs/fs.h"
 
+#include <ottos/kernel.h>
+
 #include <stdlib.h>
 
 
@@ -75,9 +77,30 @@ void video_bmp_test_file() {
   BITMAP_FILEHEADER* bmpFileHeader = (BITMAP_FILEHEADER*)malloc(sizeof(BITMAP_FILEHEADER));
   BITMAP_HEADER* bmpHeader = (BITMAP_HEADER*)malloc(sizeof(BITMAP_HEADER));
 
+  int file_length = 0;
+  char* file_content = NULL;
+  int i = 0;
+
   // load bmp file: sun.bmp | katze.bmp | katze_.bmp
-  fs_init();
+  //fs_init();
   file = fl_fopen("/test8.bmp", "r");
+
+  fl_fseek(file, 0, SEEK_END);
+  file_length = fl_ftell(file);
+  fl_fseek(file, 0, SEEK_SET);
+
+  file_content = malloc(sizeof(char) * file_length);
+  fl_fread(file_content, sizeof(char), file_length, file);
+
+  fl_fclose(file);
+  for(i = 0; i < file_length; i++) {
+    char output[2] = {'\0'};
+    sprintf(output, "%c\0", file_content[i]);
+    kernel_print(output);
+    if(i % 50 == 0) {
+      kernel_print("\r\n");
+    }
+  }
 
   // init video
   video_init(RES_WIDTH, RES_HEIGHT);
@@ -88,7 +111,8 @@ void video_bmp_test_file() {
   graphics_set_color(rp, 0x3e31a2);
   graphics_draw_rect(rp, WIDTH, HEIGHT);
 
-  bmp = graphics_parse_bmp_picture(file, bmpFileHeader, bmpHeader);
+  //bmp = graphics_parse_bmp_picture(file, bmpFileHeader, bmpHeader);
+  bmp = graphics_parse_bmp_picture_array(file_content, file_length, bmpFileHeader, bmpHeader);
   graphics_draw_picture(200, 200, bmpHeader, bmp);
 }
 

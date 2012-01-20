@@ -108,10 +108,10 @@ RGBA* graphics_parse_bmp_picture_array(void* filecontent, int size, BITMAP_FILEH
   }
 
   /* Only full color tables are supported */
-  if (ColorTableSize != bmpHeader->ClrUsed) {
+ /* if (bmpHeader->ClrUsed != 0 && ColorTableSize != bmpHeader->ClrUsed) {
     return 0;
   }
-
+*/
   // jump to begin of color table
   file += bmpHeader->HeaderSize;
   ColorTable = (BGRA*)file;
