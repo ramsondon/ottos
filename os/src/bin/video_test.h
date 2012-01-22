@@ -32,6 +32,7 @@
 #define HEIGHT 768
 
 EXTERN void video_test();
-EXTERN void video_bmp_test();
+EXTERN void video_bmp_test_file();
+EXTERN void video_bmp_test_array();
 
 #endif /* VIDEO_TEST_H_ */
