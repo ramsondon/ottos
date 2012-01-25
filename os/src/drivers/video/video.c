@@ -295,12 +295,15 @@ int video_close(device_t dev) {
   free(video_framebuffer->data);
   free(video_framebuffer);
   video_framebuffer = NULL;
+
+  return TRUE;
 }
 
 int video_write(device_t dev, int count, char* buffer) {
   // TODO (go.goflo@gmail.com) --> implement video_write()
   // memcopy --> given buffer into framebuffer
   memcpy(video_framebuffer->data, buffer, count);
+  return count;
 }
 
 int video_read(device_t dev, int count, char* buffer) {
