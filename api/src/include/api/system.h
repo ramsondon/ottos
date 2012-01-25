@@ -35,6 +35,8 @@
 #define SYSTEM_LED_0_PATH SYSTEM_DEV_PATH "/led0"
 #define SYSTEM_LED_1_PATH SYSTEM_DEV_PATH "/led1"
 
+#define SYSTEM_VIDEO_0_PATH SYSTEM_DEV_PATH "/video0"
+
 // binary flags. increase new flag number in binary order (e.g.: 1, 2, 4, 8, ...)
 #define SYSTEM_FLAG_READ 1
 #define SYSTEM_FLAG_WRITE 2

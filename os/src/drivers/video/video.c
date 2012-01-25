@@ -24,14 +24,20 @@
 #include "../../hal/platform.h"
 #include "video.h"
 
+#include <ottos/error.h>
 #include <ottos/memory.h>
+
+#include <stdlib.h>
+#include <string.h>
+
+static FRAME_BUFFER* video_framebuffer = NULL;
 
 // Master clock is 864 Mhz, and changing it is a pita since it cascades to other
 // devices.
 // Pixel clock is  864 / cm_clksel_dss.dss1_alwan_fclk / dispc_divisor.divisor.pcd
 // So most of these modes are just approximate.
 // List must be in ascending order.
-DISP_VIDEO_MODE modes[] = {
+static VIDEO_DISP_MODE modes[] = {
       // 640x480@72
        { 640, 480, "640x480-71", ((480 - 1) << 16) | (640 - 1),
          (128 << DISPCB_HBP) | (24 << DISPCB_HFP) | (40 << DISPCB_HSW),
@@ -144,7 +150,7 @@ static void video_dispc_init(void) {
 
 static void video_set_lcd_mode(int w, int h) {
   int i;
-  DISP_VIDEO_MODE *m;
+  VIDEO_DISP_MODE *m;
 
   for (i = 0; i < sizeof(modes) / sizeof(modes[0]); i++) {
     if (w <= modes[i].width && h <= modes[i].height) {
@@ -175,7 +181,7 @@ found:
 // set a bitmap on the given video source
 // id: 0 = gfx, 1 = vid1, 2 = vid2
 // id: (1<<8) = set digital (tv) out
-void video_attach_framebuffer(int id, BitMap *bm) {
+void video_attach_framebuffer(int id, FRAME_BUFFER *bm) {
   uint32_t vheight, vwidth, dheight, dwidth, pos, gsize;
   uint32_t vsize, attr = 0;
   uint32_t rowinc = 1;
@@ -185,22 +191,7 @@ void video_attach_framebuffer(int id, BitMap *bm) {
   // FIXME: other formats than RGB16 taken from bitmap
   // FIXME: add a scale-to-fit bit for video overlays?
 
-  /*
-  if (id & VID_TVOUT) {
-    vsize = Read32(DISPC_SIZE_DIG);
-    gobit = DISPC_GODIGITAL | DISPC_DIGITALENABLE;
-    attr = id > VID_TVOUT ? DISPC_VIDCHANNELOUT : DISPC_GFXCHANNELOUT;
-    // turn off test pattern
-    Set32(VENC_BASE, VENC_F_CONTROL, VENC_SVDS_MASK, VENC_SVDS_EXTERNAL);
-    // data is interlaced
-    rowinc += bm->stride;
-    data0 += bm->stride;
-  } else {
-  */
-    vsize = MMIO_READ32(DISPC_SIZE_LCD);
-    //gobit = DISPC_GOLCD;
-    attr = 0;
-  //}
+  vsize = MMIO_READ32(DISPC_SIZE_LCD);
 
   // Centre graphics on display for now
   vheight = (vsize >> 16) + 1;
@@ -265,7 +256,19 @@ void video_attach_framebuffer(int id, BitMap *bm) {
 }
 
 
-void video_init(int width, int height) {
+int video_open(device_t dev) {
+  if (video_framebuffer != NULL) {
+    // the video module is already initialized
+    return DRIVER_ERROR_CANNOT_OPEN;
+  }
+
+  video_framebuffer = (FRAME_BUFFER*)malloc(sizeof(FRAME_BUFFER));
+  video_framebuffer->width = VIDEO_RESOLUTION_WIDTH;
+  video_framebuffer->height = VIDEO_RESOLUTION_HEIGHT;
+  video_framebuffer->format = BM_RGB16;
+  video_framebuffer->stride = video_framebuffer->width * 2;
+  video_framebuffer->data = (void*)malloc(VIDEO_RESOLUTION_HEIGHT*VIDEO_RESOLUTION_HEIGHT*4);
+
   MMIO_WRITE32(DISPC_IRQENABLE, 0x00000);
   MMIO_WRITE32(DISPC_IRQSTATUS, 0x1ffff);
 
@@ -277,6 +280,38 @@ void video_init(int width, int height) {
   // initialize the display controller
   video_dispc_init();
 
-  video_set_lcd_mode(width, height);
+  video_set_lcd_mode(VIDEO_RESOLUTION_WIDTH, VIDEO_RESOLUTION_HEIGHT);
+
+
+  // TODO (go.goflo@gmail.com) --> video_attach_framebuffer(0, bitmap)
+  video_attach_framebuffer(0, video_framebuffer);
+
+  return DRIVER_NO_ERROR;
+}
+
+
+int video_close(device_t dev) {
+  // free memory
+  free(video_framebuffer->data);
+  free(video_framebuffer);
+  video_framebuffer = NULL;
+}
+
+int video_write(device_t dev, int count, char* buffer) {
+  // TODO (go.goflo@gmail.com) --> implement video_write()
+  // memcopy --> given buffer into framebuffer
+  memcpy(video_framebuffer->data, buffer, count);
+}
+
+int video_read(device_t dev, int count, char* buffer) {
+  return DRIVER_ERROR_NOT_SUPPORTED;
+}
+
+int video_ioctl(device_t dev, ioctl_t msg) {
+  return DRIVER_ERROR_NOT_SUPPORTED;
+}
+
+int video_create(device_t dev) {
+  return DRIVER_ERROR_NOT_SUPPORTED;
 }
 

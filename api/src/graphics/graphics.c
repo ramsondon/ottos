@@ -21,29 +21,38 @@
  *      Author: Florian Gopp (go.goflo@gmail.com)
  */
 
-#include "graphics.h"
-#include "colors.h"
+#include <api/graphics.h>
+#include <api/colors.h>
+#include <api/system.h>
 #include <math.h>
 
-static RastPort defrp;
-static BitMap fb;
+static RastPort* graphics_rastport;
+static BitMap* graphics_framebuffer;
 
 /* can only be called once ... */
-RastPort *graphics_init(char *fbaddr, int width, int height, int type) {
-  fb.width = width;
-  fb.height = height;
-  fb.format = type;
-  fb.stride = width * 2;
-  fb.data = fbaddr;
+RastPort* graphics_init(char* framebuffer, int width, int height, int type) {
+  graphics_framebuffer->width = width;
+  graphics_framebuffer->height = height;
+  graphics_framebuffer->format = type;
+  graphics_framebuffer->stride = width * 2;
+  graphics_framebuffer->data = framebuffer;
 
-  defrp.x = 0;
-  defrp.y = 0;
-  defrp.point = fb.data;
-  defrp.color = 0x000000;
-  defrp.font.romfont = (RomFont*) &graphics_font_misc_fixed;
-  defrp.drawable.bitmap = &fb;
+  graphics_rastport->x = 0;
+  graphics_rastport->y = 0;
+  graphics_rastport->point = graphics_framebuffer->data;
+  graphics_rastport->color = COLOR_Black;
+  graphics_rastport->font.romfont = (RomFont*) &graphics_font_misc_fixed;
+  graphics_rastport->drawable.bitmap = graphics_framebuffer;
 
-  return &defrp;
+  return graphics_rastport;
+}
+
+void graphics_redraw(RastPort* rp) {
+  int fd = sys_open(SYSTEM_VIDEO_0_PATH, SYSTEM_FLAG_WRITE);
+  if (fd != SYSTEM_FD_INVALID && rp != NULL) {
+    sys_write(fd, (char*)rp->drawable.bitmap->data, rp->drawable.bitmap->height*rp->drawable.bitmap->width*4);
+    //sys_close(fd);
+  }
 }
 
 void graphics_set_color(RastPort *rp, unsigned int rgb) {
@@ -103,7 +112,7 @@ void graphics_draw_ellipse(RastPort* rp, int xm, int ym, int a, int b) {
 
 
 #define GRAPHICS_GRAPH_TEMP_MAX   40
-#define GRAPHICS_GRAPH_TEMP_MIN   -12.736
+#define GRAPHICS_GRAPH_TEMP_MIN   -12
 
 void graphics_draw_graph(RastPort *rp, int* data, int length, int timespan, int height, int width,
                          unsigned int color_line, unsigned int color_background) {
@@ -251,14 +260,14 @@ void graphics_draw_picture(int x, int y, BITMAP_HEADER* bmp_header, RGBA* data) 
   int curY = y;
   RGBA* curPixel = data;
 
-  graphics_move_to(&defrp, curX, curY);
+  graphics_move_to(graphics_rastport, curX, curY);
 
   for (l = 0; l < bmp_header->height; l++) {
     curX = x;
     for (w = 0; w < bmp_header->width; w++) {
-      graphics_set_color(&defrp, (curPixel->Red << 6) | (curPixel->Green << 4) | (curPixel->Blue << 2));
-      graphics_move_to(&defrp, curX, curY);
-      graphics_draw_pixel(&defrp);
+      graphics_set_color(graphics_rastport, (curPixel->Red << 6) | (curPixel->Green << 4) | (curPixel->Blue << 2));
+      graphics_move_to(graphics_rastport, curX, curY);
+      graphics_draw_pixel(graphics_rastport);
       curPixel++;
       curX++;
     }

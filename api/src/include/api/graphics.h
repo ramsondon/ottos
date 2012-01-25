@@ -26,7 +26,7 @@
 
 #include <ottos/types.h>
 #include <ottos/const.h>
-#include "bitmap.h"
+#include <api/bitmap.h>
 
 typedef struct {
   const char* name;
@@ -75,7 +75,7 @@ typedef struct {
 
   union {
     BitMap* bitmap;
-  } drawable;           /* ??? */
+  } drawable;           /* the region into which the data are written */
 } RastPort;
 
 
@@ -87,7 +87,7 @@ typedef struct {
 EXTERN RomFont const graphics_font_misc_fixed;
 
 /* can only be called once ... */
-RastPort* graphics_init(char *fbaddr, int width, int height, int type);
+RastPort* graphics_init(char* framebuffer, int width, int height, int type);
 
 EXTERN void graphics_set_color(RastPort* rp, unsigned int rgb);
 EXTERN void graphics_move_to(RastPort* rp, int x, int y);
@@ -98,5 +98,6 @@ EXTERN void graphics_draw_line(RastPort* rp, int x_start, int y_start, int x_end
 EXTERN void graphics_draw_char(RastPort* rp, unsigned int c, int scale);
 EXTERN void graphics_draw_string(RastPort* rp, const char* s, int scale);
 EXTERN void graphics_draw_picture(int x, int y, BITMAP_HEADER* bmp_header, RGBA *data);
+EXTERN void graphics_redraw(RastPort* rp);
 
 #endif /* GRAPHICS_H_ */
