@@ -225,10 +225,10 @@ BOOLEAN swi_handle_sys_send(int ns_address, int msg_address, int result_address)
       (const char*) mmu_get_physical_address(process_table[process_pid()], ns_address);
   message_t* message =
       (message_t*) mmu_get_physical_address(process_table[process_pid()], msg_address);
-
   int* result = (int*)mmu_get_physical_address(process_table[process_pid()], result_address);
+  void* content = (void*)mmu_get_physical_address(process_table[process_pid()], (unsigned int)message->content);
 
-  *result = ipc_send_msg(namespace, *message, process_pid());
+  *result = ipc_send_msg(namespace, *message, content, process_pid());
 
   return FALSE;
 }
@@ -253,8 +253,9 @@ BOOLEAN swi_handle_sys_receive(int ns_address, int msg_address, int result_addre
   message_t* message =
       (message_t*) mmu_get_physical_address(process_table[process_pid()], msg_address);
   int* result = (int*)mmu_get_physical_address(process_table[process_pid()], result_address);
+  void* content = (void*)mmu_get_physical_address(process_table[process_pid()], (unsigned int)message->content);
 
-  *result = ipc_receive_msg(namespace, message, process_pid());
+  *result = ipc_receive_msg(namespace, message, content, process_pid());
 
   return FALSE;
 }
