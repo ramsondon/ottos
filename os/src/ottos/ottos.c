@@ -147,7 +147,7 @@ void user_app_test() {
 
 void tty_start() {
 	// load tty process
-	code_bytes_t* code = code_get("/bin/ottos_tty");
+	code_bytes_t* code = code_get_single_file("/bin/ottsh");
 	if(code == NULL) {
 		kernel_panic("Cannot start tty");
 		return;

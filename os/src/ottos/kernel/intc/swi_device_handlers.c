@@ -57,7 +57,7 @@ BOOLEAN swi_handle_sys_create(int priority, int block_current, int executable_fi
 	// get the real address of the executable_file_address
 	const char* executable_file = (const char*) mmu_get_physical_address(process_table[process_active], executable_file_address);
 
-	code_bytes_t* code = code_get(executable_file);
+	code_bytes_t* code = code_get_single_file(executable_file);
 	if(code == NULL) {
 		return FALSE;
 	}
