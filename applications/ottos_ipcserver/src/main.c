@@ -26,13 +26,6 @@
 #include <api/io.h>
 #include <api/ipc.h>
 
-typedef struct foobaz_t {
-  int a;
-  int b;
-  int c;
-  int d;
-} foobaz_t;
-
 void array_init(char * array, int size) {
   int i = 0;
   for (i = 0; i < size; i++) {
@@ -52,47 +45,36 @@ int main(int argc, char **argv) {
 
   while (1) {
     char msgtype[10] = { 0 };
-    char convert[10] = { 0 };
+    int* content = malloc(sizeof(int)*4);
 
-    message_t* msg = (message_t*) malloc(sizeof(message_t));
+    message_t msg;
+    msg.type = 0;
+    msg.size = sizeof(int);
+    msg.count = 4;
+    msg.content = content;
 
-    msg->type = 0;
-    msg->size = sizeof(foobaz_t);
-    msg->count = 1;
-    msg->content = malloc(msg->size * msg->count);
-
-    print("[SERVER] [CODE] ");
+    print("[SERVER] [TYPE] ");
 
     // receive message
-    if (receive("test", msg) == IPC_SUCCESS) {
-
-      itoa(((foobaz_t*) msg->content)->a, convert, 10);
-      print(convert);
-      array_init(convert, 10);
-      itoa(((foobaz_t*) msg->content)->b, convert, 10);
-      print(convert);
-      array_init(convert, 10);
-      itoa(((foobaz_t*) msg->content)->c, convert, 10);
-      print(convert);
-      array_init(convert, 10);
-      itoa(((foobaz_t*) msg->content)->d, convert, 10);
-      print(convert);
-
-      itoa(msg->type, msgtype, 10);
-      msgtype[9] = 0;
-      print(" [MESSAGE] ");
+    if (receive("test", &msg) == IPC_SUCCESS) {
+      int i = 0;
+      int* c = (int*)msg.content;
+      itoa(msg.type, msgtype, 10);
       print(msgtype);
 
+      print(" [MESSAGE] ");
 
+      // print message
+      for (i = 0; i < 4; i++) {
+          char convert[1] = {'\0'};
+          itoa(c[i], convert, 10);
+          print(convert);
+      }
     } else {
       print("[RECEIVING ERROR]");
     }
     print("\n\r");
-
-    free(msg->content);
-    free(msg);
-    msg = NULL;
+    free(content);
   }
-
   return 0;
 }

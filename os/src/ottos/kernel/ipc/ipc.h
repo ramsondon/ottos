@@ -119,7 +119,7 @@ EXTERN int ipc_unbind(const char* ns, pid_t pid);
 /*
  * Sends a message_t to the a process listening to namespace ns
  */
-EXTERN int ipc_send_msg(const char* ns, message_t msg, pid_t pid);
+EXTERN int ipc_send_msg(const char* ns, message_t msg, const void* content, pid_t pid);
 
 /*
  * Receives all message_t sent to namespace msg
@@ -131,7 +131,7 @@ EXTERN int ipc_send_msg(const char* ns, message_t msg, pid_t pid);
  * @param msg message received message
  * @return SUCCESS = 1, WAITING = 0
  */
-EXTERN int ipc_receive_msg(const char* ns, message_t* msg, pid_t pid);
+EXTERN int ipc_receive_msg(const char* ns, message_t* msg, void* content, pid_t pid);
 
 /*
  * removes namespaces and pending messages for process with pid
