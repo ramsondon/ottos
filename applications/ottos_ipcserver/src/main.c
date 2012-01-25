@@ -45,13 +45,13 @@ int main(int argc, char **argv) {
 
   while (1) {
     char msgtype[10] = { 0 };
-    int content[4] = {0};
+    int* content = malloc(sizeof(int)*4);
 
     message_t msg;
     msg.type = 0;
-    msg.size = sizeof(content);
-    msg.count = 1;
-    msg.content = &content;
+    msg.size = sizeof(int);
+    msg.count = 4;
+    msg.content = content;
 
     print("[SERVER] [TYPE] ");
 
@@ -59,7 +59,6 @@ int main(int argc, char **argv) {
     if (receive("test", &msg) == IPC_SUCCESS) {
       int i = 0;
       int* c = (int*)msg.content;
-
       itoa(msg.type, msgtype, 10);
       print(msgtype);
 
@@ -67,7 +66,7 @@ int main(int argc, char **argv) {
 
       // print message
       for (i = 0; i < 4; i++) {
-          char convert[10] = { 0 };
+          char convert[1] = {'\0'};
           itoa(c[i], convert, 10);
           print(convert);
       }
@@ -75,6 +74,7 @@ int main(int argc, char **argv) {
       print("[RECEIVING ERROR]");
     }
     print("\n\r");
+    free(content);
   }
   return 0;
 }

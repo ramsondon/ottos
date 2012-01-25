@@ -40,17 +40,17 @@ int main(int argc, char **argv) {
   while(1) {
 
     char msgtype[10] = {0};
-    int content[4] = {0};
+    int* content = malloc(sizeof(int) * 4);
     message_t msg;
     msg.type = message_code++;
-    msg.size = sizeof(content);
-    msg.count = 1;
-    msg.content = &content;
+    msg.size = sizeof(int);
+    msg.count = 4;
 
-    content[0] = 4;
-    content[1] = 7;
-    content[2] = 1;
-    content[3] = 1;
+    content[0] = 9;
+    content[1] = 9;
+    content[2] = 9;
+    content[3] = 9;
+    msg.content = content;
 
     // wait some time to send message
     busy_wait();
@@ -63,6 +63,7 @@ int main(int argc, char **argv) {
       print("[ERROR WHILE SENDING]");
     }
     print("\n\r");
+    free(content);
   }
 
   return 0;
