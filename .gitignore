@@ -13,3 +13,4 @@ applications/ottos_ipcclient/lib/
 applications/ottos_ipcserver/lib/
 applications/ottos_led_blinker/lib/
 applications/ottos_tty/lib/
+applications/ottos_ui/lib/
