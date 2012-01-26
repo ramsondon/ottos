@@ -1,6 +1,6 @@
-/* video_test.h
+/* main.c
  *
- * Copyright (c) 2011 The ottos project.
+ * Copyright (c) 2011 The ottos_ui project.
  *
  * This work is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,22 +17,14 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 11.01.2012
+ *  Created on: 25.01.2012
  *      Author: Florian Gopp (go.goflo@gmail.com)
  */
 
-#ifndef VIDEO_TEST_H_
-#define VIDEO_TEST_H_
+#include "ow_ui/ow_ui.h"
 
-#include <ottos/const.h>
+int main() {
 
-#define RES_WIDTH 1024
-#define RES_HEIGHT 768
-#define WIDTH  1024
-#define HEIGHT 768
-
-EXTERN void video_test();
-EXTERN void video_bmp_test_file();
-EXTERN void video_bmp_test_array();
-
-#endif /* VIDEO_TEST_H_ */
+  video_test();
+  return 0;
+}
