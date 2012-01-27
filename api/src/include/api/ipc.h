@@ -24,6 +24,8 @@
 #ifndef API_IPC_H_
 #define API_IPC_H_
 
+#include <ottos/const.h>
+
 #define IPC_SUCCESS 1
 #define IPC_WAITING 0
 

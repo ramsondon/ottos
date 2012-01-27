@@ -22,8 +22,11 @@
  */
 #include <string.h>
 #include <stdlib.h>
+#include <ottos/memory.h>
 
 #include <ottos/types.h>
+#include <ottos/kernel.h>
+#include <ottos/io.h>
 
 #include "ipc.h"
 /*
@@ -413,7 +416,7 @@ int ipc_unbind(const char* ns, pid_t pid) {
  * Makes a copy of the message_t msg and adds it to the message buffer.
  * If no receiver is available the result will be waiting.
  */
-int ipc_send_msg(const char* ns, message_t msg, pid_t sender) {
+int ipc_send_msg(const char* ns, message_t msg, const void* content, pid_t sender) {
 
   message_t* msgcpy = NULL;
   IPC_MESSAGE* new_ipc_msg = NULL;
@@ -440,18 +443,19 @@ int ipc_send_msg(const char* ns, message_t msg, pid_t sender) {
 
   while (receiver != NULL) {
 
+    size_t size = msg.count * msg.size;
+
     // create message
     msgcpy = malloc(sizeof(message_t));
     msgcpy->type = msg.type;
     msgcpy->count = msg.count;
     msgcpy->size = msg.size;
 
-    // TODO: check functionality with message->content
-    msgcpy->content = malloc(msg.size * msg.count);
+    msgcpy->content = malloc(size);
+
+    // copy user space content into kernel message copy content
+    memcpy(msgcpy->content, content, size);
     new_ipc_msg = malloc(sizeof(IPC_MESSAGE));
-
-
-
 
     /* set the pid_t of the sender */
     new_ipc_msg->sender = sender;
@@ -467,7 +471,7 @@ int ipc_send_msg(const char* ns, message_t msg, pid_t sender) {
   return SUCCESS;
 }
 
-int ipc_receive_msg(const char* ns, message_t* msg, pid_t pid) {
+int ipc_receive_msg(const char* ns, message_t* msg, void* content, pid_t pid) {
 
   IPC_MESSAGE* current = ipc_message_queue.head;
   IPC_MESSAGE* prev = NULL;
@@ -477,19 +481,23 @@ int ipc_receive_msg(const char* ns, message_t* msg, pid_t pid) {
   if (namespace != NULL && ipc_lookup_receiver(namespace, pid) != NULL) {
 
     while (current != NULL) {
+
       if (strcmp(current->ns, ns) == 0) {
+
+        size_t size = msg->count * msg->size;
 
         // set ouptut message
         msg->type = current->message->type;
         msg->count = current->message->count;
         msg->size = current->message->size;
-        msg->content = current->message->content;
+
+        // copy kernel space message content into user space content pointer
+        memcpy(content, current->message->content, size);
 
         // remove message from queue
         ipc_remove_from_queue(&ipc_message_queue, current, prev);
 
         // free message
-        // TODO: check functionality
         free(current->message->content);
         free(current->message);
         free(current);
