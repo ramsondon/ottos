@@ -44,7 +44,9 @@ static int system_get_device_id(const char* path) {
 		return LED_0;
 	} else if (strcmp(SYSTEM_LED_1_PATH, path) == 0) {
 		return LED_1;
-	}
+	} else if (strcmp(SYSTEM_VIDEO_0_PATH, path) == 0) {
+    return VIDEO_0;
+  }
 	return SYSTEM_DEV_ID_INVALID;
 }
 
@@ -91,6 +93,13 @@ int sys_close(int fd) {
 	swi(SYS_CLOSE, (unsigned int) &return_value, fd, 0);
 
 	return return_value;
+}
+
+unsigned int sys_physical_address_of(const void* address) {
+
+  unsigned int physical_address = 0;
+  swi(SYS_PHYSICAL_ADDRESS, (unsigned int) address, (unsigned int) &physical_address, 0);
+  return physical_address;
 }
 
 int sys_execute(int priority, BOOLEAN block_current, const char* path) {
