@@ -191,16 +191,16 @@ static void tty_print_startup() {
 }
 
 int tty_getline(char* buffer, int length) {
-  int i = 0;
-  char c;
-  do {
-	  read_serial(&c, 1);
-	  print(&c);
-	  buffer[i] = c;
-  } while (c != '\n' && i++ < length);
-
-  buffer[i] = '\0';
-  return i;
+//  int i = 0;
+//  char c;
+//  do {
+//	  read_serial(&c, 1);
+//	  print(&c);
+//	  buffer[i] = c;
+//  } while (c != '\n' && i++ < length);
+//
+//  buffer[i] = '\0';
+  return read_serial_with_end_char(buffer, length, '\n');
 }
 
 void tty_run() {
@@ -213,6 +213,7 @@ void tty_run() {
   while (TRUE) {
     // XXX: how do we ensure, we do not read more than 1025 characters?
     char line[1024 + 1] = { '\0' };
+
     char* tokens;
     char cmd[64];
     int rc;
@@ -231,6 +232,7 @@ void tty_run() {
     rc = tty_getline(line, 1024);
     print("\r\n");
     print("your command: ");
+
     line[1024] = 0;
     print(line);
     print("\r\n");
