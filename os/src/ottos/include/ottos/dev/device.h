@@ -56,6 +56,7 @@ typedef int device_t;
 #define LED_0           11
 #define LED_1           12
 #define SERIAL_0        13
+#define VIDEO_0         14
 
 /**
  * External devices

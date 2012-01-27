@@ -26,7 +26,22 @@
 
 #include <ottos/types.h>
 #include <ottos/const.h>
-#include "../../graphics/graphics.h"
+#include <ottos/drivers/driver.h>
+
+// default resolution
+#define VIDEO_RESOLUTION_HEIGHT   768
+#define VIDEO_RESOLUTION_WIDTH    1024
+
+/* NB: these mirror the omap modes */
+#define BM_BITMAP1    0
+#define BM_BITMAP2    1
+#define BM_BITMAP4    2
+#define BM_BITMAP8    3
+#define BM_RGB16      6
+#define BM_RGB23      9
+#define BM_ARGB32     12
+#define BM_YUV2       10
+#define BM_UYVY       11
 
 #define VENC_MODE_NTSC (0)
 #define VENC_MODE_PAL (1)
@@ -39,9 +54,33 @@ typedef struct {
   uint32_t dispc_timing_v;
   uint32_t dispc_divisor;
   uint32_t dss_divisor;
-} DISP_VIDEO_MODE;
+} VIDEO_DISP_MODE;
 
-EXTERN void video_init(int width, int height);
-EXTERN void video_attach_framebuffer(int id, BitMap* bm);
+typedef struct {
+  int width;
+  int height;
+  int format;
+  int stride;
+  void* data;
+} FRAME_BUFFER;
+
+
+int video_open(device_t dev);
+int video_close(device_t dev);
+int video_read(device_t dev, int count, char* buffer);
+int video_write(device_t dev, int count, char* buffer);
+int video_ioctl(device_t dev, ioctl_t msg);
+int video_create(device_t dev);
+
+
+static driver_t omap_video_driver = {
+  video_open,
+  video_close,
+  video_read,
+  video_write,
+  video_ioctl,
+  video_create
+};
+
 
 #endif /* VIDEO_H_ */

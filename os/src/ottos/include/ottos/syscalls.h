@@ -39,6 +39,7 @@
 #define SYS_READ    12
 #define SYS_WRITE   13
 
+#define SYS_PHYSICAL_ADDRESS 14
 
 /**
  * File system calls

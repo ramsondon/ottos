@@ -26,7 +26,7 @@
 
 #include <ottos/types.h>
 #include <ottos/const.h>
-#include "bitmap.h"
+#include <api/bitmap.h>
 
 typedef struct {
   const char* name;
@@ -59,12 +59,17 @@ typedef struct {
 #define BM_YUV2       10
 #define BM_UYVY       11
 
+#define RESOLUTION_HEIGHT   768
+#define RESOLUTION_WIDTH    1024
+
+// correct the height of the ellipse --> this is needed because we use a 16:9 display but a 4:3 resolution
+#define GRAPHICS_RESOLUTION_CORRECTION_FACTOR   1.333
 
 typedef struct {
   int x;                /* width position of the current pixel on the screen */
   int y;                /* height position of the current pixel on the screen */
   void* point;          /* pointer to the memory where the current pixel resides */
-  unsigned int colour;  /* current color which is used to draw pixels */
+  unsigned int color;  /* current color which is used to draw pixels */
 
   union {
     RomFont* romfont;
@@ -72,21 +77,29 @@ typedef struct {
 
   union {
     BitMap* bitmap;
-  } drawable;           /* ??? */
+  } drawable;           /* the region into which the data are written */
 } RastPort;
 
+
+typedef struct {
+    int x;
+    int y;
+} Point;
 
 EXTERN RomFont const graphics_font_misc_fixed;
 
 /* can only be called once ... */
-RastPort* graphics_init(char *fbaddr, int width, int height, int type);
+EXTERN RastPort* graphics_init(char* framebuffer, int width, int height, int type);
 
 EXTERN void graphics_set_color(RastPort* rp, unsigned int rgb);
 EXTERN void graphics_move_to(RastPort* rp, int x, int y);
 EXTERN void graphics_draw_pixel(RastPort* rp);
+EXTERN void graphics_draw_ellipse(RastPort* rp, int xm, int ym, int a, int b);
 EXTERN void graphics_draw_rect(RastPort* rp, int w, int h);
+EXTERN void graphics_draw_line(RastPort* rp, int x_start, int y_start, int x_end, int y_end, int width);
 EXTERN void graphics_draw_char(RastPort* rp, unsigned int c, int scale);
 EXTERN void graphics_draw_string(RastPort* rp, const char* s, int scale);
 EXTERN void graphics_draw_picture(int x, int y, BITMAP_HEADER* bmp_header, RGBA *data);
+EXTERN void graphics_redraw(RastPort* rp);
 
 #endif /* GRAPHICS_H_ */

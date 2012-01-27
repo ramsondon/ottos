@@ -21,13 +21,13 @@
  *      Author: Florian Gopp (go.goflo@gmail.com)
  */
 
-#include "bitmap.h"
+#include <api/bitmap.h>
 #include <ottos/types.h>
 #include <ottos/const.h>
 
 /* !!!!!! NEEDED FOR MEMORY ALLOCATION !!!!!! */
 #include <stdlib.h>
-
+#include <stdio.h>
 
 typedef int bool;
 
@@ -75,42 +75,27 @@ static unsigned int Convert(unsigned int Color, unsigned int FromBitCount,
   return Color;
 }
 
-/* Load specified Bitmap and stores it as RGBA in an internal buffer */
-RGBA* graphics_parse_bmp_picture(void* filecontent, int size, BITMAP_FILEHEADER* bmpFileHeader, BITMAP_HEADER* bmpHeader) {
-//  std::ifstream file(Filename, std::ios::binary | std::ios::in);
-//
-//  if (file.bad()) {
-//    return null;
-//  }
-//
-//  if (file.is_open() == FALSE) {
-//    return null;
-//  }
 
+/* Load specified Bitmap and stores it as RGBA in an internal buffer */
+RGBA* graphics_parse_bmp_picture(void* filecontent, int size, BITMAP_FILEHEADER* bmpFileHeader,
+                                 BITMAP_HEADER* bmpHeader) {
   int k, Index;
   unsigned int i, j, LineWidth;
   unsigned int ColorTableSize = 0;
   char* Line;
   char* file = filecontent;
-  char* eof = file + size;  // marks the end of the file in the memory
   BGRA* ColorTable;
 
-  //file.read((char*) &bmpFileHeader, BITMAP_FILEHEADER_SIZE); // read file Bitmap File Header into bmpFileHeader
   bmpFileHeader = (BITMAP_FILEHEADER*)file;
   if (bmpFileHeader->Signature != BITMAP_SIGNATURE) {
     return 0;
   }
 
-  //file.read((char*) &bmpHeader, sizeof(BITMAP_HEADER));
   // jump to begin of bitmap header
   file += BITMAP_FILEHEADER_SIZE;
   bmpHeader = (BITMAP_HEADER*)file;
 
   /* Load Color Table */
-  //file.seekg(BITMAP_FILEHEADER_SIZE + bmpHeader->HeaderSize, std::ios::beg); // jump to character (BITMAP_FILEHEADER_SIZE + bmpHeader->HeaderSize)
-  // jump to begin of color table
-  file += bmpHeader->HeaderSize;
-
   if (bmpHeader->BitCount == 1) {
     ColorTableSize = 2;
   } else if (bmpHeader->BitCount == 4) {
@@ -120,28 +105,24 @@ RGBA* graphics_parse_bmp_picture(void* filecontent, int size, BITMAP_FILEHEADER*
   }
 
   /* Only full color tables are supported */
-  if (ColorTableSize != bmpHeader->ClrUsed) {
+  if (bmpHeader->ClrUsed != 0 && ColorTableSize != bmpHeader->ClrUsed) {
     return 0;
   }
 
-  //BGRA* ColorTable = new BGRA[ColorTableSize]; // std::bad_alloc exception should be thrown if memory is not available
-  //file.read((char*) ColorTable, sizeof(BGRA) * ColorTableSize);
+  // jump to begin of color table
+  file += bmpHeader->HeaderSize;
   ColorTable = (BGRA*)file;
 
   /* ... Color Table for 16 bits images are not supported yet */
   m_BitmapSize = bmpHeader->width * bmpHeader->height;
-  //m_BitmapData = new RGBA[m_BitmapSize];
   m_BitmapData = malloc(m_BitmapSize * sizeof(RGBA));
 
   LineWidth = ((bmpHeader->width * bmpHeader->BitCount / 8) + 3) & ~3;
-  //Line = malloc(LineWidth * sizeof(uint8_t));
-
-  //file.seekg(bmpFileHeader->BitsOffset, std::ios::beg); // jump to position bmpFileHeader->BitsOffset
   file = ((char*)filecontent) + bmpFileHeader->BitsOffset;
   Index = 0;
 
   if (bmpHeader->Compression == 0) {
-    uint8_t *LinePtr;
+    char* LinePtr;
 
     for (i = 0; i < bmpHeader->height; i++) {
       //file.read((char*) Line, LineWidth);
@@ -213,20 +194,26 @@ RGBA* graphics_parse_bmp_picture(void* filecontent, int size, BITMAP_FILEHEADER*
       // go to next line
       file += LineWidth;
     }
-  } else if (bmpHeader->Compression == 1) { // RLE 8
+  } else {
+    // no comparison is supported
+    return 0;
+  }
+/*else if (bmpHeader->Compression == 1) { // RLE 8
     uint8_t Count = 0;
     uint8_t ColorIndex = 0;
     int x = 0, y = 0, k;
 
-    //while (file.eof() == FALSE) {
-    while (file < eof) {
+    while (fl_feof(file) == FALSE) {
+    //while (file < eof) {
       //file.read((char*) &Count, sizeof(uint8_t));
-      Count = *file;
-      file++;
+      fl_fread((char*) &Count, sizeof(uint8_t), 1, file);
+      //Count = *file;
+      //file++;
 
       //file.read((char*) &ColorIndex, sizeof(uint8_t));
-      ColorIndex = *file;
-      file++;
+      fl_fread((char*) &ColorIndex, sizeof(uint8_t), 1, file);
+      //ColorIndex = *file;
+      //file++;
 
       if (Count > 0) {
         Index = x + y * bmpHeader->width;
@@ -248,11 +235,13 @@ RGBA* graphics_parse_bmp_picture(void* filecontent, int size, BITMAP_FILEHEADER*
           char rx = 0;
           char ry = 0;
           //file.read((char*) &rx, sizeof(char));
-          rx = *file;
-          file++;
+          fl_fread((char*) &rx, sizeof(char), 1, file);
+          //rx = *file;
+          //file++;
           //file.read((char*) &ry, sizeof(char));
-          ry = *file;
-          file++;
+          fl_fread((char*) &ry, sizeof(char), 1, file);
+          //ry = *file;
+          //file++;
 
           x += rx;
           y += ry;
@@ -261,8 +250,9 @@ RGBA* graphics_parse_bmp_picture(void* filecontent, int size, BITMAP_FILEHEADER*
           Index = x + y * bmpHeader->width;
           for (k = 0; k < Count; k++) {
             //file.read((char*) &ColorIndex, sizeof(uint8_t));
-            ColorIndex = *file;
-            file++;
+            fl_fread((char*) &ColorIndex, sizeof(uint8_t), 1, file);
+            //ColorIndex = *file;
+            //file++;
 
             m_BitmapData[Index + k].Red = ColorTable[ColorIndex].Red;
             m_BitmapData[Index + k].Green = ColorTable[ColorIndex].Green;
@@ -275,16 +265,17 @@ RGBA* graphics_parse_bmp_picture(void* filecontent, int size, BITMAP_FILEHEADER*
           if (FALSE) {
             // What's that??? only true when file.tellg() returns 1 (tellg returns the position of the indexer of the file)
             //file.seekg(1, std::ios::cur); // jump to the next character
-            file++;
+            fl_fseek(file, 1, SEEK_CUR);
+            //file++;
           }
         }
       }
     }
   } else if (bmpHeader->Compression == 2) { // RLE 4
-    /* RLE 4 is not supported */
+    // RLE 4 is not supported
     return 0;
   } else if (bmpHeader->Compression == 3) { // BITFIELDS
-    /* We assumes that mask of each color component can be in any order */
+    // We assumes that mask of each color component can be in any order
     unsigned int i, j;
     uint8_t* LinePtr;
     uint32_t BitCountRed = BitCountByMask(bmpHeader->RedMask);
@@ -294,6 +285,8 @@ RGBA* graphics_parse_bmp_picture(void* filecontent, int size, BITMAP_FILEHEADER*
 
     for (i = 0; i < bmpHeader->height; i++) {
       //file.read((char*) Line, LineWidth);
+      fl_fread((char*) Line, sizeof(char), LineWidth, file);
+
       Line = file;
       LinePtr = Line;
 
@@ -318,13 +311,10 @@ RGBA* graphics_parse_bmp_picture(void* filecontent, int size, BITMAP_FILEHEADER*
         Index++;
       }
 
-      file += LineWidth;
+      //file += LineWidth;
     }
   }
-
-  //delete [] ColorTable;
-  //delete [] Line;
-  //file.close();
+  */
 
   return m_BitmapData;
 }

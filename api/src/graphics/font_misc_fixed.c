@@ -21,7 +21,7 @@
  *      Author: Florian Gopp (go.goflo@gmail.com)
  */
 
-#include "graphics.h"
+#include <api/graphics.h>
 
 static unsigned const char misc_fixed_bitmap[] = {
   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
