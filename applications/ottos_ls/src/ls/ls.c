@@ -27,6 +27,6 @@
 
 void ls(const char* path) {
   int fd = sys_open(path, 0);
-  print("ls ...\n");
+  print("ls ...\r\n");
   sys_close(fd);
 }

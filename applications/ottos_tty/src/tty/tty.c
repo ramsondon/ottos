@@ -72,7 +72,7 @@ static BOOLEAN tty_find_binary(const char* name) {
 
   fd = sys_open(filename, SYSTEM_FLAG_READ);
   free(filename);
-  if (fd != NULL) {
+  if (fd != SYSTEM_FD_INVALID) {
     sys_close(fd);
     return TRUE;
   }

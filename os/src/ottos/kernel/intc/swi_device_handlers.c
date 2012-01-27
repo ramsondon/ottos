@@ -200,7 +200,8 @@ BOOLEAN swi_handle_sys_fopen(int fd_address, int path_address, int flags) {
 	FL_FILE* file = fl_fopen(path, mode);
 
 	if (file == NULL) {
-		kernel_error(FILE_UNKNOWN, "Cannot open file");
+		kernel_debug(FILE_UNKNOWN, "Cannot open file");
+		*fd = SYSTEM_FD_INVALID;
 	} else {
 		process_file_descriptor_t* fd_process = process_add_file_descriptor(file);
 		*fd = fd_process->fd;
