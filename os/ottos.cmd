@@ -4,8 +4,8 @@
 // Basic configuration using only external memory
 //
 
--stack           0x00002000
--heap            0x00010000
+-stack           0x00001000
+-heap            0x00020000
 
 MEMORY
 {
@@ -13,7 +13,7 @@ MEMORY
    int_ram:  ORIGIN = 0x40204000  LENGTH = 0x0000BFC4
    int_vecs: ORIGIN = 0x4020FFC4  LENGTH = 0x0000003B
    
-   ext_ddr:  ORIGIN = 0x82000000  LENGTH = 0x02000000 // 256 MBit = 32 MB
+   ext_ddr:  ORIGIN = 0x80000000  LENGTH = 0x03FFFFFF // we are to stupid to allocate 256 MB, so we use just 64MB
    										  
 }
 

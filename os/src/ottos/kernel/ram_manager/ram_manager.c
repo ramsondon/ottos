@@ -23,12 +23,18 @@
 
 #include <cstring>
 #include <bits.h>
+#include <ottos/kernel.h>
+#include <ottos/io.h>
 #include "../mmu/mmu.h"
 #include "ram_manager.h"
 
 #define ENTRY_SIZE 8 // 8 bit
 BOOLEAN occupied_pages_int_RAM[RAM_MANAGER_MAX_PAGES_IN_INT_RAM / ENTRY_SIZE];
 BOOLEAN occupied_pages_ext_DDR[RAM_MANAGER_MAX_PAGES_IN_EXT_DDR / ENTRY_SIZE];
+
+// debug
+static int allocated_pages_int = 0;
+static int allocated_pages_ext = 0;
 
 void ram_manager_init() {
 	int i;
@@ -58,8 +64,10 @@ void ram_manager_reserve_page(enum ram_manager_memory_type mem, int page_number)
 
 	if ((mem == INT_RAM) && (page_number < RAM_MANAGER_MAX_PAGES_IN_INT_RAM)) {
 		SET_BIT((((address)occupied_pages_int_RAM) + entry_number), bit_number);
+		allocated_pages_int++;
 	} else if ((mem == EXT_DDR) && (page_number < RAM_MANAGER_MAX_PAGES_IN_EXT_DDR)) {
 		SET_BIT((((address)occupied_pages_ext_DDR) + entry_number), bit_number);
+		allocated_pages_ext++;
 	}
 }
 
@@ -82,8 +90,10 @@ void ram_manager_release_page(enum ram_manager_memory_type mem, int pageNumber) 
 
 	if ((mem == INT_RAM) && (entry_number < RAM_MANAGER_MAX_PAGES_IN_INT_RAM)) {
 		CLEAR_BIT((address)(((address)occupied_pages_int_RAM) + entry_number), bit_number);
+		allocated_pages_int--;
 	} else if ((mem == EXT_DDR) && (entry_number < RAM_MANAGER_MAX_PAGES_IN_EXT_DDR)) {
 		CLEAR_BIT((address)(((address)occupied_pages_ext_DDR) + entry_number), bit_number);
+		allocated_pages_ext++;
 	}
 }
 
@@ -137,6 +147,14 @@ int ram_manager_max_pages_in(enum ram_manager_memory_type mem) {
 	}
 }
 
+void ram_manager_print_mem_usage() {
+  char message[256];
+  sprintf(message, "Memory usage: %d bytes (INT max: %d), %d bytes (EXT max: %d)",
+          allocated_pages_int * MMU_PAGE_SIZE, ram_manager_max_pages_in(INT_RAM) * MMU_PAGE_SIZE,
+          allocated_pages_ext * MMU_PAGE_SIZE,ram_manager_max_pages_in(EXT_DDR) * MMU_PAGE_SIZE);
+  kernel_debug(17, message);
+}
+
 address ram_manager_find_free_memory_in(enum ram_manager_memory_type mem, int nr_of_pages, BOOLEAN align, BOOLEAN reserve) {
 	int i = 0;
 	address result = NULL;
@@ -155,6 +173,9 @@ address ram_manager_find_free_memory_in(enum ram_manager_memory_type mem, int nr
 			free_pages = 0;
 		}
 	}
+
+	// debug
+	ram_manager_print_mem_usage();
 
 	return result;
 }

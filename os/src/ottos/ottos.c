@@ -15,7 +15,6 @@
 #include "../hal/uart.h"
 
 #include "../fs/fs.h"
-#include "../tty/tty.h"
 
 #include "../fs/vfat/fat_filelib.h"
 #include "../../drivers/mmchs/mmchs.h"
@@ -172,7 +171,7 @@ void user_app_test() {
 
 void tty_start() {
 	// load tty process
-	code_bytes_t* code = code_get("/bin/ottos_tty");
+	code_bytes_t* code = code_get_single_file("/bin/ottos_tty");
 	if(code == NULL) {
 		kernel_panic("Cannot start tty");
 		return;
@@ -198,7 +197,7 @@ void startup() {
 	fs_init();
 	mmu_init();
 
-	//tty_start();
+	tty_start();
 	//video_bmp_test_file();
 
 	irq_register_context_switch();
@@ -225,8 +224,8 @@ int main(int argc, char **argv) {
   //  system_time_test();
   //  uptime_test();
   //video_test();
-   user_app_test();
-  //startup();
+  // user_app_test();
+  startup();
 
   // do an endless loop
   loop_forever();
