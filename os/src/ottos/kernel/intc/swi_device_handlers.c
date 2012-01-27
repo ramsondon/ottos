@@ -106,6 +106,13 @@ BOOLEAN swi_handle_sys_open(int fd_address, int device_id, int flags) {
 	return FALSE;
 }
 
+BOOLEAN swi_handle_sys_physical_address(unsigned int vaddr, unsigned int physaddr) {
+  int* virtual = (int*) mmu_get_physical_address(process_table[process_active], vaddr);
+  int* physical = (int*)mmu_get_physical_address(process_table[process_active], physaddr);
+  *physical = (unsigned int)virtual;
+  return FALSE;
+}
+
 BOOLEAN swi_handle_sys_close(int error_code_address, int fd) {
 	// get the real address of the error code
 	int* error_code = (int*) mmu_get_physical_address(process_table[process_active], error_code_address);
@@ -314,6 +321,10 @@ BOOLEAN swi_handle(unsigned int syscall_nr, unsigned int param1, unsigned int pa
     // param2 = message
     // param3 = result
     return swi_handle_sys_receive(param1, param2, param3);
+  case SYS_PHYSICAL_ADDRESS:
+    // param1 = virtual address
+    // param2 = physical address return value
+    return swi_handle_sys_physical_address(param1, param2);
 	default:
 		// unknown syscall number
 		kernel_error(SWI_UNKNOWN_SYSCALL_NR, "Unknown syscall-number. Ignoring.");
