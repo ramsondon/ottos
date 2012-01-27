@@ -170,10 +170,27 @@ static BOOLEAN tty_find_binary(const char* name) {
 //}
 
 static int tty_start_process(const char* bin, char* args, BOOLEAN background) {
-	// ignoring args
-  char* buffer = malloc(sizeof(char) * MAX_PATH_LENGTH);
+
+  char* buffer = NULL;
+//  char** args_test = malloc(sizeof(char*) * 3);
+
+  buffer = malloc(sizeof(char) * MAX_PATH_LENGTH);
+
+//  args_test[0] = malloc(sizeof(char) * (strlen("arg1") + 1));
+//  args_test[1] = malloc(sizeof(char) * (strlen("arg2") + 1));
+//  args_test[2] = malloc(sizeof(char) * (strlen("arg3") + 1));
+//  strcpy(args_test[0], "arg1");
+//  strcpy(args_test[1], "arg2");
+//  strcpy(args_test[2], "arg3");
+
   sprintf(buffer, "/bin/%s", bin);
-  sys_execute(1, background, bin);
+
+  sys_execute(1, background, bin, 0, NULL);
+
+//  free(args_test[0]);
+//  free(args_test[1]);
+//  free(args_test[2]);
+//  free(args_test);
   free(buffer);
 
   // TODO (fdomig@gmail.com) return the process return state on foreground process
@@ -273,6 +290,7 @@ void tty_run() {
 //
 //      // finally, is there a application with the entered name?
 //    } else
+
     if (!tty_find_binary(cmd)) {
       char* debug = malloc(sizeof(char) * 256);
       sprintf(debug, "%s command not found", line);
@@ -286,7 +304,8 @@ void tty_run() {
       background = TRUE;
     }
     {
-      char* tmp_cmd = malloc(sizeof(char) * (strlen(cmd) + strlen(BIN_DIRECTORY) + 1));
+      char* tmp_cmd = NULL;
+      tmp_cmd = malloc(sizeof(char) * (strlen(cmd) + strlen(BIN_DIRECTORY) + 1));
       sprintf(tmp_cmd, "%s/%s", BIN_DIRECTORY, cmd);
       tty_start_process(tmp_cmd, tokens, background);
       free(tmp_cmd);

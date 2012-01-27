@@ -24,7 +24,7 @@
 #include "kernel/loader/loader.h"
 
 void devices_test() {
-	devices_init();
+  devices_init();
 }
 
 static void loop_forever() {
@@ -35,25 +35,25 @@ static void loop_forever() {
 void i2c_test() {
   //devices_init();
 
-	i2c_init();
-	pulse_leds();
+  i2c_init();
+  pulse_leds();
 }
 
 void mmu_test() {
-	devices_init();
-	irq_enable();
+  devices_init();
+  irq_enable();
 
-	mmu_init();
+  mmu_init();
 
-	process_table_init();
-	//process_create(1, (int) toggle_led1);
-	//process_create(1, (int) toggle_led2);
+  process_table_init();
+  //process_create(1, (int) toggle_led1);
+  //process_create(1, (int) toggle_led2);
 
-	irq_init();
-	timer_init();
-	irq_register_context_switch();
+  irq_init();
+  timer_init();
+  irq_register_context_switch();
 
-	kernel_to_user_mode();
+  kernel_to_user_mode();
 }
 
 // PRINT TEST
@@ -102,61 +102,58 @@ void mmu_test() {
 #define argv_byte2 ":020000040002F8:200000000000002D9F70009F70009F750000009554FFBD009011005200908152FF9200D025:20008000C152FF1062809052FF2FFFFF029F7CA0A09C8C00022DA0D5A0008085809152001D:20010000919100D584A0A05CA0FFBD14002FA0A08F2FC02D4D8D8D9D8DA0A08D00A0A08D13:2001800000A08D8D008D9DA08D008F008D008F00A08DBD670000522F2D1100100052002D04:2002000042B1A052FFBD92BD1200D24F8C9180BD00B1A0BD00B1A0BD524F83D1C0BDD1C042:20028000BDA0D1C0D1C0BDD1C052BD11FF100010FF520091C0A04052FF72BD92D1C0429259:20030000D1C0BD520091C0A040A040A04052FF92BDD1C052FFBD2D100052C05210FF52BD4E:200380002F01815200815200A052002DA0A04202A053FFBD12A0128012C012C0BD2F2D8DA7:200400008F009DA08F005000A000A0BD2D8D8F9D005000A0009D8F005000A0009D8F0050C6:2004800000A000E0BD2D8D8DE08DE08D009DFF8D9D7C009D8D9DA000009D8D9DA000009D51:20050000FF50FF50FF9D8DBD2D8D8D8D9D8D9D9D9DA0009D8DBD2D8D8D8D9D8D9D9D9DA086:20058000009D8DBD2D8DA08D8D9DA0A0009DBD2D8DA08DA09D8DA0009DBD2D8DCD8D9D9DD0:20060000DDA000E0BD2D8D8D9D9DA0A000BD2D8D8D8D9D9D9DA000BD2D8DA09DA0A000BD46:200680002D8D8D8D9D9D9DA000BD650065656C006565006565002D8D9D5C009DDC5C009DFE:20070000009D8D9D009D804C8D9D9D5C009D9DDCD121CC9D9DDCD121CC9D9DDCD121CC9D6D:200780008C8D9D4C8D9D9D5CFF9DBD2D4D8D8D8DA08D9D5C8D009D6C8D9D9D009FDC9D8C93:200800008D9DCC9D9D00518DFF9D5C009D8C8D9DA0CC9D9DA0C09DFF8DBD2D8D8FA0FF8D1E:200880009D7C009D009DA09DFF9DFFBD2D8D8D8FA0FF8D9D7C009D9D9DFF9DFFBD65656CF0:20090000000240E0FC8051FF2F52410040F0F15C432F5C52FFA02F4041F1F04252005CFF6B:20098000A02FC02D5100A03E601161B052A052A0520052005200520052005200520050A3D5:200A00004050A34050A34050A34050A34050A34050A34050A34051A0FFA0B06360BD2FA0A2:020A8000BD2F88:0D0A8800000232366165696D7175790000FC:200AE4000000000000000000000000000000000000000000000000000000000000000000F2:200B6400000000000000000000000000000000000000000000000000000000000000000071:200BE4000000000000000000000000000000000000000000000000000000000000000000F1:200C6400000000000000000000000000000000000000000000000000000000000000000070:200CE4000000000000000000000000000000000000000000000000000000000000000000F0:200D640000000000000000000000000000000000000000000000000000000000000000006F:200DE4000000000000000000000000000000000000000000000000000000000000000000EF:200E640000000000000000000000000000000000000000000000000000000000000000006E:00000001FF"
 #define argv_byte3 ":020000040002F8:2000000010EBEBE9E5E31BE5E31BE5E30AEAEBE4E31AE8EAE4E31AE24AE4E4E25AE20AE410:20008000E4E21AE21210E4E31AE1FFFF00E5E303011512EA00E9E1E1E3EAE0E0E2E5E30AF3:20010000E5E5EBE1E2E1E1E1E1CAE8E31AE1E1E1E2E146E9E2E5E5E5E5E3E3E2EBE3E3E2EE:20018000EBE3E5E2EBE5E5E3E2EBE2EBE2EBE2EBE3E2E8630000E301E9E31AE31AE33AE921:20020000E2E8E8E22AE8E208E20AE3E2E0E4E408EAE8E808EAE8E808E21210E4E4E8E0E0F5:20028000E8E1E0E0E4E4E8E4E4E208E31AE31AE30AE23AE4E0E1E1E22AE308E2202022E2CD:200300002424E8E23AE4E4E1E5E1E5E1E5E22AE208E4E4E21AE8E9E30AE38482831AE3088E:2003800001E2E1E33AE1E33AE1E33AE9E1E1E2E2E8E28AE8E318E314E310E315E8E1E9E561:20040000E2EBE5E1E2EBE31AE3EAE3E8E9E5E2E5EBE31AE3EAE5E2EBE31AE3EAE5E2EBE38C:200480001AE3EAE3E8E9E5E5E3E5E3E5EAE5EBE5E5E30AE5E2E5E3EFEAE5E2E5E3EFEAE541:20050000EBE30AE20AE5E5E8E9E5E5E5E5E5E5E5E5E3EFE5E5E8E9E5E5E5E5E5E5E5E5E3DC:20058000EFE5E5E8E9E5E3E5E2E5E3E3EFE5E8E9E5E3E5E3E5E2E3EFE5E8E9E5E5E5E5E59A:20060000E5E3EFE3E8E9E5E5E5E5E3E3EFE8E9E5E5E5E5E5E5E3EFE8E9E5E3E5E3E3EFE80A:20068000E9E5E5E5E5E5E5E3EFE876A0767230A0766400766400E9E5E5E30AE5E5E31AE58B:20070000EAE5E5E5EBE5E0E2E5E5E5E12AE5E5E5E5E0E5E5E5E5E5E0E5E5E5E5E5E0E5E504:20078000E2E5E5E2E5E5E5E13AE5E8E9E2E5E5E5E3E5E5E3E55AE5E2E5E5E5EBE5E7E5E2F7:20080000E5E5E7E5E5EBE3E5CAE5E35AE5E2E5E5E3E7E5E5E3E7E5EBE2E8E9E5E2E3EBE5D2:20088000E5E30AE5EBE5E1E5EBE5EBE8E9E5E5E2E3EBE5E5E30AE5E5E5EBE5EBE8767230E4:20090000A000E2E3E5E2E31AE1E3E20AE2E5E5E11011E3121AE3E1E2E2E5E5E0E30AE30A35:20098000E1E146E9E30AE1E042E212E1E191E191E18AE18AE18AE18AE18AE18AE18AE1E00F:200A000020E1E020E1E020E1E020E1E020E1E020E1E020E1E020E1313AE1E14222E8E1E371:020A8000E8E1AB:0D0A88000000333762666A6E72767A0000F5:200AE4000000000000000000000000000000000000000000000000000000000000000000F2:200B6400000000000000000000000000000000000000000000000000000000000000000071:200BE4000000000000000000000000000000000000000000000000000000000000000000F1:200C6400000000000000000000000000000000000000000000000000000000000000000070:200CE4000000000000000000000000000000000000000000000000000000000000000000F0:200D640000000000000000000000000000000000000000000000000000000000000000006F:200DE4000000000000000000000000000000000000000000000000000000000000000000EF:200E640000000000000000000000000000000000000000000000000000000000000000006E:00000001FF"
 
-
-
 void user_app_test() {
   code_bytes_t code_bytes;
 
   irq_disable();
   mmu_init();
 
-
   devices_init();
   process_table_init();
   irq_init();
   timer_init();
 
-//  code_bytes.byte_0 = led_1_byte0;
-//  code_bytes.byte_1 = led_1_byte1;
-//  code_bytes.byte_2 = led_1_byte2;
-//  code_bytes.byte_3 = led_1_byte3;
-//
-//  process_create(1, &code_bytes);
-//
-// code_bytes.byte_0 = byte0_;
-// code_bytes.byte_1 = byte1_;
-// code_bytes.byte_2 = byte2_;
-// code_bytes.byte_3 = byte3_;
-//
-// process_create(1, &code_bytes);
+  //  code_bytes.byte_0 = led_1_byte0;
+  //  code_bytes.byte_1 = led_1_byte1;
+  //  code_bytes.byte_2 = led_1_byte2;
+  //  code_bytes.byte_3 = led_1_byte3;
+  //
+  //  process_create(1, &code_bytes);
+  //
+  // code_bytes.byte_0 = byte0_;
+  // code_bytes.byte_1 = byte1_;
+  // code_bytes.byte_2 = byte2_;
+  // code_bytes.byte_3 = byte3_;
+  //
+  // process_create(1, &code_bytes);
 
   code_bytes.byte_0 = argv_byte0;
   code_bytes.byte_1 = argv_byte1;
   code_bytes.byte_2 = argv_byte2;
   code_bytes.byte_3 = argv_byte3;
 
-  process_create(1, &code_bytes);
+  process_create(1, &code_bytes, 0, NULL);
 
-//  code_bytes.byte_0 = ipcserver_byte0;
-//  code_bytes.byte_1 = ipcserver_byte1;
-//  code_bytes.byte_2 = ipcserver_byte2;
-//  code_bytes.byte_3 = ipcserver_byte3;
-//
-//  process_create(1, &code_bytes);
-//
-//  code_bytes.byte_0 = ipcclient_byte0;
-//  code_bytes.byte_1 = ipcclient_byte1;
-//  code_bytes.byte_2 = ipcclient_byte2;
-//  code_bytes.byte_3 = ipcclient_byte3;
-//
-//  process_create(1, &code_bytes);
-//
-//  code_bytes.byte_0 = ipcclient1_byte0;
-//  code_bytes.byte_1 = ipcclient1_byte1;
-//  code_bytes.byte_2 = ipcclient1_byte2;
-//  code_bytes.byte_3 = ipcclient1_byte3;
-//
-//  process_create(1, &code_bytes);
+  //  code_bytes.byte_0 = ipcserver_byte0;
+  //  code_bytes.byte_1 = ipcserver_byte1;
+  //  code_bytes.byte_2 = ipcserver_byte2;
+  //  code_bytes.byte_3 = ipcserver_byte3;
+  //
+  //  process_create(1, &code_bytes);
+  //
+  //  code_bytes.byte_0 = ipcclient_byte0;
+  //  code_bytes.byte_1 = ipcclient_byte1;
+  //  code_bytes.byte_2 = ipcclient_byte2;
+  //  code_bytes.byte_3 = ipcclient_byte3;
+  //
+  //  process_create(1, &code_bytes);
+  //
+  //  code_bytes.byte_0 = ipcclient1_byte0;
+  //  code_bytes.byte_1 = ipcclient1_byte1;
+  //  code_bytes.byte_2 = ipcclient1_byte2;
+  //  code_bytes.byte_3 = ipcclient1_byte3;
+  //
+  //  process_create(1, &code_bytes);
 
 
   irq_register_context_switch();
@@ -169,47 +166,58 @@ void user_app_test() {
   kernel_to_user_mode();
 }
 
+#include <string.h>
 void tty_start() {
-	// load tty process
-	code_bytes_t* code = code_get_single_file("/bin/ottos_tty");
-	if(code == NULL) {
-		kernel_panic("Cannot start tty");
-		return;
-	}
-	process_create(1, code);
+  // load tty process
+  code_bytes_t* code = code_get_single_file("/bin/ottos_tty");
+//  char** args = malloc(sizeof(char*) * 3);
+  if (code == NULL) {
+    kernel_panic("Cannot start tty");
+    return;
+  }
 
-	// TODO (thomas.bargetz@gmail.com) implement code_free function
-	free(code->byte_0);
-	free(code->byte_1);
-	free(code->byte_2);
-	free(code->byte_3);
-	free(code);
+//  args[0] = (char*)malloc(sizeof(char) * (strlen("arg1") + 1));
+//  args[1] = (char*)malloc(sizeof(char) * (strlen("arg2") + 1));
+//  args[2] = (char*)malloc(sizeof(char) * (strlen("arg3") + 1));
+//  strcpy(args[0], "arg1");
+//  strcpy(args[1], "arg2");
+//  strcpy(args[2], "arg3");
+
+  //process_create(1, code, 3, args);
+  process_create(1, code, 0, NULL);
+
+  // TODO (thomas.bargetz@gmail.com) implement code_free function
+  free(code->byte_0);
+  free(code->byte_1);
+  free(code->byte_2);
+  free(code->byte_3);
+  free(code);
 }
 
 void startup() {
-	irq_disable();
+  irq_disable();
 
-	irq_init();
-	timer_init();
-	process_table_init();
-	devices_init();
-	mmchs_init();
-	fs_init();
-	mmu_init();
+  irq_init();
+  timer_init();
+  process_table_init();
+  devices_init();
+  mmchs_init();
+  fs_init();
+  mmu_init();
 
-	tty_start();
-	//video_bmp_test_file();
+  tty_start();
+  //video_bmp_test_file();
 
-	irq_register_context_switch();
-	irq_enable();
-	kernel_to_user_mode();
+  irq_register_context_switch();
+  irq_enable();
+  kernel_to_user_mode();
 }
 
 int main(int argc, char **argv) {
   // these methods has to be called for EVERY test method
-//  irq_disable();
-//  process_table_init();
-//  devices_init();
+  //  irq_disable();
+  //  process_table_init();
+  //  devices_init();
 
   // these methods are the specific tests for every module
   //  process_test();
@@ -230,5 +238,5 @@ int main(int argc, char **argv) {
   // do an endless loop
   loop_forever();
 
-	return 0;
+  return 0;
 }

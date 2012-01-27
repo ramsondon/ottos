@@ -21,6 +21,7 @@
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
+#include <api/io.h>
 #include "tty/tty.h"
 
 int main() {

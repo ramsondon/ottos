@@ -48,7 +48,7 @@ EXTERN int sys_close(int fd);
 
 EXTERN unsigned int sys_physical_address_of(const void* address);
 
-EXTERN int sys_execute(int priority, BOOLEAN block_current, const char* path);
+EXTERN int sys_execute(int priority, BOOLEAN block_current, const char* path, int argc, char** argv);
 /**
  * IPC system calls
  */
@@ -78,5 +78,11 @@ EXTERN void sys_wait_msg(const char* ns);
  * @param success - output parameter if the the method succeeded
  */
 EXTERN void sys_receive(const char* ns, message_t* msg, int* success);
+
+/*
+ * Reads the arguments of a process and returns the arguments
+ * @param argc - the read argument count
+ */
+EXTERN char** sys_read_arguments(int* argc);
 
 #endif /* API_SYSTEM_H_ */

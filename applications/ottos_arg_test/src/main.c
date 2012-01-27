@@ -1,6 +1,6 @@
-/* syscalls.h
+/* main.c
  * 
- * Copyright (c) 2011 The ottos project.
+ * Copyright (c) 2011 The ottos_arg_test project.
  *
  * This work is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,49 +17,34 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 27 Oct 2011
+ *  Created on: 27 Jan 2012
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#ifndef SYSCALLS_H_
-#define SYSCALLS_H_
+#include <stdio.h>
+#include <api/system.h>
+#include <api/io.h>
 
-/*
- * Process system calls
- */
-#define SYS_YIELD   1
-#define SYS_EXIT    2
-#define SYS_EXEC	  3
+int main() {
 
-/**
- * I/O system calls
- */
-#define SYS_OPEN    10
-#define SYS_CLOSE   11
-#define SYS_READ    12
-#define SYS_WRITE   13
+  int argc = 0;
+  char** argv = NULL;
+  char buffer[100] = {0};
+  int i = 0;
 
-#define SYS_PHYSICAL_ADDRESS 14
+  argv = sys_read_arguments(&argc);
 
-/**
- * File system calls
- */
-#define SYS_FOPEN   20
+  sprintf(buffer, "argc: %d\r\n", argc);
+  print(buffer);
 
-/*
- * IPC system calls
- */
-#define SYS_BIND_NAMESPACE  30
-#define SYS_SEND            31
-#define SYS_WAIT_MSG        32
-#define SYS_RECEIVE         33
+  print("arguments:\r\n");
 
-/**
- * WTF system calls
- */
-#define SYS_ARGS_COUNT        40
-#define SYS_ARGS_VALUE_LENGTH 41
-#define SYS_ARGS_VALUE        42
-#define SYS_ARGS_FREE         43
+  for(i = 0; i < argc; i++) {
+    sprintf(buffer, "argv[%d]: %s\r\n", i, argv[i]);
+    print(buffer);
+  }
 
-#endif /* SYSCALLS_H_ */
+  print("bye bye\r\n");
+
+  return 0;
+}
