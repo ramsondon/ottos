@@ -93,6 +93,13 @@ int sys_close(int fd) {
 	return return_value;
 }
 
+unsigned int sys_physical_address_of(const void* address) {
+
+  unsigned int physical_address = 0;
+  swi(SYS_PHYSICAL_ADDRESS, (unsigned int) address, (unsigned int) &physical_address, 0);
+  return physical_address;
+}
+
 int sys_execute(int priority, BOOLEAN block_current, const char* path) {
 
 	// ignoring return value
