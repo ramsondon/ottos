@@ -42,6 +42,9 @@ EXTERN char* itoa(int n, char* s, int b);
 EXTERN char* strrev(char* str);
 
 EXTERN void print(const char* buffer);
-EXTERN void read_serial(char* buffer, size_t count);
+
+EXTERN size_t read_serial_with_end_char(char* buffer, size_t count, char end_character);
+
+EXTERN size_t read_serial(char* buffer, size_t count);
 
 #endif /* API_IO_H_ */

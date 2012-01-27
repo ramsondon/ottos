@@ -18,9 +18,9 @@ code_bytes_t* code_get_single_file(const char* executable_file) {
   code_bytes_t* code = NULL;
   long file_length = 0, byte_length = 0;
   const char mode[] = { 'r' };
-  char* byte[4];
+  char *byte[4];
   char* complete_file;
-  int i, current;
+  int i, current, j;
 
   // check if files exist
   FILE* file = fl_fopen(executable_file, mode);
@@ -46,18 +46,22 @@ code_bytes_t* code_get_single_file(const char* executable_file) {
   byte[3] = malloc(sizeof(char) * byte_length);
 
   current = 0;
-  for (i = 0; i < file_length; i++) {
-    byte[current][i] = complete_file[i];
-    if (complete_file[i] == '\n' && complete_file[i+1] != ':') {
+  j = 0;
+  for (i = 0; i < file_length; i++, j++) {
+    byte[current][j] = complete_file[i];
+
+    if (complete_file[i] == '\n' && complete_file[i+1] == '\n') {
       byte[current][i] = 0;
       current++;
-      while (complete_file[i] != ':') i++;
-      i--;
+      i++;
+      j = -1;
       if (current > 3) {
         break;
       }
     }
   }
+
+  free(complete_file);
 
   code = malloc(sizeof(code_bytes_t));
   code->byte_0 = byte[0];

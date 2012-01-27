@@ -15,7 +15,6 @@
 #include "../hal/uart.h"
 
 #include "../fs/fs.h"
-#include "../tty/tty.h"
 
 #include "../fs/vfat/fat_filelib.h"
 #include "../../drivers/mmchs/mmchs.h"
@@ -23,6 +22,8 @@
 #include "kernel/mmu/mmu.h"
 #include "../lib/ottos/parser.h"
 #include "kernel/loader/loader.h"
+
+#include <string.h>
 
 void devices_test() {
 	devices_init();
@@ -180,6 +181,29 @@ void startup() {
 	kernel_to_user_mode();
 }
 
+//void serial_read_test() {
+//  char* output = "serial test: ";
+//  char input[10] = {0};
+//  char output2[100] = {0};
+//  driver_t* serial = NULL;
+//  int read = 0;
+//
+//  devices_init();
+//
+//  serial = driver_get(SERIAL_0);
+//  serial->open(SERIAL_0);
+//
+//  serial->write(SERIAL_0, strlen(output), output);
+//  do {
+//    read = serial->read(SERIAL_0, 9, input);
+//  } while(read == 0 || read < 9);
+//
+//  sprintf(output2, "\r\nyour input: %s", input);
+//  serial->write(SERIAL_0, strlen(output2), output2);
+//
+//  serial->close(SERIAL_0);
+//}
+
 int main(int argc, char **argv) {
   // these methods has to be called for EVERY test method
 //  irq_disable();
@@ -201,6 +225,8 @@ int main(int argc, char **argv) {
   //video_test();
  //  user_app_test();
   startup();
+
+  //serial_read_test();
 
   // do an endless loop
   loop_forever();

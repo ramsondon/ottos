@@ -22,12 +22,18 @@
  */
 
 #include "ls/ls.h"
+#include <api/io.h>
 
 int main(int argc, char** argv) {
 
   // TODO: we need to pass the path to this application via argv[1]
-  char path[] = '/';
+  char path[] = "/bin";
+
+  print("start ls:\n");
+
   ls(path);
+
+  print("ls done ...\n");
 
   return 0;
 }
