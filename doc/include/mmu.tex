@@ -1,6 +1,5 @@
 \subsection{MMU}
-Die Memory Management Unit wurde folgendermaßen implimentiert. 
-Im linkerfile Skript werden die Startaddresse des INT RAM und des EXT DDR definiert. Es werden eine L1 und eine L2 Tabelle verwendet. Die virtuelle Addresse wird folgendermaßen auf eine physikalische Addresse gemappt:\\
+	Die Memory Management Unit wurde folgendermaßen implimentiert. Im linkerfile Skript werden die Startaddresse des INT RAM und des EXT DDR definiert. Es werden eine L1 und eine L2 Tabelle verwendet. Die virtuelle Addresse wird folgendermaßen auf eine physikalische Addresse gemappt:\\
 \includegraphics[scale=0.5]{VirtuellerSpeicher.png} 
 
 Dabei werden die ersten 3 Hex-Zahlen für den Index in der L1 Tabelle verwendet.Der Inhalt der L1 Tabelle entspricht der Addresse der L2Tabelle. Die nächsten 2 Hex-Zahlen werden für den Index der L2 Tabelle verwendet. In Ihr steht die physikalische Addresse.\\
