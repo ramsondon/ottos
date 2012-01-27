@@ -198,7 +198,8 @@ void startup() {
 	fs_init();
 	mmu_init();
 
-	tty_start();
+	//tty_start();
+	//video_bmp_test_file();
 
 	irq_register_context_switch();
 	irq_enable();

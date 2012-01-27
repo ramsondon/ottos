@@ -44,7 +44,9 @@ static int system_get_device_id(const char* path) {
 		return LED_0;
 	} else if (strcmp(SYSTEM_LED_1_PATH, path) == 0) {
 		return LED_1;
-	}
+	} else if (strcmp(SYSTEM_VIDEO_0_PATH, path) == 0) {
+    return VIDEO_0;
+  }
 	return SYSTEM_DEV_ID_INVALID;
 }
 
