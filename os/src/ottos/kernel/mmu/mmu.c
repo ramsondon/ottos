@@ -21,9 +21,10 @@
  *      Author: Thomas Wiedemann <thomas.wiedemann@students.fhv.at>
  *
  */
-#include <cstring>
+#include <string.h>
 #include <ottos/memory.h>
 #include <ottos/kernel.h>
+#include <ottos/io.h>
 #include "../ram_manager/ram_manager.h"
 #include "mmu_fault_status_flags.h"
 #include "mmu.h"
@@ -427,7 +428,10 @@ BOOLEAN mmu_handle_data_abort() {
 		mmu_init_memory_for_process(process_table[process_active]);
 	} else {
 		if (process_active != PID_INVALID) {
-			kernel_error(MMU_DATA_ABORT_ILLEGAL, "illegal accessed address and fault status, deleting process");
+		  char message[256];
+
+		  sprintf(message, "illegal accessed address (%#08x); kill pid: %d", accessed_address, process_active);
+			kernel_error(MMU_DATA_ABORT_ILLEGAL, message);
 			process_delete();
 
 			// return TRUE to induce a context switch

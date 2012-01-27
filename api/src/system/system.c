@@ -24,6 +24,7 @@
 #include <string.h>
 #include <ottos/syscalls.h>
 #include <ottos/types.h>
+#include <stdio.h>
 #include <ottos/dev/device.h>
 #include <api/system.h>
 
@@ -31,10 +32,10 @@
 EXTERN void swi(unsigned int syscall_nr, unsigned int param1, unsigned int param2, unsigned int param3);
 
 static system_file_type_t system_get_file_type(const char* path) {
-	if (strncmp(SYSTEM_DEV_PATH, path, strlen(SYSTEM_DEV_PATH)) == 0) {
-		return DEVICE_FILE;
-	}
-	return NON_DEVICE_FILE;
+  if (strncmp(SYSTEM_DEV_PATH, path, strlen(SYSTEM_DEV_PATH)) == 0) {
+    return DEVICE_FILE;
+  }
+  return NON_DEVICE_FILE;
 }
 
 static int system_get_device_id(const char* path) {
@@ -51,48 +52,45 @@ static int system_get_device_id(const char* path) {
 }
 
 int sys_open(const char* path, int flags) {
-	int return_value = SYSTEM_FD_INVALID;
-	int device_id = SYSTEM_DEV_ID_INVALID;
+  int return_value = SYSTEM_FD_INVALID;
+  int device_id = SYSTEM_DEV_ID_INVALID;
 
-	switch (system_get_file_type(path)) {
-	case DEVICE_FILE:
-		device_id = system_get_device_id(path);
-		if (device_id != SYSTEM_DEV_ID_INVALID) {
-			swi(SYS_OPEN, (unsigned int) &return_value, device_id, flags);
-		}
-		break;
-	case NON_DEVICE_FILE:
-		swi(SYS_FOPEN, (unsigned int) &return_value, (unsigned int) path, flags);
-		break;
-	}
-
-	return return_value;
+  switch (system_get_file_type(path)) {
+    case DEVICE_FILE:
+      device_id = system_get_device_id(path);
+      if (device_id != SYSTEM_DEV_ID_INVALID) {
+        swi(SYS_OPEN, (unsigned int) &return_value, device_id, flags);
+      }
+      break;
+    case NON_DEVICE_FILE:
+      swi(SYS_FOPEN, (unsigned int) &return_value, (unsigned int) path, flags);
+      break;
+  }
+  return return_value;
 }
 
 size_t sys_write(int fd, const char* buffer, size_t nbytes) {
-	size_t return_value = nbytes;
+  size_t return_value = nbytes;
 
-	// ignoring written bytes (return_value)
-	swi(SYS_WRITE, fd, (unsigned int) buffer, nbytes);
+  swi(SYS_WRITE, fd, (unsigned int) buffer, (unsigned int) &return_value);
 
-	return return_value;
+  return return_value;
 }
 
 size_t sys_read(int fd, const char* buffer, size_t count) {
-	size_t return_value = count;
+  size_t return_value = count;
 
-	// ignoring read bytes (return value)
-	swi(SYS_READ, fd, (unsigned int) buffer, count);
+  swi(SYS_READ, fd, (unsigned int) buffer, (unsigned int) &return_value);
 
-	return return_value;
+  return return_value;
 }
 
 int sys_close(int fd) {
-	int return_value = 0;
+  int return_value = 0;
 
-	swi(SYS_CLOSE, (unsigned int) &return_value, fd, 0);
+  swi(SYS_CLOSE, (unsigned int) &return_value, fd, 0);
 
-	return return_value;
+  return return_value;
 }
 
 unsigned int sys_physical_address_of(const void* address) {
@@ -103,25 +101,25 @@ unsigned int sys_physical_address_of(const void* address) {
 }
 
 int sys_execute(int priority, BOOLEAN block_current, const char* path) {
+  int return_value = PID_INVALID;
 
-	// ignoring return value
-	swi(SYS_EXEC, priority, (unsigned int)block_current, (unsigned int) path);
+  swi(SYS_EXEC, priority, (unsigned int) block_current, (unsigned int) path);
 
-	return -1;
+  return return_value;
 }
 
 void sys_bind(const char* ns, int* success) {
-  swi(SYS_BIND_NAMESPACE, (unsigned int)ns, (unsigned int)success, 0);
+  swi(SYS_BIND_NAMESPACE, (unsigned int) ns, (unsigned int) success, 0);
 }
 
 void sys_send(const char* ns, message_t* msg, int* success) {
-  swi(SYS_SEND, (unsigned int)ns, (unsigned int)msg, (unsigned int) success);
+  swi(SYS_SEND, (unsigned int) ns, (unsigned int) msg, (unsigned int) success);
 }
 
 void sys_wait_msg(const char* ns) {
-  swi(SYS_WAIT_MSG, (unsigned int)ns, 0,0);
+  swi(SYS_WAIT_MSG, (unsigned int) ns, 0, 0);
 }
 
 void sys_receive(const char* ns, message_t *msg, int* success) {
-  swi(SYS_RECEIVE, (unsigned int)ns, (unsigned int)msg, (unsigned int) success);
+  swi(SYS_RECEIVE, (unsigned int) ns, (unsigned int) msg, (unsigned int) success);
 }
