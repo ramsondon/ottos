@@ -115,6 +115,8 @@ void video_test() {
   int x, y, u;
   RastPort *rp;
   void* framebuffer = malloc(3200000);
+  GRAPH_DATA graph_data[20];
+
 
   // init
   rp = graphics_init(framebuffer, RESOLUTION_WIDTH , RESOLUTION_HEIGHT, BM_RGB16);
@@ -147,6 +149,15 @@ void video_test() {
   graphics_set_color(rp, COLOR_Red);
   graphics_draw_line(rp, 166, 160, 490, 100, 1);
   graphics_draw_line(rp, 390, 100, 790, 130, 1);
+
+  for (i = 0; i < 20; i++) {
+    graph_data[i].data = i - 4;
+    graph_data[i].timestamp.hour = 10;
+    graph_data[i].timestamp.minute = i;
+    graph_data[i].timestamp.second = 0;
+  }
+
+  graphics_draw_graph(rp, graph_data, 20, 1, 400, 680, COLOR_Lime, COLOR_Red);
 
   // set humanity
   graphics_move_to(rp, 10, 300);

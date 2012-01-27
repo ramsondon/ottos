@@ -24,6 +24,7 @@
 #include <api/graphics.h>
 #include <api/colors.h>
 #include <api/system.h>
+#include <api/io.h>
 #include <math.h>
 
 static RastPort* graphics_rastport;
@@ -111,16 +112,15 @@ void graphics_draw_ellipse(RastPort* rp, int xm, int ym, int a, int b) {
 }
 
 
-#define GRAPHICS_GRAPH_TEMP_MAX   40
-#define GRAPHICS_GRAPH_TEMP_MIN   -12
-
-void graphics_draw_graph(RastPort *rp, int* data, int length, int timespan, int height, int width,
+void graphics_draw_graph(RastPort *rp, GRAPH_DATA* data, int length, int timespan, int height, int width,
                          unsigned int color_line, unsigned int color_background) {
-  int i, value, prev_x;
+  int i, y, value, prev_x, time_legend_index, time_legend_gap;
   int x0 = rp->x;
   int y0 = rp->y;
   int margin = 3;
   int span_in_pixel = width / length;
+  GRAPH_DATA* cur_data;
+  char str[8];
   float degree_in_pixel = height / (abs(GRAPHICS_GRAPH_TEMP_MAX) + abs(GRAPHICS_GRAPH_TEMP_MIN));
 
 
@@ -140,16 +140,48 @@ void graphics_draw_graph(RastPort *rp, int* data, int length, int timespan, int 
   y0 += GRAPHICS_GRAPH_TEMP_MAX*degree_in_pixel;
 
   for (i = 0; i < length; i++) {
-    value = data[i];
+    value = data[i].data;
     graphics_draw_line(rp, x0 + span_in_pixel * i, prev_x, x0 + span_in_pixel * (i + 1), y0 + value/degree_in_pixel, 1);
     prev_x = x0 + value/degree_in_pixel;
   }
 
+  // write timevalues on time axis
+  time_legend_index = length / 4;
+  time_legend_gap = width / 4;
+
+  // draw 4 time values on timeline
+  cur_data = &(data[0]);
+  graphics_set_color(rp, COLOR_Black);
+  graphics_move_to(rp, x0 + 10, y0);
+  sprintf(str, "%02d:%02d:%02d", cur_data->timestamp.hour, cur_data->timestamp.minute, cur_data->timestamp.second);
+  graphics_draw_string(rp, str, 2);
+
+  for (i = 1; i < 4; i++) {
+    cur_data = &(data[time_legend_index * i - 1]);
+    graphics_set_color(rp, COLOR_Black);
+    graphics_move_to(rp, x0 + time_legend_gap*i, y0);
+    sprintf(str, "%02d:%02d:%02d", cur_data->timestamp.hour, cur_data->timestamp.minute, cur_data->timestamp.second);
+    graphics_draw_string(rp, str, 2);
+  }
+
+  // draw legend for value axis
   graphics_move_to(rp, x0 - 5, y0);
   graphics_draw_string(rp, "0", 2);
 
+  y = y0 - (degree_in_pixel * GRAPHICS_GRAPH_TEMP_MAX);
+  // draw positive values on value axis
+  for (i = 1; i > 10; i++) {
+    sprintf(str, "%d\0", i * 5);
+    graphics_move_to(rp, x0 - margin, y);
+    graphics_draw_string(rp, str, 2);
+  }
 
-
+  // draw negative values on value axis
+  for (i = 1; i < -4; i--) {
+    sprintf(str, "%d\0", -i * 5);
+    graphics_move_to(rp, x0 - margin, y);
+    graphics_draw_string(rp, str, 2);
+  }
 }
 
 // see: http://de.wikipedia.org/wiki/Bresenham-Algorithmus
