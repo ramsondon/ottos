@@ -113,6 +113,21 @@ BOOLEAN swi_handle_sys_physical_address(unsigned int vaddr, unsigned int physadd
   return FALSE;
 }
 
+BOOLEAN swi_handle_sys_nr_of_process(unsigned int count) {
+
+  int* ret = (int*) mmu_get_physical_address(process_table[process_active], count);
+  *ret = process_nr_of_process();
+  return FALSE;
+}
+
+BOOLEAN swi_handle_sys_process_info(unsigned int mem, unsigned int count) {
+
+  pinfo_t* list = (pinfo_t*) mmu_get_physical_address(process_table[process_active], mem);
+  int* c = (int*) mmu_get_physical_address(process_table[process_active], count);
+  *c = process_pinfo(list, count);
+  return FALSE;
+}
+
 BOOLEAN swi_handle_sys_close(int error_code_address, int fd) {
 	// get the real address of the error code
 	int* error_code = (int*) mmu_get_physical_address(process_table[process_active], error_code_address);
@@ -325,6 +340,13 @@ BOOLEAN swi_handle(unsigned int syscall_nr, unsigned int param1, unsigned int pa
     // param1 = virtual address
     // param2 = physical address return value
     return swi_handle_sys_physical_address(param1, param2);
+  case SYS_NR_OF_PROCESS:
+    // param1 = count as return value
+    return swi_handle_sys_nr_of_process(param1);
+  case SYS_PROCESS_INFO:
+    // param1 = pinfo_t memory buffer
+    // param2 = count
+    return swi_handle_sys_process_info(param1, param2);
 	default:
 		// unknown syscall number
 		kernel_error(SWI_UNKNOWN_SYSCALL_NR, "Unknown syscall-number. Ignoring.");

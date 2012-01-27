@@ -102,6 +102,19 @@ unsigned int sys_physical_address_of(const void* address) {
   return physical_address;
 }
 
+unsigned int sys_nr_of_process() {
+
+  unsigned int nr_of_proc = 0;
+  swi(SYS_NR_OF_PROCESS, (unsigned int)&nr_of_proc, 0 , 0);
+  return nr_of_proc;
+}
+
+int sys_process_info(pinfo_t* mem, int count) {
+
+  swi(SYS_PROCESS_INFO, (unsigned int)mem, (unsigned int) &count, 0);
+  return count;
+}
+
 int sys_execute(int priority, BOOLEAN block_current, const char* path) {
 
 	// ignoring return value
