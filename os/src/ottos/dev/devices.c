@@ -32,6 +32,7 @@
 
 #include "../../drivers/led/led.h"
 #include "../../drivers/serial/serial.h"
+#include "../../drivers/video/video.h"
 
 /*
  * instantiated devices; managed by this module
@@ -54,6 +55,7 @@ void devices_init() {
   devices_create(LED_0, omap_led_driver);
   devices_create(LED_1, omap_led_driver);
   devices_create(SERIAL_0, omap_serial_driver);
+  devices_create(VIDEO_0, omap_video_driver);
 }
 
 driver_t* devices_driver(device_t dev) {
