@@ -116,7 +116,6 @@ void graphics_draw_ellipse(RastPort* rp, int xm, int ym, int a, int b) {
 
 void graphics_draw_graph(RastPort *rp, int* data, int length, int timespan, int height, int width,
                          unsigned int color_line, unsigned int color_background) {
-  /*
   int i, value, prev_x;
   int x0 = rp->x;
   int y0 = rp->y;
@@ -133,7 +132,7 @@ void graphics_draw_graph(RastPort *rp, int* data, int length, int timespan, int 
   graphics_draw_line(rp, x0+margin, y0+margin, x0+margin, y0+height-margin, 1);
   // draw horizontal axis
   graphics_draw_line(rp, x0+margin, y0+GRAPHICS_GRAPH_TEMP_MAX*degree_in_pixel,
-                     x0+widht-margin, y0+GRAPHICS_GRAPH_TEMP_MAX*degree_in_pixel, 1);
+                     x0+width-margin, y0+GRAPHICS_GRAPH_TEMP_MAX*degree_in_pixel, 1);
 
   // draw dataline
   graphics_set_color(rp, color_line);
@@ -142,14 +141,15 @@ void graphics_draw_graph(RastPort *rp, int* data, int length, int timespan, int 
 
   for (i = 0; i < length; i++) {
     value = data[i];
-    graphics_draw_line(rp, x0 + span_in_pixel * i, prev_y, x0 + span_in_pixel * (i + 1), y0 + value/degree_in_pixel, 1);
-    prev_y = y0 + value/degree_in_pixel;
+    graphics_draw_line(rp, x0 + span_in_pixel * i, prev_x, x0 + span_in_pixel * (i + 1), y0 + value/degree_in_pixel, 1);
+    prev_x = x0 + value/degree_in_pixel;
   }
 
   graphics_move_to(rp, x0 - 5, y0);
   graphics_draw_string(rp, "0", 2);
 
-  */
+
+
 }
 
 // see: http://de.wikipedia.org/wiki/Bresenham-Algorithmus
