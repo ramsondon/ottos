@@ -67,6 +67,24 @@ int sys_open(const char* path, int flags) {
   return return_value;
 }
 
+int sys_opendir(const char* path, dir_t* dir) {
+  int return_value = 0;
+  swi(SYS_DIROPEN, (unsigned int) path, (unsigned int) dir, (unsigned int) &return_value);
+  return return_value;
+}
+
+int sys_closedir(dir_t* dir_stat) {
+  int return_value = 0;
+  swi(SYS_DIRCLOSE, (unsigned int) dir_stat, (unsigned int) &return_value, 0);
+  return return_value;
+}
+
+int sys_readdir(dir_t* dir_stat, dir_entry_t* dir_entry) {
+  int return_value = 0;
+  swi(SYS_DIRREAD, (unsigned int) dir_stat, (unsigned int) dir_entry, (unsigned int) &return_value);
+  return return_value;
+}
+
 size_t sys_write(int fd, const char* buffer, size_t nbytes) {
   size_t return_value = nbytes;
 
