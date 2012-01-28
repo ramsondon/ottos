@@ -44,7 +44,11 @@
 /**
  * File system calls
  */
-#define SYS_FOPEN   20
+#define SYS_FOPEN    20
+// directory operations
+#define SYS_DIROPEN  21
+#define SYS_DIRCLOSE 22
+#define SYS_DIRREAD  23
 
 /*
  * IPC system calls
