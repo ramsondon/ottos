@@ -29,11 +29,23 @@
 #include <api/system.h>
 #include <api/proc.h>
 
+#define PSTATE_MAP_COUNT 4
+
+static const char* pstate_map[] = { "ready  ", "waiting", "running", "?      "};
+
 uint32_t pcount() {
   return sys_pcount();
 }
 
 uint32_t pinfo(pinfo_t* pinfo, uint32_t count) {
   return sys_pinfo(pinfo, count);
+}
+
+const char* pstate_readable(int stat) {
+
+  if (stat < PSTATE_MAP_COUNT) {
+    return pstate_map[stat];
+  }
+  return pstate_map[PSTATE_MAP_COUNT-1];
 }
 

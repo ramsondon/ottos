@@ -52,10 +52,10 @@ void print_pinfo(pinfo_t* pinfo) {
 
   char buffer[500] = { 0 };
   // print current pinfo_t
-  sprintf(buffer, "%d \t %d \t %d \t %d \t %d \t %/path/cmd\n\r",
+  sprintf(buffer, "%d \t %d \t %s \t %d \t %d \t %/path/cmd\n\r",
            pinfo->pid,
            pinfo->tty,
-           pinfo->stat,
+           pstate_readable(pinfo->stat),
            pinfo->time,
            pinfo->mem
    //      pinfo->command
@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
   pinfo_t* pinfo = get_pinfos();
 
   // print header of ps
-  print("PID \t TTY \t STAT \t TIME \t MEM \t CMD \n\r");
+  print("PID  \t TTY  \t STAT    \t TIME  \t MEM  \t CMD \n\r");
 
   if (pinfo != NULL) {
 

@@ -39,4 +39,9 @@ EXTERN uint32_t pinfo(pinfo_t* pinfo, uint32_t count);
  */
 EXTERN uint32_t pcount();
 
+/*
+ * maps a pinfo->stat entry to a readable char*
+ */
+EXTERN const char* pstate_readable(int stat);
+
 #endif /* API_PROC_H_ */
