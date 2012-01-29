@@ -177,3 +177,7 @@ char** sys_read_arguments(int* argc) {
   *argc = argc_;
   return argv;
 }
+
+void sys_exit() {
+	swi(SYS_EXIT, 0, 0, 0);
+}

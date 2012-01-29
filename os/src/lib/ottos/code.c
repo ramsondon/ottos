@@ -84,7 +84,7 @@ code_bytes_t* code_get(const char* executable_file) {
 	const char* extension = ".i0";
 	int extension_length = strlen(extension);
 	int executable_filename_length = strlen(executable_file);
-	int hex_filename_length = executable_filename_length + extension_length;
+	int hex_filename_length = executable_filename_length + extension_length + 1;
 
 	char* executable_filename_0 = (char*) malloc(sizeof(char) * hex_filename_length);
 	char* executable_filename_1 = (char*) malloc(sizeof(char) * hex_filename_length);

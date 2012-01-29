@@ -85,4 +85,9 @@ EXTERN void sys_receive(const char* ns, message_t* msg, int* success);
  */
 EXTERN char** sys_read_arguments(int* argc);
 
+/*
+ * Deletes the active process (the caller)
+ */
+EXTERN void sys_exit();
+
 #endif /* API_SYSTEM_H_ */

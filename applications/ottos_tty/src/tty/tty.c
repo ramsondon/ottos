@@ -74,10 +74,10 @@ static BOOLEAN tty_find_binary(const char* name) {
 static int tty_start_process(const char* bin, char* args, BOOLEAN background) {
 
 	char* buffer = NULL;
-	char** args_test = malloc(sizeof(char*) * 3);
-	char** arguments = NULL;
+//	char** args_test = malloc(sizeof(char*) * 3);
+//	char** arguments = NULL;
 	int argc = 0;
-	int i = 0;
+//	int i = 0;
 
 	char arg1[50] = { 0 };
 	char arg2[50] = { 0 };
