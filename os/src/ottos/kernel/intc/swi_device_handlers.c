@@ -230,6 +230,29 @@ BOOLEAN swi_handle_sys_fread(process_file_descriptor_t* fd_process, char* buffer
 	return FALSE;
 }
 
+BOOLEAN swi_handle_sys_diropen(int path_address, int dir_stat_address, int return_value_address) {
+  const char* path = (const char*) mmu_get_physical_address(process_table[process_active], path_address);
+  FL_DIR* dir = (FL_DIR*) mmu_get_physical_address(process_table[process_active], dir_stat_address);
+  FL_DIR* return_value = (FL_DIR*) mmu_get_physical_address(process_table[process_active], return_value_address);
+  return_value = (FL_DIR*) fl_opendir(path, dir);
+  return FALSE;
+}
+
+BOOLEAN swi_handle_sys_dirclose(int dir_stat_address, int return_value_address) {
+  FL_DIR* dir_stat = (FL_DIR*) mmu_get_physical_address(process_table[process_active], dir_stat_address);
+  int* return_value = (int*) mmu_get_physical_address(process_table[process_active], return_value_address);
+  *return_value = fl_closedir(dir_stat);
+  return FALSE;
+}
+
+BOOLEAN swi_handle_sys_dirread(int dir_stat_address, int dir_entry_address, int return_value_address) {
+  FL_DIR* dir_stat = (FL_DIR*) mmu_get_physical_address(process_table[process_active], dir_stat_address);
+  fl_dirent* dir_entry = (fl_dirent*) mmu_get_physical_address(process_table[process_active], dir_entry_address);
+  int* return_value = (int*) mmu_get_physical_address(process_table[process_active], return_value_address);
+  *return_value = fl_readdir(dir_stat, dir_entry);
+  return FALSE;
+}
+
 BOOLEAN swi_handle_sys_bind(int ns_address, int result_address) {
   const char* namespace =
       (const char*) mmu_get_physical_address(process_table[process_pid()], ns_address);
@@ -304,6 +327,20 @@ BOOLEAN swi_handle(unsigned int syscall_nr, unsigned int param1, unsigned int pa
 		// param2 = path
 		// param3 = falgs
 		return swi_handle_sys_fopen(param1, param2, param3);
+	case SYS_DIROPEN:
+	  // param1 = path
+	  // param2 = dir
+	  // param3 = return_value
+	  return swi_handle_sys_diropen(param1, param2, param3);
+	case SYS_DIRCLOSE:
+	  // param1 = dir_stat
+	  // param2 = return_value
+	  return swi_handle_sys_dirclose(param1, param2);
+	case SYS_DIRREAD:
+	  // param1 = dir_stat
+	  // param2 = dir_entry
+	  // param3 = return_value
+	  return swi_handle_sys_dirread(param1, param2, param3);
 	case SYS_CLOSE:
 		// param1 = return value (error code)
 		// param2 = fd

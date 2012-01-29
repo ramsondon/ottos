@@ -79,4 +79,26 @@ EXTERN void sys_wait_msg(const char* ns);
  */
 EXTERN void sys_receive(const char* ns, message_t* msg, int* success);
 
+/**
+ * Open a directory for listing files.
+ *
+ * @param path - the path to be opened
+ * @param dir - the reference to the directory status struct
+ */
+EXTERN int sys_opendir(const char* path, dir_t* dir);
+
+/**
+ * Close a directory after reading.
+ *
+ * @param dir_stat - the directory to close
+ */
+EXTERN int sys_closedir(dir_t* dir_stat);
+
+/**
+ * Read the next directory entry in a previously opened directory.
+ * @param dir_stat - the reference to the opened directory
+ * @param dir_entry - the reference of the entry in which to read
+ */
+EXTERN int sys_readdir(dir_t* dir_stat, dir_entry_t* dir_entry);
+
 #endif /* API_SYSTEM_H_ */

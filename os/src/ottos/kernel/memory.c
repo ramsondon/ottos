@@ -21,11 +21,13 @@
  *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
+#include <stdlib.h>
+#include <math.h>
+
 #include <ottos/memory.h>
 #include <ottos/types.h>
 #include <ottos/kernel.h>
 #include <ottos/io.h>
-#include <stdlib.h>
 
 void* memory_init_32(void* buffer, size_t length, uint32_t value) {
   do {
@@ -64,3 +66,13 @@ void memory_print(uint8_t* memory, size_t size) {
   kernel_print(buffer);
 }
 
+char* memory_bytes_readable(double bytes, char* buffer) {
+    const char* suffix[] = { "B", "KB", "MB", "GB", "TB", "PB", "EB" };
+    int i = 0;
+    while (bytes > 1024 && i < 7) {
+        bytes /= 1024;
+        i++;
+    }
+    sprintf(buffer, "%.*f%s", i, bytes, suffix[i]);
+    return buffer;
+}
