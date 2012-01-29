@@ -23,8 +23,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <api/proc.h>
 #include <api/io.h>
+#include <api/memory.h>
+
 
 static uint32_t process_count = 0;
 
@@ -51,13 +54,14 @@ void free_pinfos(pinfo_t* pinfos) {
 void print_pinfo(pinfo_t* pinfo) {
 
   char buffer[500] = { 0 };
+  char membuf[10] = { 0 };
   // print current pinfo_t
-  sprintf(buffer, "%d \t %d \t %s \t %d \t %d \t %/path/cmd\n\r",
+  sprintf(buffer, "%d \t %d \t %s \t %d \t %s \t %/path/cmd\n\r",
            pinfo->pid,
            pinfo->tty,
            pstate_readable(pinfo->stat),
            pinfo->time,
-           pinfo->mem
+           memstr(pinfo->mem, membuf)
    //      pinfo->command
   );
   print(buffer);
