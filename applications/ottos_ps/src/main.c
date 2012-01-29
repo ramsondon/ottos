@@ -57,10 +57,9 @@ void print_pinfo(pinfo_t* pinfo) {
   char membuf[10] = { 0 };
   char timebuf[20] = { 0 };
   // print current pinfo_t
-  sprintf(buffer, "%d\t%d\t%s\t%s\t%s\t%/path/cmd\n\r", pinfo->pid, pinfo->tty,
+  sprintf(buffer, "%d\t%d\t%s\t%s\t%s\t%s\n\r", pinfo->pid, pinfo->tty,
           pstate_readable(pinfo->stat), timetostr(pinfo->time, timebuf),
-          memstr(pinfo->mem, membuf)
-  //      pinfo->command
+          memstr(pinfo->mem, membuf), pinfo->cmd
   );
   print(buffer);
 }

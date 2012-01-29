@@ -66,7 +66,7 @@ BOOLEAN swi_handle_sys_create(int priority, int block_current, int executable_fi
 	}
 
 	kernel_debug(1, "Creating a new process");
-	/**pid = */process_create(priority, code);
+	/**pid = */process_create(priority, code, executable_file);
 
 	kernel_debug(1, "Created process");
 

@@ -85,6 +85,7 @@ struct process {
     address code_location;
     int page_count;
 
+    const char* cmd; /* the command line for this process (proc name)*/
     uint64_t starttime;
 
     pid_t pid;
@@ -113,7 +114,7 @@ EXTERN int process_active;
 void process_table_init();
 
 // creates a new process and returns the pid of it
-pid_t process_create(int priority, code_bytes_t* code_bytes);
+pid_t process_create(int priority, code_bytes_t* code_bytes, const char* cmd);
 
 // deletes the active process
 void process_delete();

@@ -72,7 +72,7 @@ typedef struct pinfo_t {
     int prio;             /* process priority */
     uint64_t time;        /* uptime of process */
     double mem;           /* memory consumed by process */
-//  const char* command;        /* command line pattern to start process */
+    const char* cmd;      /* command line pattern to start process */
 } pinfo_t;
 
 

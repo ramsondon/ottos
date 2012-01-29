@@ -131,7 +131,7 @@ void process_delete() {
 	process_active = PID_INVALID;
 }
 
-pid_t process_create(int priority, code_bytes_t* code_bytes) {
+pid_t process_create(int priority, code_bytes_t* code_bytes, const char* cmd) {
 
 	process_t* p = (process_t*) malloc(sizeof(process_t));
 	p->master_table_address = (address) 0;
@@ -143,6 +143,8 @@ pid_t process_create(int priority, code_bytes_t* code_bytes) {
 	p->child = NULL;
 	p->parent = NULL;
 	p->starttime = timer_system_uptime();
+
+	p->cmd = cmd;
 
 	if (process_active != PID_INVALID) {
 
@@ -323,14 +325,14 @@ unsigned int process_pinfo(pinfo_t pinfo[], int count) {
     if (process_table[i] == NULL) {
       continue;
     }
-    // TODO: (ramsondon@gmail.com) replace by correct values of process
+
     pinfo[i].pid = process_table[i]->pid;
     pinfo[i].tty = 0;
     pinfo[i].prio = process_table[i]->priority;
     pinfo[i].mem = process_table[i]->page_count * MMU_PAGE_SIZE;
     pinfo[i].stat = process_table[i]->state;
     pinfo[i].time = timer_system_uptime() - process_table[i]->starttime;
-//    pinfo[i].command = "/path/cmd.foo";
+    pinfo[i].cmd = process_table[i]->cmd;
 
     c++;
   }
