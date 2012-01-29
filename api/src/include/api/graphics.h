@@ -86,6 +86,20 @@ typedef struct {
     int y;
 } Point;
 
+typedef struct {
+    union {
+      unsigned short hour;
+      unsigned short minute;
+      unsigned short second;
+    } timestamp;
+
+    int data;
+} GRAPH_DATA;
+
+#define GRAPHICS_GRAPH_TEMP_MAX    40
+#define GRAPHICS_GRAPH_TEMP_MIN   -12
+
+
 EXTERN RomFont const graphics_font_misc_fixed;
 
 /* can only be called once ... */
@@ -101,5 +115,7 @@ EXTERN void graphics_draw_char(RastPort* rp, unsigned int c, int scale);
 EXTERN void graphics_draw_string(RastPort* rp, const char* s, int scale);
 EXTERN void graphics_draw_picture(int x, int y, BITMAP_HEADER* bmp_header, RGBA *data);
 EXTERN void graphics_redraw(RastPort* rp);
+EXTERN void graphics_draw_graph(RastPort *rp, GRAPH_DATA* data, int length, int timespan, int height, int width,
+                           unsigned int color_line, unsigned int color_background);
 
 #endif /* GRAPHICS_H_ */
