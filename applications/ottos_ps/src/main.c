@@ -61,7 +61,6 @@ void print_pinfo(pinfo_t* pinfo) {
    //      pinfo->command
   );
   print(buffer);
-  print("\n\r");
 }
 
 int main(int argc, char **argv) {
