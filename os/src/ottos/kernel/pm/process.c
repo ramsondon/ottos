@@ -299,7 +299,7 @@ void process_remove_file_descriptor(int fd) {
         // head of list
         process_table[process_active]->open_file_list = NULL;
       }
-      free(current->file);
+      //free(current->file);
       free(current);
     }
   }

@@ -111,9 +111,13 @@ int sys_execute(int priority, BOOLEAN block_current, const char* path, int argc,
   parameters[0] = (unsigned int) &return_value;
   parameters[1] = priority;
   parameters[2] = (unsigned int) block_current;
-  parameters[3] = (unsigned int) path;
+  if(path != NULL) {
+	  parameters[3] = (unsigned int) path;
+  }
   parameters[4] = argc;
-  parameters[5] = (unsigned int) argv;
+  if(argc > 0) {
+	  parameters[5] = (unsigned int) argv;
+  }
 
   swi(SYS_EXEC, (unsigned int) parameters, 0, 0);
 
