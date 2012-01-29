@@ -30,3 +30,20 @@ void ls(const char* path) {
   print("ls ...\n");
   sys_close(fd);
 }
+
+void ls2(const char* path) {
+  dir_t dirstat;
+
+  if (sys_opendir(path, &dirstat)) {
+    dir_entry_t dirent;
+
+    while (sys_readdir(&dirstat, &dirent) == 0) {
+      char buffer[512];
+      sprintf(buffer, "%crwx------ root wheel %5d %s\r\n", (dirent.is_dir ? 'd'
+          : '-'), dirent.size, dirent.filename);
+      print(buffer);
+    }
+
+    sys_closedir(&dirstat);
+  }
+}

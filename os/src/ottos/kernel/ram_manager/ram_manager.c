@@ -23,8 +23,11 @@
 
 #include <cstring>
 #include <bits.h>
+
 #include <ottos/kernel.h>
 #include <ottos/io.h>
+#include <ottos/memory.h>
+
 #include "../mmu/mmu.h"
 #include "ram_manager.h"
 
@@ -147,11 +150,22 @@ int ram_manager_max_pages_in(enum ram_manager_memory_type mem) {
 	}
 }
 
+
+
 void ram_manager_print_mem_usage() {
   char message[256];
-  sprintf(message, "Memory usage: %d bytes (INT max: %d), %d bytes (EXT max: %d)",
-          allocated_pages_int * MMU_PAGE_SIZE, ram_manager_max_pages_in(INT_RAM) * MMU_PAGE_SIZE,
-          allocated_pages_ext * MMU_PAGE_SIZE,ram_manager_max_pages_in(EXT_DDR) * MMU_PAGE_SIZE);
+  char buffer0[10];
+  char buffer1[10];
+  char buffer2[10];
+  char buffer3[10];
+
+  memory_bytes_readable(allocated_pages_int * MMU_PAGE_SIZE, buffer0);
+  memory_bytes_readable(ram_manager_max_pages_in(INT_RAM) * MMU_PAGE_SIZE, buffer1);
+  memory_bytes_readable(allocated_pages_ext * MMU_PAGE_SIZE, buffer2);
+  memory_bytes_readable(ram_manager_max_pages_in(EXT_DDR) * MMU_PAGE_SIZE, buffer3);
+
+  sprintf(message, "Memory usage: %s (INT max: %s), %s (EXT max: %s)",
+          buffer0, buffer1, buffer2, buffer3);
   kernel_debug(17, message);
 }
 
