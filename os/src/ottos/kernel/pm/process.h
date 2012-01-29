@@ -85,6 +85,8 @@ struct process {
     address code_location;
     int page_count;
 
+    uint64_t starttime;
+
     pid_t pid;
     int priority;
     enum ProcessState state;

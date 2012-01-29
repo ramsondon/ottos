@@ -27,7 +27,7 @@
 #include <api/proc.h>
 #include <api/io.h>
 #include <api/memory.h>
-
+#include <api/time.h>
 
 static uint32_t process_count = 0;
 
@@ -55,14 +55,12 @@ void print_pinfo(pinfo_t* pinfo) {
 
   char buffer[500] = { 0 };
   char membuf[10] = { 0 };
+  char timebuf[20] = { 0 };
   // print current pinfo_t
-  sprintf(buffer, "%d \t %d \t %s \t %d \t %s \t %/path/cmd\n\r",
-           pinfo->pid,
-           pinfo->tty,
-           pstate_readable(pinfo->stat),
-           pinfo->time,
-           memstr(pinfo->mem, membuf)
-   //      pinfo->command
+  sprintf(buffer, "%d\t%d\t%s\t%s\t%s\t%/path/cmd\n\r", pinfo->pid, pinfo->tty,
+          pstate_readable(pinfo->stat), timetostr(pinfo->time, timebuf),
+          memstr(pinfo->mem, membuf)
+  //      pinfo->command
   );
   print(buffer);
 }
@@ -73,7 +71,7 @@ int main(int argc, char **argv) {
   pinfo_t* pinfo = get_pinfos();
 
   // print header of ps
-  print("PID  \t TTY  \t STAT    \t TIME  \t MEM  \t CMD \n\r");
+  print("PID\tTTY\tSTAT\tTIME    \tMEM\tCMD\n\r");
 
   if (pinfo != NULL) {
 
@@ -85,5 +83,6 @@ int main(int argc, char **argv) {
     // free allocated resources
     free_pinfos(pinfo);
   }
+
   return 0;
 }

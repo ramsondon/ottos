@@ -25,12 +25,14 @@
 
 #include <ottos/const.h>
 #include <ottos/drivers/driver.h>
+#include <ottos/timer.h>
 
 #include "../intc/irq.h"
 #include "../sched/scheduler.h"
 #include "../mmu/mmu.h"
 #include "../loader/loader.h"
 #include "../ipc/ipc.h"
+
 
 #include "process.h"
 
@@ -140,6 +142,7 @@ pid_t process_create(int priority, code_bytes_t* code_bytes) {
 	p->state = READY;
 	p->child = NULL;
 	p->parent = NULL;
+	p->starttime = timer_system_uptime();
 
 	if (process_active != PID_INVALID) {
 
@@ -326,7 +329,7 @@ unsigned int process_pinfo(pinfo_t pinfo[], int count) {
     pinfo[i].prio = process_table[i]->priority;
     pinfo[i].mem = 0;
     pinfo[i].stat = process_table[i]->state;
-    pinfo[i].time = 0;
+    pinfo[i].time = timer_system_uptime() - process_table[i]->starttime;
 //    pinfo[i].command = "/path/cmd.foo";
 
     c++;

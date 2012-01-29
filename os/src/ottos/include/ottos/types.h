@@ -70,9 +70,9 @@ typedef struct pinfo_t {
     int tty;              /* tty identifier */
     int stat;             /* process status (running, ) */
     int prio;             /* process priority */
-    unsigned int time;    /* uptime of process */
+    uint64_t time;        /* uptime of process */
     double mem;           /* memory consumed by process */
-//    char* command;        /* command line pattern to start process */
+//  const char* command;        /* command line pattern to start process */
 } pinfo_t;
 
 
