@@ -24,6 +24,22 @@
 #ifndef OW_UI_H_
 #define OW_UI_H_
 
+typedef struct {
+    // timestamp
+    unsigned short year;
+    unsigned short month;
+    unsigned short day;
+    unsigned short hour;
+    unsigned short minute;
+    unsigned short second;
+
+    // weather data
+    float temp;         // temperature in degree Celsius
+    float humidity;     // humidity in %
+    float pressure;     // barometric pressure in hPa
+
+} WEATHER_DATA;
+
 
 void video_test();
 
