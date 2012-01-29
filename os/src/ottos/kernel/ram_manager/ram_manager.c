@@ -93,7 +93,7 @@ void ram_manager_release_page(enum ram_manager_memory_type mem, int pageNumber) 
 		allocated_pages_int--;
 	} else if ((mem == EXT_DDR) && (entry_number < RAM_MANAGER_MAX_PAGES_IN_EXT_DDR)) {
 		CLEAR_BIT((address)(((address)occupied_pages_ext_DDR) + entry_number), bit_number);
-		allocated_pages_ext++;
+		allocated_pages_ext--;
 	}
 }
 

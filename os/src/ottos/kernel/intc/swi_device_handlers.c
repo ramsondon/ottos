@@ -83,11 +83,14 @@ BOOLEAN swi_handle_sys_create(int parameters_address) {
 
 		for (i = 0; i < argc; i++) {
 			char* arg = (char*) mmu_get_physical_address(process_table[process_active], (unsigned int) argv[i]);
-			int length = strlen(arg) + 1;
-			argv_copy[i] = (char*) malloc(sizeof(char) * length);
-			strcpy(argv_copy[i], arg);
-			//      argv_copy[i] = (char*) malloc(sizeof(char) * (strlen("bla") + 1));
-			//      strcpy(argv_copy[i], "bla");
+			if (arg != NULL) {
+
+				int length = strlen(arg) + 1;
+				argv_copy[i] = (char*) malloc(sizeof(char) * length);
+				strcpy(argv_copy[i], arg);
+				//      argv_copy[i] = (char*) malloc(sizeof(char) * (strlen("bla") + 1));
+				//      strcpy(argv_copy[i], "bla");
+			}
 		}
 	}
 

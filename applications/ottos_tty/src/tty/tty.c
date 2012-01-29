@@ -46,14 +46,6 @@ static void tty_error(const char* message) {
 	print("\n\r");
 }
 
-//static void tty_username(char* buffer) {
-//  sprintf(buffer, "%s", USERNAME);
-//}
-//
-//static void tty_hostname(char* buffer) {
-//  sprintf(buffer, "%s", HOSTNAME);
-//}
-
 static void tty_print_prefix() {
 	print(USERNAME);
 	print("@");
@@ -78,121 +70,81 @@ static BOOLEAN tty_find_binary(const char* name) {
 	}
 	return FALSE;
 }
-//
-//// TODO (fdomig@gmail.com) move the CMDs to a separate file
-//static void tty_cmd_ls(char* directory) {
-//  FL_DIR dirstat;
-//
-//  if (directory == NULL) {
-//    directory = tty_cwd;
-//  }
-//
-//  fl_listdirectory(directory);
-//}
-//
-//static void tty_cmd_cat(char* args) {
-//  FILE* file;
-//  char filename[1024];
-//  char line[512];
-//
-//  if (*args != '/') {
-//    sprintf(filename, "%s/%s", tty_cwd, args);
-//  } else {
-//    sprintf(filename, "%s", args);
-//  }
-//
-//  file = fl_fopen(filename, "r");
-//  if (file == NULL) {
-//    char buffer[512];
-//    sprintf(buffer, "cat: %s: No such file", args);
-//    tty_error(buffer);
-//    return;
-//  }
-//
-//  while (!fl_feof(file)) {
-//    fl_fread(line, 512, 512, file);
-//    kernel_print(line);
-//  }
-//  kernel_print("\n\r");
-//
-//  fl_fclose(file);
-//}
-//
-//static void tty_cmd_cd(char* args) {
-//  // TODO (fdomig@gmail.com) ensure, the directory to change to exists
-//  if (!fl_is_dir(args)) {
-//    char buffer[512];
-//    sprintf("cd: %s: No such directory", args);
-//    tty_error(buffer);
-//    return;
-//  }
-//
-//  // change to home directory if no path is given
-//  if (args == NULL) {
-//    sprintf(tty_cwd, "%s", HOME_DIRECTORY);
-//    return;
-//  }
-//
-//  // remove trailing DIRECTORY_SEPARATOR
-//  if (strlen(args) > 1) {
-//    strtrim_right(args, DIRECTORY_SEPARATOR);
-//  }
-//
-//  // change to a directory with an absolute path
-//  if (*args == DIRECTORY_SEPARATOR) {
-//    sprintf(tty_cwd, "%s", args);
-//
-//    // change to parent directory or stay in current directory
-//  } else if (*args == '.') {
-//    // change to parent directory
-//    if (*(args + 1) == '.' && strlen(tty_cwd) > 1) {
-//      int i = strlen(tty_cwd);
-//      while (tty_cwd[--i] != DIRECTORY_SEPARATOR)
-//        ;
-//      if (i > 0) {
-//        tty_cwd[i] = '\0';
-//      } else {
-//        tty_cwd[i + 1] = '\0';
-//      }
-//    }
-//
-//    // change to a child directory
-//  } else {
-//    strtrim_right(tty_cwd, DIRECTORY_SEPARATOR);
-//    sprintf(tty_cwd, "%s%c%s", tty_cwd, DIRECTORY_SEPARATOR, args);
-//  }
-//}
-//
-//static void tty_cmd_pwd() {
-//  char buffer[MAX_PATH_LENGTH];
-//  sprintf(buffer, "%s\n\r", tty_cwd);
-//  kernel_print(buffer);
-//}
 
 static int tty_start_process(const char* bin, char* args, BOOLEAN background) {
 
 	char* buffer = NULL;
 	char** args_test = malloc(sizeof(char*) * 3);
+	char** arguments = NULL;
+	int argc = 0;
+	int i = 0;
+
+	char arg1[50] = { 0 };
+	char arg2[50] = { 0 };
+	char arg3[50] = { 0 };
+	char* args_stupid[3];
+	args_stupid[0] = arg1;
+	args_stupid[1] = arg2;
+	args_stupid[2] = arg3;
+
+	while (args != NULL) {
+		strcpy(args_stupid[argc], args);
+		argc++;
+		args = strtok(NULL, SPLIT_CHARS);
+	}
+//
+//	// split arguments by space
+//	char* args_ = args;
+//	while (args_ != NULL) {
+//		argc++;
+//		args_ = strtok(NULL, SPLIT_CHARS);
+//	}
+//	if (argc > 0) {
+//		arguments = (char**) malloc(sizeof(char*) * argc);
+//
+//		args_ = args;
+//		i = 0;
+//		while (args_ != NULL) {
+//			print(args_);
+//			print("\r\n");
+//			arguments[i] = (char*) malloc(sizeof(char) * (strlen(args_) + 1));
+//			if (arguments[i] == NULL) {
+//				print("WTF?\r\n");
+//			}
+//			strcpy(arguments[i], args_);
+//			//			arguments[i] = args_;
+//			i++;
+//			args_ = strtok(NULL, SPLIT_CHARS);
+//		}
+//	}
 
 	buffer = malloc(sizeof(char) * MAX_PATH_LENGTH);
 
-	args_test[0] = malloc(sizeof(char) * (strlen("arg1") + 1));
-	args_test[1] = malloc(sizeof(char) * (strlen("arg2") + 1));
-	args_test[2] = malloc(sizeof(char) * (strlen("arg3") + 1));
-	strcpy(args_test[0], "arg1");
-	strcpy(args_test[1], "arg2");
-	strcpy(args_test[2], "arg3");
+	//	args_test[0] = malloc(sizeof(char) * (strlen("arg1") + 1));
+	//	args_test[1] = malloc(sizeof(char) * (strlen("arg2") + 1));
+	//	args_test[2] = malloc(sizeof(char) * (strlen("arg3") + 1));
+	//	strcpy(args_test[0], "arg1");
+	//	strcpy(args_test[1], "arg2");
+	//	strcpy(args_test[2], "arg3");
 
 	sprintf(buffer, "/bin/%s", bin);
 
 	//print("before starting process\r\n");
-	sys_execute(1, background, bin, 3, args_test);
+	//	sys_execute(1, background, bin, 3, args_test);
 	//	sys_execute(1, background, bin, 0, NULL);
+	//sys_execute(1, background, bin, argc, arguments);
+	sys_execute(1, background, bin, argc, args_stupid);
 
-	free(args_test[0]);
-	free(args_test[1]);
-	free(args_test[2]);
-	free(args_test);
+//	if (argc > 0) {
+//		for (i = 0; i < argc; i++) {
+//			free(arguments[i]);
+//		}
+//		free(arguments);
+//	}
+	//		free(args_test[0]);
+	//		free(args_test[1]);
+	//		free(args_test[2]);
+	//		free(args_test);
 	free(buffer);
 
 	// TODO (fdomig@gmail.com) return the process return state on foreground process
@@ -200,26 +152,6 @@ static int tty_start_process(const char* bin, char* args, BOOLEAN background) {
 }
 
 static void tty_print_startup() {
-	//	char buffer[100]= {0};
-	//	strcpy(buffer, "\r\n");
-	//
-	//	print(buffer);
-	//	print(buffer);
-	//
-	//	strcpy(buffer, "  *****************************************\n\r");
-	//	print(buffer);
-	//
-	//	strcpy(buffer,   "*           Welcome to OttOS!           *\n\r");
-	//	print(buffer);
-	//
-	//	strcpy(buffer, "  *****************************************\n\r");
-	//	print(buffer);
-	//
-	//	strcpy(buffer, "\r\n");
-	//
-	//	print(buffer);
-	//	print(buffer);
-
 	print("\n\r");
 	print("\n\r");
 	print("  *****************************************\n\r");
@@ -230,15 +162,6 @@ static void tty_print_startup() {
 }
 
 int tty_getline(char* buffer, int length) {
-	//  int i = 0;
-	//  char c;
-	//  do {
-	//	  read_serial(&c, 1);
-	//	  print(&c);
-	//	  buffer[i] = c;
-	//  } while (c != '\n' && i++ < length);
-	//
-	//  buffer[i] = '\0';
 	return read_serial_with_end_char(buffer, length, '\n');
 }
 
