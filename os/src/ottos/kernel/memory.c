@@ -22,7 +22,6 @@
  */
 
 #include <stdlib.h>
-#include <math.h>
 
 #include <ottos/memory.h>
 #include <ottos/types.h>

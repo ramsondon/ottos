@@ -430,7 +430,7 @@ BOOLEAN mmu_handle_data_abort() {
 		if (process_active != PID_INVALID) {
 		  char message[256];
 
-		  sprintf(message, "illegal accessed address (%#08x); kill pid: %d", accessed_address, process_active);
+		  sprintf(message, "illegal accessed address (0x%08x); kill pid: %d", accessed_address, process_active);
 			kernel_error(MMU_DATA_ABORT_ILLEGAL, message);
 			process_delete();
 
