@@ -140,6 +140,6 @@ EXTERN void process_unblock(pid_t pid);
 EXTERN int process_count();
 
 // returns the number of actual read pinfo_ts
-EXTERN unsigned int process_pinfo(pinfo_t** pinfo, int count);
+EXTERN unsigned int process_pinfo(pinfo_t pinfo[], int count);
 
 #endif /* OTTOS_KERNEL_PM_PROCESS_H_ */

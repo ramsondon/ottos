@@ -128,7 +128,7 @@ BOOLEAN swi_handle_sys_nr_of_process(unsigned int count) {
 
 BOOLEAN swi_handle_sys_process_info(unsigned int mem, unsigned int count, unsigned int act_nr_of_pinfos) {
 
-  pinfo_t** list = (pinfo_t**) mmu_get_physical_address(process_table[process_active], mem);
+  pinfo_t* list = (pinfo_t*) mmu_get_physical_address(process_table[process_active], mem);
   int* c = (int*) mmu_get_physical_address(process_table[process_active], count);
   int* ac = (int*) mmu_get_physical_address(process_table[process_active], act_nr_of_pinfos);
   *ac = process_pinfo(list, *c);
