@@ -1,12 +1,12 @@
-/* timer.h
- *
- * Copyright (c) 2011 The ottos project.
+/* proc.h
+ * 
+ * Copyright (c) 2011 The ottos_api project.
  *
  * This work is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
  * any later version.
- *
+ * 
  * This work is distributed in the hope that it will be useful, but without
  * any warranty; without even the implied warranty of merchantability or
  * fitness for a particular purpose. See the GNU Lesser General Public License
@@ -17,30 +17,31 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 10.11.2011
- *      Author: Florian Gopp (go.goflo@gmail.com)
+ *  Created on: Jan 27, 2012
+ *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#ifndef TIMER_H_
-#define TIMER_H_
+#ifndef API_PROC_H_
+#define API_PROC_H_
 
-#include <ottos/types.h>
 #include <ottos/const.h>
+#include <ottos/types.h>
 
-#define MAX_TIMER_COUNT 20
-#define DEFAULT_TICKS 10
+/*
+ * returns the number of process information entries and sets the pinfo_t pinfo
+ * pointer.
+ */
+EXTERN uint32_t pinfo(pinfo_t* pinfo, uint32_t count);
 
-typedef struct {
-    void (*handle)(void);
-    int init_ticks;
-    int curr_ticks;
-} system_timer_t;
+/*
+ * returns the number of running processes. the result will be at least 1 for
+ * the reason that this process is the only one which would be running.
+ */
+EXTERN uint32_t pcount();
 
-EXTERN void timer_init();
-EXTERN void timer_add_handler(void (*handle)(void), int ticks);
-EXTERN void timer_remove_handler(void (*handle)(void));
-EXTERN uint64_t timer_system_uptime();
-EXTERN void timer_parse_time(time_t* time, uint64_t ms);
-EXTERN void timer_sprint_time(time_t time, char* buffer);
+/*
+ * maps a pinfo->stat entry to a readable char*
+ */
+EXTERN const char* pstate_readable(int stat);
 
-#endif /* TIMER_H_ */
+#endif /* API_PROC_H_ */

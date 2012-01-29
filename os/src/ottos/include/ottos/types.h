@@ -62,6 +62,20 @@ typedef struct message_t {
     void* content;  /* the actual message content                   */
 } message_t;
 
+/*
+ * process information struct
+ */
+typedef struct pinfo_t {
+    pid_t pid;            /* process pid */
+    int tty;              /* tty identifier */
+    int stat;             /* process status (running, ) */
+    int prio;             /* process priority */
+    uint64_t time;        /* uptime of process */
+    double mem;           /* memory consumed by process */
+    const char* cmd;      /* command line pattern to start process */
+} pinfo_t;
+
+
 typedef struct {
     int days;
     int hours;

@@ -66,7 +66,7 @@ BOOLEAN swi_handle_sys_create(int priority, int block_current, int executable_fi
 	}
 
 	kernel_debug(1, "Creating a new process");
-	/**pid = */process_create(priority, code);
+	/**pid = */process_create(priority, code, executable_file);
 
 	kernel_debug(1, "Created process");
 
@@ -116,6 +116,22 @@ BOOLEAN swi_handle_sys_physical_address(unsigned int vaddr, unsigned int physadd
   int* virtual = (int*) mmu_get_physical_address(process_table[process_active], vaddr);
   int* physical = (int*)mmu_get_physical_address(process_table[process_active], physaddr);
   *physical = (unsigned int)virtual;
+  return FALSE;
+}
+
+BOOLEAN swi_handle_sys_nr_of_process(unsigned int count) {
+
+  int* ret = (int*) mmu_get_physical_address(process_table[process_active], count);
+  *ret = process_count();
+  return FALSE;
+}
+
+BOOLEAN swi_handle_sys_process_info(unsigned int mem, unsigned int count, unsigned int act_nr_of_pinfos) {
+
+  pinfo_t* list = (pinfo_t*) mmu_get_physical_address(process_table[process_active], mem);
+  int* c = (int*) mmu_get_physical_address(process_table[process_active], count);
+  int* ac = (int*) mmu_get_physical_address(process_table[process_active], act_nr_of_pinfos);
+  *ac = process_pinfo(list, *c);
   return FALSE;
 }
 
@@ -376,6 +392,14 @@ BOOLEAN swi_handle(unsigned int syscall_nr, unsigned int param1, unsigned int pa
     // param1 = virtual address
     // param2 = physical address return value
     return swi_handle_sys_physical_address(param1, param2);
+  case SYS_NR_OF_PROCESS:
+    // param1 = count as return value
+    return swi_handle_sys_nr_of_process(param1);
+  case SYS_PROCESS_INFO:
+    // param1 = pinfo_t memory buffer
+    // param2 = count
+    // param3 = actual number of pinfo_t blocks read by syscall
+    return swi_handle_sys_process_info(param1, param2, param3);
 	default:
 		// unknown syscall number
 		kernel_error(SWI_UNKNOWN_SYSCALL_NR, "Unknown syscall-number. Ignoring.");

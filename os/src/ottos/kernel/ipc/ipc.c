@@ -32,16 +32,18 @@
 /*
  * IPC message queue global instance
  */
-static IPC_MESSAGE_QUEUE ipc_message_queue = { 0, /* number of pending messages in queue */
-NULL, /* IPC_MESSAGE* head of list */
-NULL /* IPC_MESSAGE* last element of list */
+static IPC_MESSAGE_QUEUE ipc_message_queue = {
+      0, /* number of pending messages in queue */
+      NULL, /* IPC_MESSAGE* head of list */
+      NULL /* IPC_MESSAGE* last element of list */
 };
 
 /*
  * IPC namespace queue global instance
  */
-static IPC_NAMESPACE_QUEUE ipc_namespace_queue = { 0, /* namespace size */
-NULL /* IPC_NAMESPACE head of list */
+static IPC_NAMESPACE_QUEUE ipc_namespace_queue = {
+      0, /* namespace size */
+      NULL /* IPC_NAMESPACE head of list */
 };
 
 static IPC_NAMESPACE* ipc_lookup_namespace(const char* ns) {

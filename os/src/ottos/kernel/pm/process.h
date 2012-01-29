@@ -42,6 +42,10 @@ enum ProcessState {
   READY, BLOCKED, RUNNING
 };
 
+enum BlockState {
+  NONE, IPC_WAIT
+};
+
 // TODO find a better name for this
 struct process_file_descriptor;
 typedef struct process_file_descriptor process_file_descriptor_t;
@@ -52,9 +56,6 @@ struct process_file_descriptor {
     process_file_descriptor_t* next;
 };
 
-enum BlockState {
-  NONE, IPC_WAIT
-};
 
 typedef struct {
     int CPSR;
@@ -84,6 +85,9 @@ struct process {
     address code_location;
     int page_count;
 
+    const char* cmd; /* the command line for this process (proc name)*/
+    uint64_t starttime;
+
     pid_t pid;
     int priority;
     enum ProcessState state;
@@ -110,7 +114,7 @@ EXTERN int process_active;
 void process_table_init();
 
 // creates a new process and returns the pid of it
-pid_t process_create(int priority, code_bytes_t* code_bytes);
+pid_t process_create(int priority, code_bytes_t* code_bytes, const char* cmd);
 
 // deletes the active process
 void process_delete();
@@ -135,5 +139,10 @@ EXTERN void process_block(pid_t pid);
 
 // sets the process to READY state and blockstate to NONE
 EXTERN void process_unblock(pid_t pid);
+
+EXTERN int process_count();
+
+// returns the number of actual read pinfo_ts
+EXTERN unsigned int process_pinfo(pinfo_t pinfo[], int count);
 
 #endif /* OTTOS_KERNEL_PM_PROCESS_H_ */

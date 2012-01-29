@@ -32,11 +32,7 @@
  *        - Message Passing - send, receive
  *        - waitpid(pid_t pid)
  *
- * TODO:  implement BLOCK process while waiting for a message for a certain
- *        namespace
  * TODO:  implement global maximum number of messages to be sent
- * TODO:  implement BLOCK process while maximum number of messages reached in
- *        kernel and trying to send message
  */
 
 #include <ottos/const.h>

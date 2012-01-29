@@ -30,7 +30,9 @@
 void uptime_test() {
   while (1) {
     char timer[64];
-    time_t uptime = timer_parse_time(timer_system_uptime());
+    time_t uptime = { 0, 0, 0, 0, 0 };
+
+    timer_parse_time(&uptime, timer_system_uptime());
     timer_sprint_time(uptime, timer);
     kernel_print("Current system uptime: ");
     kernel_print(timer);

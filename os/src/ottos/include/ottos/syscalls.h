@@ -27,9 +27,12 @@
 /*
  * Process system calls
  */
-#define SYS_YIELD   1
-#define SYS_EXIT    2
-#define SYS_EXEC	  3
+#define SYS_YIELD             1
+#define SYS_EXIT              2
+#define SYS_EXEC	            3
+#define SYS_NR_OF_PROCESS     4
+#define SYS_PHYSICAL_ADDRESS  5
+#define SYS_PROCESS_INFO      6
 
 /**
  * I/O system calls
@@ -39,7 +42,7 @@
 #define SYS_READ    12
 #define SYS_WRITE   13
 
-#define SYS_PHYSICAL_ADDRESS 14
+
 
 /**
  * File system calls
@@ -57,5 +60,8 @@
 #define SYS_SEND            31
 #define SYS_WAIT_MSG        32
 #define SYS_RECEIVE         33
+
+
+
 
 #endif /* SYSCALLS_H_ */
