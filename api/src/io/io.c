@@ -25,7 +25,6 @@
 #include <api/system.h>
 #include <api/io.h>
 
-
 char* strrev(char* str) {
   char *p1, *p2;
   if (!str || !*str) return str;
@@ -39,7 +38,7 @@ char* strrev(char* str) {
 
 char* itoa(int n, char* s, int b) {
   static char digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
-  int i=0, sign;
+  int i = 0, sign;
   if ((sign = n) < 0) {
     n = -n;
   }
@@ -54,17 +53,36 @@ char* itoa(int n, char* s, int b) {
 }
 
 void print(const char* buffer) {
-	int fd = sys_open(SYSTEM_SERIAL_0_PATH, SYSTEM_FLAG_WRITE);
-	if (fd != SYSTEM_FD_INVALID) {
-		sys_write(fd, buffer, strlen(buffer));
-		sys_close(fd);
-	}
+  int fd = sys_open(SYSTEM_SERIAL_0_PATH, SYSTEM_FLAG_WRITE);
+  if (fd != SYSTEM_FD_INVALID) {
+    sys_write(fd, buffer, strlen(buffer));
+    // do not close serial 0!
+    //sys_close(fd);
+  }
 }
 
-void read_serial(char* buffer, size_t count) {
-	int fd = sys_open(SYSTEM_SERIAL_0_PATH, SYSTEM_FLAG_READ);
-	if(fd != SYSTEM_FD_INVALID) {
-		sys_read(fd, buffer, count);
-		sys_close(fd);
-	}
+int waiting() {
+  int i = 0;
+  for(i = 0; i < 10000; i++);
+  return i;
+}
+
+size_t read_serial_with_end_char(char* buffer, size_t count, char end_character) {
+  int fd = sys_open(SYSTEM_SERIAL_0_PATH, SYSTEM_FLAG_READ);
+  char c = 0;
+  int i = 0;
+
+  do {
+    while (0 == sys_read(fd, &c, 1)) {
+      // wait for input
+    }
+    buffer[i] = c;
+    i++;
+  } while (i < count && c != end_character);
+
+  return i;
+}
+
+size_t read_serial(char* buffer, size_t count) {
+  return read_serial_with_end_char(buffer, count, '\n');
 }

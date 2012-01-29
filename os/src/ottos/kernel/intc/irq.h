@@ -41,7 +41,7 @@ EXTERN void irq_disable();
 EXTERN void irq_handle();
 
 #pragma INTERRUPT(irq_handle_swi, SWI)
-EXTERN void irq_handle_swi(unsigned r0, unsigned r1, unsigned r2, unsigned r3);
+EXTERN void irq_handle_swi(unsigned int syscall_nr, unsigned int param1, unsigned int param2, unsigned int param3);
 
 #pragma INTERRUPT(irq_handle_udef, UDEF)
 EXTERN void irq_handle_udef();

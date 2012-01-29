@@ -70,4 +70,6 @@ EXTERN void* memory_init_zero(void* buffer, size_t length);
 
 EXTERN void memory_print(uint8_t* memory, size_t size);
 
+EXTERN char* memory_bytes_readable(double bytes, char* buffer);
+
 #endif /* MEMORY_H_ */

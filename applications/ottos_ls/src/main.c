@@ -1,6 +1,6 @@
-/* io.h
+/* main.c
  * 
- * Copyright (c) 2011 The ottos_api project.
+ * Copyright (c) 2011 The ottos_ls project.
  *
  * This work is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,34 +17,23 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 13 Jan 2012
- *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
+ *  Created on: 25.01.2012
+ *      Author: Franziskus Domig <fdomig@gmail.com>
  */
 
-#ifndef API_IO_H_
-#define API_IO_H_
+#include "ls/ls.h"
+#include <api/io.h>
 
-#include <ottos/types.h>
-#include <ottos/const.h>
+int main(int argc, char** argv) {
 
-#define STDIN    0
-#define STDOUT   1
-#define STDERR   2
+  // TODO: we need to pass the path to this application via argv[1]
+  char path[] = "/bin";
 
-/*
- * converts an integer to ascii
- * @param n number to convert
- * @param s the output buffer
- * @param b format (dec = 10)
- */
-EXTERN char* itoa(int n, char* s, int b);
+  print("start ls:\n");
 
-EXTERN char* strrev(char* str);
+  ls(path);
 
-EXTERN void print(const char* buffer);
+  print("ls done ...\n");
 
-EXTERN size_t read_serial_with_end_char(char* buffer, size_t count, char end_character);
-
-EXTERN size_t read_serial(char* buffer, size_t count);
-
-#endif /* API_IO_H_ */
+  return 0;
+}

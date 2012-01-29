@@ -28,7 +28,7 @@
 #include <ottos/dev/device.h>
 
 EXTERN int serial_read(char* buf, int count);
-EXTERN int serial_getline(char* buf, int size);
+
 EXTERN int serial_write(const char* buf, int count);
 
 

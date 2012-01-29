@@ -40,8 +40,8 @@
 
 // forward declarations
 BOOLEAN swi_handle_sys_fclose(int* error_code, process_file_descriptor_t* fd);
-BOOLEAN swi_handle_sys_fwrite(process_file_descriptor_t* fd_process, const char* buffer, int buffer_size);
-BOOLEAN swi_handle_sys_fread(process_file_descriptor_t* fd_process, char* buffer, int count);
+BOOLEAN swi_handle_sys_fwrite(process_file_descriptor_t* fd_process, const char* buffer, int buffer_size, int* written_bytes);
+BOOLEAN swi_handle_sys_fread(process_file_descriptor_t* fd_process, char* buffer, int count, int* read_bytes);
 
 BOOLEAN swi_handle_sys_yield() {
 	return TRUE;
@@ -56,13 +56,19 @@ BOOLEAN swi_handle_sys_exit() {
 BOOLEAN swi_handle_sys_create(int priority, int block_current, int executable_file_address) {
 	// get the real address of the executable_file_address
 	const char* executable_file = (const char*) mmu_get_physical_address(process_table[process_active], executable_file_address);
+	//int* pid = (int*)mmu_get_physical_address(process_table[process_active], pid_address);
+	code_bytes_t* code = NULL;
 
-	code_bytes_t* code = code_get(executable_file);
+	kernel_debug(1, "Loading hex file");
+	code = code_get_single_file(executable_file);
 	if(code == NULL) {
 		return FALSE;
 	}
 
-	process_create(priority, code);
+	kernel_debug(1, "Creating a new process");
+	/**pid = */process_create(priority, code);
+
+	kernel_debug(1, "Created process");
 
 	free(code->byte_0);
 	free(code->byte_1);
@@ -120,7 +126,9 @@ BOOLEAN swi_handle_sys_close(int error_code_address, int fd) {
 	// check if the file descriptor is a device or a file
 	process_file_descriptor_t* fd_process = process_get_file_descriptor(fd);
 	if (fd_process == NULL) {
-		kernel_error(PROCESS_UNKNOWN_FILE_DESCRIPTOR, "Cannot close device or file");
+	  char message[256];
+	  sprintf(message, "Cannot close device or file %d (fd)", fd);
+		kernel_error(PROCESS_UNKNOWN_FILE_DESCRIPTOR, message);
 	} else {
 		if (fd_process->type == DEVICE_FILE) {
 			device_t device = (device_t) fd;
@@ -135,9 +143,12 @@ BOOLEAN swi_handle_sys_close(int error_code_address, int fd) {
 	return FALSE;
 }
 
-BOOLEAN swi_handle_sys_write(int fd, int buffer_address, int buffer_size) {
+BOOLEAN swi_handle_sys_write(int fd, int buffer_address, int buffer_size_address) {
 	// get the real address of the buffer_address
 	const char* buffer = (const char*) mmu_get_physical_address(process_table[process_active], buffer_address);
+	// use the buffer size address to get the length of the buffer and to return the written bytes
+  int* written_bytes = (int*) mmu_get_physical_address(process_table[process_active], buffer_size_address);
+	int buffer_size = *written_bytes;
 
 	// check if the file descriptor is a device or a file
 	process_file_descriptor_t* fd_process = process_get_file_descriptor(fd);
@@ -146,18 +157,21 @@ BOOLEAN swi_handle_sys_write(int fd, int buffer_address, int buffer_size) {
 	} else {
 		if (fd_process->type == DEVICE_FILE) {
 			device_t device = (device_t) fd;
-			driver_get(device)->write(device, buffer_size, (char*) buffer);
+			*written_bytes = driver_get(device)->write(device, buffer_size, (char*) buffer);
 		} else {
-			swi_handle_sys_fwrite(fd_process, buffer, buffer_size);
+			swi_handle_sys_fwrite(fd_process, buffer, buffer_size, written_bytes);
 		}
 	}
 
 	return FALSE;
 }
 
-BOOLEAN swi_handle_sys_read(int fd, int buffer_address, int count) {
+BOOLEAN swi_handle_sys_read(int fd, int buffer_address, int buffer_size_address) {
 	// get the real address of the buffer_address
 	char* buffer = (char*) mmu_get_physical_address(process_table[process_active], buffer_address);
+  // use the buffer size address to get the length of the buffer and to return the read bytes
+  int* read_bytes = (int*) mmu_get_physical_address(process_table[process_active], buffer_size_address);
+  int buffer_size = *read_bytes;
 
 	// check if the file descriptor is a device or a file
 	process_file_descriptor_t* fd_process = process_get_file_descriptor(fd);
@@ -166,9 +180,9 @@ BOOLEAN swi_handle_sys_read(int fd, int buffer_address, int count) {
 	} else {
 		if (fd_process->type == DEVICE_FILE) {
 			device_t device = (device_t) fd;
-			driver_get(device)->read(device, count, buffer);
+			*read_bytes = driver_get(device)->read(device, buffer_size, buffer);
 		} else {
-			swi_handle_sys_fread(fd_process, buffer, count);
+			swi_handle_sys_fread(fd_process, buffer, buffer_size, read_bytes);
 		}
 	}
 
@@ -202,18 +216,41 @@ BOOLEAN swi_handle_sys_fclose(int* error_code, process_file_descriptor_t* fd_pro
 	return FALSE;
 }
 
-BOOLEAN swi_handle_sys_fwrite(process_file_descriptor_t* fd_process, const char* buffer, int buffer_size) {
+BOOLEAN swi_handle_sys_fwrite(process_file_descriptor_t* fd_process, const char* buffer, int buffer_size, int* written_bytes) {
 
-	fl_fwrite(buffer, buffer_size, buffer_size, fd_process->file);
+	*written_bytes = fl_fwrite(buffer, buffer_size, buffer_size, fd_process->file);
 
 	return FALSE;
 }
 
-BOOLEAN swi_handle_sys_fread(process_file_descriptor_t* fd_process, char* buffer, int count) {
+BOOLEAN swi_handle_sys_fread(process_file_descriptor_t* fd_process, char* buffer, int count, int* read_bytes) {
 
-	fl_fread(buffer, count, count, fd_process->file);
+	*read_bytes = fl_fread(buffer, count, count, fd_process->file);
 
 	return FALSE;
+}
+
+BOOLEAN swi_handle_sys_diropen(int path_address, int dir_stat_address, int return_value_address) {
+  const char* path = (const char*) mmu_get_physical_address(process_table[process_active], path_address);
+  FL_DIR* dir = (FL_DIR*) mmu_get_physical_address(process_table[process_active], dir_stat_address);
+  FL_DIR* return_value = (FL_DIR*) mmu_get_physical_address(process_table[process_active], return_value_address);
+  return_value = (FL_DIR*) fl_opendir(path, dir);
+  return FALSE;
+}
+
+BOOLEAN swi_handle_sys_dirclose(int dir_stat_address, int return_value_address) {
+  FL_DIR* dir_stat = (FL_DIR*) mmu_get_physical_address(process_table[process_active], dir_stat_address);
+  int* return_value = (int*) mmu_get_physical_address(process_table[process_active], return_value_address);
+  *return_value = fl_closedir(dir_stat);
+  return FALSE;
+}
+
+BOOLEAN swi_handle_sys_dirread(int dir_stat_address, int dir_entry_address, int return_value_address) {
+  FL_DIR* dir_stat = (FL_DIR*) mmu_get_physical_address(process_table[process_active], dir_stat_address);
+  fl_dirent* dir_entry = (fl_dirent*) mmu_get_physical_address(process_table[process_active], dir_entry_address);
+  int* return_value = (int*) mmu_get_physical_address(process_table[process_active], return_value_address);
+  *return_value = fl_readdir(dir_stat, dir_entry);
+  return FALSE;
 }
 
 BOOLEAN swi_handle_sys_bind(int ns_address, int result_address) {
@@ -290,6 +327,20 @@ BOOLEAN swi_handle(unsigned int syscall_nr, unsigned int param1, unsigned int pa
 		// param2 = path
 		// param3 = falgs
 		return swi_handle_sys_fopen(param1, param2, param3);
+	case SYS_DIROPEN:
+	  // param1 = path
+	  // param2 = dir
+	  // param3 = return_value
+	  return swi_handle_sys_diropen(param1, param2, param3);
+	case SYS_DIRCLOSE:
+	  // param1 = dir_stat
+	  // param2 = return_value
+	  return swi_handle_sys_dirclose(param1, param2);
+	case SYS_DIRREAD:
+	  // param1 = dir_stat
+	  // param2 = dir_entry
+	  // param3 = return_value
+	  return swi_handle_sys_dirread(param1, param2, param3);
 	case SYS_CLOSE:
 		// param1 = return value (error code)
 		// param2 = fd
