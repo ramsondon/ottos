@@ -327,6 +327,7 @@ unsigned int process_pinfo(pinfo_t pinfo[], int count) {
     }
 
     pinfo[i].pid = process_table[i]->pid;
+    pinfo[i].parent = (process_table[i]->parent != NULL ? process_table[i]->parent->pid : -1);
     pinfo[i].tty = 0;
     pinfo[i].prio = process_table[i]->priority;
     pinfo[i].mem = process_table[i]->page_count * MMU_PAGE_SIZE;

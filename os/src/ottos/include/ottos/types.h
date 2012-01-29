@@ -67,6 +67,7 @@ typedef struct message_t {
  */
 typedef struct pinfo_t {
     pid_t pid;            /* process pid */
+    pid_t parent;
     int tty;              /* tty identifier */
     int stat;             /* process status (running, ) */
     int prio;             /* process priority */
