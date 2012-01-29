@@ -24,36 +24,36 @@
 #include "kernel/loader/loader.h"
 
 void devices_test() {
-  devices_init();
+	devices_init();
 }
 
 static void loop_forever() {
-  for (;;)
-    ;
+	for (;;)
+		;
 }
 
 void i2c_test() {
-  //devices_init();
+	//devices_init();
 
-  i2c_init();
-  pulse_leds();
+	i2c_init();
+	pulse_leds();
 }
 
 void mmu_test() {
-  devices_init();
-  irq_enable();
+	devices_init();
+	irq_enable();
 
-  mmu_init();
+	mmu_init();
 
-  process_table_init();
-  //process_create(1, (int) toggle_led1);
-  //process_create(1, (int) toggle_led2);
+	process_table_init();
+	//process_create(1, (int) toggle_led1);
+	//process_create(1, (int) toggle_led2);
 
-  irq_init();
-  timer_init();
-  irq_register_context_switch();
+	irq_init();
+	timer_init();
+	irq_register_context_switch();
 
-  kernel_to_user_mode();
+	kernel_to_user_mode();
 }
 
 // PRINT TEST
@@ -103,140 +103,154 @@ void mmu_test() {
 #define argv_byte3 ":020000040002F8:2000000010EBEBE9E5E31BE5E31BE5E30AEAEBE4E31AE8EAE4E31AE24AE4E4E25AE20AE410:20008000E4E21AE21210E4E31AE1FFFF00E5E303011512EA00E9E1E1E3EAE0E0E2E5E30AF3:20010000E5E5EBE1E2E1E1E1E1CAE8E31AE1E1E1E2E146E9E2E5E5E5E5E3E3E2EBE3E3E2EE:20018000EBE3E5E2EBE5E5E3E2EBE2EBE2EBE2EBE3E2E8630000E301E9E31AE31AE33AE921:20020000E2E8E8E22AE8E208E20AE3E2E0E4E408EAE8E808EAE8E808E21210E4E4E8E0E0F5:20028000E8E1E0E0E4E4E8E4E4E208E31AE31AE30AE23AE4E0E1E1E22AE308E2202022E2CD:200300002424E8E23AE4E4E1E5E1E5E1E5E22AE208E4E4E21AE8E9E30AE38482831AE3088E:2003800001E2E1E33AE1E33AE1E33AE9E1E1E2E2E8E28AE8E318E314E310E315E8E1E9E561:20040000E2EBE5E1E2EBE31AE3EAE3E8E9E5E2E5EBE31AE3EAE5E2EBE31AE3EAE5E2EBE38C:200480001AE3EAE3E8E9E5E5E3E5E3E5EAE5EBE5E5E30AE5E2E5E3EFEAE5E2E5E3EFEAE541:20050000EBE30AE20AE5E5E8E9E5E5E5E5E5E5E5E5E3EFE5E5E8E9E5E5E5E5E5E5E5E5E3DC:20058000EFE5E5E8E9E5E3E5E2E5E3E3EFE5E8E9E5E3E5E3E5E2E3EFE5E8E9E5E5E5E5E59A:20060000E5E3EFE3E8E9E5E5E5E5E3E3EFE8E9E5E5E5E5E5E5E3EFE8E9E5E3E5E3E3EFE80A:20068000E9E5E5E5E5E5E5E3EFE876A0767230A0766400766400E9E5E5E30AE5E5E31AE58B:20070000EAE5E5E5EBE5E0E2E5E5E5E12AE5E5E5E5E0E5E5E5E5E5E0E5E5E5E5E5E0E5E504:20078000E2E5E5E2E5E5E5E13AE5E8E9E2E5E5E5E3E5E5E3E55AE5E2E5E5E5EBE5E7E5E2F7:20080000E5E5E7E5E5EBE3E5CAE5E35AE5E2E5E5E3E7E5E5E3E7E5EBE2E8E9E5E2E3EBE5D2:20088000E5E30AE5EBE5E1E5EBE5EBE8E9E5E5E2E3EBE5E5E30AE5E5E5EBE5EBE8767230E4:20090000A000E2E3E5E2E31AE1E3E20AE2E5E5E11011E3121AE3E1E2E2E5E5E0E30AE30A35:20098000E1E146E9E30AE1E042E212E1E191E191E18AE18AE18AE18AE18AE18AE18AE1E00F:200A000020E1E020E1E020E1E020E1E020E1E020E1E020E1E020E1313AE1E14222E8E1E371:020A8000E8E1AB:0D0A88000000333762666A6E72767A0000F5:200AE4000000000000000000000000000000000000000000000000000000000000000000F2:200B6400000000000000000000000000000000000000000000000000000000000000000071:200BE4000000000000000000000000000000000000000000000000000000000000000000F1:200C6400000000000000000000000000000000000000000000000000000000000000000070:200CE4000000000000000000000000000000000000000000000000000000000000000000F0:200D640000000000000000000000000000000000000000000000000000000000000000006F:200DE4000000000000000000000000000000000000000000000000000000000000000000EF:200E640000000000000000000000000000000000000000000000000000000000000000006E:00000001FF"
 
 void user_app_test() {
-  code_bytes_t code_bytes;
+	code_bytes_t code_bytes;
 
-  irq_disable();
-  mmu_init();
+	irq_disable();
+	mmu_init();
 
-  devices_init();
-  process_table_init();
-  irq_init();
-  timer_init();
+	devices_init();
+	process_table_init();
+	irq_init();
+	timer_init();
 
-  //  code_bytes.byte_0 = led_1_byte0;
-  //  code_bytes.byte_1 = led_1_byte1;
-  //  code_bytes.byte_2 = led_1_byte2;
-  //  code_bytes.byte_3 = led_1_byte3;
-  //
-  //  process_create(1, &code_bytes);
-  //
-  // code_bytes.byte_0 = byte0_;
-  // code_bytes.byte_1 = byte1_;
-  // code_bytes.byte_2 = byte2_;
-  // code_bytes.byte_3 = byte3_;
-  //
-  // process_create(1, &code_bytes);
+	//  code_bytes.byte_0 = led_1_byte0;
+	//  code_bytes.byte_1 = led_1_byte1;
+	//  code_bytes.byte_2 = led_1_byte2;
+	//  code_bytes.byte_3 = led_1_byte3;
+	//
+	//  process_create(1, &code_bytes);
+	//
+	// code_bytes.byte_0 = byte0_;
+	// code_bytes.byte_1 = byte1_;
+	// code_bytes.byte_2 = byte2_;
+	// code_bytes.byte_3 = byte3_;
+	//
+	// process_create(1, &code_bytes);
 
-  code_bytes.byte_0 = argv_byte0;
-  code_bytes.byte_1 = argv_byte1;
-  code_bytes.byte_2 = argv_byte2;
-  code_bytes.byte_3 = argv_byte3;
+	code_bytes.byte_0 = argv_byte0;
+	code_bytes.byte_1 = argv_byte1;
+	code_bytes.byte_2 = argv_byte2;
+	code_bytes.byte_3 = argv_byte3;
 
-  process_create(1, &code_bytes, 0, NULL);
+	process_create(1, &code_bytes, 0, NULL);
 
-  //  code_bytes.byte_0 = ipcserver_byte0;
-  //  code_bytes.byte_1 = ipcserver_byte1;
-  //  code_bytes.byte_2 = ipcserver_byte2;
-  //  code_bytes.byte_3 = ipcserver_byte3;
-  //
-  //  process_create(1, &code_bytes);
-  //
-  //  code_bytes.byte_0 = ipcclient_byte0;
-  //  code_bytes.byte_1 = ipcclient_byte1;
-  //  code_bytes.byte_2 = ipcclient_byte2;
-  //  code_bytes.byte_3 = ipcclient_byte3;
-  //
-  //  process_create(1, &code_bytes);
-  //
-  //  code_bytes.byte_0 = ipcclient1_byte0;
-  //  code_bytes.byte_1 = ipcclient1_byte1;
-  //  code_bytes.byte_2 = ipcclient1_byte2;
-  //  code_bytes.byte_3 = ipcclient1_byte3;
-  //
-  //  process_create(1, &code_bytes);
+	//  code_bytes.byte_0 = ipcserver_byte0;
+	//  code_bytes.byte_1 = ipcserver_byte1;
+	//  code_bytes.byte_2 = ipcserver_byte2;
+	//  code_bytes.byte_3 = ipcserver_byte3;
+	//
+	//  process_create(1, &code_bytes);
+	//
+	//  code_bytes.byte_0 = ipcclient_byte0;
+	//  code_bytes.byte_1 = ipcclient_byte1;
+	//  code_bytes.byte_2 = ipcclient_byte2;
+	//  code_bytes.byte_3 = ipcclient_byte3;
+	//
+	//  process_create(1, &code_bytes);
+	//
+	//  code_bytes.byte_0 = ipcclient1_byte0;
+	//  code_bytes.byte_1 = ipcclient1_byte1;
+	//  code_bytes.byte_2 = ipcclient1_byte2;
+	//  code_bytes.byte_3 = ipcclient1_byte3;
+	//
+	//  process_create(1, &code_bytes);
 
 
-  irq_register_context_switch();
-  irq_enable();
+	irq_register_context_switch();
+	irq_enable();
 
-  //mmu_init_memory_for_process(process_table[0]);
-  //asm(" MOV R0, #131072");
-  //asm(" MOV PC, #131072");
+	//mmu_init_memory_for_process(process_table[0]);
+	//asm(" MOV R0, #131072");
+	//asm(" MOV PC, #131072");
 
-  kernel_to_user_mode();
+	kernel_to_user_mode();
 }
 
 #include <string.h>
 void tty_start() {
-  // load tty process
-  code_bytes_t* code = code_get_single_file("/bin/ottos_tty");
-//  char** args = malloc(sizeof(char*) * 3);
-  if (code == NULL) {
-    kernel_panic("Cannot start tty");
-    return;
-  }
+	// load tty process
+	//code_bytes_t* code = code_get_single_file("/bin/ottos_tty");
+	//code_bytes_t* code = code_get_single_file("/bin/ottos_arg_test");
+	code_bytes_t* code = code_get("/bin/ottos_tty");
+	//code_bytes_t* code2 = code_get("/bin/ottos_arg_test");
+	//	char** args = malloc(sizeof(char*) * 3);
+	if (code == NULL) {
+		kernel_panic("Cannot start tty");
+		return;
+	}
 
-//  args[0] = (char*)malloc(sizeof(char) * (strlen("arg1") + 1));
-//  args[1] = (char*)malloc(sizeof(char) * (strlen("arg2") + 1));
-//  args[2] = (char*)malloc(sizeof(char) * (strlen("arg3") + 1));
-//  strcpy(args[0], "arg1");
-//  strcpy(args[1], "arg2");
-//  strcpy(args[2], "arg3");
+	//	args[0] = (char*) malloc(sizeof(char) * (strlen("arg1") + 1));
+	//	args[1] = (char*) malloc(sizeof(char) * (strlen("arg2") + 1));
+	//	args[2] = (char*) malloc(sizeof(char) * (strlen("arg3") + 1));
+	//	strcpy(args[0], "arg1");
+	//	strcpy(args[1], "arg2");
+	//	strcpy(args[2], "arg3");
 
-  //process_create(1, code, 3, args);
-  process_create(1, code, 0, NULL);
+	//	process_create(1, code, 3, args);
+	process_create(1, code, 0, NULL);
 
-  // TODO (thomas.bargetz@gmail.com) implement code_free function
-  free(code->byte_0);
-  free(code->byte_1);
-  free(code->byte_2);
-  free(code->byte_3);
-  free(code);
+	// TODO (thomas.bargetz@gmail.com) implement code_free function
+	free(code->byte_0);
+	free(code->byte_1);
+	free(code->byte_2);
+	free(code->byte_3);
+	free(code);
 }
 
 void startup() {
-  irq_disable();
+	irq_disable();
 
-  irq_init();
-  timer_init();
-  process_table_init();
-  devices_init();
-  mmchs_init();
-  fs_init();
-  mmu_init();
+	irq_init();
+	timer_init();
+	process_table_init();
+	devices_init();
+	mmchs_init();
+	fs_init();
+	mmu_init();
 
-  tty_start();
-  //video_bmp_test_file();
+	tty_start();
+	//video_bmp_test_file();
 
-  irq_register_context_switch();
-  irq_enable();
-  kernel_to_user_mode();
+	irq_register_context_switch();
+	irq_enable();
+	kernel_to_user_mode();
 }
 
 int main(int argc, char **argv) {
-  // these methods has to be called for EVERY test method
-  //  irq_disable();
-  //  process_table_init();
-  //  devices_init();
+	// these methods has to be called for EVERY test method
+	//  irq_disable();
+	//  process_table_init();
+	//  devices_init();
 
-  // these methods are the specific tests for every module
-  //  process_test();
-  //  timer_test();
-  //  serial_test();
-  //  serial_test_calc();
-  //  process_exit_test();
-  //  fs_test();
-  //  i2c_test();
-  //  uptime_test();
-  //  tty_test();
-  //  system_time_test();
-  //  uptime_test();
-  //video_test();
-  // user_app_test();
-  startup();
+	// these methods are the specific tests for every module
+	//  process_test();
+	//  timer_test();
+	//  serial_test();
+	//  serial_test_calc();
+	//  process_exit_test();
+	//  fs_test();
+	//  i2c_test();
+	//  uptime_test();
+	//  tty_test();
+	//  system_time_test();
+	//  uptime_test();
+	//video_test();
+	// user_app_test();
+	startup();
 
-  // do an endless loop
-  loop_forever();
+	//	devices_init();
+	//	kernel_to_user_mode();
+	//	{
+	//		int i = 0;
+	//		//char buffer[100] = { 0 };
+	//
+	//		for (i = 0;; i++) {
+	//			swi(100, 0, 0, 0);
+	//		}
+	//	}
 
-  return 0;
+	// do an endless loop
+	loop_forever();
+
+	return 0;
 }
