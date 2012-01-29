@@ -27,15 +27,13 @@
 #include <ottos/types.h>
 
 #include <api/system.h>
-
 #include <api/proc.h>
 
-unsigned int proc_infos(pinfo_t* pinfo) {
+uint32_t pcount() {
+  return sys_nr_of_process();
+}
 
-  pinfo_t* proc_infos = NULL;
-  int nr_of_proc = sys_nr_of_process();
-  proc_infos = malloc(sizeof(pinfo_t) * nr_of_proc);
-
-  return sys_process_info(proc_infos, nr_of_proc);
+uint32_t pinfo(pinfo_t** pinfo, uint32_t count) {
+  return sys_process_info(pinfo, count);
 }
 

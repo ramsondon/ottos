@@ -29,10 +29,14 @@
 
 /*
  * returns the number of process information entries and sets the pinfo_t pinfo
- * pointer. this method allocates memory on the user application's heap. the
- * calling program has to free the memory by itself.
+ * pointer.
  */
-EXTERN unsigned int proc_infos(pinfo_t* pinfo);
+EXTERN uint32_t pinfo(pinfo_t** pinfo, uint32_t count);
 
+/*
+ * returns the number of running processes. the result will be at least 1 for
+ * the reason that this process is the only one which would be running.
+ */
+EXTERN uint32_t pcount();
 
 #endif /* API_PROC_H_ */

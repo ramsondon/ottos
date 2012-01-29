@@ -29,7 +29,8 @@
 #include <api/system.h>
 
 #pragma SWI_ALIAS(swi, 1)
-EXTERN void swi(unsigned int syscall_nr, unsigned int param1, unsigned int param2, unsigned int param3);
+EXTERN void swi(unsigned int syscall_nr, unsigned int param1,
+                unsigned int param2, unsigned int param3);
 
 static system_file_type_t system_get_file_type(const char* path) {
   if (strncmp(SYSTEM_DEV_PATH, path, strlen(SYSTEM_DEV_PATH)) == 0) {
@@ -39,16 +40,16 @@ static system_file_type_t system_get_file_type(const char* path) {
 }
 
 static int system_get_device_id(const char* path) {
-	if (strcmp(SYSTEM_SERIAL_0_PATH, path) == 0) {
-		return SERIAL_0;
-	} else if (strcmp(SYSTEM_LED_0_PATH, path) == 0) {
-		return LED_0;
-	} else if (strcmp(SYSTEM_LED_1_PATH, path) == 0) {
-		return LED_1;
-	} else if (strcmp(SYSTEM_VIDEO_0_PATH, path) == 0) {
+  if (strcmp(SYSTEM_SERIAL_0_PATH, path) == 0) {
+    return SERIAL_0;
+  } else if (strcmp(SYSTEM_LED_0_PATH, path) == 0) {
+    return LED_0;
+  } else if (strcmp(SYSTEM_LED_1_PATH, path) == 0) {
+    return LED_1;
+  } else if (strcmp(SYSTEM_VIDEO_0_PATH, path) == 0) {
     return VIDEO_0;
   }
-	return SYSTEM_DEV_ID_INVALID;
+  return SYSTEM_DEV_ID_INVALID;
 }
 
 int sys_open(const char* path, int flags) {
@@ -96,21 +97,23 @@ int sys_close(int fd) {
 unsigned int sys_physical_address_of(const void* address) {
 
   unsigned int physical_address = 0;
-  swi(SYS_PHYSICAL_ADDRESS, (unsigned int) address, (unsigned int) &physical_address, 0);
+  swi(SYS_PHYSICAL_ADDRESS, (unsigned int) address,
+      (unsigned int) &physical_address, 0);
   return physical_address;
 }
 
 unsigned int sys_nr_of_process() {
 
   unsigned int nr_of_proc = 0;
-  swi(SYS_NR_OF_PROCESS, (unsigned int)&nr_of_proc, 0 , 0);
+  swi(SYS_NR_OF_PROCESS, (unsigned int) &nr_of_proc, 0, 0);
   return nr_of_proc;
 }
 
-int sys_process_info(pinfo_t* mem, int count) {
-
-  swi(SYS_PROCESS_INFO, (unsigned int)mem, (unsigned int) &count, 0);
-  return count;
+int sys_process_info(pinfo_t** mem, int count) {
+  int actual_read_count = 0;
+  swi(SYS_PROCESS_INFO, (unsigned int) mem, (unsigned int) &count,
+      (unsigned int) &actual_read_count);
+  return actual_read_count;
 }
 
 int sys_execute(int priority, BOOLEAN block_current, const char* path) {
@@ -134,5 +137,6 @@ void sys_wait_msg(const char* ns) {
 }
 
 void sys_receive(const char* ns, message_t *msg, int* success) {
-  swi(SYS_RECEIVE, (unsigned int) ns, (unsigned int) msg, (unsigned int) success);
+  swi(SYS_RECEIVE, (unsigned int) ns, (unsigned int) msg,
+      (unsigned int) success);
 }

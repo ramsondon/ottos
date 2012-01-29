@@ -50,7 +50,7 @@ EXTERN unsigned int sys_physical_address_of(const void* address);
 
 EXTERN unsigned int sys_nr_of_process();
 
-EXTERN int sys_process_info(pinfo_t* mem, int count);
+EXTERN int sys_process_info(pinfo_t** mem, int count);
 
 EXTERN int sys_execute(int priority, BOOLEAN block_current, const char* path);
 /**
