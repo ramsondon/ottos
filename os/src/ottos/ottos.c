@@ -6,7 +6,6 @@
 
 #include "../../bin/uptime_test.h"
 #include "../../bin/i2c_test.h"
-#include "../../bin/video_test.h"
 #include "../drivers/i2c/i2c.h"
 
 #include "kernel/intc/irq.h"
