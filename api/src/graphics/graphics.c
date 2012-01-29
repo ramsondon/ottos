@@ -25,7 +25,9 @@
 #include <api/colors.h>
 #include <api/system.h>
 #include <api/io.h>
+
 #include <math.h>
+#include <stdio.h>
 
 static RastPort* graphics_rastport;
 static BitMap* graphics_framebuffer;
