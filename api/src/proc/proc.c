@@ -30,10 +30,10 @@
 #include <api/proc.h>
 
 uint32_t pcount() {
-  return sys_nr_of_process();
+  return sys_pcount();
 }
 
-uint32_t pinfo(pinfo_t** pinfo, uint32_t count) {
-  return sys_process_info(pinfo, count);
+uint32_t pinfo(pinfo_t* pinfo, uint32_t count) {
+  return sys_pinfo(pinfo, count);
 }
 

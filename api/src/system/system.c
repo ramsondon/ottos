@@ -102,14 +102,14 @@ unsigned int sys_physical_address_of(const void* address) {
   return physical_address;
 }
 
-unsigned int sys_nr_of_process() {
+unsigned int sys_pcount() {
 
   unsigned int nr_of_proc = 0;
   swi(SYS_NR_OF_PROCESS, (unsigned int) &nr_of_proc, 0, 0);
   return nr_of_proc;
 }
 
-int sys_process_info(pinfo_t** mem, int count) {
+int sys_pinfo(pinfo_t* mem, int count) {
   int actual_read_count = 0;
   swi(SYS_PROCESS_INFO, (unsigned int) mem, (unsigned int) &count,
       (unsigned int) &actual_read_count);

@@ -31,7 +31,7 @@
  * returns the number of process information entries and sets the pinfo_t pinfo
  * pointer.
  */
-EXTERN uint32_t pinfo(pinfo_t** pinfo, uint32_t count);
+EXTERN uint32_t pinfo(pinfo_t* pinfo, uint32_t count);
 
 /*
  * returns the number of running processes. the result will be at least 1 for
