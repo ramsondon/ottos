@@ -301,7 +301,7 @@ void process_remove_file_descriptor(int fd) {
 	}
 }
 
-int process_nr_of_process() {
+int process_count() {
   int i = 0;
   int nr_of_proc = 0;
   for (i = 0; i < PROCESS_MAX_COUNT; i++) {
@@ -312,18 +312,24 @@ int process_nr_of_process() {
   return nr_of_proc;
 }
 
-unsigned int process_pinfo(pinfo_t pinfo[], int count) {
+unsigned int process_pinfo(pinfo_t** pinfo, int count) {
   int i = 0;
+  int c = 0;
   for (i = 0; i < (PROCESS_MAX_COUNT < count ? PROCESS_MAX_COUNT : count); i++){
-
+    // continue if there is no process at this index
+    if (process_table[i] == NULL) {
+      continue;
+    }
     // TODO: (ramsondon@gmail.com) replace by correct values of process
-    pinfo[i].pid = process_table[i]->pid;
-    pinfo[i].tty = 0;
-    pinfo[i].prio = process_table[i]->priority;
-    pinfo[i].mem = 0;
-    pinfo[i].stat = process_table[i]->state;
-    pinfo[i].time = 0;
-    pinfo[i].command = "/path/cmd.foo";
+    pinfo[i]->pid = process_table[i]->pid;
+    pinfo[i]->tty = 0;
+    pinfo[i]->prio = process_table[i]->priority;
+    pinfo[i]->mem = 0;
+    pinfo[i]->stat = process_table[i]->state;
+    pinfo[i]->time = 0;
+//    pinfo[i]->command = "/path/cmd.foo";
+
+    c++;
   }
-  return  i;
+  return  c;
 }
