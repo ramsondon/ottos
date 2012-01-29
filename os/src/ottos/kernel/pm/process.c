@@ -327,7 +327,7 @@ unsigned int process_pinfo(pinfo_t pinfo[], int count) {
     pinfo[i].pid = process_table[i]->pid;
     pinfo[i].tty = 0;
     pinfo[i].prio = process_table[i]->priority;
-    pinfo[i].mem = 0;
+    pinfo[i].mem = process_table[i]->page_count * MMU_PAGE_SIZE;
     pinfo[i].stat = process_table[i]->state;
     pinfo[i].time = timer_system_uptime() - process_table[i]->starttime;
 //    pinfo[i].command = "/path/cmd.foo";
