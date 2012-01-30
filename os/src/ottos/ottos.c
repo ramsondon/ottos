@@ -236,18 +236,28 @@ int main(int argc, char **argv) {
 	//  uptime_test();
 	//video_test();
 	// user_app_test();
-	startup();
-
-	//	devices_init();
-	//	kernel_to_user_mode();
-	//	{
-	//		int i = 0;
-	//		//char buffer[100] = { 0 };
-	//
-	//		for (i = 0;; i++) {
-	//			swi(100, 0, 0, 0);
-	//		}
-	//	}
+		startup();
+//
+//	devices_init();
+//	{
+//		char buffer[100] = { 0 };
+//		char** bla = malloc(sizeof(char*) * 3);
+//		bla[0] = malloc(sizeof(char) * 4);
+//		bla[1] = malloc(sizeof(char) * 4);
+//		bla[2] = malloc(sizeof(char) * 4);
+//		strcpy(bla[0], "bla1");
+//		strcpy(bla[1], "bla2");
+//		strcpy(bla[2], "bla3");
+//
+//		sprintf(buffer, "%#08x\r\n", (unsigned int)bla[0]);
+//		kernel_print(buffer);
+//
+//		sprintf(buffer, "%#08x\r\n", (unsigned int)bla[1]);
+//		kernel_print(buffer);
+//
+//		sprintf(buffer, "%#08x\r\n", (unsigned int)bla[2]);
+//		kernel_print(buffer);
+//	}
 
 	// do an endless loop
 	loop_forever();
