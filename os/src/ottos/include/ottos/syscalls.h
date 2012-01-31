@@ -61,7 +61,12 @@
 #define SYS_WAIT_MSG        32
 #define SYS_RECEIVE         33
 
-
-
+/**
+ * WTF system calls
+ */
+#define SYS_ARGS_COUNT        40
+#define SYS_ARGS_VALUE_LENGTH 41
+#define SYS_ARGS_VALUE        42
+#define SYS_ARGS_FREE         43
 
 #endif /* SYSCALLS_H_ */
