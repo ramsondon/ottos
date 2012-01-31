@@ -27,6 +27,7 @@
 #include <ottos/types.h>
 #include <ottos/const.h>
 #include <ottos/drivers/driver.h>
+#include "video_types.h"
 
 // default resolution
 #define VIDEO_RESOLUTION_HEIGHT   768
@@ -46,6 +47,39 @@
 #define VENC_MODE_NTSC (0)
 #define VENC_MODE_PAL (1)
 
+
+/* NB: these mirror the omap modes */
+#define BM_BITMAP1    0
+#define BM_BITMAP2    1
+#define BM_BITMAP4    2
+#define BM_BITMAP8    3
+#define BM_RGB16      6
+#define BM_RGB23      9
+#define BM_ARGB32     12
+#define BM_YUV2       10
+#define BM_UYVY       11
+
+#define RESOLUTION_HEIGHT   768
+#define RESOLUTION_WIDTH    1024
+
+// correct the height of the ellipse --> this is needed because we use a 16:9 display but a 4:3 resolution
+#define GRAPHICS_RESOLUTION_CORRECTION_FACTOR   1.333
+
+
+typedef struct {
+    union {
+      unsigned short hour;
+      unsigned short minute;
+      unsigned short second;
+    } timestamp;
+
+    int data;
+} GRAPH_DATA;
+
+#define GRAPHICS_GRAPH_TEMP_MAX    40
+#define GRAPHICS_GRAPH_TEMP_MIN   -12
+
+
 typedef struct {
   short width, height;
   char* name;
@@ -56,13 +90,8 @@ typedef struct {
   uint32_t dss_divisor;
 } VIDEO_DISP_MODE;
 
-typedef struct {
-  int width;
-  int height;
-  int format;
-  int stride;
-  void* data;
-} FRAME_BUFFER;
+
+EXTERN RomFont const drawer_font_misc_fixed;
 
 
 int video_open(device_t dev);
