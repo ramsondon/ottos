@@ -193,7 +193,7 @@ static int tty_start_process(const char* bin, char* args, BOOLEAN background) {
   //print("before starting process\r\n");
   //	sys_execute(1, background, bin, 3, args_test);
   //	sys_execute(1, background, bin, 0, NULL);
-  sys_execute(1, background, bin, argc, arguments);
+  sys_execute(1, background == FALSE, bin, argc, arguments);
   //	sys_execute(1, background, bin, argc, args_stupid);
 
   if (argc > 0) {
@@ -240,7 +240,7 @@ void tty_run() {
     char* tokens;
     char cmd[64];
     int rc;
-    BOOLEAN background = FALSE;
+    BOOLEAN background = TRUE;
 
     // print prefix
     tty_print_prefix();
@@ -305,6 +305,7 @@ void tty_run() {
       continue;
     }
 
+    // TODO if there is a & at the end of the command, the tty_find_binary returns false
     // run a new process
     if (cmd[strlen(cmd) - 1] == START_IN_BACKGROUND_SYSMBOL) {
       background = TRUE;
