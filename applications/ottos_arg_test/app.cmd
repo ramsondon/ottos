@@ -10,7 +10,7 @@ MEMORY
 {
    virtual_memory:     ORIGIN 0x00020000 LENGTH = 0x01000000
    stack_memory:       ORIGIN 0x10000000 LENGTH = 0x00002000
-   sysmem_memory:      ORIGIN 0x10002000 LENGTH = 0x00002000
+   sysmem_memory:      ORIGIN 0x10002000 LENGTH = 0x00004000
 
 }
 
