@@ -69,8 +69,8 @@ BOOLEAN swi_handle_sys_create(int parameters_address) {
 	char** argv_copy = NULL;
 
 	kernel_debug(1, "Loading hex file");
-	code = code_get(executable_file);
-	//code = code_get_single_file(executable_file);
+	//code = code_get(executable_file);
+	code = code_get_single_file(executable_file);
 	if (code == NULL) {
 		return FALSE;
 	}

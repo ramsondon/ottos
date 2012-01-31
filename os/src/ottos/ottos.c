@@ -169,9 +169,9 @@ void user_app_test() {
 #include <string.h>
 void tty_start() {
 	// load tty process
-	//code_bytes_t* code = code_get_single_file("/bin/ottos_tty");
+	code_bytes_t* code = code_get_single_file("/bin/ottos_tty");
 	//code_bytes_t* code = code_get_single_file("/bin/ottos_arg_test");
-	code_bytes_t* code = code_get("/bin/ottos_tty");
+	//code_bytes_t* code = code_get("/bin/ottos_tty");
 	//code_bytes_t* code2 = code_get("/bin/ottos_arg_test");
 	//	char** args = malloc(sizeof(char*) * 3);
 	if (code == NULL) {
