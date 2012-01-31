@@ -49,6 +49,10 @@ EXTERN int sys_close(int fd);
 EXTERN unsigned int sys_physical_address_of(const void* address);
 
 EXTERN int sys_execute(int priority, BOOLEAN block_current, const char* path, int argc, char** argv);
+
+EXTERN unsigned int sys_pcount();
+
+EXTERN int sys_pinfo(pinfo_t* mem, int count);
 /**
  * IPC system calls
  */
@@ -89,5 +93,27 @@ EXTERN char** sys_read_arguments(int* argc);
  * Deletes the active process (the caller)
  */
 EXTERN void sys_exit();
+
+/**
+ * Open a directory for listing files.
+ *
+ * @param path - the path to be opened
+ * @param dir - the reference to the directory status struct
+ */
+EXTERN int sys_opendir(const char* path, dir_t* dir);
+
+/**
+ * Close a directory after reading.
+ *
+ * @param dir_stat - the directory to close
+ */
+EXTERN int sys_closedir(dir_t* dir_stat);
+
+/**
+ * Read the next directory entry in a previously opened directory.
+ * @param dir_stat - the reference to the opened directory
+ * @param dir_entry - the reference of the entry in which to read
+ */
+EXTERN int sys_readdir(dir_t* dir_stat, dir_entry_t* dir_entry);
 
 #endif /* API_SYSTEM_H_ */

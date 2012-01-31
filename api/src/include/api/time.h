@@ -1,6 +1,6 @@
-/* ls.c
+/* time.h
  * 
- * Copyright (c) 2011 The ottos_ls project.
+ * Copyright (c) 2011 The ottos_api project.
  *
  * This work is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,33 +17,23 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 25.01.2012
- *      Author: Franziskus Domig <fdomig@gmail.com>
+ *  Created on: Jan 29, 2012
+ *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#include "ls.h"
-#include <api/system.h>
-#include <api/io.h>
+#ifndef TIME_H_
+#define TIME_H_
 
-void ls(const char* path) {
-  int fd = sys_open(path, 0);
-  print("ls ...\r\n");
-  sys_close(fd);
-}
+#include <ottos/const.h>
 
-void ls2(const char* path) {
-  dir_t dirstat;
+#define ONE_SEC    1000
+#define ONE_MINUTE (ONE_SEC * 60)
+#define ONE_HOUR   (ONE_MINUTE * 60)
+#define ONE_DAY    (ONE_HOUR * 24)
 
-  if (sys_opendir(path, &dirstat)) {
-    dir_entry_t dirent;
+/*
+ * converts milliseconds to a readable char*
+ */
+EXTERN char* timetostr(uint64_t ms, char* buffer);
 
-    while (sys_readdir(&dirstat, &dirent) == 0) {
-      char buffer[512];
-      sprintf(buffer, "%crwx------ root wheel %5d %s\r\n", (dirent.is_dir ? 'd'
-          : '-'), dirent.size, dirent.filename);
-      print(buffer);
-    }
-
-    sys_closedir(&dirstat);
-  }
-}
+#endif /* TIME_H_ */

@@ -1,6 +1,6 @@
-/* ls.c
+/* memory.c
  * 
- * Copyright (c) 2011 The ottos_ls project.
+ * Copyright (c) 2011 The ottos_api project.
  *
  * This work is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,33 +17,20 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 25.01.2012
- *      Author: Franziskus Domig <fdomig@gmail.com>
+ *  Created on: Jan 29, 2012
+ *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#include "ls.h"
-#include <api/system.h>
-#include <api/io.h>
+#include <stdio.h>
+#include <api/memory.h>
 
-void ls(const char* path) {
-  int fd = sys_open(path, 0);
-  print("ls ...\r\n");
-  sys_close(fd);
-}
-
-void ls2(const char* path) {
-  dir_t dirstat;
-
-  if (sys_opendir(path, &dirstat)) {
-    dir_entry_t dirent;
-
-    while (sys_readdir(&dirstat, &dirent) == 0) {
-      char buffer[512];
-      sprintf(buffer, "%crwx------ root wheel %5d %s\r\n", (dirent.is_dir ? 'd'
-          : '-'), dirent.size, dirent.filename);
-      print(buffer);
+char* memstr(double bytes, char* buffer) {
+    const char* suffix[] = { "B", "KB", "MB", "GB", "TB", "PB", "EB" };
+    int i = 0;
+    while (bytes > 1024 && i < 7) {
+        bytes /= 1024;
+        i++;
     }
-
-    sys_closedir(&dirstat);
-  }
+    sprintf(buffer, "%.*f%s", i, bytes, suffix[i]);
+    return buffer;
 }

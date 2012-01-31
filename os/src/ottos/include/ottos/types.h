@@ -62,6 +62,20 @@ typedef struct message_t {
     void* content;  /* the actual message content                   */
 } message_t;
 
+/*
+ * process information struct
+ */
+typedef struct pinfo_t {
+    pid_t pid;            /* process pid */
+    int tty;              /* tty identifier */
+    int stat;             /* process status (running, ) */
+    int prio;             /* process priority */
+    uint64_t time;        /* uptime of process */
+    double mem;           /* memory consumed by process */
+    const char* cmd;      /* command line pattern to start process */
+} pinfo_t;
+
+
 typedef struct {
     int days;
     int hours;
@@ -73,5 +87,22 @@ typedef struct {
 typedef enum system_file_type {
 	DEVICE_FILE, NON_DEVICE_FILE
 } system_file_type_t;
+
+typedef struct {
+  uint32_t sector;
+  uint32_t cluster;
+  uint8_t  offset;
+} dir_t;
+
+#ifndef FATFS_MAX_LONG_FILENAME
+#  define FATFS_MAX_LONG_FILENAME 260
+#endif
+
+typedef struct {
+  char     filename[FATFS_MAX_LONG_FILENAME];
+  uint8_t  is_dir;
+  uint32_t cluster;
+  uint32_t size;
+} dir_entry_t;
 
 #endif /* OTTOS_TYPES_H_ */

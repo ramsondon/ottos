@@ -115,16 +115,13 @@ uint64_t timer_system_uptime() {
 #define ONE_HOUR   (ONE_MINUTE * 60)
 #define ONE_DAY    (ONE_HOUR * 24)
 
-time_t timer_parse_time(uint64_t ms) {
-  time_t time = { 0, 0, 0, 0, 0 };
+void timer_parse_time(time_t* time, uint64_t ms) {
 
-  time.days = (int) (ms / ONE_DAY);
-  time.hours = (int) (ms / ONE_HOUR - time.days * 24);
-  time.minutes = (int) (ms / ONE_MINUTE - (time.hours + time.days * 24) * 60);
-  time.seconds = (int) (ms / ONE_SEC - (time.minutes + (time.hours + time.days * 24) * 60) * 60);
-  time.miliseconds = (int) (ms % 1000);
-
-  return time;
+  time->days = (int) (ms / ONE_DAY);
+  time->hours = (int) (ms / ONE_HOUR - time->days * 24);
+  time->minutes = (int) (ms / ONE_MINUTE - (time->hours + time->days * 24) * 60);
+  time->seconds = (int) (ms / ONE_SEC - (time->minutes + (time->hours + time->days * 24) * 60) * 60);
+  time->miliseconds = (int) (ms % 1000);
 }
 
 void timer_sprint_time(time_t time, char* buffer) {

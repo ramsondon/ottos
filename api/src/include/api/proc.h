@@ -1,6 +1,6 @@
-/* ls.c
+/* proc.h
  * 
- * Copyright (c) 2011 The ottos_ls project.
+ * Copyright (c) 2011 The ottos_api project.
  *
  * This work is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,33 +17,31 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 25.01.2012
- *      Author: Franziskus Domig <fdomig@gmail.com>
+ *  Created on: Jan 27, 2012
+ *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
 
-#include "ls.h"
-#include <api/system.h>
-#include <api/io.h>
+#ifndef API_PROC_H_
+#define API_PROC_H_
 
-void ls(const char* path) {
-  int fd = sys_open(path, 0);
-  print("ls ...\r\n");
-  sys_close(fd);
-}
+#include <ottos/const.h>
+#include <ottos/types.h>
 
-void ls2(const char* path) {
-  dir_t dirstat;
+/*
+ * returns the number of process information entries and sets the pinfo_t pinfo
+ * pointer.
+ */
+EXTERN uint32_t pinfo(pinfo_t* pinfo, uint32_t count);
 
-  if (sys_opendir(path, &dirstat)) {
-    dir_entry_t dirent;
+/*
+ * returns the number of running processes. the result will be at least 1 for
+ * the reason that this process is the only one which would be running.
+ */
+EXTERN uint32_t pcount();
 
-    while (sys_readdir(&dirstat, &dirent) == 0) {
-      char buffer[512];
-      sprintf(buffer, "%crwx------ root wheel %5d %s\r\n", (dirent.is_dir ? 'd'
-          : '-'), dirent.size, dirent.filename);
-      print(buffer);
-    }
+/*
+ * maps a pinfo->stat entry to a readable char*
+ */
+EXTERN const char* pstate_readable(int stat);
 
-    sys_closedir(&dirstat);
-  }
-}
+#endif /* API_PROC_H_ */

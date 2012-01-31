@@ -1,0 +1,169 @@
+\documentclass[10pt,a4paper,fleqn]{article}
+
+% german umlauts
+\usepackage[T1]{fontenc}
+\usepackage[ngerman,english]{babel}
+
+% file encoding: use either one of this next two encoding lines
+%\usepackage[latin1]{inputenc} % use this encoding for iso-8859-1
+\usepackage[utf8x]{inputenc} % use this encoding for utf-8
+
+\usepackage{amsmath, amsthm, amssymb}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{enumerate}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{alltt}
+\usepackage{hyperref}
+
+% use small and bold captions
+\usepackage[small,bf]{caption}
+
+% page size settings
+% \usepackage[left=20mm, top=30mm, right=20mm, bottom=20mm]{geometry}
+
+% indent size of equations
+\setlength{\mathindent}{1cm}
+
+% line height
+\renewcommand{\baselinestretch}{1.5}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Content START
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+	
+\selectlanguage{ngerman}
+% no page numbering on first page
+\pagestyle{empty}
+
+
+\begin{center}
+\includegraphics{images/fhv-logo}\\
+\textsc{Fachhochschule Vorarlberg GmbH}\\
+Projektarbeit im Fachhochschul-Masterstudiengang Informatik\\
+
+\vspace{5cm}
+{\large\textbf{Technische Dokumentation}}\vspace{.5cm}
+
+{\LARGE Erstellung eines Betriebssystems für die Beagleboard Plattform}\vspace{1cm}
+
+ausgeführt von\\
+{\large
+	Thomas Bargetz, Franziskus Domig, Florian Gopp, Dominik Müller,
+	Matthias Schmid, Thomas Wiedemann
+}\\
+
+
+\end{center}
+\vfill
+
+\begin{tabular}{ll}
+Bearbeitung: & Dornbirn, im WS2011\\
+Betreuer: & Wolfgang Auer, Patrick Ritschel\\
+\end{tabular}
+%______________________________________________________________________
+
+\clearpage
+
+% use page numbering
+\pagestyle{plain}
+
+\tableofcontents
+
+\clearpage
+
+\section{Projektbeschreibung}
+	Für das BeagleBoard, bestückt mit einem OMAP3530 von Texas Instruments (ARM Cortex A8),
+		wird ein maßgeschneidertes Single-User Betriebssystem entwickelt.
+		
+	Das Betriebssystem kann mehrere Prozesse gleichzeitig ausführen (Präemptives Multitasking).
+		Threads innerhalb der Prozesse sind nicht zwingend notwendig. Zumindest eine Console
+		und eine exemplarische Implementierung einer Anwendung aus der gewählten Anwendungsdomäne
+		werden parallel betrieben. Das System stellt den Prozessen eine Möglichkeit zur
+		Inter-Prozesskommunikation zur Verfügung.
+		
+	Hinsichtlich der Robustheit und Sicherheit des Betriebssystems ist sichergestellt, dass
+		eine strikte Trennung der Adressräume der Prozesse vorliegt sowie eine Trennung zwischen
+		User-Mode und System-Mode vorhanden ist. Programmabstürze dürfen das Gesamtsystem nicht
+		beeinflussen.
+		
+	Speziell für speicherintensive Anwendungen ist über die Realisierung von virtuellem Speicher
+		nachzudenken und diese gegebenenfalls umzusetzen.
+		
+	Anwendungen werden von einem nichtflüchtigen Speicher z.B. SD-Karte geladen. Dabei erlaubt
+		das Betriebssystem mindestens die Verwendung von Speichermedien, die über ein FAT
+		oder FAT32 Dateisystem verfügen.
+	
+	Besonderes Augenmerk wird auch auf die Möglichkeit einer einfachen Portierung auf die ARM
+		Prozessoren anderer Hersteller, auf andere ARM Typen als OMAP, sowie eventuell einen
+		vergleichbaren AVR32-Core gelegt. Aus diesem Grund ist eine starke Modularisierung
+		notwendig. Das Vorhandensein einer Hardware-Abstraction-Layer ist verpflichtend.
+		
+	Die gewählte Architektur erlaubt auch die einfache Integration von unterschiedlichen
+		Geräten über Device Drivers.
+			
+	Performanztests belegen die Leistungsfähigkeit des Systems im Mehrprozessbetrieb und erlauben
+		detaillierte Rückschlüsse auf das Speichermanagement.
+
+\section{Ziel des Projekts}
+ 	Ziel dieses Projekts ist es eine Wetterstation zu entwickeln. Dabei soll das Beagleboard mit
+		einem Betriebsystem ausgestattet werden und ein externes Board die Daten verschiedener
+		Sensoren über das I2C Protokoll an das Beagleboard weiterleiten. Am Ende soll eine Wetter
+		Applikation auf dem Beagleboard die Daten grafisch auswerten.
+
+\section{Projektvision}
+	Für einen interessierten Hobby Meterologen der verschiedene Wetterdaten benötigt ist OttOS ein
+		optimale Plattform um verschiedene Sensordaten auszuwerten und graphisch auf einem Display
+		darzustellen. Im Gegensatz zu bestehenden Wetterstationen ist OttOS eine OpenSource
+		Plattform und bietet deswegen eine gute Erweiterbarkeit.
+
+\section{Aufbau des Betriebsystems}
+
+	\begin{figure}[h]
+		\includegraphics[scale=0.5]{images/Aufbau.jpg}
+		\caption{Aufbau des Betriebssystems}
+		\label{fig01}
+	\end{figure}
+	
+	Für das Betriebsystem haben wir uns folgenden wie in Abbildung~\ref{fig01} ersichtlichen
+		Aufbau überlegt. Die oberste Schicht ist der
+		Userprocess, in dem die Wetterapplikation und die Console laufen soll.Darunter liegen
+		die Services z.B Filesys. Dazwischen ist die I/O API. Die nächste Schicht ist die
+		Device Treiber Schicht, in denen befinden sich die ganzen Treiber für die Applikation und das
+		Betriebsystem ( z.B SD Treiber, LED Treiber HDMI Treiber) als auch der Device Manager, der
+		die ganzen Treiber steuert. In der vorletzten Schicht ist der Kernel untegebracht. In dem
+		sitzt der Process manager der den Aufruf und das Beenden der Prozesse steuert.Außerdem noch
+		Timer Driver, IPC, Scheduler, Virtueller Speicher. Die letzte Schicht ist die HAL (Hardware
+		Abstraction Layer).
+
+\section{projektspezifische Module}
+
+\subsection{Context switch}
+
+\subsection{Interrupts}
+
+	\include{include/mmu}
+
+\subsection{Fat}
+
+\subsection{IPC}
+
+\subsection{HDMI}
+	Die Ansteuerung des Bildschirms Liliput 668GL TFT-Monitor wurde durch die Portierung der 	Grafikschnittstelle von puppybits realisiert.
+
+\subsection{I2C}
+	Nach längere Entwicklungszeit konnten wir den I2C Datenbus nicht auf dem Beagleboard ansteueren.
+		Alle möglichen Fehlerquellen wurden beseitigt, trotzdem konnte der Datenbus nicht angesprochen
+		werden.
+		
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Content END
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}
+

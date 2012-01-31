@@ -26,12 +26,14 @@
 #include <ottos/const.h>
 #include <ottos/io.h>
 #include <ottos/drivers/driver.h>
+#include <ottos/timer.h>
 
 #include "../intc/irq.h"
 #include "../sched/scheduler.h"
 #include "../mmu/mmu.h"
 #include "../loader/loader.h"
 #include "../ipc/ipc.h"
+
 
 #include "process.h"
 
@@ -130,14 +132,25 @@ void process_delete() {
   process_active = PID_INVALID;
 }
 
-pid_t process_create(int priority, code_bytes_t* code_bytes, int argc, char** argv) {
+
+pid_t process_create(int priority, code_bytes_t* code_bytes, const char* cmd, int argc, char** argv) {
 
   process_t* p = (process_t*) malloc(sizeof(process_t));
   p->master_table_address = (address) 0;
   p->code_location = (address) 0;
 
+
   p->argc = argc;
   p->argv = argv;
+
+	p->pid = process_next_free_entry;
+	p->priority = priority;
+	p->state = READY;
+	p->child = NULL;
+	p->parent = NULL;
+	p->starttime = timer_system_uptime();
+
+	p->cmd = cmd;
 
   p->pid = process_next_free_entry;
   p->priority = priority;
@@ -303,4 +316,37 @@ void process_remove_file_descriptor(int fd) {
       free(current);
     }
   }
+}
+
+int process_count() {
+  int i = 0;
+  int nr_of_proc = 0;
+  for (i = 0; i < PROCESS_MAX_COUNT; i++) {
+    if (process_table[i] != NULL) {
+      nr_of_proc++;
+    }
+  }
+  return nr_of_proc;
+}
+
+unsigned int process_pinfo(pinfo_t pinfo[], int count) {
+  int i = 0;
+  int c = 0;
+  for (i = 0; i < (PROCESS_MAX_COUNT < count ? PROCESS_MAX_COUNT : count); i++){
+    // continue if there is no process at this index
+    if (process_table[i] == NULL) {
+      continue;
+    }
+
+    pinfo[i].pid = process_table[i]->pid;
+    pinfo[i].tty = 0;
+    pinfo[i].prio = process_table[i]->priority;
+    pinfo[i].mem = process_table[i]->page_count * MMU_PAGE_SIZE;
+    pinfo[i].stat = process_table[i]->state;
+    pinfo[i].time = timer_system_uptime() - process_table[i]->starttime;
+    pinfo[i].cmd = process_table[i]->cmd;
+
+    c++;
+  }
+  return  c;
 }
