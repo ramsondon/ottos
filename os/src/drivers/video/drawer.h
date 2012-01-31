@@ -26,7 +26,7 @@
 
 #include <ottos/types.h>
 #include <ottos/const.h>
-#include "video_types.h"
+#include "video.h"
 
 /* NB: these mirror the omap modes */
 #define BM_BITMAP1    0
@@ -42,10 +42,7 @@
 #define RESOLUTION_HEIGHT   768
 #define RESOLUTION_WIDTH    1024
 
-EXTERN RomFont const graphics_font_misc_fixed;
-
-/* can only be called once ... */
-EXTERN RastPort* drawer_init(char* framebuffer, int width, int height, int type);
+EXTERN RomFont const drawer_font_misc_fixed;
 
 EXTERN void drawer_draw_pixel(RastPort *rp, unsigned int color, int x, int y);
 EXTERN void drawer_draw_line(RastPort *rp, unsigned int color, int x, int y, int x_end, int y_end);

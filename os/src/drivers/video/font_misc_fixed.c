@@ -242,7 +242,7 @@ static unsigned const char misc_fixed_bitmap[] = {
   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 };
 
-RomFont const graphics_font_misc_fixed = {
+RomFont const drawer_font_misc_fixed = {
   "misc-fixed",
   6, 12,
   570,

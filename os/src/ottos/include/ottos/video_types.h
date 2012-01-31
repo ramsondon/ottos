@@ -25,57 +25,23 @@
 #define VIDEO_TYPES_H_
 
 typedef struct {
-  const char* name;
-  int width;
-  int height;
-  int stride;
-  int first;
-  int last;
-  int baseline;
-  int lineheight;
-  unsigned const char* bitmap;
-} RomFont;
+    union {
+      unsigned short hour;
+      unsigned short minute;
+      unsigned short second;
+    } timestamp;
 
+    int data;
+} GRAPH_DATA;
 
 typedef struct {
-  int width;
-  int height;
-  int format;
-  int stride;
-  void* data;
-} BitMap;
-
-
-typedef struct {
-  int x;                /* width position of the current pixel on the screen */
-  int y;                /* height position of the current pixel on the screen */
-  void* point;          /* pointer to the memory where the current pixel resides */
-  unsigned int color;  /* current color which is used to draw pixels */
-
-  union {
-    RomFont* romfont;
-  } font;               /* default font */
-
-  union {
-    BitMap* bitmap;
-  } drawable;           /* the region into which the data are written */
-} RastPort;
-
-
-typedef struct {
+    int id;
     int x;
     int y;
-} Point;
-
-
-typedef struct {
-    short type;
-    short x;
-    short y;
     unsigned int rgb_color;
-    short p1;
-    short p2;
-    char* text;
+    int p1;
+    int p2;
+    unsigned int text;
 } GRAPHIC_ELEMENT;
 
 
@@ -85,5 +51,8 @@ typedef struct {
 #define GRAPHIC_ELEMENT_ELLIPSE    3
 #define GRAPHIC_ELEMENT_STRING     4
 
+
+#define RESOLUTION_HEIGHT   768
+#define RESOLUTION_WIDTH    1024
 
 #endif /* VIDEO_TYPES_H_ */

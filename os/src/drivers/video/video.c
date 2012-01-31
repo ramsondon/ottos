@@ -32,8 +32,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "video_types.h"
-
 
 static RastPort* video_rast_port = NULL;
 static BitMap* video_bit_map = NULL;
@@ -265,7 +263,7 @@ void video_attach_framebuffer(int id, BitMap* bm) {
 int video_open(device_t dev) {
   if (video_rast_port != NULL) {
     // the video module is already initialized
-    return DRIVER_ERROR_CANNOT_OPEN;
+    return DRIVER_NO_ERROR;
   }
 
   // initialize BitMap struct
@@ -274,7 +272,7 @@ int video_open(device_t dev) {
   video_bit_map->height = VIDEO_RESOLUTION_HEIGHT;
   video_bit_map->format = BM_RGB16;
   video_bit_map->stride = VIDEO_RESOLUTION_WIDTH * 2;
-  video_bit_map->data = (void*)malloc(VIDEO_RESOLUTION_HEIGHT*VIDEO_RESOLUTION_HEIGHT*4);
+  video_bit_map->data = (void*)malloc(VIDEO_RESOLUTION_HEIGHT*VIDEO_RESOLUTION_WIDTH*4);
 
   // initialize RastPort struct
   video_rast_port = (RastPort*)malloc(sizeof(RastPort));
@@ -282,7 +280,7 @@ int video_open(device_t dev) {
   video_rast_port->y = 0;
   video_rast_port->point = video_bit_map->data;
   video_rast_port->color = 0x00000000;
-  video_rast_port->font.romfont = (RomFont*) &graphics_font_misc_fixed;
+  video_rast_port->font.romfont = (RomFont*) &drawer_font_misc_fixed;
   video_rast_port->drawable.bitmap = video_bit_map;
 
   MMIO_WRITE32(DISPC_IRQENABLE, 0x00000);
@@ -318,14 +316,9 @@ int video_close(device_t dev) {
 }
 
 int video_write(device_t dev, int count, char* buffer) {
-  // TODO (go.goflo@gmail.com) --> implement video_write()
-  // memcopy --> given buffer into framebuffer
-  //memcpy(video_framebuffer->data, buffer, count);
-
-  char** str = NULL;
   GRAPHIC_ELEMENT* g = (GRAPHIC_ELEMENT*)buffer;
 
-  switch(g->type) {
+  switch(g->id) {
   case GRAPHIC_ELEMENT_PIXEL:
     drawer_draw_pixel(video_rast_port, g->rgb_color, g->x, g->y);
     break;
@@ -339,11 +332,11 @@ int video_write(device_t dev, int count, char* buffer) {
     drawer_draw_ellipse(video_rast_port, g->rgb_color, g->x, g->y, g->p1, g->p2);
     break;
   case GRAPHIC_ELEMENT_STRING:
-    str = (char**)mmu_get_physical_address(process_table[process_active], (unsigned int)g->text);
-    drawer_draw_string(video_rast_port, g->rgb_color, g->x, g->y, *str, g->p1, g->p2);
+    drawer_draw_string(video_rast_port, g->rgb_color, g->x, g->y,
+                      (char*)mmu_get_physical_address(process_table[process_active], g->text),
+                      g->p1, g->p2);
     break;
   default:
-    //wtf
     // do nothing
     return DRIVER_ERROR_NOT_SUPPORTED;
   }

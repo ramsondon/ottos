@@ -27,27 +27,6 @@
 #include <stdio.h>
 #include "video.h"
 
-static RastPort* drawer_rastport;
-static BitMap* drawer_framebuffer;
-
-/* can only be called once ... */
-RastPort* drawer_init(char* framebuffer, int width, int height, int type) {
-  drawer_framebuffer->width = width;
-  drawer_framebuffer->height = height;
-  drawer_framebuffer->format = type;
-  drawer_framebuffer->stride = width * 2;
-  drawer_framebuffer->data = framebuffer;
-
-  drawer_rastport->x = 0;
-  drawer_rastport->y = 0;
-  drawer_rastport->point = drawer_framebuffer->data;
-  drawer_rastport->color = 0x000000;
-  drawer_rastport->font.romfont = (RomFont*) &drawer_font_misc_fixed;
-  drawer_rastport->drawable.bitmap = drawer_framebuffer;
-
-  return drawer_rastport;
-}
-
 static void drawer_set_color(RastPort *rp, unsigned int rgb) {
   rp->color = ((rgb & 0xf80000) >> 8) | ((rgb & 0xfc00) >> 5) | ((rgb & 0xf8) >> 3);
 }

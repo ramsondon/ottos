@@ -5,7 +5,7 @@
 //
 
 -stack           0x00001000
--heap            0x00020000
+-heap            0x00500000
 
 MEMORY
 {

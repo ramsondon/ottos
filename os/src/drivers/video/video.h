@@ -27,7 +27,7 @@
 #include <ottos/types.h>
 #include <ottos/const.h>
 #include <ottos/drivers/driver.h>
-#include "video_types.h"
+#include <ottos/video_types.h>
 
 // default resolution
 #define VIDEO_RESOLUTION_HEIGHT   768
@@ -59,26 +59,6 @@
 #define BM_YUV2       10
 #define BM_UYVY       11
 
-#define RESOLUTION_HEIGHT   768
-#define RESOLUTION_WIDTH    1024
-
-// correct the height of the ellipse --> this is needed because we use a 16:9 display but a 4:3 resolution
-#define GRAPHICS_RESOLUTION_CORRECTION_FACTOR   1.333
-
-
-typedef struct {
-    union {
-      unsigned short hour;
-      unsigned short minute;
-      unsigned short second;
-    } timestamp;
-
-    int data;
-} GRAPH_DATA;
-
-#define GRAPHICS_GRAPH_TEMP_MAX    40
-#define GRAPHICS_GRAPH_TEMP_MIN   -12
-
 
 typedef struct {
   short width, height;
@@ -89,6 +69,49 @@ typedef struct {
   uint32_t dispc_divisor;
   uint32_t dss_divisor;
 } VIDEO_DISP_MODE;
+
+typedef struct {
+  const char* name;
+  int width;
+  int height;
+  int stride;
+  int first;
+  int last;
+  int baseline;
+  int lineheight;
+  unsigned const char* bitmap;
+} RomFont;
+
+
+typedef struct {
+  int width;
+  int height;
+  int format;
+  int stride;
+  void* data;
+} BitMap;
+
+
+typedef struct {
+  int x;                /* width position of the current pixel on the screen */
+  int y;                /* height position of the current pixel on the screen */
+  void* point;          /* pointer to the memory where the current pixel resides */
+  unsigned int color;  /* current color which is used to draw pixels */
+
+  union {
+    RomFont* romfont;
+  } font;               /* default font */
+
+  union {
+    BitMap* bitmap;
+  } drawable;           /* the region into which the data are written */
+} RastPort;
+
+
+typedef struct {
+    int x;
+    int y;
+} Point;
 
 
 EXTERN RomFont const drawer_font_misc_fixed;
