@@ -25,6 +25,7 @@
 #include <api/io.h>
 #include <api/sensor.h>
 #include <api/system.h>
+#include <api/proc.h>
 
 int main() {
 
@@ -35,7 +36,7 @@ int main() {
     print("usage: ");
     print(argv[0]);
     print(" [sensor_number]\r\n");
-    sys_exit();
+    pexit(-1);
   } else {
     double value = 0.0;
     int sensor_number = argv[1][0] - '0';
@@ -45,7 +46,7 @@ int main() {
 
     if (sensor_number < 0 || sensor_number > 3) {
       print("sensor_number value must be 1, 2 or 3\r\n");
-      sys_exit();
+      pexit(-1);
     } else {
       switch(sensor_number) {
         case 1:
@@ -66,6 +67,8 @@ int main() {
       print(buffer);
     }
   }
+
+  pexit(0);
 
   return 0;
 }
