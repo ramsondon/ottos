@@ -27,6 +27,7 @@
 #include <ottos/types.h>
 #include <ottos/const.h>
 #include <ottos/drivers/driver.h>
+#include <ottos/video_types.h>
 
 // default resolution
 #define VIDEO_RESOLUTION_HEIGHT   768
@@ -46,6 +47,19 @@
 #define VENC_MODE_NTSC (0)
 #define VENC_MODE_PAL (1)
 
+
+/* NB: these mirror the omap modes */
+#define BM_BITMAP1    0
+#define BM_BITMAP2    1
+#define BM_BITMAP4    2
+#define BM_BITMAP8    3
+#define BM_RGB16      6
+#define BM_RGB23      9
+#define BM_ARGB32     12
+#define BM_YUV2       10
+#define BM_UYVY       11
+
+
 typedef struct {
   short width, height;
   char* name;
@@ -57,12 +71,50 @@ typedef struct {
 } VIDEO_DISP_MODE;
 
 typedef struct {
+  const char* name;
+  int width;
+  int height;
+  int stride;
+  int first;
+  int last;
+  int baseline;
+  int lineheight;
+  unsigned const char* bitmap;
+} RomFont;
+
+
+typedef struct {
   int width;
   int height;
   int format;
   int stride;
   void* data;
-} FRAME_BUFFER;
+} BitMap;
+
+
+typedef struct {
+  int x;                /* width position of the current pixel on the screen */
+  int y;                /* height position of the current pixel on the screen */
+  void* point;          /* pointer to the memory where the current pixel resides */
+  unsigned int color;  /* current color which is used to draw pixels */
+
+  union {
+    RomFont* romfont;
+  } font;               /* default font */
+
+  union {
+    BitMap* bitmap;
+  } drawable;           /* the region into which the data are written */
+} RastPort;
+
+
+typedef struct {
+    int x;
+    int y;
+} Point;
+
+
+EXTERN RomFont const drawer_font_misc_fixed;
 
 
 int video_open(device_t dev);
