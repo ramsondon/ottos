@@ -1,6 +1,6 @@
-/* ls.c
+/* main.c
  * 
- * Copyright (c) 2011 The ottos_ls project.
+ * Copyright (c) 2011 The ottos_arg_test project.
  *
  * This work is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,33 +17,34 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 25.01.2012
- *      Author: Franziskus Domig <fdomig@gmail.com>
+ *  Created on: 27 Jan 2012
+ *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#include "ls.h"
+#include <stdio.h>
 #include <api/system.h>
 #include <api/io.h>
 
-void ls(const char* path) {
-  int fd = sys_open(path, 0);
-  print("ls ...\r\n");
-  sys_close(fd);
-}
+int main() {
 
-void ls2(const char* path) {
-  dir_t dirstat;
+  int argc = 0;
+  char** argv = NULL;
+  char buffer[100] = {0};
+  int i = 0;
 
-  if (sys_opendir(path, &dirstat)) {
-    dir_entry_t dirent;
+  argv = sys_read_arguments(&argc);
 
-    while (sys_readdir(&dirstat, &dirent) == 0) {
-      char buffer[512];
-      sprintf(buffer, "%crwx------ root wheel %5d %s\r\n", (dirent.is_dir ? 'd'
-          : '-'), dirent.size, dirent.filename);
-      print(buffer);
-    }
+  sprintf(buffer, "argc: %d\r\n", argc);
+  print(buffer);
 
-    sys_closedir(&dirstat);
+  print("arguments:\r\n");
+
+  for(i = 0; i < argc; i++) {
+    sprintf(buffer, "argv[%d]: %s\r\n", i, argv[i]);
+    print(buffer);
   }
+
+  print("bye bye\r\n");
+
+  return 0;
 }

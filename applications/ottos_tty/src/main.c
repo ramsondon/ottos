@@ -21,9 +21,19 @@
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
+//#include <stdio.h>
+//#include <stdlib.h>
+#include <api/io.h>
 #include "tty/tty.h"
 
 int main() {
+
+//	for(;;) {
+//		char* asdf = malloc(sizeof(char));
+//		char buffer[100] = {0};
+//		sprintf(buffer, "%#08x\r\n", (unsigned int)asdf);
+//		print(buffer);
+//	}
 
 	tty_run();
 	return 0;

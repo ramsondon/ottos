@@ -30,7 +30,7 @@
 #define USERNAME "root"
 #define TTY_NAME "ottsh"
 
-#define MAX_PATH_LENGTH             1024 // this is optimistic that our paths do not exceed 1024 chars
+#define MAX_PATH_LENGTH             100 // this is optimistic that our paths do not exceed 1024 chars
 #define SPLIT_CHARS                 " " // may be an array of characters to split CMDs
 #define DIRECTORY_SEPARATOR         '/' // must be a single char
 #define START_IN_BACKGROUND_SYSMBOL '&' // must be a single char
