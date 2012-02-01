@@ -31,12 +31,18 @@ void meminfo(meminfo_t* info) {
 
 
 char* memstr(double bytes, char* buffer) {
-    const char* suffix[] = { "B", "KB", "MB", "GB", "TB", "PB", "EB" };
-    int i = 0;
-    while (bytes > 1024 && i < 7) {
-        bytes /= 1024;
-        i++;
-    }
-    sprintf(buffer, "%.*f%s", i, bytes, suffix[i]);
-    return buffer;
+  const char* suffix[] = { "B", "KB", "MB", "GB", "TB", "PB", "EB" };
+  int i = 0, c = 0;
+  while (bytes > 1024 && i < 7) {
+      bytes /= 1024;
+      i++;
+  }
+
+  if (((double)(bytes - (int) bytes)) > 0.009
+      || ((double)(bytes - (int) bytes)) < -0.009) {
+    c = 2;
+  }
+
+  sprintf(buffer, "%.*f%s", c, bytes, suffix[i]);
+  return buffer;
 }
