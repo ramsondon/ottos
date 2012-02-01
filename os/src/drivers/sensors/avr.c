@@ -141,14 +141,14 @@ static int selSensor(enum Sensor sensor) {
     MMIO_AND32(GPIO5_DATAOUT, ~GPIO_130);
     retval = 1;
   } else if (sensor == PRESSURE) { // 01 to AVR -> AVR switches to temp messure mode
-    MMIO_OR32(GPIO5_DATAOUT, GPIO_130);
-    MMIO_OR32(GPIO5_DATAOUT, GPIO_131);
+    MMIO_AND32(GPIO5_DATAOUT, ~GPIO_130);
     MMIO_AND32(GPIO5_DATAOUT, ~GPIO_131);
+    MMIO_OR32(GPIO5_DATAOUT, GPIO_131);
     retval = 1;
   } else if (sensor == SOLAR) { // 10 to AVR -> AVR switches to temp messure mode
-    MMIO_OR32(GPIO5_DATAOUT, GPIO_130);
-    MMIO_OR32(GPIO5_DATAOUT, GPIO_131);
     MMIO_AND32(GPIO5_DATAOUT, ~GPIO_130);
+    MMIO_AND32(GPIO5_DATAOUT, ~GPIO_131);
+    MMIO_OR32(GPIO5_DATAOUT, GPIO_130);
     retval = 1;
   }
   return retval;
