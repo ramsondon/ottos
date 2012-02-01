@@ -92,7 +92,7 @@ EXTERN char** sys_read_arguments(int* argc);
 /*
  * Deletes the active process (the caller)
  */
-EXTERN void sys_exit();
+EXTERN void sys_exit(int state);
 
 /**
  * Open a directory for listing files.
