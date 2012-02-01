@@ -32,7 +32,7 @@ int main() {
 
   if(argc <= 0) {
 	  print("usage: ls [path] (path isn't optional)\r\n");
-	  sys_exit();
+	  sys_exit(1);
   }
 
   ls(argv[0]);
