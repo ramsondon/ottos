@@ -49,6 +49,14 @@ static int system_get_device_id(const char* path) {
     return LED_1;
   } else if (strcmp(SYSTEM_VIDEO_0_PATH, path) == 0) {
     return VIDEO_0;
+  } else if (strcmp(SYSTEM_TEMP_0_PATH, path) == 0) {
+    return TEMP_0;
+  } else if (strcmp(SYSTEM_PRESSURE_0_PATH, path) == 0) {
+    return PRESSURE_0;
+  } else if (strcmp(SYSTEM_SOLAR_0_PATH, path) == 0) {
+    return SOLAR_0;
+  } else if (strcmp(SYSTEM_RTC_0_PATH, path) == 0) {
+    return RTC_0;
   }
   return SYSTEM_DEV_ID_INVALID;
 }
@@ -219,3 +227,15 @@ char** sys_read_arguments(int* argc) {
 void sys_exit(int state) {
   swi(SYS_EXIT, state, 0, 0);
 }
+
+time_t sys_get_time() {
+  time_t time;
+
+  int fd = sys_open(SYSTEM_RTC_0_PATH, SYSTEM_FLAG_WRITE);
+  if (fd != SYSTEM_FD_INVALID) {
+    sys_read(fd, (char*) &time, sizeof(time_t));
+  }
+
+  return time;
+}
+
