@@ -26,6 +26,7 @@
 #include <ottos/types.h>
 #include <api/io.h>
 #include <api/memory.h>
+#include <api/proc.h>
 
 int main(int argc, char **argv) {
 
@@ -53,4 +54,7 @@ int main(int argc, char **argv) {
   print(title);
   print(buffer);
   free(info);
+
+  pexit(0);
+  return 0;
 }

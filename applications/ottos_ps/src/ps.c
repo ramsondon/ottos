@@ -82,6 +82,6 @@ int main(int argc, char **argv) {
     // free allocated resources
     free_pinfos(pinfo);
   }
-
+  pexit(0);
   return 0;
 }
