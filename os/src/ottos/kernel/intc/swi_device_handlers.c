@@ -69,7 +69,6 @@ BOOLEAN swi_handle_sys_create(int parameters_address) {
 	char** argv = (char**) mmu_get_physical_address(process_table[process_active], parameters[5]);
 	char** argv_copy = NULL;
 
-	kernel_debug(1, "Loading hex file");
 	//code = code_get(executable_file);
 	code = code_get_single_file(executable_file);
 	if (code == NULL) {
@@ -95,10 +94,7 @@ BOOLEAN swi_handle_sys_create(int parameters_address) {
 		}
 	}
 
-	kernel_debug(1, "Creating a new process");
 	*pid = process_create(priority, code, argv_copy[0], argc, argv_copy);
-
-	kernel_debug(1, "Created process");
 
 	free(code->byte_0);
 	free(code->byte_1);
