@@ -30,12 +30,12 @@ int main() {
   int argc = 0;
   char** argv = sys_read_arguments(&argc);
 
-  if(argc <= 0) {
+  if(argc != 2) {
 	  print("usage: ls [path] (path isn't optional)\r\n");
 	  sys_exit(1);
   }
 
-  ls(argv[0]);
+  ls(argv[1]);
 
   return 0;
 }
