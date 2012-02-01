@@ -254,6 +254,7 @@ void tty_run() {
     // print("command: ");
     rc = tty_getline(line, MAX_PATH_LENGTH);
     if (rc <= 1) {
+      print("\r");
       continue;
     }
     print("\r\n");
