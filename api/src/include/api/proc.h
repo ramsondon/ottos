@@ -44,4 +44,9 @@ EXTERN uint32_t pcount();
  */
 EXTERN const char* pstate_readable(int stat);
 
+/*
+ * exits the current process
+ */
+EXTERN void pexit(int state);
+
 #endif /* API_PROC_H_ */

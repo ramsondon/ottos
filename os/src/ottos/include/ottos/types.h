@@ -77,6 +77,13 @@ typedef struct pinfo_t {
     char cmd[PINFO_MAX_CMD_LENGTH];  /* command line pattern to start process */
 } pinfo_t;
 
+typedef struct meminfo_t {
+    double used_intram;
+    double used_extddr;
+    double total_intram;
+    double total_extddr;
+} meminfo_t;
+
 
 typedef struct {
     int year;

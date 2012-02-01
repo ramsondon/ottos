@@ -30,6 +30,7 @@
 #include <ottos/types.h>
 #include <ottos/syscalls.h>
 #include <ottos/kernel.h>
+#include <ottos/memory.h>
 #include <ottos/io.h>
 #include <ottos/dev/device.h>
 #include <ottos/drivers/driver.h>
@@ -47,7 +48,7 @@ BOOLEAN swi_handle_sys_yield() {
 	return TRUE;
 }
 
-BOOLEAN swi_handle_sys_exit() {
+BOOLEAN swi_handle_sys_exit(int state) {
 	// delete the active process
 	process_delete();
 	return TRUE;
@@ -275,8 +276,11 @@ BOOLEAN swi_handle_sys_fread(process_file_descriptor_t* fd_process, char* buffer
 BOOLEAN swi_handle_sys_diropen(int path_address, int dir_stat_address, int return_value_address) {
   const char* path = (const char*) mmu_get_physical_address(process_table[process_active], path_address);
   FL_DIR* dir = (FL_DIR*) mmu_get_physical_address(process_table[process_active], dir_stat_address);
-  FL_DIR* return_value = (FL_DIR*) mmu_get_physical_address(process_table[process_active], return_value_address);
-  return_value = (FL_DIR*) fl_opendir(path, dir);
+  int* return_value = (int*) mmu_get_physical_address(process_table[process_active], return_value_address);
+  *return_value = 0;
+  if (fl_opendir(path, dir)) {
+    *return_value = 1;
+  }
   return FALSE;
 }
 
@@ -330,14 +334,20 @@ BOOLEAN sys_handle_sys_wait(int ns_address) {
 }
 
 BOOLEAN swi_handle_sys_receive(int ns_address, int msg_address, int result_address) {
-	const char* namespace = (const char*) mmu_get_physical_address(process_table[process_pid()], ns_address);
-	message_t* message = (message_t*) mmu_get_physical_address(process_table[process_pid()], msg_address);
-	int* result = (int*) mmu_get_physical_address(process_table[process_pid()], result_address);
-	void* content = (void*) mmu_get_physical_address(process_table[process_pid()], (unsigned int) message->content);
+	const char* namespace = (const char*) mmu_get_physical_address(process_table[process_active], ns_address);
+	message_t* message = (message_t*) mmu_get_physical_address(process_table[process_active], msg_address);
+	int* result = (int*) mmu_get_physical_address(process_table[process_active], result_address);
+	void* content = (void*) mmu_get_physical_address(process_table[process_active], (unsigned int) message->content);
 
-	*result = ipc_receive_msg(namespace, message, content, process_pid());
+	*result = ipc_receive_msg(namespace, message, content, process_active);
 
 	return FALSE;
+}
+
+BOOLEAN swi_handle_sys_memory_info(int meminfo) {
+  meminfo_t* info = (meminfo_t*) mmu_get_physical_address(process_table[process_active], meminfo);
+  memory_info(info);
+  return FALSE;
 }
 
 BOOLEAN swi_handle_sys_args_count(int argc_address) {
@@ -388,7 +398,8 @@ BOOLEAN swi_handle(unsigned int syscall_nr, unsigned int param1, unsigned int pa
 	case SYS_YIELD:
 		return swi_handle_sys_yield();
 	case SYS_EXIT:
-		return swi_handle_sys_exit();
+	  // param1 = exit state of the process
+		return swi_handle_sys_exit(param1);
 	case SYS_EXEC:
 		// param1 = parameters array
 		return swi_handle_sys_create(param1);
@@ -472,6 +483,9 @@ BOOLEAN swi_handle(unsigned int syscall_nr, unsigned int param1, unsigned int pa
     // param2 = count
     // param3 = actual number of pinfo_t blocks read by syscall
     return swi_handle_sys_process_info(param1, param2, param3);
+  case SYS_MEMORY_INFO:
+    // param1 meminfo_t
+    return swi_handle_sys_memory_info(param1);
 	default:
 		// unknown syscall number
 		kernel_error(SWI_UNKNOWN_SYSCALL_NR, "Unknown syscall-number. Ignoring.");

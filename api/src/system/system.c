@@ -182,6 +182,10 @@ void sys_receive(const char* ns, message_t *msg, int* success) {
   swi(SYS_RECEIVE, (unsigned int) ns, (unsigned int) msg, (unsigned int) success);
 }
 
+void sys_memory_info(meminfo_t* meminfo) {
+  swi(SYS_MEMORY_INFO, (unsigned int) meminfo, 0, 0);
+}
+
 char** sys_read_arguments(int* argc) {
   char** argv = NULL;
   int argc_ = 0;
@@ -220,8 +224,8 @@ char** sys_read_arguments(int* argc) {
   return argv;
 }
 
-void sys_exit() {
-  swi(SYS_EXIT, 0, 0, 0);
+void sys_exit(int state) {
+  swi(SYS_EXIT, state, 0, 0);
 }
 
 time_t sys_get_time() {

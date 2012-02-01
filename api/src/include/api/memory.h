@@ -27,6 +27,12 @@
 #include <ottos/const.h>
 
 /*
+ * sets the memory info to the meminfo_t* info. the memory has to be allocated
+ * outside.
+ */
+EXTERN void meminfo(meminfo_t* info);
+
+/*
  * converts bytes to a char* with suffix KB, MB, etc.
  */
 EXTERN char* memstr(double bytes, char* buffer);

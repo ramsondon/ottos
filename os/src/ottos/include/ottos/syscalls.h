@@ -69,4 +69,9 @@
 #define SYS_ARGS_VALUE        42
 #define SYS_ARGS_FREE         43
 
+/*
+ * MEMORY system calls
+ */
+#define SYS_MEMORY_INFO 50
+
 #endif /* SYSCALLS_H_ */
