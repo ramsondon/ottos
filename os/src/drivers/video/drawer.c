@@ -91,79 +91,6 @@ void drawer_draw_ellipse(RastPort *rp, unsigned int color, int x, int y, int a, 
   }
 }
 
-/*
-void drawer_draw_graph(RastPort *rp, GRAPH_DATA* data, int length, int timespan, int height, int width,
-                         unsigned int color_line, unsigned int color_background) {
-  int i, y, value, prev_x, time_legend_index, time_legend_gap;
-  int x0 = rp->x;
-  int y0 = rp->y;
-  int margin = 3;
-  int span_in_pixel = width / length;
-  GRAPH_DATA* cur_data;
-  char str[8];
-  float degree_in_pixel = height / (abs(GRAPHICS_GRAPH_TEMP_MAX) + abs(GRAPHICS_GRAPH_TEMP_MIN));
-
-
-  // draw background rectangle
-  drawer_set_color(rp, color_background);
-  drawer_draw_rect(rp, width, height);
-  // draw vertical axis
-  drawer_set_color(rp, COLOR_Black);
-  drawer_draw_line(rp, x0+margin, y0+margin, x0+margin, y0+height-margin, 1);
-  // draw horizontal axis
-  drawer_draw_line(rp, x0+margin, y0+GRAPHICS_GRAPH_TEMP_MAX*degree_in_pixel,
-                     x0+width-margin, y0+GRAPHICS_GRAPH_TEMP_MAX*degree_in_pixel, 1);
-
-  // draw dataline
-  drawer_set_color(rp, color_line);
-  x0 += margin + 1;
-  y0 += GRAPHICS_GRAPH_TEMP_MAX*degree_in_pixel;
-
-  for (i = 0; i < length; i++) {
-    value = data[i].data;
-    drawer_draw_line(rp, x0 + span_in_pixel * i, prev_x, x0 + span_in_pixel * (i + 1), y0 + value/degree_in_pixel, 1);
-    prev_x = x0 + value/degree_in_pixel;
-  }
-
-  // write timevalues on time axis
-  time_legend_index = length / 4;
-  time_legend_gap = width / 4;
-
-  // draw 4 time values on timeline
-  cur_data = &(data[0]);
-  drawer_set_color(rp, COLOR_Black);
-  drawer_move_to(rp, x0 + 10, y0);
-  sprintf(str, "%02d:%02d:%02d", cur_data->timestamp.hour, cur_data->timestamp.minute, cur_data->timestamp.second);
-  drawer_draw_string(rp, str, 2);
-
-  for (i = 1; i < 4; i++) {
-    cur_data = &(data[time_legend_index * i - 1]);
-    drawer_set_color(rp, COLOR_Black);
-    drawer_move_to(rp, x0 + time_legend_gap*i, y0);
-    sprintf(str, "%02d:%02d:%02d", cur_data->timestamp.hour, cur_data->timestamp.minute, cur_data->timestamp.second);
-    drawer_draw_string(rp, str, 2);
-  }
-
-  // draw legend for value axis
-  drawer_move_to(rp, x0 - 5, y0);
-  drawer_draw_string(rp, "0", 2);
-
-  y = y0 - (degree_in_pixel * GRAPHICS_GRAPH_TEMP_MAX);
-  // draw positive values on value axis
-  for (i = 1; i > 10; i++) {
-    sprintf(str, "%d\0", i * 5);
-    drawer_move_to(rp, x0 - margin, y);
-    drawer_draw_string(rp, str, 2);
-  }
-
-  // draw negative values on value axis
-  for (i = 1; i < -4; i--) {
-    sprintf(str, "%d\0", -i * 5);
-    drawer_move_to(rp, x0 - margin, y);
-    drawer_draw_string(rp, str, 2);
-  }
-}
-*/
 
 // see: http://de.wikipedia.org/wiki/Bresenham-Algorithmus
 void drawer_draw_line(RastPort *rp, unsigned int color, int x, int y, int x_end, int y_end) {
@@ -241,7 +168,7 @@ static void drawer_draw_char(RastPort *rp, unsigned int c, int scale) {
   rp->x += w*scale;
 }
 
-void drawer_draw_string(RastPort *rp, unsigned int color, int x, int y, const char *s, int len, int scale) {
+void drawer_draw_string(RastPort *rp, unsigned int color, int x, int y, const char *s, int scale) {
   unsigned int c;
 
   drawer_move_to(rp, x, y);
@@ -259,24 +186,69 @@ void drawer_draw_string(RastPort *rp, unsigned int color, int x, int y, const ch
   }
 }
 
-//void drawer_draw_picture(int x, int y, BITMAP_HEADER* bmp_header, RGBA* data) {
-//  int w, l;
-//  int curX = x;
-//  int curY = y;
-//  RGBA* curPixel = data;
-//
-//  drawer_move_to(drawer_rastport, curX, curY);
-//
-//  for (l = 0; l < bmp_header->height; l++) {
-//    curX = x;
-//    for (w = 0; w < bmp_header->width; w++) {
-//      drawer_set_color(drawer_rastport, (curPixel->Red << 6) | (curPixel->Green << 4) | (curPixel->Blue << 2));
-//      drawer_move_to(drawer_rastport, curX, curY);
-//      drawer_draw_pixel(drawer_rastport);
-//      curPixel++;
-//      curX++;
-//    }
-//
-//    curY++;
-//  }
-//}
+#define GRAPHICS_GRAPH_TEMP_MAX    40
+#define GRAPHICS_GRAPH_TEMP_MIN   -12
+
+void drawer_draw_graph(RastPort *rp, unsigned int color, int x0, int y0,
+                       GRAPH_DATA* data, int length, int height, int width) {
+  int i, y, value, prev_x, time_legend_index, time_legend_gap;
+  unsigned int color_background = 0x00FF00;
+  unsigned int color_line = 0x000000;
+  int margin = 3;
+  int span_in_pixel = width / length;
+  GRAPH_DATA* cur_data;
+  char str[8];
+  float degree_in_pixel = height / (abs(GRAPHICS_GRAPH_TEMP_MAX) + abs(GRAPHICS_GRAPH_TEMP_MIN));
+
+
+  // draw background rectangle
+  drawer_draw_rect(rp, color_background, x0, y0, width, height);
+  // draw vertical axis
+  drawer_draw_line(rp, color_line, x0+margin, y0+margin, x0+margin, y0+height-margin);
+  // draw horizontal axis
+  drawer_draw_line(rp, color_line, x0+margin, y0+GRAPHICS_GRAPH_TEMP_MAX*degree_in_pixel,
+                     x0+width-margin, y0+GRAPHICS_GRAPH_TEMP_MAX*degree_in_pixel);
+
+  // draw dataline
+  drawer_set_color(rp, color_line);
+  x0 += margin + 1;
+  y0 += GRAPHICS_GRAPH_TEMP_MAX*degree_in_pixel;
+
+  for (i = 0; i < length; i++) {
+    value = data[i].data;
+    drawer_draw_line(rp, x0 + span_in_pixel * i, prev_x, x0 + span_in_pixel * (i + 1), y0 + value/degree_in_pixel, 1);
+    prev_x = x0 + value/degree_in_pixel;
+  }
+
+  // write timevalues on time axis
+  time_legend_index = length / 4;
+  time_legend_gap = width / 4;
+
+  // draw 4 time values on timeline
+  cur_data = &(data[0]);
+  sprintf(str, "%02d:%02d:%02d", cur_data->timestamp.hour, cur_data->timestamp.minute, cur_data->timestamp.second);
+  drawer_draw_string(rp, color_line, x0+10, y0, str, 2);
+
+  for (i = 1; i < 4; i++) {
+    cur_data = &(data[time_legend_index * i - 1]);
+    sprintf(str, "%02d:%02d:%02d", cur_data->timestamp.hour, cur_data->timestamp.minute, cur_data->timestamp.second);
+    drawer_draw_string(rp, color_line, x0+time_legend_gap*i, y0, str, 2);
+  }
+
+  // draw legend for value axis
+  drawer_draw_string(rp, color_line, x0 - 5, y0, "0", 2);
+
+  y = y0 - (degree_in_pixel * GRAPHICS_GRAPH_TEMP_MAX);
+  // draw positive values on value axis
+  for (i = 1; i > 10; i++) {
+    sprintf(str, "%d", i * 5);
+    drawer_draw_string(rp, color_line, x0 - margin, y, str, 2);
+  }
+
+  // draw negative values on value axis
+  for (i = 1; i < -4; i--) {
+    sprintf(str, "%d", -i * 5);
+    drawer_draw_string(rp, color_line, x0 - margin, y, str, 2);
+  }
+}
+

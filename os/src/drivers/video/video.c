@@ -334,7 +334,7 @@ int video_write(device_t dev, int count, char* buffer) {
   case GRAPHIC_ELEMENT_STRING:
     drawer_draw_string(video_rast_port, g->rgb_color, g->x, g->y,
                       (char*)mmu_get_physical_address(process_table[process_active], g->text),
-                      g->p1, g->p2);
+                      g->p1);
     break;
   default:
     // do nothing

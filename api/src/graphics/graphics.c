@@ -131,8 +131,7 @@ void graphics_draw_string(unsigned int rgb, int x, int y, const char* s, int sca
     graphic->x = x;
     graphic->y = y;
     graphic->rgb_color = rgb;
-    //graphic->p1 = strlen(s);
-    graphic->p2 = scale;
+    graphic->p1 = scale;
     graphic->text = (unsigned int)s;
 
     sys_write(fd, (char*) graphic, sizeof(GRAPHIC_ELEMENT));
