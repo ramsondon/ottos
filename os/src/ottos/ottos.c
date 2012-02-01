@@ -258,8 +258,8 @@ int main(int argc, char **argv) {
   //  system_time_test();
   //  uptime_test();
   //video_test();
-   user_app_test();
-  //startup();
+  // user_app_test();
+  startup();
 
   // do an endless loop
   loop_forever();
