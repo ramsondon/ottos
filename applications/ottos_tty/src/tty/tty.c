@@ -240,7 +240,7 @@ void tty_run() {
     char* tokens;
     char cmd[64];
     int rc;
-    BOOLEAN background = TRUE;
+    BOOLEAN background = FALSE;
 
     // print prefix
     tty_print_prefix();
@@ -254,11 +254,11 @@ void tty_run() {
     // print("command: ");
     rc = tty_getline(line, MAX_PATH_LENGTH);
     print("\r\n");
-    print("your command: ");
-
-    line[MAX_PATH_LENGTH] = 0;
-    print(line);
-    print("\r\n");
+//    print("your command: ");
+//
+//    line[MAX_PATH_LENGTH] = 0;
+//    print(line);
+//    print("\r\n");
     //    if (rc == EOF) {
     //      // TODO (fdomig@gmail.com) line was already at EOF while trying to get
     //      // the first character
@@ -297,6 +297,13 @@ void tty_run() {
     //      // finally, is there a application with the entered name?
     //    } else
 
+    // TODO if there is a & at the end of the command, the tty_find_binary returns false
+        // run a new process
+        if (cmd[strlen(cmd) - 1] == START_IN_BACKGROUND_SYSMBOL) {
+          background = TRUE;
+          cmd[strlen(cmd) -1] = '\0';
+        }
+
     if (!tty_find_binary(cmd)) {
       char* debug = malloc(sizeof(char) * 256);
       sprintf(debug, "%s command not found", line);
@@ -305,11 +312,7 @@ void tty_run() {
       continue;
     }
 
-    // TODO if there is a & at the end of the command, the tty_find_binary returns false
-    // run a new process
-    if (cmd[strlen(cmd) - 1] == START_IN_BACKGROUND_SYSMBOL) {
-      background = TRUE;
-    }
+
     {
       char* tmp_cmd = NULL;
       tmp_cmd = malloc(sizeof(char) * (strlen(cmd) + strlen(BIN_DIRECTORY) + 1));
