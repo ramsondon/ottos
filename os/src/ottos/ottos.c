@@ -235,20 +235,20 @@ void startup() {
   fs_init();
   mmu_init();
 
-  //tty_start();
+  tty_start();
   //video_bmp_test_file();
-  code_bytes.byte_0 = sensor_byte0;
-  code_bytes.byte_1 = sensor_byte1;
-  code_bytes.byte_2 = sensor_byte2;
-  code_bytes.byte_3 = sensor_byte3;
-
-  args = (char**)malloc(sizeof(char*) * 2);
-  args[0] = (char*)malloc(sizeof(char) * (strlen("sensor") + 1));
-  args[1] = (char*)malloc(sizeof(char) * (strlen("1") + 1));
-  strcpy(args[0], "sensor");
-  strcpy(args[1], "1");
-
-  process_create(1, &code_bytes, args[0], 2, args);
+//  code_bytes.byte_0 = sensor_byte0;
+//  code_bytes.byte_1 = sensor_byte1;
+//  code_bytes.byte_2 = sensor_byte2;
+//  code_bytes.byte_3 = sensor_byte3;
+//
+//  args = (char**)malloc(sizeof(char*) * 2);
+//  args[0] = (char*)malloc(sizeof(char) * (strlen("sensor") + 1));
+//  args[1] = (char*)malloc(sizeof(char) * (strlen("2") + 1));
+//  strcpy(args[0], "sensor");
+//  strcpy(args[1], "2");
+//
+//  process_create(1, &code_bytes, args[0], 2, args);
 
   irq_register_context_switch();
   irq_enable();
