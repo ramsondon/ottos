@@ -334,14 +334,20 @@ BOOLEAN sys_handle_sys_wait(int ns_address) {
 }
 
 BOOLEAN swi_handle_sys_receive(int ns_address, int msg_address, int result_address) {
-	const char* namespace = (const char*) mmu_get_physical_address(process_table[process_pid()], ns_address);
-	message_t* message = (message_t*) mmu_get_physical_address(process_table[process_pid()], msg_address);
-	int* result = (int*) mmu_get_physical_address(process_table[process_pid()], result_address);
-	void* content = (void*) mmu_get_physical_address(process_table[process_pid()], (unsigned int) message->content);
+	const char* namespace = (const char*) mmu_get_physical_address(process_table[process_active], ns_address);
+	message_t* message = (message_t*) mmu_get_physical_address(process_table[process_active], msg_address);
+	int* result = (int*) mmu_get_physical_address(process_table[process_active], result_address);
+	void* content = (void*) mmu_get_physical_address(process_table[process_active], (unsigned int) message->content);
 
-	*result = ipc_receive_msg(namespace, message, content, process_pid());
+	*result = ipc_receive_msg(namespace, message, content, process_active);
 
 	return FALSE;
+}
+
+BOOLEAN swi_handle_sys_memory_info(int meminfo) {
+  meminfo_t* info = (meminfo_t*) mmu_get_physical_address(process_table[process_active], meminfo);
+  memory_info(info);
+  return FALSE;
 }
 
 BOOLEAN swi_handle_sys_args_count(int argc_address) {
@@ -476,6 +482,9 @@ BOOLEAN swi_handle(unsigned int syscall_nr, unsigned int param1, unsigned int pa
     // param2 = count
     // param3 = actual number of pinfo_t blocks read by syscall
     return swi_handle_sys_process_info(param1, param2, param3);
+  case SYS_MEMORY_INFO:
+    // param1 meminfo_t
+    return swi_handle_sys_memory_info(param1);
 	default:
 		// unknown syscall number
 		kernel_error(SWI_UNKNOWN_SYSCALL_NR, "Unknown syscall-number. Ignoring.");

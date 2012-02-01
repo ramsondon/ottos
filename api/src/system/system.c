@@ -174,6 +174,10 @@ void sys_receive(const char* ns, message_t *msg, int* success) {
   swi(SYS_RECEIVE, (unsigned int) ns, (unsigned int) msg, (unsigned int) success);
 }
 
+void sys_memory_info(meminfo_t* meminfo) {
+  swi(SYS_MEMORY_INFO, (unsigned int) meminfo, 0, 0);
+}
+
 char** sys_read_arguments(int* argc) {
   char** argv = NULL;
   int argc_ = 0;

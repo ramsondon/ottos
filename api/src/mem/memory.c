@@ -22,7 +22,13 @@
  */
 
 #include <stdio.h>
+#include <api/system.h>
 #include <api/memory.h>
+
+void meminfo(meminfo_t* info) {
+  sys_memory_info(info);
+}
+
 
 char* memstr(double bytes, char* buffer) {
     const char* suffix[] = { "B", "KB", "MB", "GB", "TB", "PB", "EB" };

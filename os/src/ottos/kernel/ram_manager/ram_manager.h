@@ -60,4 +60,16 @@ void ram_manager_reserve_pages(enum ram_manager_memory_type type, int first_page
 // releases pages
 void ram_manager_release_pages(enum ram_manager_memory_type type, int first_page_number, int nr_of_pages);
 
+// returns the allocated memory in INT RAM in bytes
+EXTERN double ram_manager_mem_alloc_intram();
+
+// returns the allocated memory in EXT DDR in bytes
+EXTERN double ram_manager_mem_alloc_extddr();
+
+// returns the total size of memory in INT RAM in bytes
+EXTERN double ram_manager_mem_total_intram();
+
+// returns the toal size of memory in EXT DDR in bytes
+EXTERN double ram_manager_mem_total_extddr();
+
 #endif /* RAM_MANAGER_H_ */
