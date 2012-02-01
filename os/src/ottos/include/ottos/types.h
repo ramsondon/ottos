@@ -65,6 +65,7 @@ typedef struct message_t {
 /*
  * process information struct
  */
+#define PINFO_MAX_CMD_LENGTH 100
 typedef struct pinfo_t {
     pid_t pid;            /* process pid */
     pid_t parent;
@@ -73,7 +74,7 @@ typedef struct pinfo_t {
     int prio;             /* process priority */
     uint64_t time;        /* uptime of process */
     double mem;           /* memory consumed by process */
-    const char* cmd;      /* command line pattern to start process */
+    char cmd[PINFO_MAX_CMD_LENGTH];  /* command line pattern to start process */
 } pinfo_t;
 
 

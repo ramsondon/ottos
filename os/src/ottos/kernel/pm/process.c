@@ -22,7 +22,7 @@
  */
 
 #include <stdlib.h>
-
+#include <string.h>
 #include <ottos/const.h>
 #include <ottos/drivers/driver.h>
 #include <ottos/timer.h>
@@ -333,7 +333,8 @@ unsigned int process_pinfo(pinfo_t pinfo[], int count) {
     pinfo[i].mem = process_table[i]->page_count * MMU_PAGE_SIZE;
     pinfo[i].stat = process_table[i]->state;
     pinfo[i].time = timer_system_uptime() - process_table[i]->starttime;
-    pinfo[i].cmd = process_table[i]->cmd;
+    memset(pinfo[i].cmd, 0, PINFO_MAX_CMD_LENGTH);
+    strcpy(pinfo[i].cmd, process_table[i]->cmd);
 
     c++;
   }
