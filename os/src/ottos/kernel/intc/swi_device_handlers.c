@@ -280,8 +280,11 @@ BOOLEAN swi_handle_sys_fread(process_file_descriptor_t* fd_process, char* buffer
 BOOLEAN swi_handle_sys_diropen(int path_address, int dir_stat_address, int return_value_address) {
   const char* path = (const char*) mmu_get_physical_address(process_table[process_active], path_address);
   FL_DIR* dir = (FL_DIR*) mmu_get_physical_address(process_table[process_active], dir_stat_address);
-  FL_DIR* return_value = (FL_DIR*) mmu_get_physical_address(process_table[process_active], return_value_address);
-  return_value = (FL_DIR*) fl_opendir(path, dir);
+  int* return_value = (int*) mmu_get_physical_address(process_table[process_active], return_value_address);
+  *return_value = 0;
+  if (fl_opendir(path, dir)) {
+    *return_value = 1;
+  }
   return FALSE;
 }
 

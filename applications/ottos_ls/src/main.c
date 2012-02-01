@@ -24,6 +24,7 @@
 #include "ls/ls.h"
 #include <api/system.h>
 #include <api/io.h>
+#include <api/proc.h>
 
 int main() {
 
@@ -36,6 +37,6 @@ int main() {
   }
 
   ls(argv[1]);
-
+  pexit(0);
   return 0;
 }
