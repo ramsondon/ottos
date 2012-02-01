@@ -49,6 +49,12 @@ static int system_get_device_id(const char* path) {
     return LED_1;
   } else if (strcmp(SYSTEM_VIDEO_0_PATH, path) == 0) {
     return VIDEO_0;
+  } else if (strcmp(SYSTEM_TEMP_0_PATH, path) == 0) {
+    return TEMP_0;
+  } else if (strcmp(SYSTEM_PRESSURE_0_PATH, path) == 0) {
+    return PRESSURE_0;
+  } else if (strcmp(SYSTEM_SOLAR_0_PATH, path) == 0) {
+    return SOLAR_0;
   }
   return SYSTEM_DEV_ID_INVALID;
 }
