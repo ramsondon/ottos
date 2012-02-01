@@ -145,13 +145,13 @@ void user_app_test() {
   code_bytes.byte_3 = free_byte3;
 
   process_create(1, &code_bytes, "/bin/free", 0, NULL);
-//
-//  code_bytes.byte_0 = ipcclient_byte0;
-//  code_bytes.byte_1 = ipcclient_byte1;
-//  code_bytes.byte_2 = ipcclient_byte2;
-//  code_bytes.byte_3 = ipcclient_byte3;
-//
-//  process_create(1, &code_bytes, "/bin/ipcclient", 0, NULL);
+
+  code_bytes.byte_0 = ipcclient_byte0;
+  code_bytes.byte_1 = ipcclient_byte1;
+  code_bytes.byte_2 = ipcclient_byte2;
+  code_bytes.byte_3 = ipcclient_byte3;
+
+  process_create(1, &code_bytes, "/bin/ipcclient", 0, NULL);
 //
 //  code_bytes.byte_0 = pstree_byte0;
 //  code_bytes.byte_1 = pstree_byte1;
@@ -160,12 +160,12 @@ void user_app_test() {
 //
 //  process_create(1, &code_bytes, "/bin/pstree", 0, NULL);
 
-  code_bytes.byte_0 = ipcserver_byte0;
-  code_bytes.byte_1 = ipcserver_byte1;
-  code_bytes.byte_2 = ipcserver_byte2;
-  code_bytes.byte_3 = ipcserver_byte3;
-
-  process_create(1, &code_bytes, "/bin/ipcS1", 0, NULL);
+//  code_bytes.byte_0 = ipcserver_byte0;
+//  code_bytes.byte_1 = ipcserver_byte1;
+//  code_bytes.byte_2 = ipcserver_byte2;
+//  code_bytes.byte_3 = ipcserver_byte3;
+//
+//  process_create(1, &code_bytes, "/bin/ipcS1", 0, NULL);
 
   code_bytes.byte_0 = ipcserver_byte0;
   code_bytes.byte_1 = ipcserver_byte1;
@@ -180,6 +180,14 @@ void user_app_test() {
   code_bytes.byte_3 = ps_byte3;
 
   process_create(1, &code_bytes, "/bin/ps", 0, NULL);
+
+
+  code_bytes.byte_0 = free_byte0;
+  code_bytes.byte_1 = free_byte1;
+  code_bytes.byte_2 = free_byte2;
+  code_bytes.byte_3 = free_byte3;
+
+  process_create(1, &code_bytes, "/bin/free", 0, NULL);
 
 //  code_bytes.byte_0 = ui_byte0;
 //  code_bytes.byte_1 = ui_byte1;

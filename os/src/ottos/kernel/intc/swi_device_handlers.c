@@ -30,6 +30,7 @@
 #include <ottos/types.h>
 #include <ottos/syscalls.h>
 #include <ottos/kernel.h>
+#include <ottos/memory.h>
 #include <ottos/io.h>
 #include <ottos/dev/device.h>
 #include <ottos/drivers/driver.h>
@@ -47,7 +48,7 @@ BOOLEAN swi_handle_sys_yield() {
 	return TRUE;
 }
 
-BOOLEAN swi_handle_sys_exit() {
+BOOLEAN swi_handle_sys_exit(int state) {
 	// delete the active process
 	process_delete();
 	return TRUE;
@@ -398,7 +399,8 @@ BOOLEAN swi_handle(unsigned int syscall_nr, unsigned int param1, unsigned int pa
 	case SYS_YIELD:
 		return swi_handle_sys_yield();
 	case SYS_EXIT:
-		return swi_handle_sys_exit();
+	  // param1 = exit state of the process
+		return swi_handle_sys_exit(param1);
 	case SYS_EXEC:
 		// param1 = parameters array
 		return swi_handle_sys_create(param1);
