@@ -31,7 +31,7 @@
 
 #define PSTATE_MAP_COUNT 4
 
-static const char* pstate_map[] = { "ready  ", "waiting", "running", "?      "};
+static const char* pstate_map[] = { "ready", "wait", "exec", "?"};
 
 uint32_t pcount() {
   return sys_pcount();
