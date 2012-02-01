@@ -63,8 +63,7 @@ int fatfs_init(struct fatfs *fs) {
 
   // Make sure we have a read function (write function is optional)
   if (!fs->disk_io.read_media) {
-    fatfs_debug(FAT_INIT_MEDIA_ACCESS_ERROR,
-                "FAT init media access error. No 'read' function available.\n");
+    fatfs_debug(FAT_INIT_MEDIA_ACCESS_ERROR, "FAT init media access error. No 'read' function available.\n");
     return FAT_INIT_MEDIA_ACCESS_ERROR;
   }
 
@@ -73,8 +72,7 @@ int fatfs_init(struct fatfs *fs) {
 
   // Load MBR (LBA 0) into the 512 byte buffer
   if (!fs->disk_io.read_media(0, fs->currentsector.sector, 1)) {
-    fatfs_debug(FAT_INIT_MEDIA_ACCESS_ERROR,
-                "FAT could not load MBR (LBA 0).\n");
+    fatfs_debug(FAT_INIT_MEDIA_ACCESS_ERROR, "FAT could not load MBR (LBA 0).\n");
     return FAT_INIT_MEDIA_ACCESS_ERROR;
   }
 
@@ -83,15 +81,13 @@ int fatfs_init(struct fatfs *fs) {
 
   // Make Sure 0x55 and 0xAA are at end of sector
   // (this should be the case regardless of the MBR or boot sector)
-  if (fs->currentsector.sector[SIGNATURE_POSITION] != 0x55
-      || fs->currentsector.sector[SIGNATURE_POSITION + 1] != 0xAA) {
+  if (fs->currentsector.sector[SIGNATURE_POSITION] != 0x55 || fs->currentsector.sector[SIGNATURE_POSITION + 1] != 0xAA) {
     fatfs_debug(FAT_INIT_INVALID_SIGNATURE, "FAT invalid FAT signature.\n");
     return FAT_INIT_INVALID_SIGNATURE;
   }
 
   // Now check again using the access function to prove endian conversion function
-  if (GET_16BIT_WORD(fs->currentsector.sector, SIGNATURE_POSITION)
-      != SIGNATURE_VALUE) {
+  if (GET_16BIT_WORD(fs->currentsector.sector, SIGNATURE_POSITION) != SIGNATURE_VALUE) {
     fatfs_debug(FAT_INIT_ENDIAN_ERROR, "FAT init endian error.\n");
     return FAT_INIT_ENDIAN_ERROR;
   }
@@ -116,8 +112,7 @@ int fatfs_init(struct fatfs *fs) {
       valid_partition = 0;
       break;
     default:
-      if (fs->currentsector.sector[PARTITION1_TYPECODE_LOCATION] <= 0x06)
-        valid_partition = 1;
+      if (fs->currentsector.sector[PARTITION1_TYPECODE_LOCATION] <= 0x06) valid_partition = 1;
       break;
   }
 
@@ -145,8 +140,7 @@ int fatfs_init(struct fatfs *fs) {
   // Make sure there are 512 bytes per cluster
   if (GET_16BIT_WORD(fs->currentsector.sector, 0x0B) != FAT_SECTOR_SIZE) {
     char buffer[1024];
-    sprintf(buffer, "FAT wrong sector size %d, should be %d\n",
-            GET_16BIT_WORD(fs->currentsector.sector, 0x0B), FAT_SECTOR_SIZE);
+    sprintf(buffer, "FAT wrong sector size %d, should be %d\n", GET_16BIT_WORD(fs->currentsector.sector, 0x0B), FAT_SECTOR_SIZE);
     fatfs_show_details(fs);
     fatfs_debug(FAT_INIT_INVALID_SECTOR_SIZE, buffer);
     return FAT_INIT_INVALID_SECTOR_SIZE;
@@ -174,8 +168,7 @@ int fatfs_init(struct fatfs *fs) {
 
   // For FAT16 (which this may be), rootdir_first_cluster is actuall rootdir_first_sector
   fs->rootdir_first_sector = reserved_sectors + (num_of_fats * fs->fat_sectors);
-  fs->rootdir_sectors = ((fs->root_entry_count * 32) + (FAT_SECTOR_SIZE - 1))
-      / FAT_SECTOR_SIZE;
+  fs->rootdir_sectors = ((fs->root_entry_count * 32) + (FAT_SECTOR_SIZE - 1)) / FAT_SECTOR_SIZE;
 
   // First FAT LBA address
   fs->fat_begin_lba = fs->lba_begin + reserved_sectors;
@@ -190,12 +183,10 @@ int fatfs_init(struct fatfs *fs) {
   }
 
   // Calculate the root dir sectors
-  root_dir_sectors = ((GET_16BIT_WORD(fs->currentsector.sector, BPB_ROOTENTCNT)
-      * 32) + (GET_16BIT_WORD(fs->currentsector.sector, BPB_BYTSPERSEC) - 1))
-      / GET_16BIT_WORD(fs->currentsector.sector, BPB_BYTSPERSEC);
+  root_dir_sectors = ((GET_16BIT_WORD(fs->currentsector.sector, BPB_ROOTENTCNT) * 32)
+      + (GET_16BIT_WORD(fs->currentsector.sector, BPB_BYTSPERSEC) - 1)) / GET_16BIT_WORD(fs->currentsector.sector, BPB_BYTSPERSEC);
 
-  if (GET_16BIT_WORD(fs->currentsector.sector, BPB_FATSZ16) != 0) FATSz
-      = GET_16BIT_WORD(fs->currentsector.sector, BPB_FATSZ16);
+  if (GET_16BIT_WORD(fs->currentsector.sector, BPB_FATSZ16) != 0) FATSz = GET_16BIT_WORD(fs->currentsector.sector, BPB_FATSZ16);
   else FATSz = GET_32BIT_WORD(fs->currentsector.sector, BPB_FAT32_FATSZ32);
 
   if (GET_16BIT_WORD(fs->currentsector.sector, BPB_TOTSEC16) != 0) {
@@ -205,10 +196,7 @@ int fatfs_init(struct fatfs *fs) {
   }
 
   data_sectors = total_sectors - (GET_16BIT_WORD(fs->currentsector.sector,
-      BPB_RSVDSECCNT) + (fs->currentsector.sector[BPB_NUMFATS] * FATSz)
-      + root_dir_sectors);
-
-
+      BPB_RSVDSECCNT) + (fs->currentsector.sector[BPB_NUMFATS] * FATSz) + root_dir_sectors);
 
   // Find out which version of FAT this is...
   if (fs->sectors_per_cluster != 0) {
@@ -234,8 +222,7 @@ int fatfs_init(struct fatfs *fs) {
       return FAT_INIT_OK;
     }
   } else {
-    fatfs_debug(FAT_INIT_WRONG_FILESYS_TYPE,
-                "FAT init failed, wrong FILESYS_TYPE.\n");
+    fatfs_debug(FAT_INIT_WRONG_FILESYS_TYPE, "FAT init failed, wrong FILESYS_TYPE.\n");
     return FAT_INIT_WRONG_FILESYS_TYPE;
   }
 }
@@ -244,11 +231,9 @@ int fatfs_init(struct fatfs *fs) {
 // LBA number.
 //-----------------------------------------------------------------------------
 uint32 fatfs_lba_of_cluster(struct fatfs *fs, uint32 Cluster_Number) {
-  if (fs->fat_type == FAT_TYPE_16) return (fs->cluster_begin_lba
-      + (fs->root_entry_count * 32 / FAT_SECTOR_SIZE) + ((Cluster_Number - 2)
+  if (fs->fat_type == FAT_TYPE_16) return (fs->cluster_begin_lba + (fs->root_entry_count * 32 / FAT_SECTOR_SIZE) + ((Cluster_Number - 2)
       * fs->sectors_per_cluster));
-  else return ((fs->cluster_begin_lba + ((Cluster_Number - 2)
-      * fs->sectors_per_cluster)));
+  else return ((fs->cluster_begin_lba + ((Cluster_Number - 2) * fs->sectors_per_cluster)));
 }
 //-----------------------------------------------------------------------------
 // fatfs_sector_read: 
@@ -259,16 +244,14 @@ int fatfs_sector_read(struct fatfs *fs, uint32 lba, uint8 *target, uint32 count)
 //-----------------------------------------------------------------------------
 // fatfs_sector_write: 
 //-----------------------------------------------------------------------------
-int fatfs_sector_write(struct fatfs *fs, uint32 lba, uint8 *target,
-                       uint32 count) {
+int fatfs_sector_write(struct fatfs *fs, uint32 lba, uint8 *target, uint32 count) {
   return fs->disk_io.write_media(lba, target, count);
 }
 //-----------------------------------------------------------------------------
 // fatfs_sector_reader: From the provided startcluster and sector offset
 // Returns True if success, returns False if not (including if read out of range)
 //-----------------------------------------------------------------------------
-int fatfs_sector_reader(struct fatfs *fs, uint32 start_cluster, uint32 offset,
-                        uint8 *target) {
+int fatfs_sector_reader(struct fatfs *fs, uint32 start_cluster, uint32 offset, uint8 *target) {
   uint32 sector_to_read = 0;
   uint32 cluster_to_read = 0;
   uint32 cluster_chain = 0;
@@ -277,8 +260,7 @@ int fatfs_sector_reader(struct fatfs *fs, uint32 start_cluster, uint32 offset,
 
   // FAT16 Root directory
   if (fs->fat_type == FAT_TYPE_16 && start_cluster == 0) {
-    if (offset < fs->rootdir_sectors) lba = fs->lba_begin
-        + fs->rootdir_first_sector + offset;
+    if (offset < fs->rootdir_sectors) lba = fs->lba_begin + fs->rootdir_first_sector + offset;
     else return 0;
   }
   // FAT16/32 Other
@@ -306,23 +288,20 @@ int fatfs_sector_reader(struct fatfs *fs, uint32 start_cluster, uint32 offset,
   // Else read sector if not already loaded
   else if (lba != fs->currentsector.address) {
     fs->currentsector.address = lba;
-    return fs->disk_io.read_media(fs->currentsector.address,
-                                  fs->currentsector.sector, 1);
+    return fs->disk_io.read_media(fs->currentsector.address, fs->currentsector.sector, 1);
   } else return 1;
 }
 //-----------------------------------------------------------------------------
 // fatfs_read_sector: Read from the provided cluster and sector offset
 // Returns True if success, returns False if not 
 //-----------------------------------------------------------------------------
-int fatfs_read_sector(struct fatfs *fs, uint32 cluster, uint32 sector,
-                      uint8 *target) {
+int fatfs_read_sector(struct fatfs *fs, uint32 cluster, uint32 sector, uint8 *target) {
   // FAT16 Root directory
   if (fs->fat_type == FAT_TYPE_16 && cluster == 0) {
     uint32 lba;
 
     // In FAT16, there are a limited amount of sectors in root dir!
-    if (sector < fs->rootdir_sectors) lba = fs->lba_begin
-        + fs->rootdir_first_sector + sector;
+    if (sector < fs->rootdir_sectors) lba = fs->lba_begin + fs->rootdir_first_sector + sector;
     else return 0;
 
     // User target buffer passed in
@@ -334,8 +313,7 @@ int fatfs_read_sector(struct fatfs *fs, uint32 cluster, uint32 sector,
       fs->currentsector.address = lba;
 
       // Read from disk
-      return fs->disk_io.read_media(fs->currentsector.address,
-                                    fs->currentsector.sector, 1);
+      return fs->disk_io.read_media(fs->currentsector.address, fs->currentsector.sector, 1);
     }
   }
   // FAT16/32 Other
@@ -352,8 +330,7 @@ int fatfs_read_sector(struct fatfs *fs, uint32 cluster, uint32 sector,
       fs->currentsector.address = fatfs_lba_of_cluster(fs, cluster) + sector;
 
       // Read from disk
-      return fs->disk_io.read_media(fs->currentsector.address,
-                                    fs->currentsector.sector, 1);
+      return fs->disk_io.read_media(fs->currentsector.address, fs->currentsector.sector, 1);
     }
   }
 }
@@ -362,8 +339,7 @@ int fatfs_read_sector(struct fatfs *fs, uint32 cluster, uint32 sector,
 // Returns True if success, returns False if not 
 //-----------------------------------------------------------------------------
 #if FATFS_INC_WRITE_SUPPORT
-int fatfs_write_sector(struct fatfs *fs, uint32 cluster, uint32 sector,
-                       uint8 *target) {
+int fatfs_write_sector(struct fatfs *fs, uint32 cluster, uint32 sector, uint8 *target) {
   // No write access?
   if (!fs->disk_io.write_media) return 0;
 
@@ -372,8 +348,7 @@ int fatfs_write_sector(struct fatfs *fs, uint32 cluster, uint32 sector,
     uint32 lba;
 
     // In FAT16 we cannot extend the root dir!
-    if (sector < fs->rootdir_sectors) lba = fs->lba_begin
-        + fs->rootdir_first_sector + sector;
+    if (sector < fs->rootdir_sectors) lba = fs->lba_begin + fs->rootdir_first_sector + sector;
     else return 0;
 
     // User target buffer passed in
@@ -385,8 +360,7 @@ int fatfs_write_sector(struct fatfs *fs, uint32 cluster, uint32 sector,
       fs->currentsector.address = lba;
 
       // Write to disk
-      return fs->disk_io.write_media(fs->currentsector.address,
-                                     fs->currentsector.sector, 1);
+      return fs->disk_io.write_media(fs->currentsector.address, fs->currentsector.sector, 1);
     }
   }
   // FAT16/32 Other
@@ -403,8 +377,7 @@ int fatfs_write_sector(struct fatfs *fs, uint32 cluster, uint32 sector,
       fs->currentsector.address = fatfs_lba_of_cluster(fs, cluster) + sector;
 
       // Write to disk
-      return fs->disk_io.write_media(fs->currentsector.address,
-                                     fs->currentsector.sector, 1);
+      return fs->disk_io.write_media(fs->currentsector.address, fs->currentsector.sector, 1);
     }
   }
 }
@@ -434,8 +407,7 @@ uint32 fatfs_get_root_cluster(struct fatfs *fs) {
 //-------------------------------------------------------------
 // fatfs_get_file_entry: Find the file entry for a filename
 //-------------------------------------------------------------
-uint32 fatfs_get_file_entry(struct fatfs *fs, uint32 Cluster,
-                            char *name_to_find, struct fat_dir_entry *sfEntry) {
+uint32 fatfs_get_file_entry(struct fatfs *fs, uint32 Cluster, char *name_to_find, struct fat_dir_entry *sfEntry) {
   uint8 item = 0;
   uint16 recordoffset = 0;
   uint8 i = 0;
@@ -459,20 +431,14 @@ uint32 fatfs_get_file_entry(struct fatfs *fs, uint32 Cluster,
         recordoffset = FAT_DIR_ENTRY_SIZE * item;
 
         // Overlay directory entry over buffer
-        directoryEntry = (struct fat_dir_entry*) (fs->currentsector.sector
-            + recordoffset);
+        directoryEntry = (struct fat_dir_entry*) (fs->currentsector.sector + recordoffset);
 
 #if FATFS_INC_LFN_SUPPORT
         // Long File Name Text Found
-        if (fatfs_entry_lfn_text(directoryEntry)) fatfs_lfn_cache_entry(
-                                                                        &lfn,
-                                                                        fs->currentsector.sector
-                                                                            + recordoffset);
+        if (fatfs_entry_lfn_text(directoryEntry)) fatfs_lfn_cache_entry(&lfn, fs->currentsector.sector + recordoffset);
 
         // If Invalid record found delete any long file name information collated
-        else if (fatfs_entry_lfn_invalid(directoryEntry)) fatfs_lfn_cache_init(
-                                                                               &lfn,
-                                                                               0);
+        else if (fatfs_entry_lfn_invalid(directoryEntry)) fatfs_lfn_cache_init(&lfn, 0);
 
         // Normal SFN Entry and Long text exists
         else if (fatfs_entry_lfn_exists(&lfn, directoryEntry)) {
@@ -545,8 +511,7 @@ int fatfs_sfn_exists(struct fatfs *fs, uint32 Cluster, char *shortname) {
         recordoffset = FAT_DIR_ENTRY_SIZE * item;
 
         // Overlay directory entry over buffer
-        directoryEntry = (struct fat_dir_entry*) (fs->currentsector.sector
-            + recordoffset);
+        directoryEntry = (struct fat_dir_entry*) (fs->currentsector.sector + recordoffset);
 
 #if FATFS_INC_LFN_SUPPORT
         // Long File Name Text Found
@@ -558,8 +523,7 @@ int fatfs_sfn_exists(struct fatfs *fs, uint32 Cluster, char *shortname) {
 #endif
         // Normal Entry, only 8.3 Text
         if (fatfs_entry_sfn_only(directoryEntry)) {
-          if (strncmp((const char*) directoryEntry->Name, shortname, 11) == 0)
-            return 1;
+          if (strncmp((const char*) directoryEntry->Name, shortname, 11) == 0) return 1;
         }
       } // End of if
     } else break;
@@ -573,8 +537,7 @@ int fatfs_sfn_exists(struct fatfs *fs, uint32 Cluster, char *shortname) {
 // NOTE: shortname is XXXXXXXXYYY not XXXXXXXX.YYY
 //-------------------------------------------------------------
 #if FATFS_INC_WRITE_SUPPORT
-int fatfs_update_file_length(struct fatfs *fs, uint32 Cluster, char *shortname,
-                             uint32 fileLength) {
+int fatfs_update_file_length(struct fatfs *fs, uint32 Cluster, char *shortname, uint32 fileLength) {
   uint8 item = 0;
   uint16 recordoffset = 0;
   int x = 0;
@@ -594,8 +557,7 @@ int fatfs_update_file_length(struct fatfs *fs, uint32 Cluster, char *shortname,
         recordoffset = FAT_DIR_ENTRY_SIZE * item;
 
         // Overlay directory entry over buffer
-        directoryEntry = (struct fat_dir_entry*) (fs->currentsector.sector
-            + recordoffset);
+        directoryEntry = (struct fat_dir_entry*) (fs->currentsector.sector + recordoffset);
 
 #if FATFS_INC_LFN_SUPPORT
         // Long File Name Text Found
@@ -613,12 +575,10 @@ int fatfs_update_file_length(struct fatfs *fs, uint32 Cluster, char *shortname,
             // TODO: Update last write time
 
             // Update sfn entry
-            memcpy((uint8*) (fs->currentsector.sector + recordoffset),
-                   (uint8*) directoryEntry, sizeof(struct fat_dir_entry));
+            memcpy((uint8*) (fs->currentsector.sector + recordoffset), (uint8*) directoryEntry, sizeof(struct fat_dir_entry));
 
             // Write sector back
-            return fs->disk_io.write_media(fs->currentsector.address,
-                                           fs->currentsector.sector, 1);
+            return fs->disk_io.write_media(fs->currentsector.address, fs->currentsector.sector, 1);
           }
         }
       } // End of if
@@ -653,8 +613,7 @@ int fatfs_mark_file_deleted(struct fatfs *fs, uint32 Cluster, char *shortname) {
         recordoffset = FAT_DIR_ENTRY_SIZE * item;
 
         // Overlay directory entry over buffer
-        directoryEntry = (struct fat_dir_entry*) (fs->currentsector.sector
-            + recordoffset);
+        directoryEntry = (struct fat_dir_entry*) (fs->currentsector.sector + recordoffset);
 
 #if FATFS_INC_LFN_SUPPORT
         // Long File Name Text Found
@@ -672,12 +631,10 @@ int fatfs_mark_file_deleted(struct fatfs *fs, uint32 Cluster, char *shortname) {
             directoryEntry->Name[0] = FILE_HEADER_DELETED;
 
             // Update sfn entry
-            memcpy((uint8*) (fs->currentsector.sector + recordoffset),
-                   (uint8*) directoryEntry, sizeof(struct fat_dir_entry));
+            memcpy((uint8*) (fs->currentsector.sector + recordoffset), (uint8*) directoryEntry, sizeof(struct fat_dir_entry));
 
             // Write sector back
-            return fs->disk_io.write_media(fs->currentsector.address,
-                                           fs->currentsector.sector, 1);
+            return fs->disk_io.write_media(fs->currentsector.address, fs->currentsector.sector, 1);
           }
         }
       } // End of if
@@ -691,9 +648,7 @@ int fatfs_mark_file_deleted(struct fatfs *fs, uint32 Cluster, char *shortname) {
 // fatfs_list_directory_start: Initialise a directory listing procedure
 //-----------------------------------------------------------------------------
 #if FATFS_DIR_LIST_SUPPORT
-void fatfs_list_directory_start(struct fatfs *fs,
-                                struct fs_dir_list_status *dirls,
-                                uint32 StartCluster) {
+void fatfs_list_directory_start(struct fatfs *fs, struct fs_dir_list_status *dirls, uint32 StartCluster) {
   dirls->cluster = StartCluster;
   dirls->sector = 0;
   dirls->offset = 0;
@@ -704,9 +659,7 @@ void fatfs_list_directory_start(struct fatfs *fs,
 // Returns: 1 = found, 0 = end of listing
 //-----------------------------------------------------------------------------
 #if FATFS_DIR_LIST_SUPPORT
-int fatfs_list_directory_next(struct fatfs *fs,
-                              struct fs_dir_list_status *dirls,
-                              struct fs_dir_ent *entry) {
+int fatfs_list_directory_next(struct fatfs *fs, struct fs_dir_list_status *dirls, struct fs_dir_ent *entry) {
   uint8 i, item;
   uint16 recordoffset;
   uint8 LFNIndex = 0;
@@ -732,20 +685,14 @@ int fatfs_list_directory_next(struct fatfs *fs,
         recordoffset = FAT_DIR_ENTRY_SIZE * item;
 
         // Overlay directory entry over buffer
-        directoryEntry = (struct fat_dir_entry*) (fs->currentsector.sector
-            + recordoffset);
+        directoryEntry = (struct fat_dir_entry*) (fs->currentsector.sector + recordoffset);
 
 #if FATFS_INC_LFN_SUPPORT
         // Long File Name Text Found
-        if (fatfs_entry_lfn_text(directoryEntry)) fatfs_lfn_cache_entry(
-                                                                        &lfn,
-                                                                        fs->currentsector.sector
-                                                                            + recordoffset);
+        if (fatfs_entry_lfn_text(directoryEntry)) fatfs_lfn_cache_entry(&lfn, fs->currentsector.sector + recordoffset);
 
         // If Invalid record found delete any long file name information collated
-        else if (fatfs_entry_lfn_invalid(directoryEntry)) fatfs_lfn_cache_init(
-                                                                               &lfn,
-                                                                               0);
+        else if (fatfs_entry_lfn_invalid(directoryEntry)) fatfs_lfn_cache_init(&lfn, 0);
 
         // Normal SFN Entry and Long text exists
         else if (fatfs_entry_lfn_exists(&lfn, directoryEntry)) {
@@ -757,8 +704,7 @@ int fatfs_list_directory_next(struct fatfs *fs,
           else entry->is_dir = 0;
 
           entry->size = FAT_HTONL(directoryEntry->FileSize);
-          entry->cluster = (FAT_HTONS(directoryEntry->FstClusHI) << 16)
-              | FAT_HTONS(directoryEntry->FstClusLO);
+          entry->cluster = (FAT_HTONS(directoryEntry->FstClusHI) << 16) | FAT_HTONS(directoryEntry->FstClusLO);
 
           // Next starting position
           dirls->offset = item + 1;
@@ -797,8 +743,7 @@ int fatfs_list_directory_next(struct fatfs *fs,
           else entry->is_dir = 0;
 
           entry->size = FAT_HTONL(directoryEntry->FileSize);
-          entry->cluster = (FAT_HTONS(directoryEntry->FstClusHI) << 16)
-              | FAT_HTONS(directoryEntry->FstClusLO);
+          entry->cluster = (FAT_HTONS(directoryEntry->FstClusHI) << 16) | FAT_HTONS(directoryEntry->FstClusLO);
 
           // Next starting position
           dirls->offset = item + 1;
