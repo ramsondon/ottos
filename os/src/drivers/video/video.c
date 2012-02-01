@@ -23,6 +23,8 @@
 
 #include "../../hal/platform.h"
 #include "video.h"
+#include "drawer.h"
+#include "../ottos/kernel/mmu/mmu.h"
 
 #include <ottos/error.h>
 #include <ottos/memory.h>
@@ -30,7 +32,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-static FRAME_BUFFER* video_framebuffer = NULL;
+
+static RastPort* video_rast_port = NULL;
+static BitMap* video_bit_map = NULL;
 
 // Master clock is 864 Mhz, and changing it is a pita since it cascades to other
 // devices.
@@ -181,7 +185,7 @@ found:
 // set a bitmap on the given video source
 // id: 0 = gfx, 1 = vid1, 2 = vid2
 // id: (1<<8) = set digital (tv) out
-void video_attach_framebuffer(int id, FRAME_BUFFER *bm) {
+void video_attach_framebuffer(int id, BitMap* bm) {
   uint32_t vheight, vwidth, dheight, dwidth, pos, gsize;
   uint32_t vsize, attr = 0;
   uint32_t rowinc = 1;
@@ -257,17 +261,27 @@ void video_attach_framebuffer(int id, FRAME_BUFFER *bm) {
 
 
 int video_open(device_t dev) {
-  if (video_framebuffer != NULL) {
+  if (video_rast_port != NULL) {
     // the video module is already initialized
-    return DRIVER_ERROR_CANNOT_OPEN;
+    return DRIVER_NO_ERROR;
   }
 
-  video_framebuffer = (FRAME_BUFFER*)malloc(sizeof(FRAME_BUFFER));
-  video_framebuffer->width = VIDEO_RESOLUTION_WIDTH;
-  video_framebuffer->height = VIDEO_RESOLUTION_HEIGHT;
-  video_framebuffer->format = BM_RGB16;
-  video_framebuffer->stride = video_framebuffer->width * 2;
-  video_framebuffer->data = (void*)malloc(VIDEO_RESOLUTION_HEIGHT*VIDEO_RESOLUTION_HEIGHT*4);
+  // initialize BitMap struct
+  video_bit_map = (BitMap*)malloc(sizeof(BitMap));
+  video_bit_map->width = VIDEO_RESOLUTION_WIDTH;
+  video_bit_map->height = VIDEO_RESOLUTION_HEIGHT;
+  video_bit_map->format = BM_RGB16;
+  video_bit_map->stride = VIDEO_RESOLUTION_WIDTH * 2;
+  video_bit_map->data = (void*)malloc(VIDEO_RESOLUTION_HEIGHT*VIDEO_RESOLUTION_WIDTH*4);
+
+  // initialize RastPort struct
+  video_rast_port = (RastPort*)malloc(sizeof(RastPort));
+  video_rast_port->x = 0;
+  video_rast_port->y = 0;
+  video_rast_port->point = video_bit_map->data;
+  video_rast_port->color = 0x00000000;
+  video_rast_port->font.romfont = (RomFont*) &drawer_font_misc_fixed;
+  video_rast_port->drawable.bitmap = video_bit_map;
 
   MMIO_WRITE32(DISPC_IRQENABLE, 0x00000);
   MMIO_WRITE32(DISPC_IRQSTATUS, 0x1ffff);
@@ -284,7 +298,7 @@ int video_open(device_t dev) {
 
 
   // TODO (go.goflo@gmail.com) --> video_attach_framebuffer(0, bitmap)
-  video_attach_framebuffer(0, video_framebuffer);
+  video_attach_framebuffer(0, video_bit_map);
 
   return DRIVER_NO_ERROR;
 }
@@ -292,17 +306,41 @@ int video_open(device_t dev) {
 
 int video_close(device_t dev) {
   // free memory
-  free(video_framebuffer->data);
-  free(video_framebuffer);
-  video_framebuffer = NULL;
+  free(video_bit_map->data);
+  free(video_bit_map);
+  free(video_rast_port);
+  video_bit_map = NULL;
+  video_rast_port = NULL;
 
   return TRUE;
 }
 
 int video_write(device_t dev, int count, char* buffer) {
-  // TODO (go.goflo@gmail.com) --> implement video_write()
-  // memcopy --> given buffer into framebuffer
-  memcpy(video_framebuffer->data, buffer, count);
+  GRAPHIC_ELEMENT* g = (GRAPHIC_ELEMENT*)buffer;
+
+  switch(g->id) {
+  case GRAPHIC_ELEMENT_PIXEL:
+    drawer_draw_pixel(video_rast_port, g->rgb_color, g->x, g->y);
+    break;
+  case GRAPHIC_ELEMENT_LINE:
+    drawer_draw_line(video_rast_port, g->rgb_color, g->x, g->y, g->p1, g->p2);
+    break;
+  case GRAPHIC_ELEMENT_RECTANGLE:
+    drawer_draw_rect(video_rast_port, g->rgb_color, g->x, g->y, g->p1, g->p2);
+    break;
+  case GRAPHIC_ELEMENT_ELLIPSE:
+    drawer_draw_ellipse(video_rast_port, g->rgb_color, g->x, g->y, g->p1, g->p2);
+    break;
+  case GRAPHIC_ELEMENT_STRING:
+    drawer_draw_string(video_rast_port, g->rgb_color, g->x, g->y,
+                      (char*)mmu_get_physical_address(process_table[process_active], g->text),
+                      g->p1);
+    break;
+  default:
+    // do nothing
+    return DRIVER_ERROR_NOT_SUPPORTED;
+  }
+
   return count;
 }
 

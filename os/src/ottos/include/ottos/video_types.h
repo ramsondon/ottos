@@ -1,6 +1,6 @@
-/* video_test.h
+/* video_types.h
  *
- * Copyright (c) 2011 The ottos project.
+ * Copyright (c) 2011 The ottos_os project.
  *
  * This work is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,22 +17,43 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 11.01.2012
+ *  Created on: 30.01.2012
  *      Author: Florian Gopp (go.goflo@gmail.com)
  */
 
-#ifndef VIDEO_TEST_H_
-#define VIDEO_TEST_H_
+#ifndef VIDEO_TYPES_H_
+#define VIDEO_TYPES_H_
 
-#include <ottos/const.h>
+typedef struct {
+    union {
+      unsigned short hour;
+      unsigned short minute;
+      unsigned short second;
+    } timestamp;
 
-#define RES_WIDTH 1024
-#define RES_HEIGHT 768
-#define WIDTH  1024
-#define HEIGHT 768
+    int data;
+} GRAPH_DATA;
 
-EXTERN void video_test();
-EXTERN void video_bmp_test_file();
-EXTERN void video_bmp_test_array();
+typedef struct {
+    int id;
+    int x;
+    int y;
+    unsigned int rgb_color;
+    int p1;
+    int p2;
+    int p3;
+    unsigned int text;
+} GRAPHIC_ELEMENT;
 
-#endif /* VIDEO_TEST_H_ */
+
+#define GRAPHIC_ELEMENT_PIXEL      0
+#define GRAPHIC_ELEMENT_LINE       1
+#define GRAPHIC_ELEMENT_RECTANGLE  2
+#define GRAPHIC_ELEMENT_ELLIPSE    3
+#define GRAPHIC_ELEMENT_STRING     4
+
+
+#define RESOLUTION_HEIGHT   768
+#define RESOLUTION_WIDTH    1024
+
+#endif /* VIDEO_TYPES_H_ */

@@ -21,16 +21,40 @@
 // *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
 // */
 
+#include <stdio.h>
+#include <api/system.h>
 #include <api/led.h>
+#include <api/io.h>
 
 int main() {
 
-	int i = 0;
-	for(i = 0;;i++) {
-		if(i % 100000 == 0) {
-			led_toggle(LED_2);
-		}
-	}
+  int argc = 0;
+  char** argv = sys_read_arguments(&argc);
 
-	return 0;
+  if (argc < 2) {
+    print("usage: ottos_led [led_number]\r\n");
+    sys_exit();
+  } else {
+
+    int led_number = argv[1][0] - '0';
+    char buffer[100] = {0};
+    sprintf(buffer, "led_number: string:%s int:%d\r\n", argv[1], led_number);
+    print(buffer);
+
+    if (led_number < 0 || led_number > 2) {
+      print("led_number value must be 1 or 2\r\n");
+      sys_exit();
+    } else {
+      int i = 0;
+      led_t led = (led_t) led_number;
+
+      for (i = 0;; i++) {
+        if (i % 100000 == 0) {
+          led_toggle(led);
+        }
+      }
+    }
+  }
+
+  return 0;
 }
