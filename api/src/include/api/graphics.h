@@ -41,7 +41,7 @@
 EXTERN void graphics_draw_pixel(unsigned int rgb, int x, int y);
 EXTERN void graphics_draw_ellipse(unsigned int rgb, int x, int y, int a, int b);
 EXTERN void graphics_draw_rect(unsigned int rgb, int x, int y, int w, int h);
-EXTERN void graphics_draw_line(unsigned int rgb, int x, int y, int x_end, int y_end, int width);
+EXTERN void graphics_draw_line(unsigned int rgb, int x, int y, int x_end, int y_end);
 EXTERN void graphics_draw_string(unsigned int rgb, int x, int y, const char* s, int scale);
 
 //EXTERN void graphics_draw_graph(GRAPH_DATA* data, int length, int timespan, int height, int width,

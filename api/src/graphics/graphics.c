@@ -96,7 +96,7 @@ void graphics_draw_rect(unsigned int rgb, int x, int y, int w, int h) {
 }
 
 void graphics_draw_line(unsigned int rgb, int x_start,
-                        int y_start, int x_end, int y_end, int width) {
+                        int y_start, int x_end, int y_end) {
   GRAPHIC_ELEMENT* graphic = NULL;
   int fd = sys_open(SYSTEM_VIDEO_0_PATH, SYSTEM_FLAG_WRITE);
   if (fd != SYSTEM_FD_INVALID) {

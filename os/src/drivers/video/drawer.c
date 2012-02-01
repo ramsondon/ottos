@@ -46,9 +46,10 @@ void drawer_draw_pixel(RastPort *rp, unsigned int color, int x, int y) {
 
 void drawer_draw_rect(RastPort *rp, unsigned int color, int x, int y, int w, int h) {
   int i, j;
-  unsigned short *outp = rp->point;
+  unsigned short *outp;
 
   drawer_move_to(rp, x, y);
+  outp = rp->point;
 
   if (w + rp->x > rp->drawable.bitmap->width) {
     w = rp->drawable.bitmap->width - rp->x;
@@ -90,6 +91,101 @@ void drawer_draw_ellipse(RastPort *rp, unsigned int color, int x, int y, int a, 
     drawer_draw_line(rp, color, x - dx, y, x + dx, y);
   }
 }
+
+// see: http://de.wikipedia.org/wiki/Bresenham-Algorithmus
+void drawer_draw_line(RastPort *rp, unsigned int color, int x, int y, int x_end, int y_end) {
+  int dx = abs(x_end - x);
+  int dy = -abs(y_end - y);
+  int sy = -1, sx = -1, e2;
+  int err = dx + dy;
+
+  // go to start point
+  drawer_move_to(rp, x, y);
+  drawer_set_color(rp, color);
+
+  if (y < y_end) {
+    sy = 1;
+  }
+  if (x < x_end) {
+    sx = 1;
+  }
+
+  for(;;){
+    drawer_move_to(rp, x, y);
+    // set pixel
+    *((unsigned short *) rp->point) = rp->color;
+    if (x == x_end && y == y_end) {
+      break;
+    }
+
+    e2 = 2*err;
+
+    if (e2 > dy) {
+      err += dy;
+      x += sx;
+    }
+
+    if (e2 < dx) {
+      err += dx;
+      y += sy;
+    }
+  }
+}
+
+static void drawer_draw_char(RastPort *rp, unsigned int c, int scale) {
+  int i, j, s;
+  int w, h;
+  unsigned short *outp;
+  unsigned const char *inp;
+
+  // check if character is valid for the used font
+  if (c < rp->font.romfont->first || c > rp->font.romfont->last) {
+    return;
+  }
+
+  // get dimension of character
+  w = rp->font.romfont->width;
+  h = rp->font.romfont->height;
+  c = (c - rp->font.romfont->first) * w;
+  outp = ((unsigned short *)rp->point) - rp->font.romfont->baseline*scale*rp->drawable.bitmap->stride;
+  inp = rp->font.romfont->bitmap + c;
+
+  for (j=0;j<h;j++) {
+    for (s=0;s<scale;s++)  {
+      for (i=0;i<w*scale;i++) {
+        unsigned int b = inp[i/scale];
+        if (b) {
+          outp[i] = rp->color;
+        }
+      }
+      outp = (unsigned short *)((char *)outp + rp->drawable.bitmap->stride);
+    }
+    inp += rp->font.romfont->stride;
+  }
+
+  rp->point = ((unsigned short *)rp->point) + w*scale;
+  rp->x += w*scale;
+}
+
+void drawer_draw_string(RastPort *rp, unsigned int color, int x, int y, const char *s, int len, int scale) {
+  unsigned int c;
+
+  drawer_move_to(rp, x, y);
+  drawer_set_color(rp, color);
+
+  while ((c = *s++)) {
+    if (c == '\n') {
+      if (y + 20 > rp->drawable.bitmap->height*scale) {
+        drawer_move_to(rp, x, 20);
+      } else {
+        drawer_move_to(rp, x, y + rp->font.romfont->lineheight*scale);
+      }
+    } else {
+      drawer_draw_char(rp, c, scale);
+    }
+  }
+}
+
 
 /*
 void drawer_draw_graph(RastPort *rp, GRAPH_DATA* data, int length, int timespan, int height, int width,
@@ -165,118 +261,26 @@ void drawer_draw_graph(RastPort *rp, GRAPH_DATA* data, int length, int timespan,
 }
 */
 
-// see: http://de.wikipedia.org/wiki/Bresenham-Algorithmus
-void drawer_draw_line(RastPort *rp, unsigned int color, int x, int y, int x_end, int y_end) {
-  int dx = abs(x_end - x);
-  int dy = -abs(y_end - y);
-  int sy = -1, sx = -1, e2;
-  int err = dx + dy;
+/*
+void drawer_draw_picture(int x, int y, BITMAP_HEADER* bmp_header, RGBA* data) {
+  int w, l;
+  int curX = x;
+  int curY = y;
+  RGBA* curPixel = data;
 
-  // go to start point
-  drawer_move_to(rp, x, y);
-  drawer_set_color(rp, color);
+  drawer_move_to(drawer_rastport, curX, curY);
 
-  if (y < y_end) {
-    sy = 1;
-  }
-  if (x < x_end) {
-    sx = 1;
-  }
-
-  for(;;){
-    drawer_move_to(rp, x, y);
-    // set pixel
-    *((unsigned short *) rp->point) = rp->color;
-    if (x == x_end && y == y_end) {
-      break;
+  for (l = 0; l < bmp_header->height; l++) {
+    curX = x;
+    for (w = 0; w < bmp_header->width; w++) {
+      drawer_set_color(drawer_rastport, (curPixel->Red << 6) | (curPixel->Green << 4) | (curPixel->Blue << 2));
+      drawer_move_to(drawer_rastport, curX, curY);
+      drawer_draw_pixel(drawer_rastport);
+      curPixel++;
+      curX++;
     }
 
-    e2 = 2*err;
-
-    if (e2 > dy) {
-      err += dy;
-      x += sx;
-    }
-
-    if (e2 < dx) {
-      err += dx;
-      y += sy;
-    }
+    curY++;
   }
 }
-
-static void drawer_draw_char(RastPort *rp, unsigned int c, int scale) {
-  int i, j, s;
-  int w, h;
-  unsigned short *outp;
-  unsigned int colour = rp->color;
-  unsigned const char *inp;
-
-  // check if character is valid for the used font
-  if (c < rp->font.romfont->first || c > rp->font.romfont->last) {
-    return;
-  }
-
-  // get dimension of character
-  w = rp->font.romfont->width;
-  h = rp->font.romfont->height;
-  c = (c - rp->font.romfont->first) * w;
-  outp = ((unsigned short *)rp->point) - rp->font.romfont->baseline*scale*rp->drawable.bitmap->stride;
-  inp = rp->font.romfont->bitmap + c;
-
-  for (j=0;j<h;j++) {
-    for (s=0;s<scale;s++)  {
-      for (i=0;i<w*scale;i++) {
-        unsigned int b = inp[i/scale];
-        if (b) {
-          outp[i] = colour;
-        }
-      }
-      outp = (unsigned short *)((char *)outp + rp->drawable.bitmap->stride);
-    }
-    inp += rp->font.romfont->stride;
-  }
-
-  rp->point = ((unsigned short *)rp->point) + w*scale;
-  rp->x += w*scale;
-}
-
-void drawer_draw_string(RastPort *rp, unsigned int color, int x, int y, const char *s, int len, int scale) {
-  unsigned int c;
-
-  drawer_move_to(rp, x, y);
-
-  while ((c = *s++)) {
-    if (c == '\n') {
-      if (y + 20 > rp->drawable.bitmap->height*scale) {
-        drawer_move_to(rp, x, 20);
-      } else {
-        drawer_move_to(rp, x, y + rp->font.romfont->lineheight*scale);
-      }
-    } else {
-      drawer_draw_char(rp, c, scale);
-    }
-  }
-}
-
-//void drawer_draw_picture(int x, int y, BITMAP_HEADER* bmp_header, RGBA* data) {
-//  int w, l;
-//  int curX = x;
-//  int curY = y;
-//  RGBA* curPixel = data;
-//
-//  drawer_move_to(drawer_rastport, curX, curY);
-//
-//  for (l = 0; l < bmp_header->height; l++) {
-//    curX = x;
-//    for (w = 0; w < bmp_header->width; w++) {
-//      drawer_set_color(drawer_rastport, (curPixel->Red << 6) | (curPixel->Green << 4) | (curPixel->Blue << 2));
-//      drawer_move_to(drawer_rastport, curX, curY);
-//      drawer_draw_pixel(drawer_rastport);
-//      curPixel++;
-//      curX++;
-//    }
-//
-//    curY++;
-//  }
-//}
+*/

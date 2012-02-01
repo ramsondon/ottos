@@ -35,53 +35,78 @@
 
 #define DISPLAYED_DATA_SET_SIZE   20
 #define DATA_ENTERY_LENGTH        34    // 12 12 31 12 12 12 -01.4 24.3 0987    --> date time temperature humidity pressure
+#define BLOCK_HEIGHT              500
+#define BLOCK_WIDTH               280
+#define BLOCK_MARGIN_HORIZONTAL_M 40
+#define BLOCK_MARGIN_HORIZONTAL   46
+#define MARGIN_VERTICAL_TOP       120
+#define BLOCK_COLOR COLOR_WhiteSmoke
 
 void video_test() {
   //int i = 0, entries;
-  //WEATHER_DATA data[DISPLAYED_DATA_SET_SIZE];
+  //WEATHER_DATA data[DISPLAYED_DATA_SET_SIZE];time
+
   //GRAPH_DATA graph_data[DISPLAYED_DATA_SET_SIZE];
-  //char str[10];
+  char str[20];
+  float temp, solar, pres;
+  int i, j;
 
   // set background
-  graphics_draw_rect(COLOR_LightCyan, 0, 0, RESOLUTION_WIDTH, RESOLUTION_HEIGHT);
+  graphics_draw_rect(COLOR_Blue, 0, 0, RESOLUTION_WIDTH, RESOLUTION_HEIGHT);
 
   // set heading
-  graphics_draw_string(COLOR_BlueViolet, 20, 70, "ooWeather powered by ..::OttOS::..", 3);
+  graphics_draw_string(COLOR_WhiteSmoke, 50, 100, "..::  O t t O S  -  W E T T E R S T A T I O N  ::..", 3);
 
-  // set current temperature
-  graphics_draw_string(COLOR_BlueViolet, 10, 200, "Temperatur:", 2);
+  // draw temperature block
+  graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL, MARGIN_VERTICAL_TOP, BLOCK_WIDTH, BLOCK_HEIGHT);
+  graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL + 60, MARGIN_VERTICAL_TOP + 60, "TEMPERATUR [°C]", 2);
+  graphics_draw_rect(COLOR_DarkGray, BLOCK_MARGIN_HORIZONTAL + 5, MARGIN_VERTICAL_TOP + 200 + 5, BLOCK_WIDTH - 10, 2);
 
-  // set current humidity
-  graphics_draw_string(COLOR_BlueViolet, 10, 360, "Luftfeuchtigkeit:", 2);
 
-  // set current barometric pressure
-  graphics_draw_string(COLOR_BlueViolet, 10, 480, "Luftdruck:", 2);
+  // draw humidity block
+  graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL + BLOCK_MARGIN_HORIZONTAL_M + BLOCK_WIDTH, MARGIN_VERTICAL_TOP, BLOCK_WIDTH, BLOCK_HEIGHT);
+  graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL + BLOCK_WIDTH + BLOCK_MARGIN_HORIZONTAL_M + 30, MARGIN_VERTICAL_TOP + 60, "SOLARLEISTUNG [lux]", 2);
+  graphics_draw_rect(COLOR_DarkGray, BLOCK_MARGIN_HORIZONTAL + BLOCK_WIDTH + BLOCK_MARGIN_HORIZONTAL_M + 5, MARGIN_VERTICAL_TOP + 200 + 5, BLOCK_WIDTH - 10, 2);
 
-/*
+
+  // draw barometric pressure block
+  graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL + 2*BLOCK_MARGIN_HORIZONTAL_M + 2*BLOCK_WIDTH, MARGIN_VERTICAL_TOP, BLOCK_WIDTH, BLOCK_HEIGHT);
+  graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL + 2*BLOCK_WIDTH + 2*BLOCK_MARGIN_HORIZONTAL_M + 50, MARGIN_VERTICAL_TOP + 60, "LUFTDRUCK [hPa]", 2);
+  graphics_draw_rect(COLOR_DarkGray, BLOCK_MARGIN_HORIZONTAL + 2*BLOCK_WIDTH + 2*BLOCK_MARGIN_HORIZONTAL_M + 5, MARGIN_VERTICAL_TOP + 200 + 5, BLOCK_WIDTH - 10, 2);
+
+  j = 0;
   while (TRUE) {
-    entries = read_weather_data(data, DISPLAYED_DATA_SET_SIZE);
+    // fake that fucking sensor data
+    temp += 23.34876 * (j % 2 == 0 ? 1.1 : 0.88);
+    solar += 233.4573 * (j % 5 == 0 ? 1.1 : 0.9);
+    pres += 1024.4711 * (j % 3 == 0 ? 1.1 : 0.9);
 
-    if (entries > 0) {
-      // write current temperature value
-      sprintf(str, "%2f °C\0", data[entries - 1].temp);
-      graphics_draw_string(COLOR_DarkSlateGray, 200, 160, str, 2);
 
-      sprintf(str, "%2f %\0", data[entries - 1].humidity);
-      graphics_draw_string(COLOR_DarkSlateGray, 200, 360, str, 2);
+    // clear value area
+    graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL + 1, MARGIN_VERTICAL_TOP + 70, BLOCK_WIDTH - 2, 132);
+    graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL + BLOCK_WIDTH + BLOCK_MARGIN_HORIZONTAL_M + 1, MARGIN_VERTICAL_TOP + 70, BLOCK_WIDTH - 2, 132);
+    graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL + 2*BLOCK_WIDTH + 2*BLOCK_MARGIN_HORIZONTAL_M + 1, MARGIN_VERTICAL_TOP + 70, BLOCK_WIDTH - 2, 132);
 
-      sprintf(str, "%2f hPa\0", data[entries - 1].pressure);
-      graphics_draw_string(COLOR_DarkSlateGray, 200, 480, str, 2);
+    // write current temperature value
+    sprintf(str, "%2.2f °C", temp);
+    graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL + 65, MARGIN_VERTICAL_TOP + 200, str, 4);
 
-      // draw the temperature graph
-      //graphics_move_to(10, 300);
-      //graphics_draw_graph(graph_data, 20, 1, 400, 680, COLOR_Lime, COLOR_Red);
-    } else {
-      // no data available
-    }
+    // write current solar value
+    sprintf(str, "%3f lux", solar);
+    graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL + BLOCK_WIDTH + BLOCK_MARGIN_HORIZONTAL_M + 60, MARGIN_VERTICAL_TOP + 200, str, 4);
+
+    // write current pressure value
+    sprintf(str, "%4f hPa", pres);
+    graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL + 2*BLOCK_WIDTH + 2*BLOCK_MARGIN_HORIZONTAL_M + 40, MARGIN_VERTICAL_TOP + 200, str, 4);
+
+    // write current time
+    sprintf(str, "", );
 
     // pause for 1 minute, 10 seconds, 1 second???
+    for (i = 0; i < 1000; i++) {
+      j = i % 33;
+    }
   }
-  */
 }
 
 
