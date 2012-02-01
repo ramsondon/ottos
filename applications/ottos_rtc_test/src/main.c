@@ -25,6 +25,7 @@
 #include <ottos/types.h>
 #include <api/io.h>
 #include <api/system.h>
+#include <api/proc.h>
 
 int main() {
 
@@ -38,7 +39,7 @@ int main() {
 
   print(buffer);
 
-  sys_exit();
+  pexit(0);
 
   return 0;
 }
