@@ -60,6 +60,7 @@ typedef int device_t;
 #define TEMP_0          15
 #define PRESSURE_0      16
 #define SOLAR_0         17
+#define RTC_0           18
 
 /**
  * External devices

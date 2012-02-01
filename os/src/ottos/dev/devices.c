@@ -34,6 +34,7 @@
 #include "../../drivers/serial/serial.h"
 #include "../../drivers/video/video.h"
 #include "../../drivers/sensors/avr.h"
+#include "../../drivers/rtc/rtc.h"
 
 /*
  * instantiated devices; managed by this module
@@ -62,6 +63,8 @@ void devices_init() {
   devices_create(TEMP_0, avr_temp_driver);
   devices_create(PRESSURE_0, avr_pressure_driver);
   devices_create(SOLAR_0, avr_solar_driver);
+
+  devices_create(RTC_0, rtc_driver);
 }
 
 driver_t* devices_driver(device_t dev) {
