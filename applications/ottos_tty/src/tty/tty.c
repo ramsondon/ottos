@@ -253,6 +253,9 @@ void tty_run() {
     // rc = serial_getline(line, 1024);
     // print("command: ");
     rc = tty_getline(line, MAX_PATH_LENGTH);
+    if (rc <= 1) {
+      continue;
+    }
     print("\r\n");
 //    print("your command: ");
 //

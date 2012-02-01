@@ -109,6 +109,9 @@ void process_delete() {
     }
   }
 
+  // free cmd
+  free((char*)process_table[process_active]->cmd);
+
   // destroy all namespaces and pending messages of this IPC receiver pid
   ipc_kill_receiver(process_active);
 
@@ -150,7 +153,8 @@ pid_t process_create(int priority, code_bytes_t* code_bytes, const char* cmd, in
 	p->parent = NULL;
 	p->starttime = timer_system_uptime();
 
-	p->cmd = cmd;
+	p->cmd = malloc(sizeof(char) * (strlen(cmd) + 1));
+	strcpy((char*)p->cmd, cmd);
 
   p->pid = process_next_free_entry;
   p->priority = priority;
