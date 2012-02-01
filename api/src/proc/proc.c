@@ -41,6 +41,10 @@ uint32_t pinfo(pinfo_t* pinfo, uint32_t count) {
   return sys_pinfo(pinfo, count);
 }
 
+void pexit(int state) {
+  sys_exit(state);
+}
+
 const char* pstate_readable(int stat) {
 
   if (stat < PSTATE_MAP_COUNT) {

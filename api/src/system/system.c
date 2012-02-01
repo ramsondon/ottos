@@ -216,6 +216,6 @@ char** sys_read_arguments(int* argc) {
   return argv;
 }
 
-void sys_exit() {
-  swi(SYS_EXIT, 0, 0, 0);
+void sys_exit(int state) {
+  swi(SYS_EXIT, state, 0, 0);
 }
