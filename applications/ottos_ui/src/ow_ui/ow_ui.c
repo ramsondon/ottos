@@ -32,10 +32,10 @@
 #include <api/proc.h>
 #include <api/sensor.h>
 #include <ottos/types.h>
-#include <vfat/fat_filelib.h>
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #define DISPLAYED_DATA_SET_SIZE   20
 #define DATA_ENTERY_LENGTH        34    // 12 12 31 12 12 12 -01.4 24.3 0987    --> date time temperature humidity pressure
@@ -66,7 +66,7 @@ void video_test() {
 
   // draw temperature block
   graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL, MARGIN_VERTICAL_TOP, BLOCK_WIDTH, BLOCK_HEIGHT, FALSE);
-  graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+60, MARGIN_VERTICAL_TOP+60, "TEMPERATUR [°C]", 2, FALSE);
+  graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+60, MARGIN_VERTICAL_TOP+60, "TEMPERATUR [Â°C]", 2, FALSE);
   graphics_draw_rect(COLOR_DarkGray, BLOCK_MARGIN_HORIZONTAL+5, MARGIN_VERTICAL_TOP+200+5, BLOCK_WIDTH-10, 2, FALSE);
 
   // draw humidity block
@@ -103,15 +103,15 @@ void video_test() {
       graphics_draw_rect(COLOR_Blue, 300, RESOLUTION_HEIGHT-120, 600, 100, FALSE);
 
       // write current temperature value
-      sprintf(str, "%2.1f °C", temp, FALSE);
+      sprintf(str, "%2.1f Â°C", values.temp, FALSE);
       graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+65, MARGIN_VERTICAL_TOP+200, str, 4, FALSE);
 
       // write current solar value
-      sprintf(str, "%3.0f lux", solar);
+      sprintf(str, "%3.0f lux", values.solar);
       graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+BLOCK_WIDTH+BLOCK_MARGIN_HORIZONTAL_M+60, MARGIN_VERTICAL_TOP+200, str, 4, FALSE);
 
       // write current pressure value
-      sprintf(str, "%4.0f hPa", pres);
+      sprintf(str, "%4.0f hPa", values.pressure);
       graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+2*BLOCK_WIDTH+2*BLOCK_MARGIN_HORIZONTAL_M+40, MARGIN_VERTICAL_TOP+200, str, 4, FALSE);
 
       // write current time
@@ -189,7 +189,7 @@ void video_test() {
 ////  for (index = 0; index < DISPLAYED_DATA_SET_SIZE; index++) {
 ////    printf("Datum: %02d.%02d.%02d    ", data[index].day, data[index].month, data[index].year);
 ////    printf("Zeit: %d:%d:%d\n", data[index].hour, data[index].minute, data[index].second);
-////    printf("Temp: %f °C     Feuchte: %f Proz     Luftdruck: %f hPa\n\n", data[index].temp, data[index].humidity, data[index].pressure);
+////    printf("Temp: %f ï¿½C     Feuchte: %f Proz     Luftdruck: %f hPa\n\n", data[index].temp, data[index].humidity, data[index].pressure);
 ////  }
 //
 //  free(line);

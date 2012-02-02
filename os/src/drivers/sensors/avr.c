@@ -208,7 +208,7 @@ int avr_read_(device_t dev, int count, char* buffer) {
     case SOLAR_0:
       selSensor(SOLAR);
       kernel_sleep(1);
-      value = ADCtoSolarTable[readPort()];
+      value = 255 - ADCtoSolarTable[readPort()];
       break;
     default:
       return DRIVER_ERROR_NOT_SUPPORTED;
