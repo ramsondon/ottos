@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <ottos/types.h>
 #include <api/time.h>
+#include <api/system.h>
 
 static char* pad2_str(uint32_t val, char* buffer) {
   sprintf(buffer, ((val < 10) ? "0%d" : "%2d"), val);
@@ -43,4 +44,8 @@ char* timetostr(uint64_t ms, char* buffer) {
 
   sprintf(buffer, "%s:%s:%s", pad2_str(hours, h), pad2_str(minutes, m), pad2_str(seconds, s));
   return buffer;
+}
+
+uint64_t uptime() {
+  return sys_uptime();
 }

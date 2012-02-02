@@ -145,7 +145,7 @@ int sys_pinfo(pinfo_t* mem, int count) {
   return actual_read_count;
 }
 
-int sys_execute(int priority, BOOLEAN block_current, const char* path, int argc, char** argv) {
+pid_t sys_execute(int priority, BOOLEAN block_current, const char* path, int argc, char** argv) {
   int return_value = PID_INVALID;
 
   // create a parameter array
@@ -236,6 +236,12 @@ time_t sys_get_time() {
     sys_read(fd, (char*) &time, sizeof(time_t));
   }
 
+  return time;
+}
+
+uint64_t sys_uptime() {
+  uint64_t time = 0;
+  swi(SYS_UPTIME, (unsigned int)&time, 0, 0);
   return time;
 }
 

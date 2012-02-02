@@ -36,4 +36,6 @@
  */
 EXTERN char* timetostr(uint64_t ms, char* buffer);
 
+EXTERN uint64_t uptime();
+
 #endif /* TIME_H_ */
