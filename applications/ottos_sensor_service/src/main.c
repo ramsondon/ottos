@@ -31,6 +31,7 @@ int main() {
   char* namespace = "ottossensor";
   sensor_values_t oldVals;
   int i = 0;
+  int sleeptime = 200;
 
   message.count = 1;
   message.size = sizeof(sensor_values_t);
@@ -44,19 +45,20 @@ int main() {
         || (10 * values.solar) < oldVals.solar
         || (10 * values.solar) > oldVals.solar
         || values.pressure > (oldVals.pressure + 10))
-        && i < 10) {
+        && i < sleeptime) {
 
+      psleep(1);
       values = sensor_read_values();
       i++;
     }
     oldVals = values;
-    i = 0;
 
     message.content = &values;
 
     send(namespace, &message);
 
-    psleep(1000);
+    psleep(sleeptime - i);
+    i = 0;
   }
 
   pexit(0);
