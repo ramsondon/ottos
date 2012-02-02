@@ -32,6 +32,12 @@
 
 #define SYSTEM_SERIAL_0_PATH SYSTEM_DEV_PATH "/serial0"
 
+#define SYSTEM_TEMP_0_PATH SYSTEM_DEV_PATH "/temp0"
+#define SYSTEM_PRESSURE_0_PATH SYSTEM_DEV_PATH "/pressure0"
+#define SYSTEM_SOLAR_0_PATH SYSTEM_DEV_PATH "/solar0"
+
+#define SYSTEM_RTC_0_PATH SYSTEM_DEV_PATH "/rtc0"
+
 #define SYSTEM_LED_0_PATH SYSTEM_DEV_PATH "/led0"
 #define SYSTEM_LED_1_PATH SYSTEM_DEV_PATH "/led1"
 
@@ -122,5 +128,10 @@ EXTERN int sys_closedir(dir_t* dir_stat);
  * @param dir_entry - the reference of the entry in which to read
  */
 EXTERN int sys_readdir(dir_t* dir_stat, dir_entry_t* dir_entry);
+
+/**
+ * Returns the curren time
+ */
+EXTERN time_t sys_get_time();
 
 #endif /* API_SYSTEM_H_ */

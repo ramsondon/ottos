@@ -47,6 +47,7 @@ void kernel_error(ERROR_CODE code, const char* message) {
 }
 
 void kernel_debug(ERROR_CODE code, const char* message) {
+#ifdef DEBUG
   char code_str[8];
   itoa(code, code_str, 10);
 
@@ -56,6 +57,7 @@ void kernel_debug(ERROR_CODE code, const char* message) {
   kernel_print("]: ");
   kernel_print(message);
   kernel_print("\n\r");
+#endif
 }
 
 void kernel_print(const char* str) {

@@ -1,6 +1,6 @@
-/* ls.c
+/* main.c
  * 
- * Copyright (c) 2011 The ottos_ls project.
+ * Copyright (c) 2011 The ottos_rtc_test project.
  *
  * This work is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,35 +17,29 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 25.01.2012
- *      Author: Franziskus Domig <fdomig@gmail.com>
+ *  Created on: 1 Feb 2012
+ *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
+
 #include <stdio.h>
-
-#include "ls.h"
-#include <api/system.h>
+#include <ottos/types.h>
 #include <api/io.h>
-#include <api/memory.h>
+#include <api/system.h>
+#include <api/proc.h>
 
+int main() {
 
-void ls(const char* path) {
-  dir_t dirstat;
+  char buffer[100] = {0};
+  time_t time = sys_get_time();
 
-  if (sys_opendir(path, &dirstat)) {
-    dir_entry_t dirent;
+  sprintf(buffer,
+          "current time: %d.%d.%d %d:%d:%d\r\n",
+          time.days, time.month, time.year,
+          time.hours, time.minutes, time.seconds);
 
-    while (sys_readdir(&dirstat, &dirent) == 0) {
-      char buffer[512];
-      char size[10] = {0};
-      sprintf(buffer, "%crwx------ root wheel %10s %s\r\n", (dirent.is_dir ? 'd'
-          : '-'), memstr(dirent.size, size), dirent.filename);
-      print(buffer);
-    }
+  print(buffer);
 
-    sys_closedir(&dirstat);
-  } else {
-    char buffer[300] = {0};
-    sprintf(buffer, "no such file or directory %s\n\r", path);
-    print(buffer);
-  }
+  pexit(0);
+
+  return 0;
 }

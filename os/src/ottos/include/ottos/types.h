@@ -86,6 +86,8 @@ typedef struct meminfo_t {
 
 
 typedef struct {
+    int year;
+    int month;
     int days;
     int hours;
     int minutes;

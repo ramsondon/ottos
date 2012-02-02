@@ -1,6 +1,6 @@
-/* main.c
+/* rtc.h
  * 
- * Copyright (c) 2011 The ottos_ls project.
+ * Copyright (c) 2011 The ottos project.
  *
  * This work is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,26 +17,29 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 25.01.2012
- *      Author: Franziskus Domig <fdomig@gmail.com>
+ *  Created on: 1 Feb 2012
+ *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#include "ls/ls.h"
-#include <api/system.h>
-#include <api/io.h>
-#include <api/proc.h>
+#ifndef RTC_H_
+#define RTC_H_
 
-int main() {
+#include <ottos/drivers/driver.h>
 
-  int argc = 0;
-  char** argv = sys_read_arguments(&argc);
+int rtc_open_(device_t dev);
+int rtc_close_(device_t dev);
+int rtc_read_(device_t dev, int count, char* buffer);
+int rtc_write_(device_t dev, int count, char* buffer);
+int rtc_ioctl_(device_t dev, ioctl_t msg);
+int rtc_create_(device_t dev);
 
-  if(argc != 2) {
-	  print("usage: ls [path] (path isn't optional)\r\n");
-	  sys_exit(1);
-  }
+static driver_t rtc_driver = {
+  rtc_open_,
+  rtc_close_,
+  rtc_read_,
+  rtc_write_,
+  rtc_ioctl_,
+  rtc_create_
+};
 
-  ls(argv[1]);
-  pexit(0);
-  return 0;
-}
+#endif /* RTC_H_ */

@@ -25,6 +25,7 @@
 #include <api/system.h>
 #include <api/led.h>
 #include <api/io.h>
+#include <api/proc.h>
 
 int main() {
 
@@ -33,7 +34,7 @@ int main() {
 
   if (argc < 2) {
     print("usage: ottos_led [led_number]\r\n");
-    sys_exit();
+    pexit(-1);
   } else {
 
     int led_number = argv[1][0] - '0';
@@ -43,7 +44,7 @@ int main() {
 
     if (led_number < 0 || led_number > 2) {
       print("led_number value must be 1 or 2\r\n");
-      sys_exit();
+      pexit(-1);
     } else {
       int i = 0;
       led_t led = (led_t) led_number;
@@ -55,6 +56,8 @@ int main() {
       }
     }
   }
+
+  pexit(0);
 
   return 0;
 }

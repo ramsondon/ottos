@@ -1,6 +1,6 @@
-/* main.c
+/* sensors.h
  * 
- * Copyright (c) 2011 The ottos_ls project.
+ * Copyright (c) 2011 The ottos_api project.
  *
  * This work is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,26 +17,18 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 25.01.2012
- *      Author: Franziskus Domig <fdomig@gmail.com>
+ *  Created on: 1 Feb 2012
+ *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#include "ls/ls.h"
-#include <api/system.h>
-#include <api/io.h>
-#include <api/proc.h>
+#ifndef SENSOR_H_
+#define SENSOR_H_
 
-int main() {
+#include <ottos/types.h>
+#include <ottos/const.h>
 
-  int argc = 0;
-  char** argv = sys_read_arguments(&argc);
+EXTERN double sensor_read_temp();
+EXTERN double sensor_read_pressure();
+EXTERN double sensor_read_solar();
 
-  if(argc != 2) {
-	  print("usage: ls [path] (path isn't optional)\r\n");
-	  sys_exit(1);
-  }
-
-  ls(argv[1]);
-  pexit(0);
-  return 0;
-}
+#endif /* SENSOR_H_ */

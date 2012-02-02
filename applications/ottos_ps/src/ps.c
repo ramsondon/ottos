@@ -57,7 +57,7 @@ void print_pinfo(pinfo_t* pinfo) {
   char membuf[10] = { 0 };
   char timebuf[20] = { 0 };
   // print current pinfo_t
-  sprintf(buffer, "%d\t%d\t%s\t%s\t%s\t%s\n\r", pinfo->pid, pinfo->tty,
+  sprintf(buffer, "%4d\t%3d\t%s\t%10s\t%8s\t%s\n\r", pinfo->pid, pinfo->tty,
           pstate_readable(pinfo->stat), timetostr(pinfo->time, timebuf),
           memstr(pinfo->mem, membuf), pinfo->cmd
   );
@@ -68,9 +68,11 @@ int main(int argc, char **argv) {
 
   // allocate resources and get process infos
   pinfo_t* pinfo = get_pinfos();
+  char title[100] = { 0 };
 
   // print header of ps
-  print("PID\tTTY\tSTAT\tTIME    \tMEM\tCMD\n\r");
+  sprintf(title, "%4s\t%3s\t%s\t%10s\t%8s\t%s\n\r", "PID", "TTY", "STAT", "TIME", "MEM", "CMD");
+  print(title);
 
   if (pinfo != NULL) {
 

@@ -1,4 +1,4 @@
-/* proc.c
+/* sensor.c
  * 
  * Copyright (c) 2011 The ottos_api project.
  *
@@ -17,43 +17,43 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: Jan 27, 2012
- *      Author: Matthias Schmid <ramsondon@gmail.com>
+ *  Created on: 1 Feb 2012
+ *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
-
 #include <stdlib.h>
-
-#include <ottos/const.h>
-#include <ottos/types.h>
-
 #include <api/system.h>
-#include <api/proc.h>
+#include <api/sensor.h>
 
-#define PSTATE_MAP_COUNT 4
+static double read_value(int fd) {
+  double value = 0.0;
 
-static const char* pstate_map[] = { "ready", "wait", "exec", "?"};
-
-uint32_t pcount() {
-  return sys_pcount();
-}
-
-uint32_t pinfo(pinfo_t* pinfo, uint32_t count) {
-  return sys_pinfo(pinfo, count);
-}
-
-BOOLEAN pinfo_for(pid_t pid, pinfo_t* info) {
-  return sys_pinfo_for(pid, info);
-}
-
-void pexit(int state) {
-  sys_exit(state);
-}
-
-const char* pstate_readable(int stat) {
-
-  if (stat < PSTATE_MAP_COUNT) {
-    return pstate_map[stat];
+  if (fd != SYSTEM_FD_INVALID) {
+    sys_read(fd, (char*)&value, sizeof(double));
   }
-  return pstate_map[PSTATE_MAP_COUNT-1];
+
+  return value;
 }
 
+double sensor_read_temp() {
+
+  int fd = sys_open(SYSTEM_TEMP_0_PATH, SYSTEM_FLAG_READ);
+
+  // no need to close sensor
+  return read_value(fd);
+}
+
+double sensor_read_pressure() {
+
+  int fd = sys_open(SYSTEM_PRESSURE_0_PATH, SYSTEM_FLAG_READ);
+
+  // no need to close sensor
+  return read_value(fd);
+}
+
+double sensor_read_solar() {
+
+  int fd = sys_open(SYSTEM_SOLAR_0_PATH, SYSTEM_FLAG_READ);
+
+  // no need to close sensor
+  return read_value(fd);
+}
