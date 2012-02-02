@@ -64,4 +64,6 @@ EXTERN pid_t pexec(int prio, BOOLEAN block, const char* path, int argc, char** a
  */
 EXTERN void pexit(int state);
 
+EXTERN void psleep(int milliseconds);
+
 #endif /* API_PROC_H_ */

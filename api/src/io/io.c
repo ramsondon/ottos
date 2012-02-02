@@ -61,7 +61,7 @@ void print(const char* buffer) {
   }
 }
 
-int waiting() {
+int waiting(int milliseconds) {
   int i = 0;
   for(i = 0; i < 10000; i++);
   return i;

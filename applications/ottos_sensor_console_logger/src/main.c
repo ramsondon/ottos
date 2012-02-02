@@ -1,6 +1,6 @@
-/* sensors.h
+/* main.c
  * 
- * Copyright (c) 2011 The ottos_api project.
+ * Copyright (c) 2011 The ottos_sensor_console_logger project.
  *
  * This work is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,25 +17,45 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
- *  Created on: 1 Feb 2012
+ *  Created on: 2 Feb 2012
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 
-#ifndef SENSOR_H_
-#define SENSOR_H_
+#include <stdio.h>
 
+#include <api/sensor.h>
+#include <api/ipc.h>
+#include <api/proc.h>
+#include <api/io.h>
 #include <ottos/types.h>
-#include <ottos/const.h>
 
-typedef struct sensor_values {
-    double temp;
-    double pressure;
-    double solar;
-} sensor_values_t;
+int main() {
 
-EXTERN double sensor_read_temp();
-EXTERN double sensor_read_pressure();
-EXTERN double sensor_read_solar();
-EXTERN sensor_values_t sensor_read_values();
 
-#endif /* SENSOR_H_ */
+  message_t message;
+  sensor_values_t sval;
+  char* namespace = "ottossensor";
+
+  message.count = 1;
+  message.size = sizeof(sensor_values_t);
+  message.type = 1;
+  message.content = &sval;
+
+  if (bind(namespace) != IPC_SUCCESS) {
+      print("namespace binding error\n\r");
+      pexit(-1);
+  }
+
+  while(1) {
+
+    if (receive(namespace, &message) == IPC_SUCCESS) {
+      char buffer[100] = {0};
+      sprintf(buffer, "TEMP: %.02f\tSOLAR: %.02f\tPRESSURE: %.02f\r\n", sval.temp, sval.solar, sval.pressure);
+      print(buffer);
+    }
+  }
+
+  pexit(0);
+  return 0;
+}
+
