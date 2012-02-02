@@ -23,6 +23,9 @@
 
 #include <stdio.h>
 
+#include <ottos/const.h>
+#include <ottos/types.h>
+
 #include <api/proc.h>
 #include <api/time.h>
 #include <api/io.h>
@@ -37,6 +40,7 @@ int main() {
   // get argument values (process name)
   int argc = 0;
   char **argv = sys_read_arguments(&argc);
+  pid_t child = PID_INVALID;
 
   // check arguments
   if (argc < 2) {
@@ -50,13 +54,17 @@ int main() {
   stime = uptime();
 
   // execute child process and stay blocked until process finished
-  pexec(1, TRUE, (const char*)argv[0], argc - 1, argv);
+  child = pexec(1, TRUE, (const char*)argv[0], argc - 1, argv);
 
   // get end of execution time
   etime = uptime();
 
+  if (child == PID_INVALID) {
+    pexit(-1);
+  }
+
   // print time delta
-  sprintf(buffer, "time for %10s: %s\r\n", timetostr(etime - stime, timebuf));
+  sprintf(buffer, "\r\nreal %s\r\n", timetostr_m_s_ms(etime - stime, timebuf));
   print(buffer);
 
   // safley exit process
