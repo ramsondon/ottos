@@ -33,6 +33,8 @@
 #define APP_TTY             "/bin/ottos_tty"
 
 pid_t start_app(const char* app) {
+  print(app);
+  print(" ................................. done\r\n");
   return (pid_t) sys_execute(1, FALSE, app, 0, NULL);
 }
 
@@ -63,6 +65,7 @@ int main(int argc, char** argv) {
   // start_app(APP_WEATHER_UI);
 
   // start terminal and check in an endless loop if tty is running
+  print("Booting OttOS ...\n\r");
   run_forever();
 
   pexit(0);
