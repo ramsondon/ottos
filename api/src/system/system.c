@@ -105,7 +105,7 @@ size_t sys_write(int fd, const char* buffer, size_t nbytes) {
   return return_value;
 }
 
-size_t sys_read(int fd, const char* buffer, size_t count) {
+size_t sys_read(int fd, char* buffer, size_t count) {
   size_t return_value = count;
 
   swi(SYS_READ, fd, (unsigned int) buffer, (unsigned int) &return_value);
