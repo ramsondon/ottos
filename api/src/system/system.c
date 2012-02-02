@@ -137,6 +137,12 @@ int sys_pinfo(pinfo_t* mem, int count) {
   return actual_read_count;
 }
 
+BOOLEAN sys_pinfo_for(pid_t pid, pinfo_t* info) {
+  int return_value;
+  swi(SYS_PROCESS_INFO_FOR, (unsigned int) &pid, (unsigned int) info, (unsigned int) &return_value);
+  return (return_value == 1);
+}
+
 int sys_execute(int priority, BOOLEAN block_current, const char* path, int argc, char** argv) {
   int return_value = PID_INVALID;
 
@@ -218,4 +224,8 @@ char** sys_read_arguments(int* argc) {
 
 void sys_exit(int state) {
   swi(SYS_EXIT, state, 0, 0);
+}
+
+void sys_yield() {
+  swi(SYS_YIELD, 0, 0, 0);
 }

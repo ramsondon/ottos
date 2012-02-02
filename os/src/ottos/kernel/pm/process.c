@@ -352,3 +352,28 @@ unsigned int process_pinfo(pinfo_t pinfo[], int count) {
   }
   return  c;
 }
+
+pid_t process_pinfo_for(pid_t pid, pinfo_t* info) {
+  int i = 0;
+  pid_t ret = PID_INVALID;
+  for (i = 0; i < PROCESS_MAX_COUNT; i++){
+      // continue if there is no process at this index
+      if (process_table[i] == NULL) {
+        continue;
+      }
+
+      if (process_table[i]->pid == pid) {
+        info->pid = process_table[i]->pid;
+        info->parent = (process_table[i]->parent != NULL ? process_table[i]->parent->pid : -1);
+        info->tty = 0;
+        info->prio = process_table[i]->priority;
+        info->mem = process_table[i]->page_count * MMU_PAGE_SIZE;
+        info->stat = process_table[i]->state;
+        info->time = timer_system_uptime() - process_table[i]->starttime;
+        memset(info->cmd, 0, PINFO_MAX_CMD_LENGTH);
+        strcpy(info->cmd, process_table[i]->cmd);
+      }
+  }
+
+  return (ret != PID_INVALID) ? pid : 0;
+}
