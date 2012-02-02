@@ -28,6 +28,9 @@
 #include <api/bitmap.h>
 #include <api/colors.h>
 #include <api/system.h>
+#include <api/ipc.h>
+#include <api/proc.h>
+#include <api/sensor.h>
 #include <ottos/types.h>
 #include <vfat/fat_filelib.h>
 
@@ -52,6 +55,8 @@ void video_test() {
   float temp, solar, pres;
   int i, j;
   time_t time;
+  message_t msg;
+  sensor_values_t values;
 
   // set background
   graphics_draw_rect(COLOR_Blue, 0, 0, RESOLUTION_WIDTH, RESOLUTION_HEIGHT, FALSE);
@@ -78,39 +83,50 @@ void video_test() {
   temp = 22.334;
   solar = 423.9837;
   pres = 955.34;
+  msg.content = &values;
+  msg.size = sizeof(sensor_values_t);
+  msg.count = 1;
+  msg.type = 1;
+
   while (TRUE) {
     // fake that fucking sensor data
     temp *= (j % 2 == 0 ? 1.3 : 0.88);
     solar *= (j % 5 == 0 ? 1.3 : 0.9);
     pres *= (j % 3 == 0 ? 1.3 : 0.9);
 
-    // clear value area
-    graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL+1, MARGIN_VERTICAL_TOP+70, BLOCK_WIDTH-2, 132, FALSE);
-    graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL+BLOCK_WIDTH+BLOCK_MARGIN_HORIZONTAL_M+1, MARGIN_VERTICAL_TOP+70, BLOCK_WIDTH-2, 132, FALSE);
-    graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL+2*BLOCK_WIDTH+2*BLOCK_MARGIN_HORIZONTAL_M+1, MARGIN_VERTICAL_TOP+70, BLOCK_WIDTH-2, 132, FALSE);
-    graphics_draw_rect(COLOR_Blue, 300, RESOLUTION_HEIGHT-120, 600, 100, FALSE);
+    if (receive("ottossensor", &msg) == IPC_SUCCESS) {
 
-    // write current temperature value
-    sprintf(str, "%2.1f °C", temp, FALSE);
-    graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+65, MARGIN_VERTICAL_TOP+200, str, 4, FALSE);
+      // clear value area
+      graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL+1, MARGIN_VERTICAL_TOP+70, BLOCK_WIDTH-2, 132, FALSE);
+      graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL+BLOCK_WIDTH+BLOCK_MARGIN_HORIZONTAL_M+1, MARGIN_VERTICAL_TOP+70, BLOCK_WIDTH-2, 132, FALSE);
+      graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL+2*BLOCK_WIDTH+2*BLOCK_MARGIN_HORIZONTAL_M+1, MARGIN_VERTICAL_TOP+70, BLOCK_WIDTH-2, 132, FALSE);
+      graphics_draw_rect(COLOR_Blue, 300, RESOLUTION_HEIGHT-120, 600, 100, FALSE);
 
-    // write current solar value
-    sprintf(str, "%3.0f lux", solar);
-    graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+BLOCK_WIDTH+BLOCK_MARGIN_HORIZONTAL_M+60, MARGIN_VERTICAL_TOP+200, str, 4, FALSE);
+      // write current temperature value
+      sprintf(str, "%2.1f °C", temp, FALSE);
+      graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+65, MARGIN_VERTICAL_TOP+200, str, 4, FALSE);
 
-    // write current pressure value
-    sprintf(str, "%4.0f hPa", pres);
-    graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+2*BLOCK_WIDTH+2*BLOCK_MARGIN_HORIZONTAL_M+40, MARGIN_VERTICAL_TOP+200, str, 4, FALSE);
+      // write current solar value
+      sprintf(str, "%3.0f lux", solar);
+      graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+BLOCK_WIDTH+BLOCK_MARGIN_HORIZONTAL_M+60, MARGIN_VERTICAL_TOP+200, str, 4, FALSE);
 
-    // write current time
-    time = sys_get_time();
-    sprintf(str, "%02d.%02d.%04d-%02d:%02d:%02d", time.days, time.month, time.year, time.hours, time.minutes, time.seconds);
-    graphics_draw_string(COLOR_WhiteSmoke, 320, RESOLUTION_HEIGHT-40, str, 3, FALSE);
+      // write current pressure value
+      sprintf(str, "%4.0f hPa", pres);
+      graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+2*BLOCK_WIDTH+2*BLOCK_MARGIN_HORIZONTAL_M+40, MARGIN_VERTICAL_TOP+200, str, 4, FALSE);
 
-    // draw arrows
-    graphics_draw_arrow(COLOR_Green, BLOCK_MARGIN_HORIZONTAL+BLOCK_WIDTH/2, MARGIN_VERTICAL_ARROW+70, 0, 0, 1, FALSE);
-    graphics_draw_arrow(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M+BLOCK_WIDTH*2-40, MARGIN_VERTICAL_ARROW + 140, 0, 0, 3, FALSE);
-    graphics_draw_arrow(COLOR_Red, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M*2+BLOCK_WIDTH*2+BLOCK_WIDTH/2-40, MARGIN_VERTICAL_ARROW+140, 0, 0, 5, TRUE);
+      // write current time
+      time = sys_get_time();
+      sprintf(str, "%02d.%02d.%04d-%02d:%02d:%02d", time.days, time.month, time.year, time.hours, time.minutes, time.seconds);
+      graphics_draw_string(COLOR_WhiteSmoke, 340, RESOLUTION_HEIGHT-40, str, 3, FALSE);
+
+      // draw arrows
+      graphics_draw_arrow(COLOR_Green, BLOCK_MARGIN_HORIZONTAL+BLOCK_WIDTH/2, MARGIN_VERTICAL_ARROW+70, 0, 0, 1, FALSE);
+      graphics_draw_arrow(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M+BLOCK_WIDTH*2-40, MARGIN_VERTICAL_ARROW + 140, 0, 0, 3, FALSE);
+      graphics_draw_arrow(COLOR_Red, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M*2+BLOCK_WIDTH*2+BLOCK_WIDTH/2-40, MARGIN_VERTICAL_ARROW+140, 0, 0, 5, TRUE);
+
+    }
+
+    //psleep(2000);
 
     // pause for 1 minute, 10 seconds, 1 second???
     for (i = 0; i < 100000; i++) {
