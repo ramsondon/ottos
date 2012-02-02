@@ -218,15 +218,20 @@ void tty_start() {
     return;
   }
 
-  //	process_create(1, code, 3, args);
   process_create(1, code, "/bin/ottsh", 0, NULL);
+  code_release(code);
+}
 
-  // TODO (thomas.bargetz@gmail.com) implement code_free function
-  free(code->byte_0);
-  free(code->byte_1);
-  free(code->byte_2);
-  free(code->byte_3);
-  free(code);
+void start_init_process() {
+  code_bytes_t* code = code_get_single_file("/bin/init");
+
+  if (code == NULL) {
+    kernel_panic("Cannot start init process!");
+    return;
+  }
+
+  process_create(1, code, "/bin/init", 0, NULL);
+  code_release(code);
 }
 
 void startup() {
@@ -243,7 +248,8 @@ void startup() {
   fs_init();
   mmu_init();
 
-  tty_start();
+  start_init_process();
+
   //video_bmp_test_file();
 //  code_bytes.byte_0 = sensor_byte0;
 //  code_bytes.byte_1 = sensor_byte1;

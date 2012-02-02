@@ -148,4 +148,6 @@ EXTERN int process_count();
 // returns the number of actual read pinfo_ts
 EXTERN unsigned int process_pinfo(pinfo_t pinfo[], int count);
 
+EXTERN pid_t process_pinfo_for(pid_t pid, pinfo_t* info);
+
 #endif /* OTTOS_KERNEL_PM_PROCESS_H_ */

@@ -34,6 +34,11 @@
 EXTERN uint32_t pinfo(pinfo_t* pinfo, uint32_t count);
 
 /*
+ * Return the process information for a specific PID.
+ */
+EXTERN BOOLEAN pinfo_for(pid_t pid, pinfo_t* info);
+
+/*
  * returns the number of running processes. the result will be at least 1 for
  * the reason that this process is the only one which would be running.
  */
