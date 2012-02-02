@@ -22,8 +22,10 @@
  */
 
 #include "ow_ui/ow_ui.h"
+#include <api/ipc.h>
 
 int main() {
+  bind("ottossensor");
 
   video_test();
   return 0;
