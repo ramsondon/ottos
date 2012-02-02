@@ -32,7 +32,6 @@
 #include <api/proc.h>
 #include <api/sensor.h>
 #include <ottos/types.h>
-
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -112,7 +111,7 @@ static void draw_temparature_block(double current_value) {
   graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL+1, MARGIN_VERTICAL_ARROW + 4, BLOCK_WIDTH-2, 290, FALSE);
 
   // write current temperature value
-  sprintf(str, "%2.1f �C", current_value);
+  sprintf(str, "%2.1f °C", current_value);
   graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+65, MARGIN_VERTICAL_TOP+200, str, 4, FALSE);
 
   old_avg = avg_old.temp;
@@ -204,7 +203,7 @@ void video_test() {
 
   // draw temperature block
   graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL, MARGIN_VERTICAL_TOP, BLOCK_WIDTH, BLOCK_HEIGHT, FALSE);
-  graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+60, MARGIN_VERTICAL_TOP+60, "TEMPERATUR [�C]", 2, FALSE);
+  graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+60, MARGIN_VERTICAL_TOP+60, "TEMPERATUR [°C]", 2, FALSE);
   graphics_draw_rect(COLOR_DarkGray, BLOCK_MARGIN_HORIZONTAL+5, MARGIN_VERTICAL_ARROW, BLOCK_WIDTH-10, 2, FALSE);
 
   // draw humidity block
@@ -242,12 +241,5 @@ void video_test() {
     }
 
     //psleep(2000);
-    {
-      int i = 0;
-      int j = 0;
-      for(i = 0; i < 10000; i++) {
-        j = i % 33;
-      }
-    }
   }
 }
