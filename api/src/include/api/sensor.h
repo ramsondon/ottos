@@ -27,6 +27,10 @@
 #include <ottos/types.h>
 #include <ottos/const.h>
 
+#define SENSOR_TYPE_TEMP      1
+#define SENSOR_TYPE_SOLAR     2
+#define SENSOR_TYPE_PRESSURE  3
+
 typedef struct sensor_values {
     double temp;
     double pressure;
