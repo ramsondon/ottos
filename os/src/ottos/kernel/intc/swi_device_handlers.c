@@ -32,6 +32,7 @@
 #include <ottos/kernel.h>
 #include <ottos/memory.h>
 #include <ottos/io.h>
+#include <ottos/timer.h>
 #include <ottos/dev/device.h>
 #include <ottos/drivers/driver.h>
 #include "../ipc/ipc.h"
@@ -350,6 +351,12 @@ BOOLEAN swi_handle_sys_memory_info(int meminfo) {
   return FALSE;
 }
 
+BOOLEAN swi_handle_sys_uptime(int timestamp) {
+  uint64_t* time = (uint64_t*) mmu_get_physical_address(process_table[process_active], timestamp);
+  *time = timer_system_uptime();
+  return FALSE;
+}
+
 BOOLEAN swi_handle_sys_args_count(int argc_address) {
 	int* argc = (int*) mmu_get_physical_address(process_table[process_active], argc_address);
 
@@ -484,8 +491,11 @@ BOOLEAN swi_handle(unsigned int syscall_nr, unsigned int param1, unsigned int pa
     // param3 = actual number of pinfo_t blocks read by syscall
     return swi_handle_sys_process_info(param1, param2, param3);
   case SYS_MEMORY_INFO:
-    // param1 meminfo_t
+    // param1 = meminfo_t
     return swi_handle_sys_memory_info(param1);
+  case SYS_UPTIME:
+    // param1 = long current uptime
+    return swi_handle_sys_uptime(param1);
 	default:
 		// unknown syscall number
 		kernel_error(SWI_UNKNOWN_SYSCALL_NR, "Unknown syscall-number. Ignoring.");

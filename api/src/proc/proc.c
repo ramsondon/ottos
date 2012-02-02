@@ -45,6 +45,10 @@ void pexit(int state) {
   sys_exit(state);
 }
 
+pid_t pexec(int prio, BOOLEAN block, const char* path, int argc, char** argv) {
+  return sys_execute(prio, block, path, argc, argv);
+}
+
 const char* pstate_readable(int stat) {
 
   if (stat < PSTATE_MAP_COUNT) {
