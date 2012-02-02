@@ -95,7 +95,7 @@ BOOLEAN swi_handle_sys_create(int parameters_address) {
 		}
 	}
 
-	*pid = process_create(priority, code, argv_copy[0], argc, argv_copy);
+	*pid = process_create(priority, code, executable_file, argc, argv_copy);
 
 	free(code->byte_0);
 	free(code->byte_1);
