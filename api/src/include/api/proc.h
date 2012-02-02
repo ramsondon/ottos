@@ -49,4 +49,6 @@ EXTERN const char* pstate_readable(int stat);
  */
 EXTERN void pexit(int state);
 
+EXTERN void psleep(int milliseconds);
+
 #endif /* API_PROC_H_ */
