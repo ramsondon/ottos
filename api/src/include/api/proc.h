@@ -50,6 +50,16 @@ EXTERN uint32_t pcount();
 EXTERN const char* pstate_readable(int stat);
 
 /*
+ * executes a binary at the specified path
+ * @param prio - process priority
+ * @param block - block the calling process
+ * @param path - filename and path to binary
+ * @param argc - argument count
+ * @param argv - argument values
+ */
+EXTERN pid_t pexec(int prio, BOOLEAN block, const char* path, int argc, char** argv);
+
+/*
  * exits the current process
  */
 EXTERN void pexit(int state);

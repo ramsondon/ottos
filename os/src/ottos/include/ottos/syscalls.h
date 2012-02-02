@@ -75,4 +75,9 @@
  */
 #define SYS_MEMORY_INFO 50
 
+/*
+ * TIME system calls
+ */
+#define SYS_UPTIME  60
+
 #endif /* SYSCALLS_H_ */
