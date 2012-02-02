@@ -74,3 +74,6 @@ void psleep(int ms) {
   }
 }
 
+pid_t pkill(pid_t pid) {
+  return sys_kill(pid);
+}

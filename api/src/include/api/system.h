@@ -107,6 +107,8 @@ EXTERN void sys_exit(int state);
  */
 EXTERN void sys_yield();
 
+EXTERN pid_t sys_kill(pid_t pid);
+
 /**
  * Open a directory for listing files.
  *

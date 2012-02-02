@@ -20,20 +20,36 @@
  *  Created on: Feb 2, 2012
  *      Author: Matthias Schmid <ramsondon@gmail.com>
  */
+#include <stdlib.h>
+#include <stdio.h>
+#include <ottos/const.h>
+
+#include <api/io.h>
+#include <api/proc.h>
+#include <api/system.h>
+
 
 int main() {
 
-
   // get argument values (process name)
   int argc = 0;
+  pid_t pid = PID_INVALID;
+  char buffer[30] = { 0 };
   char **argv = sys_read_arguments(&argc);
 
   // check arguments
    if (argc < 2) {
-     print("Invalid usage: time <process name> <args>\r\n");
+     print("Invalid usage: kill <pid>\r\n");
      pexit(-1);
    }
 
-
-
+   pid = atoi(argv[1]);
+   if ((pid = pkill(pid)) > PID_INVALID) {
+     sprintf(buffer, "killed %d\r\n", pid);
+     print(buffer);
+     pexit(0);
+   }
+   sprintf(buffer, "cannot kill %d\n\r", pid);
+   print(buffer);
+   pexit(-1);
 }

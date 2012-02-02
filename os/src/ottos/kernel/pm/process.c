@@ -92,6 +92,45 @@ void process_close_open_files(process_t* process) {
   }
 }
 
+pid_t process_kill(pid_t pid) {
+
+  // init process cannot be killed
+  if (pid <= 1 || pid >= PROCESS_MAX_COUNT) {
+    return PID_INVALID;
+  }
+
+  if (process_table[pid]->parent != NULL) {
+
+      // remove child from parent
+      process_table[pid]->parent->child = NULL;
+
+      // unblock parent
+      if (process_table[pid]->parent->state == BLOCKED) {
+        process_table[pid]->parent->state = READY;
+      }
+    }
+
+    // free cmd
+    free((char*)process_table[pid]->cmd);
+
+    // destroy all namespaces and pending messages of this IPC receiver pid
+    ipc_kill_receiver(pid);
+
+    // close all open files of the process
+    process_close_open_files(process_table[pid]);
+
+    //delete mastertable entries for process
+    mmu_delete_process_memory(process_table[pid]);
+
+    // delete the process
+    free(process_table[pid]);
+
+    // remove the active process from process table
+    process_table[pid] = NULL;
+
+  return PID_INVALID;
+}
+
 void process_delete() {
 
   if (process_active == PID_INVALID) {

@@ -66,4 +66,6 @@ EXTERN void pexit(int state);
 
 EXTERN void psleep(int milliseconds);
 
+EXTERN pid_t pkill(pid_t pid);
+
 #endif /* API_PROC_H_ */

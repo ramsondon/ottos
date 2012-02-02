@@ -238,6 +238,12 @@ void sys_yield() {
   swi(SYS_YIELD, 0, 0, 0);
 }
 
+pid_t sys_kill(pid_t pid) {
+  pid_t return_value = PID_INVALID;
+  swi(SYS_KILL, pid, (unsigned int)&return_value, 0);
+  return return_value;
+}
+
 time_t sys_get_time() {
   time_t time;
 

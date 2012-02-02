@@ -122,6 +122,8 @@ pid_t process_create(int priority, code_bytes_t* code_bytes, const char* cmd, in
 // deletes the active process
 EXTERN void process_delete();
 
+EXTERN pid_t process_kill(pid_t pid);
+
 // returns the process file descriptor for the given file descriptor id
 EXTERN process_file_descriptor_t* process_get_file_descriptor(int fd);
 

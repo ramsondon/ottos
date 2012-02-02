@@ -49,6 +49,13 @@ BOOLEAN swi_handle_sys_yield() {
 	return TRUE;
 }
 
+BOOLEAN swi_handle_sys_kill(int pid_to_kill, int pid_killed) {
+  int* pid = (int*)mmu_get_physical_address(process_table[process_active], pid_to_kill);
+  int* killed = (int*)mmu_get_physical_address(process_table[process_active], pid_killed);
+  *killed = process_kill(*pid);
+  return FALSE;
+}
+
 BOOLEAN swi_handle_sys_exit(int state) {
 	// delete the active process
 	process_delete();
@@ -426,6 +433,10 @@ BOOLEAN swi_handle(unsigned int syscall_nr, unsigned int param1, unsigned int pa
 		// param2 = device id
 		// param3 = flags
 		return swi_handle_sys_open(param1, param2, param3);
+	case SYS_KILL:
+	  // param1 = pid_t pid to kill
+	  // param2 = pid_t killed pid or PID_INVALID
+	  return swi_handle_sys_kill(param1, param2);
 	case SYS_FOPEN:
 		// param1 = return value (fd)
 		// param2 = path
