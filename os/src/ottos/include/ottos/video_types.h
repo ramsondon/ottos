@@ -43,6 +43,7 @@ typedef struct {
     int p2;
     int p3;
     unsigned int text;
+    BOOLEAN redraw;
 } GRAPHIC_ELEMENT;
 
 
@@ -51,6 +52,16 @@ typedef struct {
 #define GRAPHIC_ELEMENT_RECTANGLE  2
 #define GRAPHIC_ELEMENT_ELLIPSE    3
 #define GRAPHIC_ELEMENT_STRING     4
+#define GRAPHIC_ELEMENT_TRIANGLE      5
+
+#define GRAPHIC_ARROW_DIRECTION_NORTH         1
+#define GRAPHIC_ARROW_DIRECTION_NORTH_EAST    2
+#define GRAPHIC_ARROW_DIRECTION_EAST          3
+#define GRAPHIC_ARROW_DIRECTION_SOUTH_EAST    4
+#define GRAPHIC_ARROW_DIRECTION_SOUTH         5
+#define GRAPHIC_ARROW_DIRECTION_SOUTH_WEST    6
+#define GRAPHIC_ARROW_DIRECTION_WEST          7
+#define GRAPHIC_ARROW_DIRECTION_NORTH_WEST    8
 
 
 #define RESOLUTION_HEIGHT   768
