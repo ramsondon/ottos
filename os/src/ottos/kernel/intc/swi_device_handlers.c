@@ -49,10 +49,10 @@ BOOLEAN swi_handle_sys_yield() {
 	return TRUE;
 }
 
-BOOLEAN swi_handle_sys_kill(int pid_to_kill, int pid_killed) {
-  int* pid = (int*)mmu_get_physical_address(process_table[process_active], pid_to_kill);
+BOOLEAN swi_handle_sys_kill(int pid, int pid_killed) {
+  
   int* killed = (int*)mmu_get_physical_address(process_table[process_active], pid_killed);
-  *killed = process_kill(*pid);
+  *killed = process_kill(pid);
   return FALSE;
 }
 
