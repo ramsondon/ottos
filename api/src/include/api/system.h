@@ -59,6 +59,8 @@ EXTERN pid_t sys_execute(int priority, BOOLEAN block_current, const char* path, 
 EXTERN unsigned int sys_pcount();
 
 EXTERN int sys_pinfo(pinfo_t* mem, int count);
+
+EXTERN pid_t sys_pinfo_for(pid_t pid, pinfo_t* info);
 /**
  * IPC system calls
  */
@@ -99,6 +101,11 @@ EXTERN char** sys_read_arguments(int* argc);
  * Deletes the active process (the caller)
  */
 EXTERN void sys_exit(int state);
+
+/*
+ * Hand over to another process.
+ */
+EXTERN void sys_yield();
 
 /**
  * Open a directory for listing files.

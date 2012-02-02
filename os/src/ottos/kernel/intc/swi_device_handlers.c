@@ -162,6 +162,17 @@ BOOLEAN swi_handle_sys_process_info(unsigned int mem, unsigned int count, unsign
   return FALSE;
 }
 
+// param1 = pid_t pid
+// param2 = pinfo_t info
+// param3 = int return_value (has to be the pid or 0)
+BOOLEAN swi_handle_sys_process_info_for(unsigned int pid_addr, unsigned int info_addr, unsigned int return_value_addr) {
+  pinfo_t* info = (pinfo_t*) mmu_get_physical_address(process_table[process_active], info_addr);
+  pid_t* pid = (pid_t*) mmu_get_physical_address(process_table[process_active], pid_addr);
+  int* return_value = (int*) mmu_get_physical_address(process_table[process_active], return_value_addr);
+  *return_value = process_pinfo_for(*pid, info);
+  return FALSE;
+}
+
 BOOLEAN swi_handle_sys_close(int error_code_address, int fd) {
 	// get the real address of the error code
 	int* error_code = (int*) mmu_get_physical_address(process_table[process_active], error_code_address);
@@ -490,6 +501,11 @@ BOOLEAN swi_handle(unsigned int syscall_nr, unsigned int param1, unsigned int pa
     // param2 = count
     // param3 = actual number of pinfo_t blocks read by syscall
     return swi_handle_sys_process_info(param1, param2, param3);
+  case SYS_PROCESS_INFO_FOR:
+    // param1 = pid_t pid
+    // param2 = pinfo_t info
+    // param3 = int return_value (has to be the pid or 0)
+    return swi_handle_sys_process_info_for(param1, param2, param3);
   case SYS_MEMORY_INFO:
     // param1 = meminfo_t
     return swi_handle_sys_memory_info(param1);

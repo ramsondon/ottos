@@ -122,7 +122,7 @@ static MMCHS_STATUS mmchs_send_cmd(uint32_t cmd, uint32_t cmd_int_en,
         ;
 
       // FIXME
-      mmchs_error(MMCHS_ERROR_DEVICE, "MMCHS could not send command\n");
+      mmchs_debug(MMCHS_ERROR_DEVICE, "MMCHS could not send command\n");
       return MMCHS_ERROR_DEVICE;
     }
 

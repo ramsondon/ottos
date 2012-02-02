@@ -13,6 +13,16 @@
 #include <ottos/code.h>
 #include <ottos/kernel.h>
 
+void code_release(code_bytes_t* code) {
+  if (code != NULL) {
+    free(code->byte_0);
+    free(code->byte_1);
+    free(code->byte_2);
+    free(code->byte_3);
+    free(code);
+  }
+}
+
 code_bytes_t* code_get_single_file(const char* executable_file) {
 
 	code_bytes_t* code = NULL;

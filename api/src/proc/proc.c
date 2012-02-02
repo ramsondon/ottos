@@ -41,6 +41,10 @@ uint32_t pinfo(pinfo_t* pinfo, uint32_t count) {
   return sys_pinfo(pinfo, count);
 }
 
+pid_t pinfo_for(pid_t pid, pinfo_t* info) {
+  return sys_pinfo_for(pid, info);
+}
+
 void pexit(int state) {
   sys_exit(state);
 }
