@@ -260,6 +260,22 @@ void video_attach_framebuffer(int id, BitMap* bm) {
     ;
 }
 
+static int video_redraw(device_t dev) {
+  if (video_rast_port->bitmap == video_bit_map_1) {
+    video_attach_framebuffer(0, video_bit_map_1);
+    memcpy(video_bit_map_2->data, video_bit_map_1->data, VIDEO_FRAMEBUFFER_SIZE);
+    video_rast_port->point = video_bit_map_2->data;
+    video_rast_port->bitmap = video_bit_map_2;
+  } else {
+    video_attach_framebuffer(0, video_bit_map_2);
+    memcpy(video_bit_map_1->data, video_bit_map_2->data, VIDEO_FRAMEBUFFER_SIZE);
+    video_rast_port->point = video_bit_map_1->data;
+    video_rast_port->bitmap = video_bit_map_1;
+  }
+
+  return DRIVER_NO_ERROR;
+}
+
 
 int video_open(device_t dev) {
   if (video_rast_port != NULL) {
@@ -348,6 +364,9 @@ int video_write(device_t dev, int count, char* buffer) {
                       (char*)mmu_get_physical_address(process_table[process_active], g->text),
                       g->p1);
     break;
+  case GRAPHIC_ELEMENT_TRIANGLE:
+    drawer_draw_triangle(video_rast_port, g->rgb_color, g->x, g->y, g->p1, g->p2);
+
   default:
     // do nothing
     return DRIVER_ERROR_NOT_SUPPORTED;
@@ -370,20 +389,4 @@ int video_ioctl(device_t dev, ioctl_t msg) {
 
 int video_create(device_t dev) {
   return DRIVER_ERROR_NOT_SUPPORTED;
-}
-
-static int video_redraw(device_t dev) {
-  if (video_rast_port->bitmap == video_bit_map_1) {
-      video_attach_framebuffer(0, video_bit_map_1);
-      memcpy(video_bit_map_2->data, video_bit_map_1->data, VIDEO_FRAMEBUFFER_SIZE);
-      video_rast_port->point = video_bit_map_2->data;
-      video_rast_port->bitmap = video_bit_map_2;
-    } else {
-      video_attach_framebuffer(0, video_bit_map_2);
-      memcpy(video_bit_map_1->data, video_bit_map_2->data, VIDEO_FRAMEBUFFER_SIZE);
-      video_rast_port->point = video_bit_map_1->data;
-      video_rast_port->bitmap = video_bit_map_1;
-    }
-
-  return DRIVER_NO_ERROR;
 }

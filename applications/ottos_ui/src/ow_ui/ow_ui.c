@@ -41,6 +41,7 @@
 #define BLOCK_MARGIN_HORIZONTAL_M 40
 #define BLOCK_MARGIN_HORIZONTAL   46
 #define MARGIN_VERTICAL_TOP       120
+#define MARGIN_VERTICAL_ARROW     MARGIN_VERTICAL_TOP+200+5
 #define BLOCK_COLOR COLOR_WhiteSmoke
 
 void video_test() {
@@ -56,22 +57,22 @@ void video_test() {
   graphics_draw_rect(COLOR_Blue, 0, 0, RESOLUTION_WIDTH, RESOLUTION_HEIGHT, FALSE);
 
   // set heading
-  graphics_draw_string(COLOR_WhiteSmoke, 50, 100, "..::  O t t O S  -  W E T T E R S T A T I O N  ::..", 3, FALSE);
+  graphics_draw_string(COLOR_WhiteSmoke, 50, 100, "..::  O t t O S - W E T T E R S T A T I O N  ::..", 3, FALSE);
 
   // draw temperature block
   graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL, MARGIN_VERTICAL_TOP, BLOCK_WIDTH, BLOCK_HEIGHT, FALSE);
-  graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL + 60, MARGIN_VERTICAL_TOP + 60, "TEMPERATUR [°C]", 2, FALSE);
-  graphics_draw_rect(COLOR_DarkGray, BLOCK_MARGIN_HORIZONTAL + 5, MARGIN_VERTICAL_TOP + 200 + 5, BLOCK_WIDTH - 10, 2, FALSE);
+  graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+60, MARGIN_VERTICAL_TOP+60, "TEMPERATUR [°C]", 2, FALSE);
+  graphics_draw_rect(COLOR_DarkGray, BLOCK_MARGIN_HORIZONTAL+5, MARGIN_VERTICAL_TOP+200+5, BLOCK_WIDTH-10, 2, FALSE);
 
   // draw humidity block
-  graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL + BLOCK_MARGIN_HORIZONTAL_M + BLOCK_WIDTH, MARGIN_VERTICAL_TOP, BLOCK_WIDTH, BLOCK_HEIGHT, FALSE);
-  graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL + BLOCK_WIDTH + BLOCK_MARGIN_HORIZONTAL_M + 30, MARGIN_VERTICAL_TOP + 60, "SOLARLEISTUNG [lux]", 2, FALSE);
-  graphics_draw_rect(COLOR_DarkGray, BLOCK_MARGIN_HORIZONTAL + BLOCK_WIDTH + BLOCK_MARGIN_HORIZONTAL_M + 5, MARGIN_VERTICAL_TOP + 200 + 5, BLOCK_WIDTH - 10, 2, FALSE);
+  graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M+BLOCK_WIDTH, MARGIN_VERTICAL_TOP, BLOCK_WIDTH, BLOCK_HEIGHT, FALSE);
+  graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+BLOCK_WIDTH+BLOCK_MARGIN_HORIZONTAL_M+30, MARGIN_VERTICAL_TOP+60, "SOLARLEISTUNG [lux]", 2, FALSE);
+  graphics_draw_rect(COLOR_DarkGray, BLOCK_MARGIN_HORIZONTAL+BLOCK_WIDTH+BLOCK_MARGIN_HORIZONTAL_M+5, MARGIN_VERTICAL_TOP+200+5, BLOCK_WIDTH-10, 2, FALSE);
 
   // draw barometric pressure block
-  graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL + 2*BLOCK_MARGIN_HORIZONTAL_M + 2*BLOCK_WIDTH, MARGIN_VERTICAL_TOP, BLOCK_WIDTH, BLOCK_HEIGHT, FALSE);
-  graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL + 2*BLOCK_WIDTH + 2*BLOCK_MARGIN_HORIZONTAL_M + 50, MARGIN_VERTICAL_TOP + 60, "LUFTDRUCK [hPa]", 2, FALSE);
-  graphics_draw_rect(COLOR_DarkGray, BLOCK_MARGIN_HORIZONTAL + 2*BLOCK_WIDTH + 2*BLOCK_MARGIN_HORIZONTAL_M + 5, MARGIN_VERTICAL_TOP + 200 + 5, BLOCK_WIDTH - 10, 2, FALSE);
+  graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL+2*BLOCK_MARGIN_HORIZONTAL_M+2*BLOCK_WIDTH, MARGIN_VERTICAL_TOP, BLOCK_WIDTH, BLOCK_HEIGHT, FALSE);
+  graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+2*BLOCK_WIDTH+2*BLOCK_MARGIN_HORIZONTAL_M+50, MARGIN_VERTICAL_TOP+60, "LUFTDRUCK [hPa]", 2, FALSE);
+  graphics_draw_rect(COLOR_DarkGray, BLOCK_MARGIN_HORIZONTAL+2*BLOCK_WIDTH+2*BLOCK_MARGIN_HORIZONTAL_M+5, MARGIN_VERTICAL_TOP+200+5, BLOCK_WIDTH-10, 2, FALSE);
 
   j = 0;
   temp = 22.334;
@@ -83,34 +84,39 @@ void video_test() {
     solar *= (j % 5 == 0 ? 1.3 : 0.9);
     pres *= (j % 3 == 0 ? 1.3 : 0.9);
 
-
     // clear value area
-    graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL + 1, MARGIN_VERTICAL_TOP + 70, BLOCK_WIDTH - 2, 132, FALSE);
-    graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL + BLOCK_WIDTH + BLOCK_MARGIN_HORIZONTAL_M + 1, MARGIN_VERTICAL_TOP + 70, BLOCK_WIDTH - 2, 132, FALSE);
-    graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL + 2*BLOCK_WIDTH + 2*BLOCK_MARGIN_HORIZONTAL_M + 1, MARGIN_VERTICAL_TOP + 70, BLOCK_WIDTH - 2, 132, FALSE);
-    graphics_draw_rect(COLOR_Blue, 300, RESOLUTION_HEIGHT - 120, 600, 100, FALSE);
+    graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL+1, MARGIN_VERTICAL_TOP+70, BLOCK_WIDTH-2, 132, FALSE);
+    graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL+BLOCK_WIDTH+BLOCK_MARGIN_HORIZONTAL_M+1, MARGIN_VERTICAL_TOP+70, BLOCK_WIDTH-2, 132, FALSE);
+    graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL+2*BLOCK_WIDTH+2*BLOCK_MARGIN_HORIZONTAL_M+1, MARGIN_VERTICAL_TOP+70, BLOCK_WIDTH-2, 132, FALSE);
+    graphics_draw_rect(COLOR_Blue, 300, RESOLUTION_HEIGHT-120, 600, 100, FALSE);
 
     // write current temperature value
     sprintf(str, "%2.1f °C", temp, FALSE);
-    graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL + 65, MARGIN_VERTICAL_TOP + 200, str, 4, FALSE);
+    graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+65, MARGIN_VERTICAL_TOP+200, str, 4, FALSE);
 
     // write current solar value
     sprintf(str, "%3.0f lux", solar);
-    graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL + BLOCK_WIDTH + BLOCK_MARGIN_HORIZONTAL_M + 60, MARGIN_VERTICAL_TOP + 200, str, 4, FALSE);
+    graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+BLOCK_WIDTH+BLOCK_MARGIN_HORIZONTAL_M+60, MARGIN_VERTICAL_TOP+200, str, 4, FALSE);
 
     // write current pressure value
     sprintf(str, "%4.0f hPa", pres);
-    graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL + 2*BLOCK_WIDTH + 2*BLOCK_MARGIN_HORIZONTAL_M + 40, MARGIN_VERTICAL_TOP + 200, str, 4, FALSE);
+    graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+2*BLOCK_WIDTH+2*BLOCK_MARGIN_HORIZONTAL_M+40, MARGIN_VERTICAL_TOP+200, str, 4, FALSE);
 
     // write current time
     time = sys_get_time();
-    sprintf(str, "%02d.%02d.%04d - %02d:%02d:%02d", time.days, time.month, time.year, time.hours, time.minutes, time.seconds);
-    graphics_draw_string(COLOR_WhiteSmoke, 320, RESOLUTION_HEIGHT - 40, str, 3, TRUE);
+    sprintf(str, "%02d.%02d.%04d-%02d:%02d:%02d", time.days, time.month, time.year, time.hours, time.minutes, time.seconds);
+    graphics_draw_string(COLOR_WhiteSmoke, 320, RESOLUTION_HEIGHT-40, str, 3, FALSE);
+
+    // draw arrows
+    graphics_draw_arrow(COLOR_Green, BLOCK_MARGIN_HORIZONTAL+BLOCK_WIDTH/2, MARGIN_VERTICAL_ARROW+70, 0, 0, 1, FALSE);
+    graphics_draw_arrow(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M+BLOCK_WIDTH*2-40, MARGIN_VERTICAL_ARROW + 140, 0, 0, 3, FALSE);
+    graphics_draw_arrow(COLOR_Red, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M*2+BLOCK_WIDTH*2+BLOCK_WIDTH/2-40, MARGIN_VERTICAL_ARROW+140, 0, 0, 5, TRUE);
 
     // pause for 1 minute, 10 seconds, 1 second???
     for (i = 0; i < 100000; i++) {
       j = i % 33;
     }
+    j = time.days+time.hours+time.minutes+time.seconds+time.miliseconds;
   }
 }
 

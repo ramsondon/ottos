@@ -49,6 +49,7 @@ void drawer_draw_rect(RastPort *rp, unsigned int color, int x, int y, int w, int
   unsigned short *outp;
 
   drawer_move_to(rp, x, y);
+  drawer_set_color(rp, color);
   outp = rp->point;
 
   if (w + rp->x > rp->bitmap->width) {
@@ -61,7 +62,7 @@ void drawer_draw_rect(RastPort *rp, unsigned int color, int x, int y, int w, int
 
   for (j = 0; j < h; j++) {
     for (i = 0; i < w; i++) {
-      outp[i] = color;
+      outp[i] = rp->color;
     }
     outp = (unsigned short *) ((char *) outp + rp->bitmap->stride);
   }
@@ -183,5 +184,38 @@ void drawer_draw_string(RastPort *rp, unsigned int color, int x, int y, const ch
     } else {
       drawer_draw_char(rp, c, scale);
     }
+  }
+}
+
+void drawer_draw_triangle(RastPort *rp, unsigned int color, int x, int y, int xh, int yh) {
+  int h, w, i = 0, len, cur_len;
+  int x_start, y_start;
+
+  if (x == xh) {
+    // north or south arrow
+    len = y - yh;
+    len = abs(len);
+    y_start = yh;
+    while (len > 0) {
+      cur_len = y > yh ? y_start+len : y_start-len;
+      drawer_draw_line(rp, color, x-i, y_start, x-i, cur_len);
+      drawer_draw_line(rp, color, x+i, y_start, x+i, cur_len);
+      len--;
+      i++;
+    }
+  } else if (y == yh) {
+    // east or west arrow
+    len = x - xh;
+    len = abs(len);
+    x_start = xh;
+    while (len > 0) {
+      cur_len = x > xh ? x_start+len : x_start-len;
+      drawer_draw_line(rp, color, x_start, y-i, cur_len, y-i);
+      drawer_draw_line(rp, color, x_start, y+i, cur_len, y+i);
+      len--;
+      i++;
+    }
+  } else {
+    drawer_draw_string(rp, color, x, y, "baaam", 2);
   }
 }

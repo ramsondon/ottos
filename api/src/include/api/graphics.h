@@ -43,8 +43,6 @@ EXTERN void graphics_draw_ellipse(unsigned int rgb, int x, int y, int a, int b, 
 EXTERN void graphics_draw_rect(unsigned int rgb, int x, int y, int w, int h, BOOLEAN redraw);
 EXTERN void graphics_draw_line(unsigned int rgb, int x, int y, int x_end, int y_end, BOOLEAN redraw);
 EXTERN void graphics_draw_string(unsigned int rgb, int x, int y, const char* s, int scale, BOOLEAN redraw);
-
-//EXTERN void graphics_draw_graph(GRAPH_DATA* data, int length, int timespan, int height, int width,
-//                           unsigned int color_line, unsigned int color_background);
+EXTERN void graphics_draw_arrow(unsigned int rgb, int x, int y, int width, int height, int direction, BOOLEAN redraw);
 
 #endif /* GRAPHICS_H_ */

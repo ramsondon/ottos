@@ -145,6 +145,74 @@ void graphics_draw_string(unsigned int rgb, int x, int y, const char* s, int sca
   }
 }
 
+void graphics_draw_arrow(unsigned int rgb, int x, int y, int width, int height, int direction, BOOLEAN redraw) {
+  GRAPHIC_ELEMENT* graphic = NULL;
+  int w, h, xr, yr, xt, yt;
+  int fd = sys_open(SYSTEM_VIDEO_0_PATH, SYSTEM_FLAG_WRITE);
+  if (fd != SYSTEM_FD_INVALID) {
+    graphic = (GRAPHIC_ELEMENT*) malloc(sizeof(GRAPHIC_ELEMENT));
+
+    switch (direction) {
+    case GRAPHIC_ARROW_DIRECTION_NORTH:
+      w = 60;
+      h = 140;
+      xr = x - 30;
+      yr = y + 60;
+      xt = x;
+      yt = y + 60;
+      break;
+    case GRAPHIC_ARROW_DIRECTION_EAST:
+      w = 140;
+      h = 60;
+      xr = x - 60 - w;
+      yr = y - 30;
+      xt = x - 60;
+      yt = y;
+      break;
+    case GRAPHIC_ARROW_DIRECTION_WEST:
+      w = 140;
+      h = 60;
+      xr = x + 60;
+      yr = y - 30;
+      xt = x + 60;
+      yt = y;
+      break;
+    case GRAPHIC_ARROW_DIRECTION_SOUTH:
+      w = 60;
+      h = 140;
+      xr = x - 30;
+      yr = y - 60 - h;
+      xt = x;
+      yt = y - 60;
+      break;
+    }
+
+    // set type
+    graphic->id = GRAPHIC_ELEMENT_TRIANGLE;
+    // set arguments
+    graphic->x = x;
+    graphic->y = y;
+    graphic->rgb_color = rgb;
+    graphic->p1 = xt;
+    graphic->p2 = yt;
+
+    sys_write(fd, (char*) graphic, sizeof(GRAPHIC_ELEMENT));
+
+    // set type
+    graphic->id = GRAPHIC_ELEMENT_RECTANGLE;
+    // set arguments
+    graphic->x = xr;
+    graphic->y = yr;
+    graphic->rgb_color = rgb;
+    graphic->p1 = w;
+    graphic->p2 = h;
+    graphic->redraw = redraw;
+
+    sys_write(fd, (char*) graphic, sizeof(GRAPHIC_ELEMENT));
+
+    free(graphic);
+  }
+}
 
 
 /*

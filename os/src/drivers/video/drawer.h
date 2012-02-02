@@ -49,5 +49,6 @@ EXTERN void drawer_draw_line(RastPort *rp, unsigned int color, int x, int y, int
 EXTERN void drawer_draw_rect(RastPort *rp, unsigned int color, int x, int y, int w, int h);
 EXTERN void drawer_draw_ellipse(RastPort *rp, unsigned int color, int x, int y, int a, int b);
 EXTERN void drawer_draw_string(RastPort *rp, unsigned int color, int x, int y, const char *s, int scale);
+EXTERN void drawer_draw_triangle(RastPort *rp, unsigned int color, int x, int y, int xh, int yh);
 
 #endif /* DRAWER_H_ */
