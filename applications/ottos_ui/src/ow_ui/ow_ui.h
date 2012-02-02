@@ -41,6 +41,10 @@ typedef struct {
 } WEATHER_DATA;
 
 
+#define TREND_UP 1
+#define TREND_UP 1
+#define TREND_UP 1
+
 void video_test();
 
 
