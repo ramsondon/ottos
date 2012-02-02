@@ -40,15 +40,15 @@ int main() {
   while (1) {
     sensor_values_t values = sensor_read_values();
 
-//    while ((values.temp > (2 * oldVals.temp)
-//        || (10 * values.solar) < oldVals.solar
-//        || (10 * values.solar) > oldVals.solar
-//        || values.pressure > (oldVals.pressure + 10))
-//        && i < 10) {
-//
-//      values = sensor_read_values();
-//      i++;
-//    }
+    while ((values.temp > (2 * oldVals.temp)
+        || (10 * values.solar) < oldVals.solar
+        || (10 * values.solar) > oldVals.solar
+        || values.pressure > (oldVals.pressure + 10))
+        && i < 10) {
+
+      values = sensor_read_values();
+      i++;
+    }
     oldVals = values;
     i = 0;
 

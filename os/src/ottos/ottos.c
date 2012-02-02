@@ -278,7 +278,8 @@ void startup() {
   fs_init();
   mmu_init();
 
-  start_init_process();
+  //start_init_process();
+  tty_start();
 
   //video_bmp_test_file();
 //  code_bytes.byte_0 = cat_byte0;
