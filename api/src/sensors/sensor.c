@@ -21,6 +21,7 @@
  *      Author: Thomas Bargetz <thomas.bargetz@gmail.com>
  */
 #include <stdlib.h>
+#include <api/proc.h>
 #include <api/system.h>
 #include <api/sensor.h>
 
@@ -56,4 +57,14 @@ double sensor_read_solar() {
 
   // no need to close sensor
   return read_value(fd);
+}
+
+sensor_values_t sensor_read_values() {
+  sensor_values_t values;
+
+  values.temp = sensor_read_temp();
+  values.pressure = sensor_read_pressure();
+  values.solar = sensor_read_solar();
+
+  return values;
 }
