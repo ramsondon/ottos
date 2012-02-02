@@ -20,18 +20,15 @@
  *  Created on: 25.01.2012
  *      Author: Franziskus Domig <fdomig@gmail.com>
  */
+#include <stdio.h>
 
 #include "ls.h"
 #include <api/system.h>
 #include <api/io.h>
+#include <api/memory.h>
+
 
 void ls(const char* path) {
-  int fd = sys_open(path, 0);
-  print("ls ...\n");
-  sys_close(fd);
-}
-
-void ls2(const char* path) {
   dir_t dirstat;
 
   if (sys_opendir(path, &dirstat)) {
@@ -39,11 +36,16 @@ void ls2(const char* path) {
 
     while (sys_readdir(&dirstat, &dirent) == 0) {
       char buffer[512];
-      sprintf(buffer, "%crwx------ root wheel %5d %s\r\n", (dirent.is_dir ? 'd'
-          : '-'), dirent.size, dirent.filename);
+      char size[10] = {0};
+      sprintf(buffer, "%crwx------ root wheel %10s %s\r\n", (dirent.is_dir ? 'd'
+          : '-'), memstr(dirent.size, size), dirent.filename);
       print(buffer);
     }
 
     sys_closedir(&dirstat);
+  } else {
+    char buffer[300] = {0};
+    sprintf(buffer, "no such file or directory %s\n\r", path);
+    print(buffer);
   }
 }

@@ -31,7 +31,7 @@
 #include <stdlib.h>
 
 
-void graphics_draw_pixel(unsigned int rgb, int x, int y) {
+void graphics_draw_pixel(unsigned int rgb, int x, int y, BOOLEAN redraw) {
   GRAPHIC_ELEMENT* graphic = NULL;
   int fd = sys_open(SYSTEM_VIDEO_0_PATH, SYSTEM_FLAG_WRITE);
   if (fd != SYSTEM_FD_INVALID) {
@@ -44,6 +44,7 @@ void graphics_draw_pixel(unsigned int rgb, int x, int y) {
     graphic->x = x;
     graphic->y = y;
     graphic->rgb_color = rgb;
+    graphic->redraw = redraw;
 
     sys_write(fd, (char*) graphic, sizeof(GRAPHIC_ELEMENT));
     //sys_close(fd);
@@ -51,7 +52,7 @@ void graphics_draw_pixel(unsigned int rgb, int x, int y) {
   }
 }
 
-void graphics_draw_ellipse(unsigned int rgb, int x, int y, int a, int b) {
+void graphics_draw_ellipse(unsigned int rgb, int x, int y, int a, int b, BOOLEAN redraw) {
   GRAPHIC_ELEMENT* graphic = NULL;
   int fd = sys_open(SYSTEM_VIDEO_0_PATH, SYSTEM_FLAG_WRITE);
   if (fd != SYSTEM_FD_INVALID) {
@@ -66,6 +67,7 @@ void graphics_draw_ellipse(unsigned int rgb, int x, int y, int a, int b) {
     graphic->rgb_color = rgb;
     graphic->p1 = a;
     graphic->p2 = b;
+    graphic->redraw = redraw;
 
     sys_write(fd, (char*) graphic, sizeof(GRAPHIC_ELEMENT));
     //sys_close(fd);
@@ -73,7 +75,7 @@ void graphics_draw_ellipse(unsigned int rgb, int x, int y, int a, int b) {
   }
 }
 
-void graphics_draw_rect(unsigned int rgb, int x, int y, int w, int h) {
+void graphics_draw_rect(unsigned int rgb, int x, int y, int w, int h, BOOLEAN redraw) {
   GRAPHIC_ELEMENT* graphic = NULL;
   int fd = sys_open(SYSTEM_VIDEO_0_PATH, SYSTEM_FLAG_WRITE);
   if (fd != SYSTEM_FD_INVALID) {
@@ -88,6 +90,7 @@ void graphics_draw_rect(unsigned int rgb, int x, int y, int w, int h) {
     graphic->rgb_color = rgb;
     graphic->p1 = w;
     graphic->p2 = h;
+    graphic->redraw = redraw;
 
     sys_write(fd, (char*) graphic, sizeof(GRAPHIC_ELEMENT));
     //sys_close(fd);
@@ -96,7 +99,7 @@ void graphics_draw_rect(unsigned int rgb, int x, int y, int w, int h) {
 }
 
 void graphics_draw_line(unsigned int rgb, int x_start,
-                        int y_start, int x_end, int y_end) {
+                        int y_start, int x_end, int y_end, BOOLEAN redraw) {
   GRAPHIC_ELEMENT* graphic = NULL;
   int fd = sys_open(SYSTEM_VIDEO_0_PATH, SYSTEM_FLAG_WRITE);
   if (fd != SYSTEM_FD_INVALID) {
@@ -111,6 +114,7 @@ void graphics_draw_line(unsigned int rgb, int x_start,
     graphic->rgb_color = rgb;
     graphic->p1 = x_end;
     graphic->p2 = y_end;
+    graphic->redraw = redraw;
 
     sys_write(fd, (char*) graphic, sizeof(GRAPHIC_ELEMENT));
     //sys_close(fd);
@@ -118,7 +122,7 @@ void graphics_draw_line(unsigned int rgb, int x_start,
   }
 }
 
-void graphics_draw_string(unsigned int rgb, int x, int y, const char* s, int scale) {
+void graphics_draw_string(unsigned int rgb, int x, int y, const char* s, int scale, BOOLEAN redraw) {
   GRAPHIC_ELEMENT* graphic = NULL;
   int fd = sys_open(SYSTEM_VIDEO_0_PATH, SYSTEM_FLAG_WRITE);
   if (fd != SYSTEM_FD_INVALID) {
@@ -131,9 +135,9 @@ void graphics_draw_string(unsigned int rgb, int x, int y, const char* s, int sca
     graphic->x = x;
     graphic->y = y;
     graphic->rgb_color = rgb;
-    //graphic->p1 = strlen(s);
-    graphic->p2 = scale;
+    graphic->p1 = scale;
     graphic->text = (unsigned int)s;
+    graphic->redraw = redraw;
 
     sys_write(fd, (char*) graphic, sizeof(GRAPHIC_ELEMENT));
     //sys_close(fd);

@@ -96,7 +96,7 @@ void ram_manager_release_page(enum ram_manager_memory_type mem, int pageNumber) 
 		allocated_pages_int--;
 	} else if ((mem == EXT_DDR) && (entry_number < RAM_MANAGER_MAX_PAGES_IN_EXT_DDR)) {
 		CLEAR_BIT((address)(((address)occupied_pages_ext_DDR) + entry_number), bit_number);
-		allocated_pages_ext++;
+		allocated_pages_ext--;
 	}
 }
 
@@ -150,7 +150,21 @@ int ram_manager_max_pages_in(enum ram_manager_memory_type mem) {
 	}
 }
 
+double ram_manager_mem_alloc_intram() {
+  return allocated_pages_int * MMU_PAGE_SIZE;
+}
 
+double ram_manager_mem_alloc_extddr() {
+  return allocated_pages_ext * MMU_PAGE_SIZE;
+}
+
+double ram_manager_mem_total_intram() {
+  return ram_manager_max_pages_in(INT_RAM) * MMU_PAGE_SIZE;
+}
+
+double ram_manager_mem_total_extddr() {
+  return ram_manager_max_pages_in(EXT_DDR) * MMU_PAGE_SIZE;
+}
 
 void ram_manager_print_mem_usage() {
   char message[256];

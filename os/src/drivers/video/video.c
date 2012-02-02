@@ -34,7 +34,8 @@
 
 
 static RastPort* video_rast_port = NULL;
-static BitMap* video_bit_map = NULL;
+static BitMap* video_bit_map_1 = NULL;
+static BitMap* video_bit_map_2 = NULL;
 
 // Master clock is 864 Mhz, and changing it is a pita since it cascades to other
 // devices.
@@ -266,22 +267,30 @@ int video_open(device_t dev) {
     return DRIVER_NO_ERROR;
   }
 
-  // initialize BitMap struct
-  video_bit_map = (BitMap*)malloc(sizeof(BitMap));
-  video_bit_map->width = VIDEO_RESOLUTION_WIDTH;
-  video_bit_map->height = VIDEO_RESOLUTION_HEIGHT;
-  video_bit_map->format = BM_RGB16;
-  video_bit_map->stride = VIDEO_RESOLUTION_WIDTH * 2;
-  video_bit_map->data = (void*)malloc(VIDEO_RESOLUTION_HEIGHT*VIDEO_RESOLUTION_WIDTH*4);
+  // initialize framebuffer #1
+  video_bit_map_1 = (BitMap*)malloc(sizeof(BitMap));
+  video_bit_map_1->width = VIDEO_RESOLUTION_WIDTH;
+  video_bit_map_1->height = VIDEO_RESOLUTION_HEIGHT;
+  video_bit_map_1->format = BM_RGB16;
+  video_bit_map_1->stride = VIDEO_RESOLUTION_WIDTH * 2;
+  video_bit_map_1->data = (void*)malloc(VIDEO_FRAMEBUFFER_SIZE);
+
+  // initialize framebuffer #2
+  video_bit_map_2 = (BitMap*)malloc(sizeof(BitMap));
+  video_bit_map_2->width = VIDEO_RESOLUTION_WIDTH;
+  video_bit_map_2->height = VIDEO_RESOLUTION_HEIGHT;
+  video_bit_map_2->format = BM_RGB16;
+  video_bit_map_2->stride = VIDEO_RESOLUTION_WIDTH * 2;
+  video_bit_map_2->data = (void*)malloc(VIDEO_FRAMEBUFFER_SIZE);
 
   // initialize RastPort struct
   video_rast_port = (RastPort*)malloc(sizeof(RastPort));
   video_rast_port->x = 0;
   video_rast_port->y = 0;
-  video_rast_port->point = video_bit_map->data;
+  video_rast_port->point = video_bit_map_1->data;
   video_rast_port->color = 0x00000000;
-  video_rast_port->font.romfont = (RomFont*) &drawer_font_misc_fixed;
-  video_rast_port->drawable.bitmap = video_bit_map;
+  video_rast_port->romfont = (RomFont*) &drawer_font_misc_fixed;
+  video_rast_port->bitmap = video_bit_map_1;
 
   MMIO_WRITE32(DISPC_IRQENABLE, 0x00000);
   MMIO_WRITE32(DISPC_IRQSTATUS, 0x1ffff);
@@ -298,7 +307,7 @@ int video_open(device_t dev) {
 
 
   // TODO (go.goflo@gmail.com) --> video_attach_framebuffer(0, bitmap)
-  video_attach_framebuffer(0, video_bit_map);
+  video_attach_framebuffer(0, video_bit_map_1);
 
   return DRIVER_NO_ERROR;
 }
@@ -306,10 +315,13 @@ int video_open(device_t dev) {
 
 int video_close(device_t dev) {
   // free memory
-  free(video_bit_map->data);
-  free(video_bit_map);
+  free(video_bit_map_1->data);
+  free(video_bit_map_1);
+  free(video_bit_map_2->data);
+  free(video_bit_map_2);
   free(video_rast_port);
-  video_bit_map = NULL;
+  video_bit_map_1 = NULL;
+  video_bit_map_2 = NULL;
   video_rast_port = NULL;
 
   return TRUE;
@@ -334,11 +346,15 @@ int video_write(device_t dev, int count, char* buffer) {
   case GRAPHIC_ELEMENT_STRING:
     drawer_draw_string(video_rast_port, g->rgb_color, g->x, g->y,
                       (char*)mmu_get_physical_address(process_table[process_active], g->text),
-                      g->p1, g->p2);
+                      g->p1);
     break;
   default:
     // do nothing
     return DRIVER_ERROR_NOT_SUPPORTED;
+  }
+
+  if (g->redraw) {
+    video_redraw(dev);
   }
 
   return count;
@@ -356,3 +372,18 @@ int video_create(device_t dev) {
   return DRIVER_ERROR_NOT_SUPPORTED;
 }
 
+static int video_redraw(device_t dev) {
+  if (video_rast_port->bitmap == video_bit_map_1) {
+      video_attach_framebuffer(0, video_bit_map_1);
+      memcpy(video_bit_map_2->data, video_bit_map_1->data, VIDEO_FRAMEBUFFER_SIZE);
+      video_rast_port->point = video_bit_map_2->data;
+      video_rast_port->bitmap = video_bit_map_2;
+    } else {
+      video_attach_framebuffer(0, video_bit_map_2);
+      memcpy(video_bit_map_1->data, video_bit_map_2->data, VIDEO_FRAMEBUFFER_SIZE);
+      video_rast_port->point = video_bit_map_1->data;
+      video_rast_port->bitmap = video_bit_map_1;
+    }
+
+  return DRIVER_NO_ERROR;
+}

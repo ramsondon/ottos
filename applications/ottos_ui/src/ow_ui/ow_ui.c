@@ -28,6 +28,7 @@
 #include <api/bitmap.h>
 #include <api/colors.h>
 #include <api/system.h>
+#include <ottos/types.h>
 #include <vfat/fat_filelib.h>
 
 #include <string.h>
@@ -45,65 +46,69 @@
 void video_test() {
   //int i = 0, entries;
   //WEATHER_DATA data[DISPLAYED_DATA_SET_SIZE];time
-
   //GRAPH_DATA graph_data[DISPLAYED_DATA_SET_SIZE];
-  char str[20];
+  char str[24];
   float temp, solar, pres;
   int i, j;
+  time_t time;
 
   // set background
-  graphics_draw_rect(COLOR_Blue, 0, 0, RESOLUTION_WIDTH, RESOLUTION_HEIGHT);
+  graphics_draw_rect(COLOR_Blue, 0, 0, RESOLUTION_WIDTH, RESOLUTION_HEIGHT, FALSE);
 
   // set heading
-  graphics_draw_string(COLOR_WhiteSmoke, 50, 100, "..::  O t t O S  -  W E T T E R S T A T I O N  ::..", 3);
+  graphics_draw_string(COLOR_WhiteSmoke, 50, 100, "..::  O t t O S  -  W E T T E R S T A T I O N  ::..", 3, FALSE);
 
   // draw temperature block
-  graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL, MARGIN_VERTICAL_TOP, BLOCK_WIDTH, BLOCK_HEIGHT);
-  graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL + 60, MARGIN_VERTICAL_TOP + 60, "TEMPERATUR [°C]", 2);
-  graphics_draw_rect(COLOR_DarkGray, BLOCK_MARGIN_HORIZONTAL + 5, MARGIN_VERTICAL_TOP + 200 + 5, BLOCK_WIDTH - 10, 2);
-
+  graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL, MARGIN_VERTICAL_TOP, BLOCK_WIDTH, BLOCK_HEIGHT, FALSE);
+  graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL + 60, MARGIN_VERTICAL_TOP + 60, "TEMPERATUR [°C]", 2, FALSE);
+  graphics_draw_rect(COLOR_DarkGray, BLOCK_MARGIN_HORIZONTAL + 5, MARGIN_VERTICAL_TOP + 200 + 5, BLOCK_WIDTH - 10, 2, FALSE);
 
   // draw humidity block
-  graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL + BLOCK_MARGIN_HORIZONTAL_M + BLOCK_WIDTH, MARGIN_VERTICAL_TOP, BLOCK_WIDTH, BLOCK_HEIGHT);
-  graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL + BLOCK_WIDTH + BLOCK_MARGIN_HORIZONTAL_M + 30, MARGIN_VERTICAL_TOP + 60, "SOLARLEISTUNG [lux]", 2);
-  graphics_draw_rect(COLOR_DarkGray, BLOCK_MARGIN_HORIZONTAL + BLOCK_WIDTH + BLOCK_MARGIN_HORIZONTAL_M + 5, MARGIN_VERTICAL_TOP + 200 + 5, BLOCK_WIDTH - 10, 2);
-
+  graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL + BLOCK_MARGIN_HORIZONTAL_M + BLOCK_WIDTH, MARGIN_VERTICAL_TOP, BLOCK_WIDTH, BLOCK_HEIGHT, FALSE);
+  graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL + BLOCK_WIDTH + BLOCK_MARGIN_HORIZONTAL_M + 30, MARGIN_VERTICAL_TOP + 60, "SOLARLEISTUNG [lux]", 2, FALSE);
+  graphics_draw_rect(COLOR_DarkGray, BLOCK_MARGIN_HORIZONTAL + BLOCK_WIDTH + BLOCK_MARGIN_HORIZONTAL_M + 5, MARGIN_VERTICAL_TOP + 200 + 5, BLOCK_WIDTH - 10, 2, FALSE);
 
   // draw barometric pressure block
-  graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL + 2*BLOCK_MARGIN_HORIZONTAL_M + 2*BLOCK_WIDTH, MARGIN_VERTICAL_TOP, BLOCK_WIDTH, BLOCK_HEIGHT);
-  graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL + 2*BLOCK_WIDTH + 2*BLOCK_MARGIN_HORIZONTAL_M + 50, MARGIN_VERTICAL_TOP + 60, "LUFTDRUCK [hPa]", 2);
-  graphics_draw_rect(COLOR_DarkGray, BLOCK_MARGIN_HORIZONTAL + 2*BLOCK_WIDTH + 2*BLOCK_MARGIN_HORIZONTAL_M + 5, MARGIN_VERTICAL_TOP + 200 + 5, BLOCK_WIDTH - 10, 2);
+  graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL + 2*BLOCK_MARGIN_HORIZONTAL_M + 2*BLOCK_WIDTH, MARGIN_VERTICAL_TOP, BLOCK_WIDTH, BLOCK_HEIGHT, FALSE);
+  graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL + 2*BLOCK_WIDTH + 2*BLOCK_MARGIN_HORIZONTAL_M + 50, MARGIN_VERTICAL_TOP + 60, "LUFTDRUCK [hPa]", 2, FALSE);
+  graphics_draw_rect(COLOR_DarkGray, BLOCK_MARGIN_HORIZONTAL + 2*BLOCK_WIDTH + 2*BLOCK_MARGIN_HORIZONTAL_M + 5, MARGIN_VERTICAL_TOP + 200 + 5, BLOCK_WIDTH - 10, 2, FALSE);
 
   j = 0;
+  temp = 22.334;
+  solar = 423.9837;
+  pres = 955.34;
   while (TRUE) {
     // fake that fucking sensor data
-    temp += 23.34876 * (j % 2 == 0 ? 1.1 : 0.88);
-    solar += 233.4573 * (j % 5 == 0 ? 1.1 : 0.9);
-    pres += 1024.4711 * (j % 3 == 0 ? 1.1 : 0.9);
+    temp *= (j % 2 == 0 ? 1.3 : 0.88);
+    solar *= (j % 5 == 0 ? 1.3 : 0.9);
+    pres *= (j % 3 == 0 ? 1.3 : 0.9);
 
 
     // clear value area
-    graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL + 1, MARGIN_VERTICAL_TOP + 70, BLOCK_WIDTH - 2, 132);
-    graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL + BLOCK_WIDTH + BLOCK_MARGIN_HORIZONTAL_M + 1, MARGIN_VERTICAL_TOP + 70, BLOCK_WIDTH - 2, 132);
-    graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL + 2*BLOCK_WIDTH + 2*BLOCK_MARGIN_HORIZONTAL_M + 1, MARGIN_VERTICAL_TOP + 70, BLOCK_WIDTH - 2, 132);
+    graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL + 1, MARGIN_VERTICAL_TOP + 70, BLOCK_WIDTH - 2, 132, FALSE);
+    graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL + BLOCK_WIDTH + BLOCK_MARGIN_HORIZONTAL_M + 1, MARGIN_VERTICAL_TOP + 70, BLOCK_WIDTH - 2, 132, FALSE);
+    graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL + 2*BLOCK_WIDTH + 2*BLOCK_MARGIN_HORIZONTAL_M + 1, MARGIN_VERTICAL_TOP + 70, BLOCK_WIDTH - 2, 132, FALSE);
+    graphics_draw_rect(COLOR_Blue, 300, RESOLUTION_HEIGHT - 120, 600, 100, FALSE);
 
     // write current temperature value
-    sprintf(str, "%2.2f °C", temp);
-    graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL + 65, MARGIN_VERTICAL_TOP + 200, str, 4);
+    sprintf(str, "%2.1f °C", temp, FALSE);
+    graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL + 65, MARGIN_VERTICAL_TOP + 200, str, 4, FALSE);
 
     // write current solar value
-    sprintf(str, "%3f lux", solar);
-    graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL + BLOCK_WIDTH + BLOCK_MARGIN_HORIZONTAL_M + 60, MARGIN_VERTICAL_TOP + 200, str, 4);
+    sprintf(str, "%3.0f lux", solar);
+    graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL + BLOCK_WIDTH + BLOCK_MARGIN_HORIZONTAL_M + 60, MARGIN_VERTICAL_TOP + 200, str, 4, FALSE);
 
     // write current pressure value
-    sprintf(str, "%4f hPa", pres);
-    graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL + 2*BLOCK_WIDTH + 2*BLOCK_MARGIN_HORIZONTAL_M + 40, MARGIN_VERTICAL_TOP + 200, str, 4);
+    sprintf(str, "%4.0f hPa", pres);
+    graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL + 2*BLOCK_WIDTH + 2*BLOCK_MARGIN_HORIZONTAL_M + 40, MARGIN_VERTICAL_TOP + 200, str, 4, FALSE);
 
     // write current time
-    sprintf(str, "", );
+    time = sys_get_time();
+    sprintf(str, "%02d.%02d.%04d - %02d:%02d:%02d", time.days, time.month, time.year, time.hours, time.minutes, time.seconds);
+    graphics_draw_string(COLOR_WhiteSmoke, 320, RESOLUTION_HEIGHT - 40, str, 3, TRUE);
 
     // pause for 1 minute, 10 seconds, 1 second???
-    for (i = 0; i < 1000; i++) {
+    for (i = 0; i < 100000; i++) {
       j = i % 33;
     }
   }

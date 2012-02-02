@@ -80,6 +80,10 @@ size_t read_serial_with_end_char(char* buffer, size_t count, char end_character)
     i++;
   } while (i < count && c != end_character);
 
+  if(i > 0) {
+    // terminate string with \0
+    buffer[i - 1] = 0;
+  }
   return i;
 }
 

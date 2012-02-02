@@ -30,6 +30,7 @@
 #include <ottos/types.h>
 #include <ottos/syscalls.h>
 #include <ottos/kernel.h>
+#include <ottos/memory.h>
 #include <ottos/io.h>
 #include <ottos/dev/device.h>
 #include <ottos/drivers/driver.h>
@@ -47,28 +48,53 @@ BOOLEAN swi_handle_sys_yield() {
 	return TRUE;
 }
 
-BOOLEAN swi_handle_sys_exit() {
+BOOLEAN swi_handle_sys_exit(int state) {
 	// delete the active process
 	process_delete();
 	return TRUE;
 }
 
-BOOLEAN swi_handle_sys_create(int priority, int block_current, int executable_file_address) {
-	// get the real address of the executable_file_address
-	const char* executable_file = (const char*) mmu_get_physical_address(process_table[process_active], executable_file_address);
-	//int* pid = (int*)mmu_get_physical_address(process_table[process_active], pid_address);
+BOOLEAN swi_handle_sys_create(int parameters_address) {
 	code_bytes_t* code = NULL;
 
-	kernel_debug(1, "Loading hex file");
+	// get the real address of the executable_file_address
+	int* parameters = (int*) mmu_get_physical_address(process_table[process_active], parameters_address);
+
+	// get parameter values
+	int* pid = (int*) mmu_get_physical_address(process_table[process_active], parameters[0]);
+	int priority = parameters[1];
+	BOOLEAN block_current = (BOOLEAN) parameters[2];
+	const char* executable_file = (const char*) mmu_get_physical_address(process_table[process_active], parameters[3]);
+	int argc = parameters[4];
+	char** argv = (char**) mmu_get_physical_address(process_table[process_active], parameters[5]);
+	char** argv_copy = NULL;
+
+	//code = code_get(executable_file);
 	code = code_get_single_file(executable_file);
-	if(code == NULL) {
+	if (code == NULL) {
 		return FALSE;
 	}
 
-	kernel_debug(1, "Creating a new process");
-	/**pid = */process_create(priority, code, executable_file);
+	if (argc > 0) {
+		int i = 0;
 
-	kernel_debug(1, "Created process");
+		// copy argv strings
+		argv_copy = malloc(sizeof(char*) * argc);
+
+		for (i = 0; i < argc; i++) {
+			char* arg = (char*) mmu_get_physical_address(process_table[process_active], (unsigned int) argv[i]);
+			if (arg != NULL) {
+
+				int length = strlen(arg) + 1;
+				argv_copy[i] = (char*) malloc(sizeof(char) * length);
+				strcpy(argv_copy[i], arg);
+				//      argv_copy[i] = (char*) malloc(sizeof(char) * (strlen("bla") + 1));
+				//      strcpy(argv_copy[i], "bla");
+			}
+		}
+	}
+
+	*pid = process_create(priority, code, argv_copy[0], argc, argv_copy);
 
 	free(code->byte_0);
 	free(code->byte_1);
@@ -97,8 +123,8 @@ BOOLEAN swi_handle_sys_open(int fd_address, int device_id, int flags) {
 	} else {
 		device_error_code = driver->open(device);
 		if (device_error_code != 0) {
-      // could not open the device
-		  kernel_error(DRIVER_ERROR_CANNOT_OPEN, "An error occurred while opening a device");
+			// could not open the device
+			kernel_error(DRIVER_ERROR_CANNOT_OPEN, "An error occurred while opening a device");
 			*fd = SYSTEM_FD_INVALID;
 		} else {
 			// the file descriptor is the device
@@ -113,10 +139,10 @@ BOOLEAN swi_handle_sys_open(int fd_address, int device_id, int flags) {
 }
 
 BOOLEAN swi_handle_sys_physical_address(unsigned int vaddr, unsigned int physaddr) {
-  int* virtual = (int*) mmu_get_physical_address(process_table[process_active], vaddr);
-  int* physical = (int*)mmu_get_physical_address(process_table[process_active], physaddr);
-  *physical = (unsigned int)virtual;
-  return FALSE;
+	int* virtual = (int*) mmu_get_physical_address(process_table[process_active], vaddr);
+	int* physical = (int*) mmu_get_physical_address(process_table[process_active], physaddr);
+	*physical = (unsigned int) virtual;
+	return FALSE;
 }
 
 BOOLEAN swi_handle_sys_nr_of_process(unsigned int count) {
@@ -142,8 +168,8 @@ BOOLEAN swi_handle_sys_close(int error_code_address, int fd) {
 	// check if the file descriptor is a device or a file
 	process_file_descriptor_t* fd_process = process_get_file_descriptor(fd);
 	if (fd_process == NULL) {
-	  char message[256];
-	  sprintf(message, "Cannot close device or file %d (fd)", fd);
+		char message[256];
+		sprintf(message, "Cannot close device or file %d (fd)", fd);
 		kernel_error(PROCESS_UNKNOWN_FILE_DESCRIPTOR, message);
 	} else {
 		if (fd_process->type == DEVICE_FILE) {
@@ -163,7 +189,7 @@ BOOLEAN swi_handle_sys_write(int fd, int buffer_address, int buffer_size_address
 	// get the real address of the buffer_address
 	const char* buffer = (const char*) mmu_get_physical_address(process_table[process_active], buffer_address);
 	// use the buffer size address to get the length of the buffer and to return the written bytes
-  int* written_bytes = (int*) mmu_get_physical_address(process_table[process_active], buffer_size_address);
+	int* written_bytes = (int*) mmu_get_physical_address(process_table[process_active], buffer_size_address);
 	int buffer_size = *written_bytes;
 
 	// check if the file descriptor is a device or a file
@@ -185,9 +211,9 @@ BOOLEAN swi_handle_sys_write(int fd, int buffer_address, int buffer_size_address
 BOOLEAN swi_handle_sys_read(int fd, int buffer_address, int buffer_size_address) {
 	// get the real address of the buffer_address
 	char* buffer = (char*) mmu_get_physical_address(process_table[process_active], buffer_address);
-  // use the buffer size address to get the length of the buffer and to return the read bytes
-  int* read_bytes = (int*) mmu_get_physical_address(process_table[process_active], buffer_size_address);
-  int buffer_size = *read_bytes;
+	// use the buffer size address to get the length of the buffer and to return the read bytes
+	int* read_bytes = (int*) mmu_get_physical_address(process_table[process_active], buffer_size_address);
+	int buffer_size = *read_bytes;
 
 	// check if the file descriptor is a device or a file
 	process_file_descriptor_t* fd_process = process_get_file_descriptor(fd);
@@ -216,7 +242,8 @@ BOOLEAN swi_handle_sys_fopen(int fd_address, int path_address, int flags) {
 	FL_FILE* file = fl_fopen(path, mode);
 
 	if (file == NULL) {
-		kernel_error(FILE_UNKNOWN, "Cannot open file");
+		kernel_debug(FILE_UNKNOWN, "Cannot open file");
+		*fd = SYSTEM_FD_INVALID;
 	} else {
 		process_file_descriptor_t* fd_process = process_add_file_descriptor(file);
 		*fd = fd_process->fd;
@@ -249,8 +276,11 @@ BOOLEAN swi_handle_sys_fread(process_file_descriptor_t* fd_process, char* buffer
 BOOLEAN swi_handle_sys_diropen(int path_address, int dir_stat_address, int return_value_address) {
   const char* path = (const char*) mmu_get_physical_address(process_table[process_active], path_address);
   FL_DIR* dir = (FL_DIR*) mmu_get_physical_address(process_table[process_active], dir_stat_address);
-  FL_DIR* return_value = (FL_DIR*) mmu_get_physical_address(process_table[process_active], return_value_address);
-  return_value = (FL_DIR*) fl_opendir(path, dir);
+  int* return_value = (int*) mmu_get_physical_address(process_table[process_active], return_value_address);
+  *return_value = 0;
+  if (fl_opendir(path, dir)) {
+    *return_value = 1;
+  }
   return FALSE;
 }
 
@@ -270,54 +300,95 @@ BOOLEAN swi_handle_sys_dirread(int dir_stat_address, int dir_entry_address, int 
 }
 
 BOOLEAN swi_handle_sys_bind(int ns_address, int result_address) {
-  const char* namespace =
-      (const char*) mmu_get_physical_address(process_table[process_pid()], ns_address);
+	const char* namespace = (const char*) mmu_get_physical_address(process_table[process_pid()], ns_address);
 
-  int* result = (int*)mmu_get_physical_address(process_table[process_pid()], result_address);
+	int* result = (int*) mmu_get_physical_address(process_table[process_pid()], result_address);
 
-  *result = ipc_bind(namespace, process_pid());
+	*result = ipc_bind(namespace, process_pid());
 
-  return FALSE;
+	return FALSE;
 }
 
 BOOLEAN swi_handle_sys_send(int ns_address, int msg_address, int result_address) {
-  const char* namespace =
-      (const char*) mmu_get_physical_address(process_table[process_pid()], ns_address);
-  message_t* message =
-      (message_t*) mmu_get_physical_address(process_table[process_pid()], msg_address);
-  int* result = (int*)mmu_get_physical_address(process_table[process_pid()], result_address);
-  void* content = (void*)mmu_get_physical_address(process_table[process_pid()], (unsigned int)message->content);
+	const char* namespace = (const char*) mmu_get_physical_address(process_table[process_pid()], ns_address);
+	message_t* message = (message_t*) mmu_get_physical_address(process_table[process_pid()], msg_address);
+	int* result = (int*) mmu_get_physical_address(process_table[process_pid()], result_address);
+	void* content = (void*) mmu_get_physical_address(process_table[process_pid()], (unsigned int) message->content);
 
-  *result = ipc_send_msg(namespace, *message, content, process_pid());
+	*result = ipc_send_msg(namespace, *message, content, process_pid());
 
-  return FALSE;
+	return FALSE;
 }
 
 BOOLEAN sys_handle_sys_wait(int ns_address) {
-  const char* namespace =
-        (const char*) mmu_get_physical_address(process_table[process_pid()], ns_address);
+	const char* namespace = (const char*) mmu_get_physical_address(process_table[process_pid()], ns_address);
 
-  if (ipc_lookup_msg_concrete(namespace, process_pid()) == WAITING) {
-    process_table[process_pid()]->state = BLOCKED;
-    process_table[process_pid()]->blockstate = IPC_WAIT;
+	if (ipc_lookup_msg_concrete(namespace, process_pid()) == WAITING) {
+		process_table[process_pid()]->state = BLOCKED;
+		process_table[process_pid()]->blockstate = IPC_WAIT;
 
-    return TRUE;
-  }
+		return TRUE;
+	}
 
-  return FALSE;
+	return FALSE;
 }
 
 BOOLEAN swi_handle_sys_receive(int ns_address, int msg_address, int result_address) {
-  const char* namespace =
-      (const char*) mmu_get_physical_address(process_table[process_pid()], ns_address);
-  message_t* message =
-      (message_t*) mmu_get_physical_address(process_table[process_pid()], msg_address);
-  int* result = (int*)mmu_get_physical_address(process_table[process_pid()], result_address);
-  void* content = (void*)mmu_get_physical_address(process_table[process_pid()], (unsigned int)message->content);
+	const char* namespace = (const char*) mmu_get_physical_address(process_table[process_active], ns_address);
+	message_t* message = (message_t*) mmu_get_physical_address(process_table[process_active], msg_address);
+	int* result = (int*) mmu_get_physical_address(process_table[process_active], result_address);
+	void* content = (void*) mmu_get_physical_address(process_table[process_active], (unsigned int) message->content);
 
-  *result = ipc_receive_msg(namespace, message, content, process_pid());
+	*result = ipc_receive_msg(namespace, message, content, process_active);
 
+	return FALSE;
+}
+
+BOOLEAN swi_handle_sys_memory_info(int meminfo) {
+  meminfo_t* info = (meminfo_t*) mmu_get_physical_address(process_table[process_active], meminfo);
+  memory_info(info);
   return FALSE;
+}
+
+BOOLEAN swi_handle_sys_args_count(int argc_address) {
+	int* argc = (int*) mmu_get_physical_address(process_table[process_active], argc_address);
+
+	*argc = process_table[process_active]->argc;
+
+	return FALSE;
+}
+
+BOOLEAN swi_handle_sys_args_length(int index, int length_address) {
+	int* length = (int*) mmu_get_physical_address(process_table[process_active], length_address);
+
+	*length = strlen(process_table[process_active]->argv[index]);
+	// strlen ignores \0
+	(*length)++;
+
+	return FALSE;
+}
+
+BOOLEAN swi_handle_sys_args_value(int index, int argument_address) {
+	char* argument = (char*) mmu_get_physical_address(process_table[process_active], argument_address);
+
+	strcpy(argument, process_table[process_active]->argv[index]);
+
+	return FALSE;
+}
+
+BOOLEAN swi_handle_sys_args_free() {
+
+	int i = 0;
+	int argc = process_table[process_active]->argc;
+
+	for (i = 0; i < argc; i++) {
+		free(process_table[process_active]->argv[i]);
+	}
+
+	free(process_table[process_active]->argv);
+	process_table[process_active]->argc = 0;
+
+	return FALSE;
 }
 
 BOOLEAN swi_handle(unsigned int syscall_nr, unsigned int param1, unsigned int param2, unsigned int param3) {
@@ -327,12 +398,11 @@ BOOLEAN swi_handle(unsigned int syscall_nr, unsigned int param1, unsigned int pa
 	case SYS_YIELD:
 		return swi_handle_sys_yield();
 	case SYS_EXIT:
-		return swi_handle_sys_exit();
+	  // param1 = exit state of the process
+		return swi_handle_sys_exit(param1);
 	case SYS_EXEC:
-		// param1 = priority
-		// param2 = block_current
-		// param3 = path
-		return swi_handle_sys_create(param1, param2, param3);
+		// param1 = parameters array
+		return swi_handle_sys_create(param1);
 	case SYS_OPEN:
 		// param1 = return value (fd)
 		// param2 = device id
@@ -371,27 +441,40 @@ BOOLEAN swi_handle(unsigned int syscall_nr, unsigned int param1, unsigned int pa
 		// param2 = buffer
 		// param3 = count
 		return swi_handle_sys_read(param1, param2, param3);
-  case SYS_BIND_NAMESPACE:
-    // param1 = namespace
-    // param2 = result
-    return swi_handle_sys_bind(param1, param2);
-  case SYS_SEND:
-    // param1 = namespace
-    // param2 = message
-    // param3 = result
-    return swi_handle_sys_send(param1, param2, param3);
-  case SYS_WAIT_MSG:
-    // param1 = namespace
-    return sys_handle_sys_wait(param1);
-  case SYS_RECEIVE:
-    // param1 = namespace
-    // param2 = message
-    // param3 = result
-    return swi_handle_sys_receive(param1, param2, param3);
-  case SYS_PHYSICAL_ADDRESS:
-    // param1 = virtual address
-    // param2 = physical address return value
-    return swi_handle_sys_physical_address(param1, param2);
+	case SYS_BIND_NAMESPACE:
+		// param1 = namespace
+		// param2 = result
+		return swi_handle_sys_bind(param1, param2);
+	case SYS_SEND:
+		// param1 = namespace
+		// param2 = message
+		// param3 = result
+		return swi_handle_sys_send(param1, param2, param3);
+	case SYS_WAIT_MSG:
+		// param1 = namespace
+		return sys_handle_sys_wait(param1);
+	case SYS_RECEIVE:
+		// param1 = namespace
+		// param2 = message
+		// param3 = result
+		return swi_handle_sys_receive(param1, param2, param3);
+	case SYS_PHYSICAL_ADDRESS:
+		// param1 = virtual address
+		// param2 = physical address return value
+		return swi_handle_sys_physical_address(param1, param2);
+	case SYS_ARGS_COUNT:
+		// param1 = return value (argument count)
+		return swi_handle_sys_args_count(param1);
+	case SYS_ARGS_VALUE_LENGTH:
+		// param1 = argument index
+		// param2 = return value (argument length)
+		return swi_handle_sys_args_length(param1, param2);
+	case SYS_ARGS_VALUE:
+		// param1 = argument index
+		// param2 = return value (argument)
+		return swi_handle_sys_args_value(param1, param2);
+	case SYS_ARGS_FREE:
+		return swi_handle_sys_args_free();
   case SYS_NR_OF_PROCESS:
     // param1 = count as return value
     return swi_handle_sys_nr_of_process(param1);
@@ -400,6 +483,9 @@ BOOLEAN swi_handle(unsigned int syscall_nr, unsigned int param1, unsigned int pa
     // param2 = count
     // param3 = actual number of pinfo_t blocks read by syscall
     return swi_handle_sys_process_info(param1, param2, param3);
+  case SYS_MEMORY_INFO:
+    // param1 meminfo_t
+    return swi_handle_sys_memory_info(param1);
 	default:
 		// unknown syscall number
 		kernel_error(SWI_UNKNOWN_SYSCALL_NR, "Unknown syscall-number. Ignoring.");

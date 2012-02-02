@@ -23,11 +23,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <api/proc.h>
 #include <api/io.h>
 #include <api/memory.h>
 #include <api/time.h>
+
+#define ROOT -1
 
 static uint32_t process_count = 0;
 
@@ -51,34 +54,50 @@ void free_pinfos(pinfo_t* pinfos) {
   }
 }
 
-void print_pinfo(pinfo_t* pinfo) {
-
-  char buffer[500] = { 0 };
-  char membuf[10] = { 0 };
-  char timebuf[20] = { 0 };
-  // print current pinfo_t
-  sprintf(buffer, "%d\t%d\t%s\t%s\t%s\t%s\n\r", pinfo->pid, pinfo->tty,
-          pstate_readable(pinfo->stat), timetostr(pinfo->time, timebuf),
-          memstr(pinfo->mem, membuf), pinfo->cmd
-  );
-  print(buffer);
+void print_treenode(pinfo_t* pinfo, int level) {
+  int i = 0;
+  for (i = 0; i < level; i++) {
+    print("---");
+  }
+  print(pinfo->cmd);
+  print("\n\r");
 }
+
+void traverse_tree(pid_t parent, pinfo_t* pinfo, int level)  {
+  int i = 0;
+  for (i = 0; i < process_count; i++) {
+    if (parent == pinfo[i].pid) {
+      print_treenode(&pinfo[i], level);
+    } else if (pinfo[i].parent == parent) {
+      traverse_tree(pinfo[i].pid, pinfo, level+1);
+    }
+  }
+}
+
+void print_pstree(pinfo_t* pinfo) {
+
+  int i = 0;
+  pid_t* cl = malloc(sizeof(pid_t) * process_count);
+  memset(cl, -1, process_count);
+
+  for (i = 0; i < process_count; i++) {
+    if (pinfo[i].parent == ROOT) {
+      traverse_tree(pinfo[i].pid, pinfo, 0);
+    }
+  }
+  free(cl);
+}
+
+
 
 int main(int argc, char **argv) {
 
   // allocate resources and get process infos
   pinfo_t* pinfo = get_pinfos();
 
-  // print header of ps
-  print("PID\tTTY\tSTAT\tTIME    \tMEM\tCMD\n\r");
-
   if (pinfo != NULL) {
 
-    int i = 0;
-    // print all process info blocks
-    for (i = 0; i < process_count; i++) {
-      print_pinfo(&pinfo[i]);
-    }
+    print_pstree(pinfo);
     // free allocated resources
     free_pinfos(pinfo);
   }

@@ -22,18 +22,21 @@
  */
 
 #include "ls/ls.h"
+#include <api/system.h>
 #include <api/io.h>
+#include <api/proc.h>
 
-int main(int argc, char** argv) {
+int main() {
 
-  // TODO: we need to pass the path to this application via argv[1]
-  char path[] = "/bin";
+  int argc = 0;
+  char** argv = sys_read_arguments(&argc);
 
-  print("start ls:\n");
+  if(argc != 2) {
+	  print("usage: ls [path] (path isn't optional)\r\n");
+	  sys_exit(1);
+  }
 
-  ls(path);
-
-  print("ls done ...\n");
-
+  ls(argv[1]);
+  pexit(0);
   return 0;
 }

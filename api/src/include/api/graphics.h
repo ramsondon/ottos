@@ -38,11 +38,11 @@
 #define GRAPHICS_GRAPH_TEMP_MAX    40
 #define GRAPHICS_GRAPH_TEMP_MIN   -12
 
-EXTERN void graphics_draw_pixel(unsigned int rgb, int x, int y);
-EXTERN void graphics_draw_ellipse(unsigned int rgb, int x, int y, int a, int b);
-EXTERN void graphics_draw_rect(unsigned int rgb, int x, int y, int w, int h);
-EXTERN void graphics_draw_line(unsigned int rgb, int x, int y, int x_end, int y_end);
-EXTERN void graphics_draw_string(unsigned int rgb, int x, int y, const char* s, int scale);
+EXTERN void graphics_draw_pixel(unsigned int rgb, int x, int y, BOOLEAN redraw);
+EXTERN void graphics_draw_ellipse(unsigned int rgb, int x, int y, int a, int b, BOOLEAN redraw);
+EXTERN void graphics_draw_rect(unsigned int rgb, int x, int y, int w, int h, BOOLEAN redraw);
+EXTERN void graphics_draw_line(unsigned int rgb, int x, int y, int x_end, int y_end, BOOLEAN redraw);
+EXTERN void graphics_draw_string(unsigned int rgb, int x, int y, const char* s, int scale, BOOLEAN redraw);
 
 //EXTERN void graphics_draw_graph(GRAPH_DATA* data, int length, int timespan, int height, int width,
 //                           unsigned int color_line, unsigned int color_background);

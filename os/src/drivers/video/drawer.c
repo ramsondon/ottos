@@ -34,8 +34,8 @@ static void drawer_set_color(RastPort *rp, unsigned int rgb) {
 static void drawer_move_to(RastPort *rp, int x, int y) {
   rp->x = x;
   rp->y = y;
-  rp->point = ((unsigned char *) rp->drawable.bitmap->data) + x * 2
-      + y * rp->drawable.bitmap->stride;
+  rp->point = ((unsigned char *) rp->bitmap->data) + x * 2
+      + y * rp->bitmap->stride;
 }
 
 void drawer_draw_pixel(RastPort *rp, unsigned int color, int x, int y) {
@@ -51,19 +51,19 @@ void drawer_draw_rect(RastPort *rp, unsigned int color, int x, int y, int w, int
   drawer_move_to(rp, x, y);
   outp = rp->point;
 
-  if (w + rp->x > rp->drawable.bitmap->width) {
-    w = rp->drawable.bitmap->width - rp->x;
+  if (w + rp->x > rp->bitmap->width) {
+    w = rp->bitmap->width - rp->x;
   }
 
-  if (h + rp->y > rp->drawable.bitmap->height) {
-    h = rp->drawable.bitmap->height - rp->y;
+  if (h + rp->y > rp->bitmap->height) {
+    h = rp->bitmap->height - rp->y;
   }
 
   for (j = 0; j < h; j++) {
     for (i = 0; i < w; i++) {
       outp[i] = color;
     }
-    outp = (unsigned short *) ((char *) outp + rp->drawable.bitmap->stride);
+    outp = (unsigned short *) ((char *) outp + rp->bitmap->stride);
   }
 }
 
@@ -139,16 +139,16 @@ static void drawer_draw_char(RastPort *rp, unsigned int c, int scale) {
   unsigned const char *inp;
 
   // check if character is valid for the used font
-  if (c < rp->font.romfont->first || c > rp->font.romfont->last) {
+  if (c < rp->romfont->first || c > rp->romfont->last) {
     return;
   }
 
   // get dimension of character
-  w = rp->font.romfont->width;
-  h = rp->font.romfont->height;
-  c = (c - rp->font.romfont->first) * w;
-  outp = ((unsigned short *)rp->point) - rp->font.romfont->baseline*scale*rp->drawable.bitmap->stride;
-  inp = rp->font.romfont->bitmap + c;
+  w = rp->romfont->width;
+  h = rp->romfont->height;
+  c = (c - rp->romfont->first) * w;
+  outp = ((unsigned short *)rp->point) - rp->romfont->baseline*scale*rp->bitmap->stride;
+  inp = rp->romfont->bitmap + c;
 
   for (j=0;j<h;j++) {
     for (s=0;s<scale;s++)  {
@@ -158,16 +158,16 @@ static void drawer_draw_char(RastPort *rp, unsigned int c, int scale) {
           outp[i] = rp->color;
         }
       }
-      outp = (unsigned short *)((char *)outp + rp->drawable.bitmap->stride);
+      outp = (unsigned short *)((char *)outp + rp->bitmap->stride);
     }
-    inp += rp->font.romfont->stride;
+    inp += rp->romfont->stride;
   }
 
   rp->point = ((unsigned short *)rp->point) + w*scale;
   rp->x += w*scale;
 }
 
-void drawer_draw_string(RastPort *rp, unsigned int color, int x, int y, const char *s, int len, int scale) {
+void drawer_draw_string(RastPort *rp, unsigned int color, int x, int y, const char *s, int scale) {
   unsigned int c;
 
   drawer_move_to(rp, x, y);
@@ -175,112 +175,13 @@ void drawer_draw_string(RastPort *rp, unsigned int color, int x, int y, const ch
 
   while ((c = *s++)) {
     if (c == '\n') {
-      if (y + 20 > rp->drawable.bitmap->height*scale) {
+      if (y + 20 > rp->bitmap->height*scale) {
         drawer_move_to(rp, x, 20);
       } else {
-        drawer_move_to(rp, x, y + rp->font.romfont->lineheight*scale);
+        drawer_move_to(rp, x, y + rp->romfont->lineheight*scale);
       }
     } else {
       drawer_draw_char(rp, c, scale);
     }
   }
 }
-
-
-/*
-void drawer_draw_graph(RastPort *rp, GRAPH_DATA* data, int length, int timespan, int height, int width,
-                         unsigned int color_line, unsigned int color_background) {
-  int i, y, value, prev_x, time_legend_index, time_legend_gap;
-  int x0 = rp->x;
-  int y0 = rp->y;
-  int margin = 3;
-  int span_in_pixel = width / length;
-  GRAPH_DATA* cur_data;
-  char str[8];
-  float degree_in_pixel = height / (abs(GRAPHICS_GRAPH_TEMP_MAX) + abs(GRAPHICS_GRAPH_TEMP_MIN));
-
-
-  // draw background rectangle
-  drawer_set_color(rp, color_background);
-  drawer_draw_rect(rp, width, height);
-  // draw vertical axis
-  drawer_set_color(rp, COLOR_Black);
-  drawer_draw_line(rp, x0+margin, y0+margin, x0+margin, y0+height-margin, 1);
-  // draw horizontal axis
-  drawer_draw_line(rp, x0+margin, y0+GRAPHICS_GRAPH_TEMP_MAX*degree_in_pixel,
-                     x0+width-margin, y0+GRAPHICS_GRAPH_TEMP_MAX*degree_in_pixel, 1);
-
-  // draw dataline
-  drawer_set_color(rp, color_line);
-  x0 += margin + 1;
-  y0 += GRAPHICS_GRAPH_TEMP_MAX*degree_in_pixel;
-
-  for (i = 0; i < length; i++) {
-    value = data[i].data;
-    drawer_draw_line(rp, x0 + span_in_pixel * i, prev_x, x0 + span_in_pixel * (i + 1), y0 + value/degree_in_pixel, 1);
-    prev_x = x0 + value/degree_in_pixel;
-  }
-
-  // write timevalues on time axis
-  time_legend_index = length / 4;
-  time_legend_gap = width / 4;
-
-  // draw 4 time values on timeline
-  cur_data = &(data[0]);
-  drawer_set_color(rp, COLOR_Black);
-  drawer_move_to(rp, x0 + 10, y0);
-  sprintf(str, "%02d:%02d:%02d", cur_data->timestamp.hour, cur_data->timestamp.minute, cur_data->timestamp.second);
-  drawer_draw_string(rp, str, 2);
-
-  for (i = 1; i < 4; i++) {
-    cur_data = &(data[time_legend_index * i - 1]);
-    drawer_set_color(rp, COLOR_Black);
-    drawer_move_to(rp, x0 + time_legend_gap*i, y0);
-    sprintf(str, "%02d:%02d:%02d", cur_data->timestamp.hour, cur_data->timestamp.minute, cur_data->timestamp.second);
-    drawer_draw_string(rp, str, 2);
-  }
-
-  // draw legend for value axis
-  drawer_move_to(rp, x0 - 5, y0);
-  drawer_draw_string(rp, "0", 2);
-
-  y = y0 - (degree_in_pixel * GRAPHICS_GRAPH_TEMP_MAX);
-  // draw positive values on value axis
-  for (i = 1; i > 10; i++) {
-    sprintf(str, "%d\0", i * 5);
-    drawer_move_to(rp, x0 - margin, y);
-    drawer_draw_string(rp, str, 2);
-  }
-
-  // draw negative values on value axis
-  for (i = 1; i < -4; i--) {
-    sprintf(str, "%d\0", -i * 5);
-    drawer_move_to(rp, x0 - margin, y);
-    drawer_draw_string(rp, str, 2);
-  }
-}
-*/
-
-/*
-void drawer_draw_picture(int x, int y, BITMAP_HEADER* bmp_header, RGBA* data) {
-  int w, l;
-  int curX = x;
-  int curY = y;
-  RGBA* curPixel = data;
-
-  drawer_move_to(drawer_rastport, curX, curY);
-
-  for (l = 0; l < bmp_header->height; l++) {
-    curX = x;
-    for (w = 0; w < bmp_header->width; w++) {
-      drawer_set_color(drawer_rastport, (curPixel->Red << 6) | (curPixel->Green << 4) | (curPixel->Blue << 2));
-      drawer_move_to(drawer_rastport, curX, curY);
-      drawer_draw_pixel(drawer_rastport);
-      curPixel++;
-      curX++;
-    }
-
-    curY++;
-  }
-}
-*/
