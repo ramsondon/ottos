@@ -24,6 +24,19 @@
 #include <stdio.h>
 #include <ottos/types.h>
 #include <api/time.h>
+#include <api/system.h>
+
+static char* pad3_str(uint32_t val, char* buffer) {
+  if (val < 10) {
+    sprintf(buffer, "00%d", val);
+    return buffer;
+  } else if (val < 100) {
+    sprintf(buffer, "0%d", val);
+  } else {
+    sprintf(buffer, "%3d", val);
+  }
+  return buffer;
+}
 
 static char* pad2_str(uint32_t val, char* buffer) {
   sprintf(buffer, ((val < 10) ? "0%d" : "%2d"), val);
@@ -43,4 +56,22 @@ char* timetostr(uint64_t ms, char* buffer) {
 
   sprintf(buffer, "%s:%s:%s", pad2_str(hours, h), pad2_str(minutes, m), pad2_str(seconds, s));
   return buffer;
+}
+
+char* timetostr_m_s_ms(uint64_t ms, char* buffer) {
+
+  uint32_t days = (uint32_t) (ms / ONE_DAY);
+  uint32_t hours = (uint32_t) (ms / ONE_HOUR - days * 24);
+  uint32_t minutes = (uint32_t) (ms / ONE_MINUTE - (hours + days * 24) * 60);
+  uint32_t seconds = (uint32_t) (ms / ONE_SEC - (minutes + (hours + days * 24) * 60) * 60);
+  uint32_t milliseconds = (uint32_t) (ms % 1000);
+  char msbuf[5] = {0};
+
+  sprintf(buffer, "%dm%d.%ss", minutes, seconds, pad3_str(milliseconds, msbuf));
+  return buffer;
+}
+
+
+uint64_t uptime() {
+  return sys_uptime();
 }

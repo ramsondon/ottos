@@ -34,6 +34,11 @@
 EXTERN uint32_t pinfo(pinfo_t* pinfo, uint32_t count);
 
 /*
+ * Return the process information for a specific PID.
+ */
+EXTERN pid_t pinfo_for(pid_t pid, pinfo_t* info);
+
+/*
  * returns the number of running processes. the result will be at least 1 for
  * the reason that this process is the only one which would be running.
  */
@@ -43,6 +48,16 @@ EXTERN uint32_t pcount();
  * maps a pinfo->stat entry to a readable char*
  */
 EXTERN const char* pstate_readable(int stat);
+
+/*
+ * executes a binary at the specified path
+ * @param prio - process priority
+ * @param block - block the calling process
+ * @param path - filename and path to binary
+ * @param argc - argument count
+ * @param argv - argument values
+ */
+EXTERN pid_t pexec(int prio, BOOLEAN block, const char* path, int argc, char** argv);
 
 /*
  * exits the current process

@@ -41,8 +41,16 @@ uint32_t pinfo(pinfo_t* pinfo, uint32_t count) {
   return sys_pinfo(pinfo, count);
 }
 
+pid_t pinfo_for(pid_t pid, pinfo_t* info) {
+  return sys_pinfo_for(pid, info);
+}
+
 void pexit(int state) {
   sys_exit(state);
+}
+
+pid_t pexec(int prio, BOOLEAN block, const char* path, int argc, char** argv) {
+  return sys_execute(prio, block, path, argc, argv);
 }
 
 const char* pstate_readable(int stat) {

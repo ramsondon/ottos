@@ -109,6 +109,9 @@ void process_delete() {
     }
   }
 
+  // free cmd
+  free((char*)process_table[process_active]->cmd);
+
   // destroy all namespaces and pending messages of this IPC receiver pid
   ipc_kill_receiver(process_active);
 
@@ -150,7 +153,8 @@ pid_t process_create(int priority, code_bytes_t* code_bytes, const char* cmd, in
 	p->parent = NULL;
 	p->starttime = timer_system_uptime();
 
-	p->cmd = cmd;
+	p->cmd = malloc(sizeof(char) * (strlen(cmd) + 1));
+	strcpy((char*)p->cmd, cmd);
 
   p->pid = process_next_free_entry;
   p->priority = priority;
@@ -351,4 +355,29 @@ unsigned int process_pinfo(pinfo_t pinfo[], int count) {
     c++;
   }
   return  c;
+}
+
+pid_t process_pinfo_for(pid_t pid, pinfo_t* info) {
+  int i = 0;
+  for (i = 0; i < PROCESS_MAX_COUNT; i++){
+      // continue if there is no process at this index
+      if (process_table[i] == NULL) {
+        continue;
+      }
+
+      if (process_table[i]->pid == pid) {
+        info->pid = process_table[i]->pid;
+        info->parent = (process_table[i]->parent != NULL ? process_table[i]->parent->pid : -1);
+        info->tty = 0;
+        info->prio = process_table[i]->priority;
+        info->mem = process_table[i]->page_count * MMU_PAGE_SIZE;
+        info->stat = process_table[i]->state;
+        info->time = timer_system_uptime() - process_table[i]->starttime;
+        memset(info->cmd, 0, PINFO_MAX_CMD_LENGTH);
+        strcpy(info->cmd, process_table[i]->cmd);
+        return pid;
+      }
+  }
+
+  return PID_INVALID;
 }

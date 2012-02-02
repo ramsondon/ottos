@@ -54,11 +54,13 @@ EXTERN int sys_close(int fd);
 
 EXTERN unsigned int sys_physical_address_of(const void* address);
 
-EXTERN int sys_execute(int priority, BOOLEAN block_current, const char* path, int argc, char** argv);
+EXTERN pid_t sys_execute(int priority, BOOLEAN block_current, const char* path, int argc, char** argv);
 
 EXTERN unsigned int sys_pcount();
 
 EXTERN int sys_pinfo(pinfo_t* mem, int count);
+
+EXTERN pid_t sys_pinfo_for(pid_t pid, pinfo_t* info);
 /**
  * IPC system calls
  */
@@ -100,6 +102,11 @@ EXTERN char** sys_read_arguments(int* argc);
  */
 EXTERN void sys_exit(int state);
 
+/*
+ * Hand over to another process.
+ */
+EXTERN void sys_yield();
+
 /**
  * Open a directory for listing files.
  *
@@ -123,8 +130,13 @@ EXTERN int sys_closedir(dir_t* dir_stat);
 EXTERN int sys_readdir(dir_t* dir_stat, dir_entry_t* dir_entry);
 
 /**
- * Returns the curren time
+ * Returns the current time
  */
 EXTERN time_t sys_get_time();
+
+/*
+ * returns the current system uptime
+ */
+EXTERN uint64_t sys_uptime();
 
 #endif /* API_SYSTEM_H_ */

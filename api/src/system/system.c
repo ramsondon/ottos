@@ -145,7 +145,13 @@ int sys_pinfo(pinfo_t* mem, int count) {
   return actual_read_count;
 }
 
-int sys_execute(int priority, BOOLEAN block_current, const char* path, int argc, char** argv) {
+pid_t sys_pinfo_for(pid_t pid, pinfo_t* info) {
+  int return_value;
+  swi(SYS_PROCESS_INFO_FOR, (unsigned int) &pid, (unsigned int) info, (unsigned int) &return_value);
+  return return_value;
+}
+
+pid_t sys_execute(int priority, BOOLEAN block_current, const char* path, int argc, char** argv) {
   int return_value = PID_INVALID;
 
   // create a parameter array
@@ -228,6 +234,10 @@ void sys_exit(int state) {
   swi(SYS_EXIT, state, 0, 0);
 }
 
+void sys_yield() {
+  swi(SYS_YIELD, 0, 0, 0);
+}
+
 time_t sys_get_time() {
   time_t time;
 
@@ -239,3 +249,8 @@ time_t sys_get_time() {
   return time;
 }
 
+uint64_t sys_uptime() {
+  uint64_t time = 0;
+  swi(SYS_UPTIME, (unsigned int)&time, 0, 0);
+  return time;
+}

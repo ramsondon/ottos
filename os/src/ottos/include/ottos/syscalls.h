@@ -33,6 +33,7 @@
 #define SYS_NR_OF_PROCESS     4
 #define SYS_PHYSICAL_ADDRESS  5
 #define SYS_PROCESS_INFO      6
+#define SYS_PROCESS_INFO_FOR  7
 
 /**
  * I/O system calls
@@ -73,5 +74,10 @@
  * MEMORY system calls
  */
 #define SYS_MEMORY_INFO 50
+
+/*
+ * TIME system calls
+ */
+#define SYS_UPTIME  60
 
 #endif /* SYSCALLS_H_ */

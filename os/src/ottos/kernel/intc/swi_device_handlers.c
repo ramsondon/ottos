@@ -32,6 +32,7 @@
 #include <ottos/kernel.h>
 #include <ottos/memory.h>
 #include <ottos/io.h>
+#include <ottos/timer.h>
 #include <ottos/dev/device.h>
 #include <ottos/drivers/driver.h>
 #include "../ipc/ipc.h"
@@ -94,7 +95,7 @@ BOOLEAN swi_handle_sys_create(int parameters_address) {
 		}
 	}
 
-	*pid = process_create(priority, code, argv_copy[0], argc, argv_copy);
+	*pid = process_create(priority, code, executable_file, argc, argv_copy);
 
 	free(code->byte_0);
 	free(code->byte_1);
@@ -158,6 +159,17 @@ BOOLEAN swi_handle_sys_process_info(unsigned int mem, unsigned int count, unsign
   int* c = (int*) mmu_get_physical_address(process_table[process_active], count);
   int* ac = (int*) mmu_get_physical_address(process_table[process_active], act_nr_of_pinfos);
   *ac = process_pinfo(list, *c);
+  return FALSE;
+}
+
+// param1 = pid_t pid
+// param2 = pinfo_t info
+// param3 = int return_value (has to be the pid or 0)
+BOOLEAN swi_handle_sys_process_info_for(unsigned int pid_addr, unsigned int info_addr, unsigned int return_value_addr) {
+  pinfo_t* info = (pinfo_t*) mmu_get_physical_address(process_table[process_active], info_addr);
+  pid_t* pid = (pid_t*) mmu_get_physical_address(process_table[process_active], pid_addr);
+  int* return_value = (int*) mmu_get_physical_address(process_table[process_active], return_value_addr);
+  *return_value = process_pinfo_for(*pid, info);
   return FALSE;
 }
 
@@ -350,6 +362,12 @@ BOOLEAN swi_handle_sys_memory_info(int meminfo) {
   return FALSE;
 }
 
+BOOLEAN swi_handle_sys_uptime(int timestamp) {
+  uint64_t* time = (uint64_t*) mmu_get_physical_address(process_table[process_active], timestamp);
+  *time = timer_system_uptime();
+  return FALSE;
+}
+
 BOOLEAN swi_handle_sys_args_count(int argc_address) {
 	int* argc = (int*) mmu_get_physical_address(process_table[process_active], argc_address);
 
@@ -483,9 +501,17 @@ BOOLEAN swi_handle(unsigned int syscall_nr, unsigned int param1, unsigned int pa
     // param2 = count
     // param3 = actual number of pinfo_t blocks read by syscall
     return swi_handle_sys_process_info(param1, param2, param3);
+  case SYS_PROCESS_INFO_FOR:
+    // param1 = pid_t pid
+    // param2 = pinfo_t info
+    // param3 = int return_value (has to be the pid or 0)
+    return swi_handle_sys_process_info_for(param1, param2, param3);
   case SYS_MEMORY_INFO:
-    // param1 meminfo_t
+    // param1 = meminfo_t
     return swi_handle_sys_memory_info(param1);
+  case SYS_UPTIME:
+    // param1 = long current uptime
+    return swi_handle_sys_uptime(param1);
 	default:
 		// unknown syscall number
 		kernel_error(SWI_UNKNOWN_SYSCALL_NR, "Unknown syscall-number. Ignoring.");
