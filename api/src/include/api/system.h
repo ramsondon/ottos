@@ -60,7 +60,7 @@ EXTERN unsigned int sys_pcount();
 
 EXTERN int sys_pinfo(pinfo_t* mem, int count);
 
-EXTERN BOOLEAN sys_pinfo_for(pid_t pid, pinfo_t* info);
+EXTERN pid_t sys_pinfo_for(pid_t pid, pinfo_t* info);
 /**
  * IPC system calls
  */

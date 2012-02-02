@@ -41,7 +41,7 @@ uint32_t pinfo(pinfo_t* pinfo, uint32_t count) {
   return sys_pinfo(pinfo, count);
 }
 
-BOOLEAN pinfo_for(pid_t pid, pinfo_t* info) {
+pid_t pinfo_for(pid_t pid, pinfo_t* info) {
   return sys_pinfo_for(pid, info);
 }
 

@@ -145,10 +145,10 @@ int sys_pinfo(pinfo_t* mem, int count) {
   return actual_read_count;
 }
 
-BOOLEAN sys_pinfo_for(pid_t pid, pinfo_t* info) {
+pid_t sys_pinfo_for(pid_t pid, pinfo_t* info) {
   int return_value;
   swi(SYS_PROCESS_INFO_FOR, (unsigned int) &pid, (unsigned int) info, (unsigned int) &return_value);
-  return (return_value == 1);
+  return return_value;
 }
 
 pid_t sys_execute(int priority, BOOLEAN block_current, const char* path, int argc, char** argv) {
@@ -248,13 +248,9 @@ time_t sys_get_time() {
 
   return time;
 }
-<<<<<<< HEAD
-=======
 
 uint64_t sys_uptime() {
   uint64_t time = 0;
   swi(SYS_UPTIME, (unsigned int)&time, 0, 0);
   return time;
 }
-
->>>>>>> f7668405a1f4b30b3509c20f68b25d5aa99735bb
