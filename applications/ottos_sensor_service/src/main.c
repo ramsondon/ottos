@@ -25,19 +25,32 @@
 #include <api/sensor.h>
 #include <api/ipc.h>
 
-
-
 int main() {
 
   message_t message;
   char* namespace = "ottossensor";
+  sensor_values_t oldVals;
+  int i = 0;
 
   message.count = 1;
   message.size = sizeof(sensor_values_t);
   message.type = 1;
 
-  while(1) {
+  oldVals = sensor_read_values();
+  while (1) {
     sensor_values_t values = sensor_read_values();
+
+    while ((values.temp > (2 * oldVals.temp)
+        || (2 * values.solar) < oldVals.solar
+        || values.pressure > (oldVals.pressure + 10))
+        && i < 10) {
+
+      values = sensor_read_values();
+      i++;
+    }
+    oldVals = values;
+    i = 0;
+
     message.content = &values;
 
     send(namespace, &message);
