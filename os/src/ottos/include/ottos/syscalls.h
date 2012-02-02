@@ -33,6 +33,7 @@
 #define SYS_NR_OF_PROCESS     4
 #define SYS_PHYSICAL_ADDRESS  5
 #define SYS_PROCESS_INFO      6
+#define SYS_PROCESS_INFO_FOR  7
 
 /**
  * I/O system calls

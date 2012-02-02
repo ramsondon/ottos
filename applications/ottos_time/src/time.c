@@ -46,12 +46,11 @@ int main() {
 
   // goto next argument for starting child process
   argv++;
-
   // get current timestamp
   stime = uptime();
 
   // execute child process and stay blocked until process finished
-  pexec(1, TRUE, (const char*)argv[0], argc - 2, argv);
+  pexec(1, TRUE, (const char*)argv[0], argc - 1, argv);
 
   // get end of execution time
   etime = uptime();
