@@ -41,17 +41,17 @@ int main() {
   while (1) {
     sensor_values_t values = sensor_read_values();
 
-    while ((values.temp > (2 * oldVals.temp)
-        || (10 * values.solar) < oldVals.solar
-        || (10 * values.solar) > oldVals.solar
-        || values.pressure > (oldVals.pressure + 10))
-        && i < sleeptime) {
-
-      psleep(1);
-      values = sensor_read_values();
-      i++;
-    }
-    oldVals = values;
+//    while ((values.temp > (2 * oldVals.temp)
+//        || (10 * values.solar) < oldVals.solar
+//        || (10 * values.solar) > oldVals.solar
+//        || values.pressure > (oldVals.pressure + 10))
+//        && i < sleeptime) {
+//
+//      psleep(1);
+//      values = sensor_read_values();
+//      i++;
+//    }
+//    oldVals = values;
 
     message.content = &values;
 
