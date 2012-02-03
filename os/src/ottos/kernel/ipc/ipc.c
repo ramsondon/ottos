@@ -28,6 +28,8 @@
 #include <ottos/kernel.h>
 #include <ottos/io.h>
 
+#include "../pm/process.h"
+
 #include "ipc.h"
 /*
  * IPC message queue global instance
@@ -468,6 +470,7 @@ int ipc_send_msg(const char* ns, message_t msg, const void* content, pid_t sende
 
     // add message to queue
     ipc_add_to_queue(&ipc_message_queue, new_ipc_msg);
+    process_unblock(receiver->pid);
     receiver = receiver->next;
   }
   return SUCCESS;
