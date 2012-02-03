@@ -52,6 +52,9 @@
 static sensor_values_t avg_old;
 static int cur_index = 0;
 static sensor_values_t value_history[AVG_RANGE];
+static int old_trend_temp = TREND_STABLE;
+static int old_trend_pressure = TREND_STABLE;
+static int old_trend_solar = TREND_STABLE;
 
 
 static double calculate_avg(int sensor_type) {
@@ -98,7 +101,7 @@ static void draw_time_block() {
   // write current time
   time = sys_get_time();
   sprintf(str, "%02d.%02d.20%02d-%02d:%02d:%02d", time.days, time.month, time.year, time.hours, time.minutes, time.seconds);
-  graphics_draw_string(COLOR_WhiteSmoke, 335, RESOLUTION_HEIGHT-40, str, 3, FALSE);
+  graphics_draw_string(COLOR_WhiteSmoke, 335, RESOLUTION_HEIGHT-40, str, 3, TRUE);
 }
 
 static void draw_temparature_block(double current_value) {
@@ -118,16 +121,19 @@ static void draw_temparature_block(double current_value) {
   avg_old.temp = calculate_avg(SENSOR_TYPE_TEMP);
   trend = calculate_trend(avg_old.temp, old_avg, 0.1);
 
-  switch(trend) {
-  case TREND_UP:
-    graphics_draw_arrow(ARROW_COLOR_TREND_UP, BLOCK_MARGIN_HORIZONTAL+BLOCK_WIDTH/2, MARGIN_VERTICAL_ARROW+45, 0, 0, 1, TRUE);
-    break;
-  case TREND_DOWN:
-    graphics_draw_arrow(ARROW_COLOR_TREND_DOWN, BLOCK_MARGIN_HORIZONTAL+BLOCK_WIDTH/2, MARGIN_VERTICAL_ARROW+245, 0, 0, 5, TRUE);
-    break;
-  case TREND_STABLE:
-    graphics_draw_arrow(ARROW_COLOR_TREND_STABLE, BLOCK_MARGIN_HORIZONTAL+BLOCK_WIDTH-40, MARGIN_VERTICAL_ARROW+145, 0, 0, 3, FALSE);
-    break;
+  if (trend != old_trend_temp) {
+    old_trend_temp = trend;
+    switch(trend) {
+    case TREND_UP:
+      graphics_draw_arrow(ARROW_COLOR_TREND_UP, BLOCK_MARGIN_HORIZONTAL+BLOCK_WIDTH/2, MARGIN_VERTICAL_ARROW+45, 0, 0, 1, FALSE);
+      break;
+    case TREND_DOWN:
+      graphics_draw_arrow(ARROW_COLOR_TREND_DOWN, BLOCK_MARGIN_HORIZONTAL+BLOCK_WIDTH/2, MARGIN_VERTICAL_ARROW+245, 0, 0, 5, FALSE);
+      break;
+    case TREND_STABLE:
+      graphics_draw_arrow(ARROW_COLOR_TREND_STABLE, BLOCK_MARGIN_HORIZONTAL+BLOCK_WIDTH-40, MARGIN_VERTICAL_ARROW+145, 0, 0, 3, FALSE);
+      break;
+    }
   }
 }
 
@@ -148,16 +154,19 @@ static void draw_solar_block(double current_value) {
   avg_old.solar = calculate_avg(SENSOR_TYPE_SOLAR);
   trend = calculate_trend(avg_old.solar, old_avg, 0.1);
 
-  switch(trend) {
-  case TREND_UP:
-    graphics_draw_arrow(ARROW_COLOR_TREND_UP, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M+BLOCK_WIDTH+BLOCK_WIDTH/2, MARGIN_VERTICAL_ARROW+45, 0, 0, 1, TRUE);
-    break;
-  case TREND_DOWN:
-    graphics_draw_arrow(ARROW_COLOR_TREND_DOWN, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M+BLOCK_WIDTH+BLOCK_WIDTH/2, MARGIN_VERTICAL_ARROW+245, 0, 0, 5, TRUE);
-    break;
-  case TREND_STABLE:
-    graphics_draw_arrow(ARROW_COLOR_TREND_STABLE, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M+BLOCK_WIDTH*2-40, MARGIN_VERTICAL_ARROW+145, 0, 0, 3, FALSE);
-    break;
+  if (trend != old_trend_solar) {
+    old_trend_solar = trend;
+    switch(trend) {
+    case TREND_UP:
+      graphics_draw_arrow(ARROW_COLOR_TREND_UP, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M+BLOCK_WIDTH+BLOCK_WIDTH/2, MARGIN_VERTICAL_ARROW+45, 0, 0, 1, FALSE);
+      break;
+    case TREND_DOWN:
+      graphics_draw_arrow(ARROW_COLOR_TREND_DOWN, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M+BLOCK_WIDTH+BLOCK_WIDTH/2, MARGIN_VERTICAL_ARROW+245, 0, 0, 5, FALSE);
+      break;
+    case TREND_STABLE:
+      graphics_draw_arrow(ARROW_COLOR_TREND_STABLE, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M+BLOCK_WIDTH*2-40, MARGIN_VERTICAL_ARROW+145, 0, 0, 3, FALSE);
+      break;
+    }
   }
 }
 
@@ -178,16 +187,19 @@ static void draw_pressure_block(double current_value) {
   avg_old.pressure = calculate_avg(SENSOR_TYPE_PRESSURE);
   trend = calculate_trend(avg_old.pressure, old_avg, 0.1);
 
-  switch(trend) {
-  case TREND_UP:
-    graphics_draw_arrow(ARROW_COLOR_TREND_UP, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M*2+BLOCK_WIDTH*2+BLOCK_WIDTH/2, MARGIN_VERTICAL_ARROW+45, 0, 0, 1, TRUE);
-    break;
-  case TREND_DOWN:
-    graphics_draw_arrow(ARROW_COLOR_TREND_DOWN, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M*2+BLOCK_WIDTH*2+BLOCK_WIDTH/2, MARGIN_VERTICAL_ARROW+245, 0, 0, 5, TRUE);
-    break;
-  case TREND_STABLE:
-    graphics_draw_arrow(ARROW_COLOR_TREND_STABLE, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M*2+BLOCK_WIDTH*3-40, MARGIN_VERTICAL_ARROW+145, 0, 0, 3, FALSE);
-    break;
+  if (trend != old_trend_pressure) {
+    old_trend_pressure = trend;
+    switch(trend) {
+    case TREND_UP:
+      graphics_draw_arrow(ARROW_COLOR_TREND_UP, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M*2+BLOCK_WIDTH*2+BLOCK_WIDTH/2, MARGIN_VERTICAL_ARROW+45, 0, 0, 1, FALSE);
+      break;
+    case TREND_DOWN:
+      graphics_draw_arrow(ARROW_COLOR_TREND_DOWN, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M*2+BLOCK_WIDTH*2+BLOCK_WIDTH/2, MARGIN_VERTICAL_ARROW+245, 0, 0, 5, FALSE);
+      break;
+    case TREND_STABLE:
+      graphics_draw_arrow(ARROW_COLOR_TREND_STABLE, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M*2+BLOCK_WIDTH*3-40, MARGIN_VERTICAL_ARROW+145, 0, 0, 3, FALSE);
+      break;
+    }
   }
 }
 
@@ -199,7 +211,7 @@ void video_test() {
   graphics_draw_rect(COLOR_Blue, 0, 0, RESOLUTION_WIDTH, RESOLUTION_HEIGHT, FALSE);
 
   // set heading
-  graphics_draw_string(COLOR_WhiteSmoke, 50, 100, "..::  O t t O S - W E T T E R S T A T I O N  ::..", 3, FALSE);
+  graphics_draw_string(COLOR_WhiteSmoke, 50, 100, "..::  O t t O S - W E T T E R S T A T I O N  ::..", 3, TRUE);
 
   // draw temperature block
   graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL, MARGIN_VERTICAL_TOP, BLOCK_WIDTH, BLOCK_HEIGHT, FALSE);
@@ -232,14 +244,13 @@ void video_test() {
       cur_index++;
       if (cur_index >= AVG_RANGE) {
         cur_index = 0;
-      }
 
-      draw_temparature_block(values.temp);
-      draw_solar_block(values.solar);
-      draw_pressure_block(values.pressure);
-      draw_time_block();
+        draw_temparature_block(values.temp);
+        draw_solar_block(values.solar);
+        draw_pressure_block(values.pressure);
+      }
     }
 
-    //psleep(2000);
+    draw_time_block();
   }
 }
