@@ -49,6 +49,8 @@
 
 
 #define AVG_RANGE 5
+
+static BOOLEAN check_plausibility = FALSE;
 static sensor_values_t avg_old;
 static int cur_index = 0;
 static sensor_values_t value_history[AVG_RANGE];
@@ -203,6 +205,20 @@ static void draw_pressure_block(double current_value) {
   }
 }
 
+static BOOLEAN value_validation(sensor_values_t* values) {
+  if (values->temp > RANGE_TEMPERATURE_MAX || values->temp < RANGE_TEMPERATURE_MIN)   return FALSE;
+  if (values->solar > RANGE_SOLAR_MAX || values->solar < RANGE_SOLAR_MIN)             return FALSE;
+  if (values->pressure > RANGE_PRESSURE_MAX || values->pressure < RANGE_PRESSURE_MIN) return FALSE;
+
+  if (check_plausibility) {
+    if ((values->temp > 1.3 * avg_old.temp) || (values->temp < 0.7*avg_old.temp))                 return FALSE;
+    if ((values->solar > 1.5 * avg_old.solar) || (values->solar < 0.5*avg_old.solar))             return FALSE;
+    if ((values->pressure > 1.2 * avg_old.pressure) || (values->pressure < 0.8*avg_old.pressure)) return FALSE;
+  }
+
+  return TRUE;
+}
+
 void video_test() {
   message_t msg;
   sensor_values_t values;
@@ -236,18 +252,22 @@ void video_test() {
   while (TRUE) {
     // read sensordata
     if (receive("ottossensor", &msg) == IPC_SUCCESS) {
-      // write values to history
-      value_history[cur_index].temp = values.temp;
-      value_history[cur_index].pressure = values.pressure;
-      value_history[cur_index].solar = values.solar;
+      // check if values are valide
+      if (value_validation(&values)) {
+        // write values to history
+        value_history[cur_index].temp = values.temp;
+        value_history[cur_index].pressure = values.pressure;
+        value_history[cur_index].solar = values.solar;
 
-      cur_index++;
-      if (cur_index >= AVG_RANGE) {
-        cur_index = 0;
+        cur_index++;
+        if (cur_index >= AVG_RANGE) {
+          cur_index = 0;
 
-        draw_temparature_block(values.temp);
-        draw_solar_block(values.solar);
-        draw_pressure_block(values.pressure);
+          draw_temparature_block(values.temp);
+          draw_solar_block(values.solar);
+          draw_pressure_block(values.pressure);
+          check_plausibility = TRUE;
+        }
       }
     }
 

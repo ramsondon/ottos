@@ -24,7 +24,12 @@
 #ifndef OW_UI_H_
 #define OW_UI_H_
 
-
+#define RANGE_TEMPERATURE_MIN     -20
+#define RANGE_TEMPERATURE_MAX     60
+#define RANGE_SOLAR_MIN           0
+#define RANGE_SOLAR_MAX           10000
+#define RANGE_PRESSURE_MIN        800
+#define RANGE_PRESSURE_MAX        1200
 
 #define TREND_UP      1
 #define TREND_STABLE  2
