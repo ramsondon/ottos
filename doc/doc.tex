@@ -118,10 +118,10 @@ Betreuer: & Wolfgang Auer, Patrick Ritschel\\
 		Applikation auf dem Beagleboard die Daten grafisch auswerten.
 
 \section{Projektvision}
-	Für einen interessierten Hobby Meterologen der verschiedene Wetterdaten benötigt ist OttOS ein
+	Für einen interessierten Hobby Meterologen der verschiedene Wetterdaten benötigt, ist OttOS die
 		optimale Plattform um verschiedene Sensordaten auszuwerten und graphisch auf einem Display
 		darzustellen. Im Gegensatz zu bestehenden Wetterstationen ist OttOS eine OpenSource
-		Plattform und bietet deswegen eine gute Erweiterbarkeit.
+		Plattform und ist somit einfach zu Erweitern oder zu Modifizieren.
 
 \section{Aufbau des Betriebsystems}
 
@@ -136,7 +136,7 @@ Betreuer: & Wolfgang Auer, Patrick Ritschel\\
 		Userprocess, in dem die Wetterapplikation und die Console laufen soll.Darunter liegen
 		die Services z.B Filesys. Dazwischen ist die I/O API. Die nächste Schicht ist die
 		Device Treiber Schicht, in denen befinden sich die ganzen Treiber für die Applikation und das
-		Betriebsystem ( z.B SD Treiber, LED Treiber HDMI Treiber) als auch der Device Manager, der
+		Betriebsystem ( z.B SD-Card Treiber, LED Treiber, Grafik Treiber) als auch der Device Manager, der
 		die ganzen Treiber steuert. In der vorletzten Schicht ist der Kernel untegebracht. In dem
 		sitzt der Process manager der den Aufruf und das Beenden der Prozesse steuert.Außerdem noch
 		Timer Driver, IPC, Scheduler, Virtueller Speicher. Die letzte Schicht ist die HAL (Hardware
@@ -148,14 +148,13 @@ Betreuer: & Wolfgang Auer, Patrick Ritschel\\
 
 \subsection{Interrupts}
 
-	\include{include/mmu}
+\include{include/mmu}
 
 \subsection{Fat}
 
 \subsection{IPC}
 
-\subsection{HDMI}
-	Die Ansteuerung des Bildschirms Liliput 668GL TFT-Monitor wurde durch die Portierung der 	Grafikschnittstelle von puppybits realisiert.
+\include{include/video}
 
 \subsection{I2C}
 	Nach längere Entwicklungszeit konnten wir den I2C Datenbus nicht auf dem Beagleboard ansteueren.
