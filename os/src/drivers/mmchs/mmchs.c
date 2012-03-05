@@ -16,6 +16,11 @@
  * along with this library; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
+ * 
+ * This module is inspired/ported from the UEFI development kit at
+ * @see http://sourceforge.net/apps/mediawiki/tianocore/
+ * and respects all the licensing of their BSD2 licence.
+ *
  *
  *  Created on: 24.11.2011
  *      Author: Franziskus Domig <fdomig@gmail.com>
