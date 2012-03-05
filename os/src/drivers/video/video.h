@@ -1,21 +1,9 @@
 /* video.h
  *
- * Copyright (c) 2011 The ottos project.
- *
- * This work is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
- *
- * This work is distributed in the hope that it will be useful, but without
- * any warranty; without even the implied warranty of merchantability or
- * fitness for a particular purpose. See the GNU Lesser General Public License
- * for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- *
+ * **************************************************************************
+ * ** THIS MODULE IS BASED ON THE VIDEO DRIVER OF THE puppybits PROJECT:   **
+ * **               http://code.google.com/p/puppybits/                    **
+ * **************************************************************************
  *
  *  Created on: 30.12.2011
  *      Author: Florian Gopp (go.goflo@gmail.com)
@@ -59,6 +47,8 @@
 #define BM_YUV2       10
 #define BM_UYVY       11
 
+#define VIDEO_FRAMEBUFFER_SIZE VIDEO_RESOLUTION_HEIGHT*VIDEO_RESOLUTION_WIDTH*4
+
 
 typedef struct {
   short width, height;
@@ -84,33 +74,27 @@ typedef struct {
 
 
 typedef struct {
-  int width;
-  int height;
-  int format;
+  int width;                    /* the width of the framebuffer */
+  int height;                   /* the height of the framebuffer */
+  int format;                   /* the used color format */
   int stride;
-  void* data;
+  void* data;                   /* the memory area which represents the framebuffer */
 } BitMap;
 
 
 typedef struct {
-  int x;                /* width position of the current pixel on the screen */
-  int y;                /* height position of the current pixel on the screen */
-  void* point;          /* pointer to the memory where the current pixel resides */
-  unsigned int color;  /* current color which is used to draw pixels */
-
-  union {
-    RomFont* romfont;
-  } font;               /* default font */
-
-  union {
-    BitMap* bitmap;
-  } drawable;           /* the region into which the data are written */
+  int x;                      /* width position of the current pixel on the screen */
+  int y;                      /* height position of the current pixel on the screen */
+  void* point;                /* pointer to the memory where the current pixel resides */
+  unsigned int color;         /* current color which is used to draw pixels */
+  RomFont* romfont;           /* default font */
+  BitMap* bitmap;             /* the region into which the data are written */
 } RastPort;
 
 
 typedef struct {
-    int x;
-    int y;
+  int x;
+  int y;
 } Point;
 
 
@@ -123,7 +107,6 @@ int video_read(device_t dev, int count, char* buffer);
 int video_write(device_t dev, int count, char* buffer);
 int video_ioctl(device_t dev, ioctl_t msg);
 int video_create(device_t dev);
-
 
 static driver_t omap_video_driver = {
   video_open,

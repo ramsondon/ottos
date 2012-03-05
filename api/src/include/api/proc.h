@@ -36,7 +36,7 @@ EXTERN uint32_t pinfo(pinfo_t* pinfo, uint32_t count);
 /*
  * Return the process information for a specific PID.
  */
-EXTERN BOOLEAN pinfo_for(pid_t pid, pinfo_t* info);
+EXTERN pid_t pinfo_for(pid_t pid, pinfo_t* info);
 
 /*
  * returns the number of running processes. the result will be at least 1 for
@@ -63,5 +63,7 @@ EXTERN pid_t pexec(int prio, BOOLEAN block, const char* path, int argc, char** a
  * exits the current process
  */
 EXTERN void pexit(int state);
+
+EXTERN void psleep(int milliseconds);
 
 #endif /* API_PROC_H_ */

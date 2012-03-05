@@ -48,7 +48,7 @@
 #define SYSTEM_FLAG_WRITE 2
 
 EXTERN int sys_open(const char* path, int flags);
-EXTERN size_t sys_read(int fd, const char* buffer, size_t count);
+EXTERN size_t sys_read(int fd, char* buffer, size_t count);
 EXTERN size_t sys_write(int fd, const char* buffer, size_t nbytes);
 EXTERN int sys_close(int fd);
 
@@ -60,7 +60,7 @@ EXTERN unsigned int sys_pcount();
 
 EXTERN int sys_pinfo(pinfo_t* mem, int count);
 
-EXTERN BOOLEAN sys_pinfo_for(pid_t pid, pinfo_t* info);
+EXTERN pid_t sys_pinfo_for(pid_t pid, pinfo_t* info);
 /**
  * IPC system calls
  */

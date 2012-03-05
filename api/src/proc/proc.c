@@ -31,7 +31,7 @@
 
 #define PSTATE_MAP_COUNT 4
 
-static const char* pstate_map[] = { "ready", "wait", "exec", "?"};
+static const char* pstate_map[] = { "ready", "wait", "exec", "?" };
 
 uint32_t pcount() {
   return sys_pcount();
@@ -41,7 +41,7 @@ uint32_t pinfo(pinfo_t* pinfo, uint32_t count) {
   return sys_pinfo(pinfo, count);
 }
 
-BOOLEAN pinfo_for(pid_t pid, pinfo_t* info) {
+pid_t pinfo_for(pid_t pid, pinfo_t* info) {
   return sys_pinfo_for(pid, info);
 }
 
@@ -58,6 +58,19 @@ const char* pstate_readable(int stat) {
   if (stat < PSTATE_MAP_COUNT) {
     return pstate_map[stat];
   }
-  return pstate_map[PSTATE_MAP_COUNT-1];
+  return pstate_map[PSTATE_MAP_COUNT - 1];
+}
+
+void psleep(int ms) {
+  int i;
+  while (ms--) {
+    // this is approximately 1ms on Beagleboard C4 without caching
+    // @see http://code.google.com/p/puppybits/source/browse/lib/ksleep.c
+    for (i = 0; i < 1000; i++) {
+      asm(" MOV R0, R0");
+      asm(" MOV R0, R0");
+      asm(" MOV R0, R0");
+    }
+  }
 }
 

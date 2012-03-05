@@ -22,6 +22,7 @@
  */
 
 #include <ottos/types.h>
+#include <ottos/const.h>
 
 #include <api/proc.h>
 #include <api/system.h>
@@ -45,7 +46,7 @@ void run_forever() {
     pinfo_t tty_info;
 
     // is the tty process running?
-    if (0 == pinfo_for(tty_pid, &tty_info)) {
+    if (PID_INVALID == pinfo_for(tty_pid, &tty_info)) {
       print("tty is not running, restarting ...\n\r");
       tty_pid = start_app(APP_TTY);
     }

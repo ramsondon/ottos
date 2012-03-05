@@ -28,120 +28,255 @@
 #include <api/bitmap.h>
 #include <api/colors.h>
 #include <api/system.h>
-#include <vfat/fat_filelib.h>
-
+#include <api/ipc.h>
+#include <api/proc.h>
+#include <api/sensor.h>
+#include <ottos/types.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
-#define DISPLAYED_DATA_SET_SIZE   20
-#define DATA_ENTERY_LENGTH        34    // 12 12 31 12 12 12 -01.4 24.3 0987    --> date time temperature humidity pressure
+#define BLOCK_HEIGHT                500
+#define BLOCK_WIDTH                 280
+#define BLOCK_MARGIN_HORIZONTAL_M   40
+#define BLOCK_MARGIN_HORIZONTAL     46
+#define MARGIN_VERTICAL_TOP         120
+#define MARGIN_VERTICAL_ARROW       MARGIN_VERTICAL_TOP+200+5
+#define BLOCK_COLOR                 COLOR_WhiteSmoke
+#define ARROW_COLOR_TREND_UP        COLOR_Green
+#define ARROW_COLOR_TREND_DOWN      COLOR_Red
+#define ARROW_COLOR_TREND_STABLE    COLOR_Black
 
-void video_test() {
-  //int i = 0, entries;
-  //WEATHER_DATA data[DISPLAYED_DATA_SET_SIZE];
-  //GRAPH_DATA graph_data[DISPLAYED_DATA_SET_SIZE];
-  //char str[10];
 
-  // set background
-  graphics_draw_rect(COLOR_LightCyan, 0, 0, RESOLUTION_WIDTH, RESOLUTION_HEIGHT);
+#define AVG_RANGE 5
 
-  // set heading
-  graphics_draw_string(COLOR_BlueViolet, 20, 70, "ooWeather powered by ..::OttOS::..", 3);
+static BOOLEAN check_plausibility = FALSE;
+static sensor_values_t avg_old;
+static int cur_index = 0;
+static sensor_values_t value_history[AVG_RANGE];
+static int old_trend_temp = TREND_STABLE;
+static int old_trend_pressure = TREND_STABLE;
+static int old_trend_solar = TREND_STABLE;
 
-  // set current temperature
-  graphics_draw_string(COLOR_BlueViolet, 10, 200, "Temperatur:", 2);
 
-  // set current humidity
-  graphics_draw_string(COLOR_BlueViolet, 10, 360, "Luftfeuchtigkeit:", 2);
+static double calculate_avg(int sensor_type) {
+  double sum = 0.0;
+  int i;
 
-  // set current barometric pressure
-  graphics_draw_string(COLOR_BlueViolet, 10, 480, "Luftdruck:", 2);
-
-/*
-  while (TRUE) {
-    entries = read_weather_data(data, DISPLAYED_DATA_SET_SIZE);
-
-    if (entries > 0) {
-      // write current temperature value
-      sprintf(str, "%2f °C\0", data[entries - 1].temp);
-      graphics_draw_string(COLOR_DarkSlateGray, 200, 160, str, 2);
-
-      sprintf(str, "%2f %\0", data[entries - 1].humidity);
-      graphics_draw_string(COLOR_DarkSlateGray, 200, 360, str, 2);
-
-      sprintf(str, "%2f hPa\0", data[entries - 1].pressure);
-      graphics_draw_string(COLOR_DarkSlateGray, 200, 480, str, 2);
-
-      // draw the temperature graph
-      //graphics_move_to(10, 300);
-      //graphics_draw_graph(graph_data, 20, 1, 400, 680, COLOR_Lime, COLOR_Red);
-    } else {
-      // no data available
+  if (sensor_type == SENSOR_TYPE_TEMP) {
+    for (i = 0; i < AVG_RANGE; i++) {
+      sum += value_history[i].temp;
     }
-
-    // pause for 1 minute, 10 seconds, 1 second???
+  } else if (sensor_type == SENSOR_TYPE_SOLAR) {
+    for (i = 0; i < AVG_RANGE; i++) {
+      sum += value_history[i].solar;
+    }
+  } else if (sensor_type == SENSOR_TYPE_PRESSURE) {
+    for (i = 0; i < AVG_RANGE; i++) {
+      sum += value_history[i].pressure;
+    }
   }
-  */
+
+  return sum / AVG_RANGE;
 }
 
+static int calculate_trend(double avg, double old_avg, float sensitivity) {
+  if (avg > (1+sensitivity)*old_avg) {
+    // UP TREND
+    return TREND_UP;
+  } else if (avg < (1-sensitivity)*old_avg) {
+    // DOWN TREND
+    return TREND_DOWN;
+  } else {
+    // STABLE TREND
+    return TREND_STABLE;
+  }
+}
 
-//int read_weather_data(WEATHER_DATA* data, int count) {
-//  int i, fd, length, read_count, index;
-//  char* line = malloc(sizeof(char)*DATA_ENTERY_LENGTH);
-//  /*
-//  fd = sys_open("data/weather.log", 0);
-//
-//  if (fd == NULL) {
-//    free(line);
-//    return FALSE;
-//  }
-//
-//  sys_read(fd, line, 20);
-//  */
-//
-//  FILE* file = (FILE*)fopen("data/weather.log", "r");
-//
-//  if (fd == NULL) {
-//    free(line);
-//    return -1;
-//  }
-//
-//  fseek(file, 0, SEEK_END);
-//  length = ftell(file);
-//
-//  // check if there are enough data entries available
-//  if (length <= DISPLAYED_DATA_SET_SIZE*DATA_ENTERY_LENGTH+2) {
-//    // there are fewer entries then asked
-//    fseek(file, 0, SEEK_SET);
-//  } else {
-//    // there are more entries then asked
-//    fseek(file, -DISPLAYED_DATA_SET_SIZE*DATA_ENTERY_LENGTH-2, SEEK_END);
-//  }
-//
-//  index = 0;
-//
-//  // read 20 data enteries
-//  do {
-//    read_count = fread(line, sizeof(char), DATA_ENTERY_LENGTH, file);
-//    if (read_count != sizeof(char)*DATA_ENTERY_LENGTH) {
-//      break;
-//    }
-//
-//    sscanf(line, "%2hd %2hd %2hd %2hd %2hd %2hd %f %f %f",
-//                   &data[index].year, &data[index].month, &data[index].day,
-//                   &data[index].hour, &data[index].minute, &data[index].second,
-//                   &data[index].temp, &data[index].humidity, &data[index].pressure);
-//    index++;
-//  } while (index < DISPLAYED_DATA_SET_SIZE);
-//
-////  for (index = 0; index < DISPLAYED_DATA_SET_SIZE; index++) {
-////    printf("Datum: %02d.%02d.%02d    ", data[index].day, data[index].month, data[index].year);
-////    printf("Zeit: %d:%d:%d\n", data[index].hour, data[index].minute, data[index].second);
-////    printf("Temp: %f °C     Feuchte: %f Proz     Luftdruck: %f hPa\n\n", data[index].temp, data[index].humidity, data[index].pressure);
-////  }
-//
-//  free(line);
-//
-//  return index;
-//}
+static void draw_time_block() {
+  char str[12];
+  time_t time;
 
+  // clear value area
+  graphics_draw_rect(COLOR_Blue, 300, RESOLUTION_HEIGHT-120, 600, 100, FALSE);
+
+  // write current time
+  time = sys_get_time();
+  sprintf(str, "%02d.%02d.20%02d-%02d:%02d:%02d", time.days, time.month, time.year, time.hours, time.minutes, time.seconds);
+  graphics_draw_string(COLOR_WhiteSmoke, 335, RESOLUTION_HEIGHT-40, str, 3, TRUE);
+}
+
+static void draw_temparature_block(double current_value) {
+  double old_avg = 0.0;
+  int trend = 0;
+  char str[12];
+
+  // clear value area
+  graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL+1, MARGIN_VERTICAL_TOP+70, BLOCK_WIDTH-2, 132, FALSE);
+
+  // write current temperature value
+  sprintf(str, "%2.1f °C", current_value);
+  graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+65, MARGIN_VERTICAL_TOP+200, str, 4, FALSE);
+
+  old_avg = avg_old.temp;
+  avg_old.temp = calculate_avg(SENSOR_TYPE_TEMP);
+  trend = calculate_trend(avg_old.temp, old_avg, 0.1);
+
+  if (trend != old_trend_temp) {
+    old_trend_temp = trend;
+    graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL+1, MARGIN_VERTICAL_ARROW + 4, BLOCK_WIDTH-2, 290, FALSE);
+
+    switch(trend) {
+    case TREND_UP:
+      graphics_draw_arrow(ARROW_COLOR_TREND_UP, BLOCK_MARGIN_HORIZONTAL+BLOCK_WIDTH/2, MARGIN_VERTICAL_ARROW+45, 0, 0, 1, FALSE);
+      break;
+    case TREND_DOWN:
+      graphics_draw_arrow(ARROW_COLOR_TREND_DOWN, BLOCK_MARGIN_HORIZONTAL+BLOCK_WIDTH/2, MARGIN_VERTICAL_ARROW+245, 0, 0, 5, FALSE);
+      break;
+    case TREND_STABLE:
+      graphics_draw_arrow(ARROW_COLOR_TREND_STABLE, BLOCK_MARGIN_HORIZONTAL+BLOCK_WIDTH-40, MARGIN_VERTICAL_ARROW+145, 0, 0, 3, FALSE);
+      break;
+    }
+  }
+}
+
+static void draw_solar_block(double current_value) {
+  double old_avg = 0.0;
+  int trend = 0;
+  char str[12];
+
+  // clear value area
+  graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL+BLOCK_WIDTH+BLOCK_MARGIN_HORIZONTAL_M+1, MARGIN_VERTICAL_TOP+70, BLOCK_WIDTH-2, 132, FALSE);
+
+  // write current solar value
+  sprintf(str, "%3.0f lux", current_value);
+  graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+BLOCK_WIDTH+BLOCK_MARGIN_HORIZONTAL_M+60, MARGIN_VERTICAL_TOP+200, str, 4, FALSE);
+
+  old_avg = avg_old.solar;
+  avg_old.solar = calculate_avg(SENSOR_TYPE_SOLAR);
+  trend = calculate_trend(avg_old.solar, old_avg, 0.1);
+
+  if (trend != old_trend_solar) {
+    old_trend_solar = trend;
+    graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL+BLOCK_WIDTH+BLOCK_MARGIN_HORIZONTAL_M+1, MARGIN_VERTICAL_ARROW + 4, BLOCK_WIDTH-2, 290, FALSE);
+
+    switch(trend) {
+    case TREND_UP:
+      graphics_draw_arrow(ARROW_COLOR_TREND_UP, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M+BLOCK_WIDTH+BLOCK_WIDTH/2, MARGIN_VERTICAL_ARROW+45, 0, 0, 1, FALSE);
+      break;
+    case TREND_DOWN:
+      graphics_draw_arrow(ARROW_COLOR_TREND_DOWN, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M+BLOCK_WIDTH+BLOCK_WIDTH/2, MARGIN_VERTICAL_ARROW+245, 0, 0, 5, FALSE);
+      break;
+    case TREND_STABLE:
+      graphics_draw_arrow(ARROW_COLOR_TREND_STABLE, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M+BLOCK_WIDTH*2-40, MARGIN_VERTICAL_ARROW+145, 0, 0, 3, FALSE);
+      break;
+    }
+  }
+}
+
+static void draw_pressure_block(double current_value) {
+  double old_avg = 0.0;
+  int trend = 0;
+  char str[12];
+
+  // clear value area
+  graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL+2*BLOCK_WIDTH+2*BLOCK_MARGIN_HORIZONTAL_M+1, MARGIN_VERTICAL_TOP+70, BLOCK_WIDTH-2, 132, FALSE);
+
+  // write current pressure value
+  sprintf(str, "%4.0f hPa", current_value);
+  graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+2*BLOCK_WIDTH+2*BLOCK_MARGIN_HORIZONTAL_M+40, MARGIN_VERTICAL_TOP+200, str, 4, FALSE);
+
+  old_avg = avg_old.pressure;
+  avg_old.pressure = calculate_avg(SENSOR_TYPE_PRESSURE);
+  trend = calculate_trend(avg_old.pressure, old_avg, 0.1);
+
+  if (trend != old_trend_pressure) {
+    old_trend_pressure = trend;
+    graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL+2*BLOCK_WIDTH+2*BLOCK_MARGIN_HORIZONTAL_M+1, MARGIN_VERTICAL_ARROW + 4, BLOCK_WIDTH-2, 290, FALSE);
+
+    switch(trend) {
+    case TREND_UP:
+      graphics_draw_arrow(ARROW_COLOR_TREND_UP, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M*2+BLOCK_WIDTH*2+BLOCK_WIDTH/2, MARGIN_VERTICAL_ARROW+45, 0, 0, 1, FALSE);
+      break;
+    case TREND_DOWN:
+      graphics_draw_arrow(ARROW_COLOR_TREND_DOWN, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M*2+BLOCK_WIDTH*2+BLOCK_WIDTH/2, MARGIN_VERTICAL_ARROW+245, 0, 0, 5, FALSE);
+      break;
+    case TREND_STABLE:
+      graphics_draw_arrow(ARROW_COLOR_TREND_STABLE, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M*2+BLOCK_WIDTH*3-40, MARGIN_VERTICAL_ARROW+145, 0, 0, 3, FALSE);
+      break;
+    }
+  }
+}
+
+static BOOLEAN value_validation(sensor_values_t* values) {
+  if (values->temp > RANGE_TEMPERATURE_MAX || values->temp < RANGE_TEMPERATURE_MIN)   return FALSE;
+  if (values->solar > RANGE_SOLAR_MAX || values->solar < RANGE_SOLAR_MIN)             return FALSE;
+  if (values->pressure > RANGE_PRESSURE_MAX || values->pressure < RANGE_PRESSURE_MIN) return FALSE;
+
+  if (check_plausibility) {
+    if ((values->temp > 1.3 * avg_old.temp) || (values->temp < 0.7*avg_old.temp))                 return FALSE;
+    if ((values->solar > 1.5 * avg_old.solar) || (values->solar < 0.5*avg_old.solar))             return FALSE;
+    if ((values->pressure > 1.2 * avg_old.pressure) || (values->pressure < 0.8*avg_old.pressure)) return FALSE;
+  }
+
+  return TRUE;
+}
+
+void video_test() {
+  message_t msg;
+  sensor_values_t values;
+
+  // set background
+  graphics_draw_rect(COLOR_Blue, 0, 0, RESOLUTION_WIDTH, RESOLUTION_HEIGHT, FALSE);
+
+  // set heading
+  graphics_draw_string(COLOR_WhiteSmoke, 50, 100, "..::  O t t O S - W E T T E R S T A T I O N  ::..", 3, TRUE);
+
+  // draw temperature block
+  graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL, MARGIN_VERTICAL_TOP, BLOCK_WIDTH, BLOCK_HEIGHT, FALSE);
+  graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+60, MARGIN_VERTICAL_TOP+60, "TEMPERATUR [°C]", 2, FALSE);
+  graphics_draw_rect(COLOR_DarkGray, BLOCK_MARGIN_HORIZONTAL+5, MARGIN_VERTICAL_ARROW, BLOCK_WIDTH-10, 2, FALSE);
+  graphics_draw_arrow(ARROW_COLOR_TREND_STABLE, BLOCK_MARGIN_HORIZONTAL+BLOCK_WIDTH-40, MARGIN_VERTICAL_ARROW+145, 0, 0, 3, FALSE);
+
+  // draw solar block
+  graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M+BLOCK_WIDTH, MARGIN_VERTICAL_TOP, BLOCK_WIDTH, BLOCK_HEIGHT, FALSE);
+  graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+BLOCK_WIDTH+BLOCK_MARGIN_HORIZONTAL_M+30, MARGIN_VERTICAL_TOP+60, "SOLARLEISTUNG [lux]", 2, FALSE);
+  graphics_draw_rect(COLOR_DarkGray, BLOCK_MARGIN_HORIZONTAL+BLOCK_WIDTH+BLOCK_MARGIN_HORIZONTAL_M+5, MARGIN_VERTICAL_ARROW, BLOCK_WIDTH-10, 2, FALSE);
+  graphics_draw_arrow(ARROW_COLOR_TREND_STABLE, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M+BLOCK_WIDTH*2-40, MARGIN_VERTICAL_ARROW+145, 0, 0, 3, FALSE);
+
+  // draw barometric pressure block
+  graphics_draw_rect(BLOCK_COLOR, BLOCK_MARGIN_HORIZONTAL+2*BLOCK_MARGIN_HORIZONTAL_M+2*BLOCK_WIDTH, MARGIN_VERTICAL_TOP, BLOCK_WIDTH, BLOCK_HEIGHT, FALSE);
+  graphics_draw_string(COLOR_Black, BLOCK_MARGIN_HORIZONTAL+2*BLOCK_WIDTH+2*BLOCK_MARGIN_HORIZONTAL_M+50, MARGIN_VERTICAL_TOP+60, "LUFTDRUCK [hPa]", 2, FALSE);
+  graphics_draw_rect(COLOR_DarkGray, BLOCK_MARGIN_HORIZONTAL+2*BLOCK_WIDTH+2*BLOCK_MARGIN_HORIZONTAL_M+5, MARGIN_VERTICAL_ARROW, BLOCK_WIDTH-10, 2, FALSE);
+  graphics_draw_arrow(ARROW_COLOR_TREND_STABLE, BLOCK_MARGIN_HORIZONTAL+BLOCK_MARGIN_HORIZONTAL_M*2+BLOCK_WIDTH*3-40, MARGIN_VERTICAL_ARROW+145, 0, 0, 3, FALSE);
+
+  msg.content = &values;
+  msg.size = sizeof(sensor_values_t);
+  msg.count = 1;
+  msg.type = 1;
+
+  while (TRUE) {
+    // read sensordata
+    if (receive("ottossensor", &msg) == IPC_SUCCESS) {
+      // check if values are valide
+      if (value_validation(&values)) {
+        // write values to history
+        value_history[cur_index].temp = values.temp;
+        value_history[cur_index].pressure = values.pressure;
+        value_history[cur_index].solar = values.solar;
+
+        cur_index++;
+        if (cur_index >= AVG_RANGE) {
+          cur_index = 0;
+
+          draw_temparature_block(values.temp);
+          draw_solar_block(values.solar);
+          draw_pressure_block(values.pressure);
+          check_plausibility = TRUE;
+        }
+      }
+    }
+
+    draw_time_block();
+  }
+}

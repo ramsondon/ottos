@@ -24,22 +24,16 @@
 #ifndef OW_UI_H_
 #define OW_UI_H_
 
-typedef struct {
-    // timestamp
-    unsigned short year;
-    unsigned short month;
-    unsigned short day;
-    unsigned short hour;
-    unsigned short minute;
-    unsigned short second;
+#define RANGE_TEMPERATURE_MIN     -20
+#define RANGE_TEMPERATURE_MAX     60
+#define RANGE_SOLAR_MIN           0
+#define RANGE_SOLAR_MAX           10000
+#define RANGE_PRESSURE_MIN        800
+#define RANGE_PRESSURE_MAX        1200
 
-    // weather data
-    float temp;         // temperature in degree Celsius
-    float humidity;     // humidity in %
-    float pressure;     // barometric pressure in hPa
-
-} WEATHER_DATA;
-
+#define TREND_UP      1
+#define TREND_STABLE  2
+#define TREND_DOWN    3
 
 void video_test();
 

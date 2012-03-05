@@ -42,17 +42,17 @@ void scheduler_next() {
 
 		if (process_table[i] != NULL) {
 
-		  // handle blocked processes
-		  if (process_table[i]->state == BLOCKED) {
-		    switch(process_table[i]->blockstate) {
-		      case IPC_WAIT:
-		        scheduler_handle_pending_ipc_msg((pid_t)i);
-		        break;
-		      default:
-		        // strange behaviour - this case should not appear
-		        break;
-		    }
-		  }
+//		  // handle blocked processes
+//		  if (process_table[i]->state == BLOCKED) {
+//		    switch(process_table[i]->blockstate) {
+//		      case IPC_WAIT:
+//		        scheduler_handle_pending_ipc_msg((pid_t)i);
+//		        break;
+//		      default:
+//		        // strange behaviour - this case should not appear
+//		        break;
+//		    }
+//		  }
 
 		  // choose new process
 		  if (process_table[i]->state == READY) {

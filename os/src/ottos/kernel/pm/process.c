@@ -359,7 +359,6 @@ unsigned int process_pinfo(pinfo_t pinfo[], int count) {
 
 pid_t process_pinfo_for(pid_t pid, pinfo_t* info) {
   int i = 0;
-  pid_t ret = PID_INVALID;
   for (i = 0; i < PROCESS_MAX_COUNT; i++){
       // continue if there is no process at this index
       if (process_table[i] == NULL) {
@@ -376,8 +375,9 @@ pid_t process_pinfo_for(pid_t pid, pinfo_t* info) {
         info->time = timer_system_uptime() - process_table[i]->starttime;
         memset(info->cmd, 0, PINFO_MAX_CMD_LENGTH);
         strcpy(info->cmd, process_table[i]->cmd);
+        return pid;
       }
   }
 
-  return (ret != PID_INVALID) ? pid : 0;
+  return PID_INVALID;
 }

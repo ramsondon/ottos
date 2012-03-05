@@ -254,7 +254,7 @@ BOOLEAN swi_handle_sys_fopen(int fd_address, int path_address, int flags) {
 	FL_FILE* file = fl_fopen(path, mode);
 
 	if (file == NULL) {
-		kernel_debug(FILE_UNKNOWN, "Cannot open file");
+		kernel_error(FILE_UNKNOWN, "Cannot open file");
 		*fd = SYSTEM_FD_INVALID;
 	} else {
 		process_file_descriptor_t* fd_process = process_add_file_descriptor(file);
@@ -273,14 +273,14 @@ BOOLEAN swi_handle_sys_fclose(int* error_code, process_file_descriptor_t* fd_pro
 
 BOOLEAN swi_handle_sys_fwrite(process_file_descriptor_t* fd_process, const char* buffer, int buffer_size, int* written_bytes) {
 
-	*written_bytes = fl_fwrite(buffer, buffer_size, buffer_size, fd_process->file);
+	*written_bytes = fl_fwrite(buffer, sizeof(char), buffer_size, fd_process->file);
 
 	return FALSE;
 }
 
 BOOLEAN swi_handle_sys_fread(process_file_descriptor_t* fd_process, char* buffer, int count, int* read_bytes) {
 
-	*read_bytes = fl_fread(buffer, count, count, fd_process->file);
+	*read_bytes = fl_fread(buffer, sizeof(char), count, fd_process->file);
 
 	return FALSE;
 }
